@@ -1,0 +1,7 @@
+# Detector locations exported from traps(signalCH)
+# Sat Sep 05 9:30:25 a.m. 2020 
+# Detector  x  y 
+1 0 0
+2 0 21
+3 21 21
+4 21 0

@@ -1,0 +1,672 @@
+Changes in version 4.5.5 (2022-04-23)
+
+New features or changed behaviour of old functions
+    o   none
+
+Changes in version 4.5.4 (2022-04-22)
+
+New features or changed behaviour of old functions
+    o   reinstate GRTS option in trap.builder()
+    o   makeStart() encapsulates code for initial values
+    o   ip.secr() is deprecated (see new package at https://github.com/MurrayEfford/ipsecr)
+
+Bugs fixed
+    o   distancetotrap() and hence esa.plot() failed with polygon inputs
+    o   addSightings() did not pass extra arguments to read.table() for multisession input
+    o   secr.fit() failed with sighting data when usage 0 for any detector (since 4.4.6 Oct 2021)
+    o   likelihood-only evaluation failed with mark-resight models if chat not initialised
+    o   read.traps() failed for polygon or transect data with non-contiguous data points
+    
+Other
+    o   suggests spsurvey >= 5.3.0 
+    o   bad densities in likelihood give warning, not error
+    o   autoini tweaked to treat 'capped' detector type as 'proximity'
+    o   collate tweaked to allow mixture of secr, ipsecr models
+
+Changes in version 4.5.3 (2022-02-14)
+
+New features or changed behaviour of old functions
+    o   more spatial data types for 'poly' and 'region' function arguments
+    o   rast generic method for mask, Dsurface objects creates terra SpatRaster object
+    o   read.traps() accepts ESRI shapefile of point, polygon or line features (experimental)
+    o   fxi.contour() argument 'SPDF' replaced by 'output', with options 'sf', 'SPDF'
+
+Bugs fixed
+    o   moves() failed with empty capthist input when names = FALSE
+    o   details$ignoreusage=TRUE not respected by esa(), derived(), region.N()
+    o   secr.fit() details$ignoreusage=TRUE failed when using 'fastproximity'
+
+Other
+    o   classes (sf, sfc, sfg) and methods (st_) from package 'sf' largely replace 'sp' (now in Suggests)
+    o   trap.builder() SRS sf::st_sample replaces sp::spsample
+    o   imports functions from 'sf' and 'terra'
+    o   no longer suggests maptools, rgeos, rgdal 
+    o   internal function boundarytoSF documented
+    o   new vignette secr-spatialdata.pdf
+    o   revised OVforest shapefile in extdata
+    o   one trap.builder() example moved to \dontrun to save time
+
+Changes in version 4.5.1 (2022-01-18)
+
+New features or changed behaviour of old functions
+    o   none
+
+Bugs fixed
+    o   secr.fit() hybrid mixture model (hcov with known-class data) 
+        did not use class-dependent detection model, resulting in 
+        erroneous estimate of pmix (secr >= 4.0)
+    o   memory error getxy() C++ (transect simulation; no effect on users)
+
+Changes in version 4.5.0 (2022-01-06)
+
+New features or changed behaviour of old functions
+    o   make.capthist() 'snapXY' also works for points along transects
+    o   modelAverage() new generic supercedes model.average()
+    o   snip() acquires 'tol' argument, now used by discretize()
+    o   new link 'i1000' (identity x 1000) for modelling very low density
+    o   sim.popn() 'UNI' movement model (radius move.a)
+    o   sim.popn() models differential settlement of dispersers (model2D = 'IHP' 
+        and core has covariate 'settle' 0-1)
+    o   f() term in formula for non-linear density models (experimental)
+    
+Bugs fixed
+    o   verify() error 'Duplicated or missing row names (animal ID)'
+        triggered when no live releases
+    o   sim.popn() multi-session movement allowed some animals outside the 
+        boundary on the first step (edgemethod 'truncate')
+    o   secr.fit() failed with data from multiple transects
+    o   snip() and discretize() failed when transectID contained '.'
+    o   nearesttrap, discretize etc. failed if no detections in some sessions
+    o   alive() and reduce.capthist() erroneous when only one animal
+    o   secr.fit() fastproximity failed when no detections in some sessions
+    o   secr.fit() signal detector problem with Boost distribution function 
+        (since 4.4.7 Oct 2021)
+    o   secr.fit() mark resight simulations failed (since 4.4.5 July 2021)
+
+Other
+    o   suggests 'terra' package (potentially supercedes 'raster')
+    o   tests added for transect and signal data
+    o   model.average() deprecated
+    o   update C++ code for BH 1.78
+
+Changes in version 4.4.8 (2021-11-09)
+
+New features or changed behaviour of old functions
+    o   none
+
+Bugs fixed
+    o   'count' detectors failed with Poisson model (reported by Ian Durbach) 
+        owing to problem with switch to Boost statistical distributions in C++
+
+Changes in version 4.4.7 (2021-10-18)
+
+Other
+    o   options requiring package 'spsurvey' suspended - trap.builder(method = 
+        'GRTS') and derivednj(method = 'local') - because of changes in spsurvey 5.0.0 
+    o   'spsurvey' removed from Suggests
+        
+Changes in version 4.4.6 (2021-10-18)
+
+New features or changed behaviour of old functions
+    o   sim.popn() exponential (RDE), gamma (RDG) and lognormal (RDL) movement distance
+    o   sim.popn() zero-inflated movement models BVNzi, BVEzi, RDEzi, INDzi
+    o   addCovariates() accepts RasterLayer spatialdata
+    o   make.capthist() and read.capthist() tweaked to allow nonspatial input
+
+Bugs fixed
+    o   snip() failed in recent versions
+    o   secr.fit() and bias.D() spurious warning of variable usage
+
+Other
+    o   Boost math library used for statistical distributions in C++ code
+    o   number of threads explicit in calls to RcppParallel parallelFor
+    o   sim.popn() with movement: edgemethod 'truncate' now synonym 'normalize'
+    o   deprecated and defunct functions handled formally (see e.g., help("secr-defunct")) 
+
+Changes in version 4.4.5 (2021-07-12)
+
+New features or changed behaviour of old functions
+    o   'sigmak' parameterization allows session covariates
+    o   experimental parameter 'd' for parameterization sigma = sigmak/sqrt(D+d) + c
+    o   sim.popn() all movement simulations use polar coords + rgamma, rweibull etc.
+    o   extractMoves() new function for checking movement simulations
+
+Bugs fixed
+    o   as.data.frame.capthist() in 4.4.4 mis-assigned traps to captures
+    o   trivial: bad trace when fixedbeta specified
+
+Other
+    o   'BVN','BVE','BVT' aliases for movemodels 'normal','exponential','t2D'
+
+Changes in version 4.4.4 (2021-05-29)
+
+New features or changed behaviour of old functions
+    o   animalID(), trap() etc. acquire argument 'sortorder' 
+
+Bugs fixed
+    o   erroneous plot(), verify() and RPSV() results for multi-polygon data
+    o   ASAN error: container overflow prwifastproximity.cpp
+    o   rectangularMask() misaligned covariates by one cell, with 
+        consequences for raster method for 'mask' class
+
+Other
+    o   multithreaded Examples now in dontrun{} to avoid TBB library in checks
+    o   interactive dontrun{} Examples trapped to allow R CMD check --run-dontrun
+    o   new text files in extdata for MRCH addSightings example
+    o   flip() arguments changed F to FALSE
+    o   new test: multi-detector polygon likelihood
+    o   new test: join() nonspatial data
+
+Changes in version 4.4.2 (2021-05-04)
+
+Other
+    o   rename generic make.newdata() to makeNewData()
+    o   Imports RcppParallel version >= 5.1.1 to dodge problems in earlier releases
+    o   run tests with Sys.setenv(RCPP_PARALLEL_BACKEND = "tinythread") to avoid CRAN errors
+
+Changes in version 4.4.1 (2021-05-01)
+
+Other
+    o   Add final '/' to url in DESCRIPTION and fix typo in secr-package.Rd
+
+
+Changes in version 4.4.0 (2021-05-01)
+
+New features or changed behaviour of old functions
+    o   sim.popn() movement model may be user-provided function
+    o   sim.popn() recrmodel may be 'specified' (add number in details$Nrecruits)
+    o   sim.popn() optional age covariate for multisession populations
+    o   HPX new detectfn (binary detection in polygon)
+    o   plot.traps minor change in colours used with polygon detectors
+    o   split.capthist() accepts multi-session input
+    o   reduce.traps() 'newxy' selects 'mean' or 'first' for coordinates of 
+        new detector from group defined by 'newtraps'
+
+Bugs fixed
+    o   make.capthist() rejected some valid records as duplicates (R. Glennie)
+    o   length > 1 in coercion to logical (internal function sessionLL x2)
+    o   sim.popn() with movement: 'normalize' edgemethod did not normalize
+    o   secr.make.newdata() (and predict.secr()) sometimes ignored all.levels = FALSE
+    o   make.grid() spacing attribute missing in case of single detector
+    o   reduce.capthist() failed with polygon input and nonspatial output
+    o   no warning when attempt to combine capped and other detector types
+    o   subset.capthist() by occasion could return wrong session labels
+
+Other
+    o   Suggests testthat, adds some unit tests in 'tests' folder
+    o   sim.popn() with movement: 'clip' edgemethod works with constantN
+    o   generic make.newdata() replaces secr.make.newdata() (seldom used directly; see 4.4.2)
+    o   shareFactorLevels() when not multisession now converts ch _covariates_ to factor
+
+Changes in version 4.3.3 (2020-12-11)
+
+New features or changed behaviour of old functions
+    o   subset.capthist() all-negative subset argument indicates exclusion
+    o   shareFactorLevels() default for stringsAsFactors now TRUE
+    o   sim.popn() with movement: new 'normalize' option for edgemethod
+
+Bugs fixed
+    o   multisession hcov failed if only one level present in one or more sessions
+    o   plot.capthist() failed when no detections in session
+    o   plot.mask(..., dots = FALSE) crashed when no points in mask
+    o   secr.fit failed with hcov if only one class present in a session
+    o   region.N() with multisession model failed using 'hcov' and otherwise not reliable
+    o   alive() incorrect order of output
+    o   sim.detect() renumbered multi-session capthist even when renumber = FALSE
+
+Other
+    o   terminal '/' on https://www.otago.ac.nz/density/ in Rd required by CRAN
+    o   verify() suggests shareFactorLevels() when needed
+    o   more robust handling of sessions with zero detections
+    o   join() gives advice when table limit exceeded (2^31 elements)
+    o   output from region.N() with multisession model uses session names
+    o   rectangularMask() rewritten to allow disjunct mask blocks
+    o   character sessioncov used in D~ models automatically converted to factor
+    o   sim.popn() undocumented movement options 'radialexp' and 'radialnorm'
+    o   reduce.capthist() more robust when no detections
+    o   sim.capthist() now accepts character detectfn when nsessions>1
+
+Changes in version 4.3.1 (2020-08-31)
+
+New features or changed behaviour of old functions
+    o   subset.traps() allows subset argument to be function, as for 
+        subset.capthist()
+    o   de novo calculation of spacing for traps, mask uses median instead of mean
+    o   read.traps() enables usage and covariate input from data and xls
+    o   summary.traps() new argument 'covariates' for covariate summaries (default FALSE)
+    o   verify() invisible output includes detail on captures
+    o   ORL() new function for observed range length
+    o   centroids() new function for detection centroids
+
+Bugs fixed
+    o   verify() bug on covariates call to stringsAsFactors fn
+    o   moves() lost animal order when animal IDs numeric and names = TRUE
+    o   secr.make.newdata() (and hence predict() etc.) included superfluous 
+        combinations of session covariates
+    o   read.mask() assigned wrong spacing for some unusual configurations
+    o   occasion() could result in wrong sequence, with consequences for various plots 
+        and summaries
+
+Other
+    o   summary.secr() always reports detector percent usage
+    o   plotMaskEdge() increased robustness
+    o   make.capthist() coerces third column of captures dataframe to integer
+    o   updateCH() recoded to avoid reduce.capthist() that now assumes 3-D 
+    o   secr.fit() calls check3D in case data pre-dates secr 3.0
+    o   fxi.secr() and related functions work with models fitted using fastproximity = TRUE
+
+Changes in version 4.3.0 (2020-07-14)
+
+New features or changed behaviour of old functions
+    o   RSE() returns matrix with one row for each row of newdata
+    o   shareFactorLevels() gains argument stringsAsFactors to convert character to factor
+
+Bugs fixed
+    o   learned response models (b, B etc.) fitted incorrectly to data from multi-catch traps 
+        (detector 'multi') and exclusive polygon-type detectors (detector 'polygonX', 'transectX')
+    o   esa() ignored individual covariates in models with CL = TRUE, with consequences 
+        for derived() and region.N()
+
+Other
+    o   internal changes for compatibility with R 4.0
+    o   make.capthist() forces character covariates to factor for backward compatibility
+    o   verify() converts character covariates to factor before checking levels consistent 
+        across sessions
+    o   derived() and region.N() now work for models fitted in secr versions before 4.0
+
+Changes in version 4.2.2 (2020-04-08)
+
+New features or changed behaviour of old functions
+    o   none
+
+Bugs fixed
+    o   individual covariate (CL) models for proximity data failed unless fastproximity = FALSE
+    o   Bk models for proximity data gave error unless fastproximity = FALSE
+    o   join() sometimes failed (circumstances unclear)
+
+Other
+    o   adjusted protection for calls to suggested package rgdal
+    o   suggest.buffer() trivial change to Examples
+
+Changes in version 4.2.0 (2020-02-22)
+
+New features or changed behaviour of old functions
+    o   new mechanism for setting number of threads (default 2)
+    o   setNumThreads() new function 
+    o   make.systematic() 'rotate', 'centrexy' and 'keep.design' arguments
+    o   make.lacework() new function
+    o   make.grid() and make.circle() acquire argument 'leadingzero') (default TRUE)
+
+Bugs fixed
+    o   make.systematic() unintended result when spacing of rows and columns differs
+
+Other
+    o   pdot() uses multithreaded C++ function pdotpointcpp2
+    o   pdot() acquires argument ncores
+    o   derivedSystematic() acquires argument ncores
+    o   esa() internal limit on ncores (2) removed
+    o   trim.secr() drops designD, designNE by default (see 4.0.0)
+    o   rotate.traps() checks for zero rows
+    o   suggest.buffer() minor internal changes
+    o   distancetotrap() uses rgeos::gDistance for polygon detectors if available
+    o   fxi.secr() and related functions enabled for polygon detector types
+
+Changes in version 4.1.0 (2019-12-17)
+
+New features or changed behaviour of old functions
+    o   AICcompatible() new S3 method to check models for AIC compatibility
+    o   AIC() warns if secr models not compatible
+    o   LR.test() stops if secr models not compatible
+    o   secr.fit() faster fitting of polygon and transect data
+    o   secr.fit() option details = list(convexpolygon = FALSE) allows non-convex polygons.
+    o   autoini() uses simpler and more robust code; secr.fit() start values differ slightly 
+        from earlier versions; new argument 'adjustsigma'.
+
+Bugs fixed
+    o   reduce.capthist() subtracted dead animals when outputdetector = "count"
+    o   verify.capthist() spurious warning for transect data with character animalID
+    o   derived() bad for polygon and transect data in secr 4.0 because esa() corrupted 
+    o   secr.fit() in secr 4.0 bad likelihood and estimates for some covariate models 
+        (bad indexing of parameter array PIA)
+    o   secr.fit() failed with multi-session mark-resight data (fixed pID, non-null Tm)
+    o   suggest.buffer() failed with input from multi-session fitted model
+    o   make.systematic() unintended result when spacing of rows and columns differ
+
+Other
+    o   RcppNumerical used for numerical integration with polygon and transect detectors
+    o   requires R >= 3.5.0 for obscure reasons (serialization of data objects)
+    o   suppressed new warnings from regularize.values in approx()
+    o   internal function secr.design.MS() argument bygroup replaced with CL
+    o   LLsurface() returns value matrix when plot = FALSE (otherwise invisibly as before) 
+        (NA where likelihood could not be evaluated)
+    o   mark-resight sighting only, partial identification re-enabled
+
+Changes in version 4.0.2 (2019-11-11)
+
+New features or changed behaviour of old functions
+    o   secr.fit() LLonly = TRUE stores number of parameters and timing information
+    o   secr.fit() LLonly = TRUE uses default or autoini start values if none provided
+    o   summary.secr() versiontime includes elapsed time
+    o   summary.capthist() includes summary of individual covariates
+
+Other
+    o   CRAN release of 4.0
+
+Changes in version 4.0.0 (2019-10-27)
+
+New features or changed behaviour of old functions
+    o   'ncores' argument defaults to NULL in most functions (meaning one less than number
+        of available cores for multi-threading)
+    o   fx functions 'normal' argument dropped
+    o   'ncores' argument dropped from mask.check(), pmixProfileLL() and simulate.secr()
+    o   autoini(), region.N() and suggest.buffer() acquire 'ncores' argument
+    o   fast secr.fit() for binary and count proximity detectors (default details$fastproximity = TRUE)
+    o   make.systematic() new argument 'order' to control cluster sequence
+    o   RSE() extract precision of estimated parameter from fitted model
+    o   par.secr.fit() no longer automatically sets ncores=1 in the separate calls to 'secr.fit'
+    o   secr.fit() details option autoini = 'all' for start values from multi-session data
+    
+Bugs fixed
+    o   sim.secr() with 'multi' detectors slightly understated detection rate owing to mis   
+        -assignment of detection locations 
+    o   make.systematic() and trap.builder() ignored region polygon when cluster not
+        specified (edgemethod set internally to 'allowoverlap'
+
+Other
+    o   converted C code to C++ with multithreading in RcppParallel as appropriate
+    o   some features of earlier versions have yet to be implemented in 4.0
+    o   secr object from secr.fit() includes design matrices for D and noneuc
+    o   functions read.SPACECAP() and write.SPACECAP() removed
+
+Changes in version 3.2.2 (2019-07-02)
+
+New features or changed behaviour of old functions
+    o   summary method for popn objects
+    o   write.mask() function
+
+Bugs fixed
+    o   sim.popn() exponential
+    o   plotMaskEdge() sometimes shows internal lines (non-integer spacing)
+    
+Other
+    o   write.capthist help wrote files to disk; now in \dontrun{}
+
+Changes in version 3.2.1 (2019-06-01)
+
+New features or changed behaviour of old functions
+    o   sim.popn() allows exponential and t2D movement between sessions
+    o   sim.popn() new details arguments movemodel, move.a; sigma.m deprecated
+
+Bugs fixed
+    o   make.capthist() with transect data gave error when points did not lie on transect
+    o   moves() failed with nonspatial capthist (also summary.capthist(moves = T) etc.)
+    o   plot.popn() ignored frame argument when collapse = TRUE
+    
+Changes in version 3.2.0 (2019-01-25)
+
+New features or changed behaviour of old functions
+    o   derivednj() extended for weighted variance (R2, R3), with subtle argument changes
+    o   derivednj() and dependent functions return 2-line dataframe (rows 'esa', 'D') as for derived()
+    o   derivedSession() extended for weighted variance
+    o   derivedCluster() extended for weighted variance
+    o   derived() for secr and secrlist objects acquires argument 'bycluster'
+    o   split method for mask objects (split.mask)
+    o   trap.builder() new edgemethod and exclmethod options "anyinside", "centreinside" etc.
+    o   derived.secr() improved handling of sessions with zero detections
+    o   derivedSystematic() implements Fewster 2011 variance for systematic cluster designs
+    o   make.systematic() acquires argument "chequerboard", saves originbox, 
+        argument 'originoffset' replaces 'bufferorigin'
+    o   spacing.traps() returns numeric(0) instead of NULL for 1-trap arrays
+    o   write.traps() removed single quotes around objectname
+    o   secr.fit() allows mixture models when detector 1 unused on occasion 1
+    o   make.mask() more explicit warning when nrow = 0
+    o   plot.traps() gridlines = TRUE respected for add = TRUE (default gridlines = !add)
+    o   pdot.contour() and related functions acquire argument 'poly.habitat'
+    o   summary method for capthist objects (summary.capthist) optionally reports movements
+
+Bugs fixed
+    o   make.systematic() grid didn't span extremes of some region polygons
+    o   sighting-only did not allow unidentified marked sightings
+    o   reduce.traps() failed for reduced number of occasions when both usage and markocc specified
+
+Changes in version 3.1.8 (2018-11-19)
+
+New features or changed behaviour of old functions
+    o   make.systematic() saves origin and centres as attributes
+    o   make.systematic() new argument bufferorigin controls random origin
+    o   summary method for secr objects, with print and AIC methods for summary (may change)
+    o   clone.popn() rownames consistent with clone.capthist() (1.1, 1.2...)
+    
+Bugs fixed
+    o   make.mask() not using keep.poly and check.poly arguments for multi-session masks
+    o   detector usage not correctly included in some models with detector type "multi"
+    o   clone methods not robust - freq now rounded to avoid quirky behaviour of rep()
+
+Other
+    o   some models (e.g., g0~bk with detector type "multi") fit more quickly than before
+
+Changes in version 3.1.7 (2018-10-03)
+
+New features or changed behaviour of old functions
+    o   esa.plot() computes CVpdot for varying buffer width 
+    o   esa.plot 'as.density' argument replaced with 'type' and new argument 'conditional'
+    o   sim.popn() edgemethod new options 'stop' and 'reflect'
+    
+Bugs fixed
+    o   OVpossumCH dataset Ageclass covariate placed 1-year-olds in >=2 year class
+    o   join() detector attribute not expanded correctly for some inputs
+    o   reduce.capthist() bug introduced in 3.1.6
+    o   subset.popn() failed for multi-session populations
+    o   region.N() gave misleading R.N for models with individual variation in detection, 
+        including h2
+    o   trap.builder() failed when projection specified for 'region'
+    o   addTelemetry() failed with mark-resight data
+    o   write.capthist() lost non-numeric detector names (since 2017-11-30)
+
+Other
+    o   secr-manual.pdf is no longer distributed with package - see 
+    https://www.otago.ac.nz/density/pdf/secr-manual.pdf or https://CRAN.R-project.org/package=secr/secr.pdf.
+
+Changes in version 3.1.6 (2018-05-14)
+
+New features or changed behaviour of old functions
+    o   sim.popn() details (turnover) argument "wrap" deprecated; use "edgemethod"
+    o   plot method for capthist object copes with missing rownames
+    o   CVpdot() new function for CV of p. across mask
+    o   improved handling of attributes (intervals and sessionlabels) in subset and reduce
+        methods for capthist objects
+    o   join() allows site matching by name, which is faster
+    o   timevaryingcov() extended to capthist objects for openCR - see ?join
+    
+Bugs fixed
+    o   internal fn predictD returned matrix instead of vector, causing problems in region.N
+    o   sim.capthist() failed for signal detectors (df0 error reported by Ben S)
+
+Changes in version 3.1.5 (2018-02-25)
+
+New features or changed behaviour of old functions
+    o   rotate method for capthist objects
+    o   secrlist() returns input secrlist object unchanged
+    o   plotMaskEdge() accepts multi-session input
+    o   secr.make.newdata() rewritten; acquires logical argument 'all.levels'
+    o   predict method for secr objects passes dots argument to secr.make.newdata()
+    o   join() intervals optionally passed as attribute 'intervals'
+    o   coef method for secrlist objects
+    o   unRMarkInput() assumes all freq = 1 if freq field missing
+    o   new detectfn 19 (HVP hazard variable power)
+    o   RMarkInput ignores 'covariates' argument when no covariates
+    o   reduce and subset methods for capthist objects allow nonspatial input and output
+        when verify = FALSE
+    o   reduce and subset methods for capthist objects honour 'intervals' attribute
+    o   summary method for nonspatial capthist objects drops detectors from table of counts
+    o   plot method for popn objects acquires new arguments for overlaying multiple sessions
+    o   sim.popn() argument sigma.m < 0 causes random relocation
+    o   sim.popn() open population recruitment model "multinomial"
+    o   LLsurface now a generic function with method for 'secr' objects
+    o   new capthist attribute 'sessionlabels' useful for joined capthist
+    
+Bugs fixed
+    o   secr.fit gave misleading estimates with binomial count data when size derived from usage 
+        (reported by Mathias Tobler)
+    o   predict.secr misreported pmix for other than simple h2 models (pmix = 0.5 for some levels)
+    o   detectfnplot() in error when detectfn = 'HAN'
+    o   sim.capthist() and sim.resight() failed in 3.1.3 when detector type varied by occasion
+    o   make.poly() failed with some polygon list inputs
+
+Other
+    o   optional 'interval' attribute of capthist objects renamed 'intervals' (see ?join)
+    o   export internal function insertdim()
+    o   minor tweaks for compatibility with open population code
+    o   NEWS for versions before 3.0.0 archived 
+    o   some old documentation removed to online vignette secr-models.pdf
+
+Changes in version 3.1.3 (2017-12-02)
+
+New features or changed behaviour of old functions
+    o   secr.design.MS() acquires argument 'contrasts' (used internally)
+
+Bugs fixed
+    o   sim.capthist() ignored recapfactor provided in detectpar
+
+Other
+    o   region.N now a generic method with functions for secr and secrlist objects
+    o   corrected some obsolete documentation references to maptools package
+
+Changes in version 3.1.1 (2017-11-30)
+
+New features or changed behaviour of old functions
+    o   new detector type 'capped' in make.grid(), sim.capthist(), reduce(), verify(), secr.fit() etc.
+    o   as.data.frame methods for capthist and traps objects
+    o   secrlist() and MS.capthist() generate names from input objects
+    o   circular.r() and circular.p() acquire argument 'upper' for explicit upper limit of integration
+    o   LR.test generalised to any fitted models with a logLik method
+    o   plot method for secr objects: confidence limits now computed on log scale 
+        for hazard detectfn HHN, HEX etc. to match predict.secr
+    o   rbind method for traps adds suffix to names only when needed to avoid any duplication
+    o   verify method for capthist objects checks for all-zero histories and missing rownames
+    o   summary method for capthist objects: 'terse' option activated for single-session objects
+    o   subset method for capthist objects: subset may be defined as function (useful for covariate-based selection)
+    o   join() acquires arguments interval, to set between-session intervals directly, and sessions, for session names
+    o   secr.fit() details argument 'contrasts' for specialised coding of factor predictors (example in secr-multisession.pdf)
+    o   secr.fit() details argument 'newdetector' to override detector type
+    o   'newdetector' reported by print.secr
+
+Bugs fixed
+    o   predict method for secr objects failed to report SE for parameters with some fixed coefficients (fixedbeta)
+    o   verify.capthist failed to report detections at unused detectors
+
+Other
+    o   requires package stringr for some functions
+    o   class attribute of multisession objects changed to place "list" last -- 
+        c("list", "capthist") becomes c("capthist", "list")
+    o   LLsurface.secr automatically substitutes lambda0 for g0 given detectfn 14:18
+    o   experimental "nontarget" capthist attribute
+    o   make.mask() explicit error when capthist passed 
+    o   derived is now a generic method with functions for secr and secrlist objects
+    o   derived.nj() renamed derivednj(), derived.mash() renamed derivedMash() etc.
+    o   && changed to & throughout - should have no effect except fixes verify bug, but be wary
+
+Changes in version 3.1.0 (2017-09-20)
+
+New features or changed behaviour of old functions
+    o   par.secr.fit() acquires arguments save.intermediate and LB to allow
+        load balancing (thanks to Mathias Tobler)
+    o   par.secr.fit() default value of 'seed' changed from 123 to NULL
+    o   rbind.popn() now an S3 method; no longer accepts list input
+    o   rbind.capthist() now an S3 method
+    o   randomHabitat() acquires argument 'seed', saved as an attribute
+        (thanks to Erin Peterson)
+    o   detectfnplot() acquires argument 'hazard' for plotting hazard 
+
+Other
+    o   adjustment to 'ts' predictor for secr.fit mark-resight models
+    o   documentation of random number seeds in ?secrRNG
+    o   start vector returned by secr.fit now named
+
+Bugs fixed
+    o   faulty start vector when model included both h2 and noneuc
+
+Changes in version 3.0.2 (2017-06-07)
+
+New features or changed behaviour of old functions
+    o   make.grid() and make.circle() acquire argument 'markocc'
+    o   read.traps() accepts Excel xls or xlsx input (requires readxl)
+
+Bugs fixed
+    o   plot.secr misleading axis label 'Detection lambda'
+    o   sim.resight() could fail with markingmask and predefined popn
+
+Other
+    o   imports file_ext from tools package
+    o   attributes of output from sim.popn now include Nbuffer and D
+    o   speed increase for "count" detectors
+    o   miinor adjustments to sim.popn for compatibility R 3.4.0
+
+Changes in version 3.0.1 (2017-05-03)
+
+New features or changed behaviour of old functions
+    o   'unresolved' sightings now stored in Tn attribute of capthist
+    o   sim.resight() acquires argument 'unresolved'
+    o   plot.secrlist() accepts colour vector
+    o   new function as.mask() to coerce traps objects for plotting
+    o   moves() acquires argument 'names' to control sort order (new default)
+
+Bugs fixed
+    o   sightingPlot() legend ignored fill argument
+
+Documentation
+    o   addTelemetry omitted 'single' and 'multi' from permitted detectionCH types
+
+Other
+    o   discretize() updated for 3.0
+    o   native routine registration completed
+
+Changes in version 3.0.0 (2017-04-11)
+
+New features or changed behaviour of old functions
+    o   3-D data structure used for trapping data
+    o   updateCH() for easy conversion of old data
+    o   multiple detector types may be used in one session 
+        (point detectors only: single, multi, proximity or count)
+    o   marking and sighting occasions may be interspersed
+    o   rbind.traps acquires argument 'checkdetector'
+    o   user-provided distance matrix may be session-specific
+    o   esa 'noccasions' may be less than ncol(usage)
+    o   function occasionKey() to embellish petal plots
+    o   explicit handling of 'uncertain' sightings Tn
+    o   plotMCP() now works with data from point detectors
+    o   details$debug in secr.fit() now integer with multiple levels
+    o   sightingPlot() new function
+    o   plot.capthist() new option "centres"
+    o   secr.fit() argument 'details' may be given as character value
+    o   telemetrytype attribute of traps objects replaces details$telemetrytype
+    o   new addTelemetry() function and revised handling of telemetry data
+    o   addTelemetry() allows multi-session data
+    o   secr.fit() etc. auto predictor 'tt' nontelemetry vs telemetry occasions
+    o   addCovariates() acquires argument 'replace'
+    o   c new method for combining secrlist objects
+    o   make.capthist() discards repeat detections at exclusive detectors, with a warning
+    o   models for polygon or transect detectors requre hazard detection functions 
+    o   esa.plot() accepts secrlist as input (curves overlaid)
+    o   par.secr.fit() acquires argument 'prefix'
+    o   predict.secr() acquires argument 'realnames' to select a subset of 'real' parameters
+
+Bugs fixed
+    o   make.grid() did not assign polyID attribute for polygon detectors
+    o   snip() and discretize() for transects dropped occasions with no detections
+    o   sim.capthist() failed when 'userdist' supplied (non-Euclidean distances)
+
+Other
+    o   ovenbird dataset provided with detector type "proximity"
+    o   esa() more robust to variation when noccasions specified
+    o   new details option 'splitmarked' for resightings (default FALSE)
+    o   usagePlot() argument occasion renamed occasions
+    o   more compact 'call' component of secr.fit output
+    o   discontinued warning when detectfn requires changed parameters (g0 -> lambda0)
+    o   plot method for traps enables box around plot (bty = 'o')
+    o   plotMaskEdge faster
+    o   secr.fit() details savecall = FALSE suppresses call (default in par.secr.fit)
+    o   new function shareFactorLevels() to force factor covariates to use the same levels
+    o   rgdal::readOGR used instead of deprecated maptools::readShapeSpatial
+    o   minor speed improvments for models without learned response
+    o   ip.secr() faster default predictorfn

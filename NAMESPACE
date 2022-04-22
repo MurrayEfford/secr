@@ -1,0 +1,474 @@
+# 2022-02-15
+
+import (parallel)
+import (RcppNumerical)
+
+# Base R
+
+importFrom (graphics, .filled.contour, abline, arrows, contour, hist, 
+    lines, locator, mtext, par, persp, points, polygon, rect, 
+    segments, strheight, strwidth, symbols, text, legend, axis)
+importFrom (grDevices, chull, contourLines, grey, palette, 
+    terrain.colors, topo.colors, rainbow)
+importFrom (methods, as, is, Ops, Math)
+importFrom (stats, AIC, approx, approxfun, as.formula, chisq.test, coef,
+    cutree, deviance, df.residual, dist, dpois,  formula, hclust,
+    integrate, lm, logLik, median, model.matrix, nlm, nls, optim,
+    optimise, optimize, pchisq, pgamma, plnorm, pnorm, poisson,
+    predict, qchisq, qnorm, rbeta, rbinom, rexp, rgamma, rlnorm, 
+    rmultinom, rnbinom, rnorm, rpois, rt, runif, rweibull, sd, 
+    simulate, smooth.spline, terms, uniroot, update, update.formula, 
+    var, vcov)
+importFrom (tools, file_ext)
+importFrom (utils, count.fields, flush.console, getS3method, head,
+    object.size, packageDescription, packageVersion, read.csv,
+    read.table, tail, write.table)   
+
+# Other packages
+
+importFrom (abind, 
+    abind)
+
+importFrom (MASS, 
+    ginv, 
+    eqscplot)
+
+importFrom (mgcv, 
+    gam, 
+    s, 
+    te, 
+    formula.gam, 
+    predict.gam)
+
+importFrom (nlme, 
+    fdHess)
+
+importFrom (raster, 
+    adjacent, 
+    clump, 
+    "values<-", 
+    values)
+
+importMethodsFrom (raster, raster)
+exportMethods     (raster)
+
+importFrom (Rcpp, evalCpp)
+
+importFrom (RcppParallel, 
+    RcppParallelLibs, 
+    setThreadOptions, 
+    defaultNumThreads)
+
+importFrom(sf, 
+    st_area, 
+    st_as_sf, 
+    st_as_sfc, 
+    st_bbox, 
+    st_buffer, 
+    st_cast, 
+    st_centroid, 
+    st_crs, 
+    "st_crs<-", 
+    st_coordinates, 
+    st_distance, 
+    st_drop_geometry,
+    st_geometry, 
+    st_geometry_type, 
+    st_intersection, 
+    st_join,
+    st_length, 
+    st_linestring, 
+    st_nearest_feature, 
+    st_nearest_points, 
+    st_point, 
+    st_polygon,
+    st_read, 
+    st_sample,
+    st_sf,
+    st_sfc, 
+    st_transform, 
+    st_union, 
+    st_within)
+
+importFrom (stringr, 
+    str_pad, 
+    str_length)
+
+importFrom (terra, 
+    extract)
+
+importMethodsFrom (terra, rast)
+exportMethods     (rast)
+
+export (secr.fit)
+export (par.secr.fit)
+export (par.derived)
+export (par.region.N)
+export (expected.n)
+export (ip.secr)
+export (pfn)
+export (read.traps)
+export (read.telemetry)
+export (make.grid)
+export (make.circle)
+export (make.tri)
+export (make.lacework)
+export (trap.builder)
+export (make.systematic)
+export (writeGPS)
+export (mash)
+export (addTelemetry)
+export (cluster.counts)
+export (cluster.centres)
+export (clip.hex)
+export (make.poly)
+export (make.telemetry)
+export (make.transect)
+export (read.capthist)
+export (write.capthist)
+export (sim.popn)
+export (tile)
+export (make.capthist)
+export (sim.capthist)
+export (sim.resight)
+export (addSightings)
+export (read.mask)
+export (addCovariates)
+export (make.mask)
+export (RPSV)
+export (dbar)
+export (moves)
+export (MMDM)
+export (ARL)
+export (ORL)
+export (centroids)
+export (circular.r)
+export (circular.p)
+export (autoini)
+export (logit)
+export (invlogit)
+export (write.captures)
+export (write.traps)
+export (write.mask)
+export (score.test)
+export (score.table)
+export (LR.test)
+export (esa)
+export (derivedCluster)
+export (derivedSession)
+export (derivedSystematic)
+export (derivedMash)
+export (derivedExternal)
+export (derivednj)
+export (pdot)
+export (esa.plot)
+export (esa.plot.secr)
+export (suggest.buffer)
+export (bias.D)
+export (mask.check)
+export (polyarea)
+export (pdot.contour)
+export (buffer.contour)
+export (distancetotrap)
+export (nearesttrap)
+export (secrlist)
+export (MS.capthist)
+export (join)
+export (unjoin)
+export (RMarkInput)
+export (unRMarkInput)
+export (detectfnplot)
+export (attenuationplot)
+export (counts)
+export (model.average)
+export (collate)
+export (ellipse.secr)
+export (ellipse.bvn)
+export (closure.test)
+export (closedN)
+export (read.DA)
+export (write.DA)
+export (logmultinom)
+export (fxi.secr)
+export (fx.total)
+export (fxi.contour)
+export (fxi.mode)
+export (pointsInPolygon)
+export (predictDsurface)
+export (rectangularMask)
+export (plotMaskEdge)
+export (spotHeight)
+export (strip.legend)
+export (randomHabitat)
+export (make.lookup)
+export (insertdim)
+export (as.mask)
+export (setNumThreads)
+export (extractMoves)
+export (makeStart)
+
+# new generics
+export (reduce)
+export (rotate)
+export (shift)
+export (flip)
+export (trim)
+export (verify)
+export (ms)
+export (detectpar)
+export (signal)
+export (noise)
+export (clone)
+export (derived)
+export (LLsurface)
+export (region.N)
+export (AICcompatible)
+export (modelAverage)
+
+S3method(modelAverage, default)
+S3method(reduce, default)
+S3method(rotate, default)
+S3method(shift, default)
+S3method(flip, default)
+S3method(trim, default)
+
+S3method (verify, default)
+S3method (verify, traps)
+S3method (verify, capthist)
+S3method (verify, mask)
+
+S3method (head, mask)
+S3method (head, Dsurface)
+S3method (head, traps)
+S3method (head, capthist)
+S3method (tail, mask)
+S3method (tail, Dsurface)
+S3method (tail, traps)
+S3method (tail, capthist)
+
+S3method (ms, default)
+S3method (ms, mask)
+S3method (ms, secr)
+S3method (ms, secrtest)
+
+S3method(detectpar, default)
+S3method(detectpar, secr)
+
+S3method(signal, default)
+S3method(noise, default)
+S3method(signal, capthist)
+S3method(noise, capthist)
+
+S3method(clone, default)
+S3method(clone, popn)
+S3method(clone, capthist)
+S3method(as.data.frame, capthist)
+S3method(as.data.frame, traps)
+
+S3method(derived, secr)
+S3method(derived, secrlist)
+S3method(LLsurface, secr)
+
+S3method(region.N, secr)
+S3method(region.N, secrlist)
+
+export(intervals)
+export ("intervals<-")
+S3method(intervals,default)
+export(sessionlabels)
+export ("sessionlabels<-")
+S3method(sessionlabels,default)
+
+export (covariates)
+export (timevaryingcov)
+export (usage)
+export (markocc)
+export (telemetrytype)
+export (Tu)
+export (Tm)
+export (Tn)
+export (sighting)
+export (usagePlot)
+export (sightingPlot)
+export (occasionKey)
+export (detector)
+export (clusterID)
+export (clustertrap)
+export (spacing)
+export (searcharea)
+export (transectlength)
+export (polyID)
+export (transectID)
+export (animalID)
+export (alive)
+export (xy)
+export (telemetryxy)
+export (telemetered)
+export (PG)
+export (alongtransect)
+export (snip)
+export (discretize)
+export (signalframe)
+export (signalmatrix)
+export (noise)
+export (occasion)
+export (trap)
+export (Rsurface)
+export (CV)
+export (CVa)
+export (CVa0)
+export (CVpdot)
+export (plotMCP)
+export (xy2CH)
+
+export (traps)
+export (session)
+
+S3method(covariates,default)
+S3method(timevaryingcov,default)
+S3method(usage,default)
+S3method(markocc,default)
+S3method(telemetrytype,default)
+S3method(Tu,default)
+S3method(Tm,default)
+S3method(Tn,default)
+S3method(clusterID,default)
+S3method(clustertrap,default)
+S3method(detector,default)
+S3method(spacing,default)
+S3method(traps,default)
+S3method(session, default)
+
+export ("covariates<-")
+export ("timevaryingcov<-")
+export ("usage<-")
+export ("markocc<-")
+export ("telemetrytype<-")
+export ("Tu<-")
+export ("Tm<-")
+export ("Tn<-")
+export ("detector<-")
+export ("clusterID<-")
+export ("clustertrap<-")
+export ("spacing<-")
+export ("polyID<-")
+export ("transectID<-")
+export ("traps<-")
+export ("session<-")
+export ("xy<-")
+export ("telemetryxy<-")
+export ("signalframe<-")
+export ("signal<-")
+export ("noise<-")
+
+## assume these internal fns not needed outside
+# export (group.levels)
+# export (group.factor)
+# export (secr.lpredictor)
+# export (make.lookup)
+
+export (makeNewData)
+S3method(makeNewData, default)
+S3method(makeNewData, secr)
+
+export (secr.design.MS)
+export (D.designdata)
+export (sim.secr)
+export (sim.detect)
+export (secr.test)
+export (getMeanSD)
+export (maskarea)
+export (masklength)
+export (edist)
+export (nedist)
+export (deleteMaskPoints)
+export (pmixProfileLL)
+export (updateCH)
+export (shareFactorLevels)
+export (RSE)
+
+S3method(print, traps)
+S3method(plot, traps)
+S3method(summary, traps)
+S3method(print, summary.traps)
+S3method(rbind, traps)
+S3method(subset, traps)
+S3method(reduce, traps)
+S3method(rotate, traps)
+S3method(shift, traps)
+S3method(flip, traps)
+S3method(split, traps)
+S3method(spacing, traps)
+
+S3method(rotate, popn)
+S3method(flip, popn)
+S3method(shift, popn)
+S3method(plot, popn)
+S3method(subset, popn)
+S3method(rbind, popn)
+S3method(summary, popn)
+S3method(print, summary.popn)
+
+S3method(print, capthist)
+S3method(plot, capthist)
+S3method(summary, capthist)
+S3method(print, summary.capthist)
+S3method(subset, capthist)
+S3method(reduce, capthist)
+S3method(split, capthist)
+S3method(sort, capthist)
+S3method(rotate, capthist)
+S3method(rbind, capthist)
+
+S3method(subset, mask)
+S3method(split, mask)
+S3method(rbind, mask)
+S3method(plot, mask)
+S3method(summary, mask)
+S3method(print, summary.mask)
+S3method(spacing, mask)
+S3method(shift, mask)
+S3method(sort, mask)
+
+S3method(print, secr)
+S3method(summary, secr)
+S3method(print, summary.secr)
+S3method(AIC, summary.secr)
+S3method(plot, secr)
+S3method(predict, secr)
+S3method(vcov, secr)
+S3method(AIC, secr)
+S3method(AICcompatible, secr)
+S3method(logLik, secr)
+S3method(coef, secr)
+S3method(confint, secr)
+S3method(deviance, secr)
+S3method(df.residual, secr)
+S3method(simulate, secr)
+S3method(trim, secr)
+S3method(modelAverage, secr)
+
+S3method(print, secrdata)
+S3method(print, secrlist)
+S3method(plot, secrlist)
+S3method(predict, secrlist)
+S3method(coef, secrlist)
+S3method(AIC, secrlist)
+S3method(AICcompatible, secrlist)
+S3method("[", secrlist)
+S3method(c, secrlist)
+S3method(modelAverage, secrlist)
+
+S3method(print, Dsurface)
+S3method(plot, Dsurface)
+S3method(summary, Dsurface)
+
+S3method(plot, Rsurface)
+S3method(print, Rsurface)
+
+S3method(print, secrtest)
+S3method(plot, secrtest)
+
+useDynLib (secr)
+## DEBUGGING ONLY (cpp functions not documented)
+## exportPattern("*cpp")
