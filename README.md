@@ -1,7 +1,7 @@
 # secr
 Spatially Explicit Capture-Recapture
 
-This is the development version of the R package distributed on CRAN ( https://CRAN.R-project.org/package=secr). 
+This is the development version of the R package distributed on [CRAN](https://CRAN.R-project.org/package=secr). 
 
 It may be installed using
 ```
