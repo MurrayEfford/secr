@@ -8,3 +8,4 @@ src/*.dll
 cran-comments.txt
 extraR/*.*
 knownbugs.txt
+secr.Rproj
