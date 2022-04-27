@@ -356,13 +356,11 @@ make.systematic <- function (n, cluster, region, spacing = NULL,
     ## 'cluster' is a traps object for one module
     ## 'region' is a survey region
     ## ... arguments passed to trap.builder (rotate, detector)
-
     temporigin <- origin
     chequerboard <- match.arg(chequerboard)
     order <- match.arg(order)
     
     region <- boundarytoSF(region)
-    
     if (rotate != 0) {
         ## 2022-02-01 see utility.R for sfrotate
         if (is.null(centrexy)) {
@@ -372,7 +370,7 @@ make.systematic <- function (n, cluster, region, spacing = NULL,
         region <- sfrotate(region, degrees = -rotate, centrexy = centrexy, usecentroid = FALSE)
     }
 
-    bbox <- st_bbox(region)    
+    bbox <- st_bbox(region)
     wd <- bbox[3]-bbox[1]
     ht <- bbox[4]-bbox[2]
     
@@ -403,15 +401,16 @@ make.systematic <- function (n, cluster, region, spacing = NULL,
         }
         else {
             area <- sum(st_area(region))
-            cell <- sqrt(area / n)
+            ## 2022-04-27 convert to numeric to avoid units
+            cell <- as.numeric(sqrt(area / n))
             nx <- round ((wd - 2*wx) / cell) 
             ny <- round ((ht - 2*wy) / cell)
         }
         rx <- (wd - 2*wx) / nx
         ry <- (ht - 2*wy) / ny
     }
-    rxy <- c(rx,ry)
-    
+    ## 2022-04-27 convert to numeric to avoid units
+    rxy <- as.numeric(c(rx,ry))
     minxy <- bbox[1:2]
     if (is.null(origin)) {
         origin <- runif(2) * rxy + minxy + originoffset
