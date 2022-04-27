@@ -146,6 +146,7 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     }
     #################################################
     if (anysingle) warning ("multi-catch likelihood used for single-catch traps")
+    if (anycapped) warning ("capped likelihood is an approximation")
     
     #################################################
     ## Use input 'details' to override various defaults
