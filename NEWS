@@ -1,7 +1,10 @@
-Changes in version 4.5.5 (2022-04-23)
+Changes in version 4.5.5 (2022-04-27)
 
 New features or changed behaviour of old functions
     o   none
+
+Bugs fixed
+    o   make.systematic() failed because quantities from sf are class 'units'
 
 Other
     o   on GitHub at https://github.com/MurrayEfford/secr
