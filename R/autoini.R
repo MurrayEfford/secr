@@ -124,7 +124,7 @@ autoini <- function (capthist, mask, detectfn = 0, thin = 0.2, tol = 0.001,
         list(D=NA, g0=NA, sigma=NA)
     else {
         
-        ## treat capped as proximity 2022-04-13
+        ## treat capped as proximity here 2022-04-13
         dettype[dettype==8] <- 1  
         
         ## wt is the number of opportunities for capture given binary usage

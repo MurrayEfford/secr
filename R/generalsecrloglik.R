@@ -564,15 +564,19 @@ generalsecrloglikfn <- function (
     comp <- matrix(0, nrow = 6, ncol = ngroup)
     for (g in 1:ngroup) {
       ok <- as.integer(data$grp) == g
-      ## 2021-01-30 avoid logical length > 1
-      # comp[1,g] <- if (any(is.na(prw) || prw<=0)) NA else sum(log(prw[ok]))
+      #----------------------------------------------------------------------
+      
       comp[1,g] <- if (any(is.na(prw)) || any(prw<=0)) NA else sum(log(prw[ok]))
       
+      #----------------------------------------------------------------------
       ## Adjust for undetected animals unless data includes all-zero histories
       ## (the case for allsighting data when knownmarks = TRUE).
       if (!data$MRdata$sightmodel==5 && !all(data$dettype==13)) {
           comp[2,g] <- if (any(is.na(pdot)) || any(pdot<=0)) NA else -sum(log(pdot[ok]))
       }
+      
+      #----------------------------------------------------------------------
+      
       if (!CL && !data$MRdata$allsighting) {
           ng <- sum(ok)
           if (any(data$dettype==13))

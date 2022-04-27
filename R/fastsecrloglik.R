@@ -166,7 +166,7 @@ fastsecrloglikfn <- function (
                 as.integer(nrow(data$traps)),
                 as.double(attr(data$mask, "area")),
                 as.double(density[,1]),
-                as.double(gkhk$gk), as.double(gkhk$hk))  
+                as.double(gkhk$gk), as.double(gkhk$hk))
             }
         }
         

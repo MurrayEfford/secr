@@ -94,8 +94,6 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     anytelem <- any(detectortype %in% 'telemetry')
     anysingle <- any(detectortype %in% 'single')
     anycapped <- any(detectortype %in% 'capped')
-    # allcapped <- any(detectortype %in% 'capped') 
-    # 2021-04-02 bug fixed 
     allcapped <- all(detectortype %in% 'capped') 
     allpresence <- all(detectortype %in% 'presence')
     anysignal <- any(detectortype %in% 'signal')
@@ -383,7 +381,8 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     ## 2019-09-01 fast proximity option
     details$fastproximity <- !is.null(details$fastproximity) &&
         details$fastproximity  && 
-        all(detectortype %in% c('proximity', 'count', 'capped')) && 
+        ## all(detectortype %in% c('proximity', 'count', 'capped')) && 
+        all(detectortype %in% c('proximity', 'count')) && 
         !learnedresponse && !timevarying && !anysighting &&
         is.null(groups)
     
