@@ -46,7 +46,6 @@ addCovariates <- function (object, spatialdata, columns = NULL, strict = FALSE, 
         #         stop ("package 'terra' >= 1.5-12 is required to add covariates from a raster data source")
         #     }
         # }
-        
         # transform spatial data to sf, SpatRaster, traps or mask
         if (is.character(spatialdata)) {
             polyfilename <- spatialdata  
@@ -73,7 +72,7 @@ addCovariates <- function (object, spatialdata, columns = NULL, strict = FALSE, 
             # POLYGON or MULTIPOLYGON
             xy <- as.data.frame(object)
             xy <- st_as_sf(xy, coords=1:2, crs = st_crs(spatialdata))
-            df <- st_join(xy, spatialdata, join = st_within)
+            df <- st_join(xy, spatialdata, join = st_within, largest = TRUE)
             df <- st_drop_geometry(df)
         }
         else if (inherits(spatialdata, "SpatRaster")) {
