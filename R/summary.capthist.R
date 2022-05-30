@@ -170,7 +170,7 @@ summary.capthist <- function(object, terse = FALSE, moves = FALSE, ...) {
                 nontarg <- attr(object, 'nontarget',exact = TRUE)
                 nontarget <- data.frame(as.list(apply(nontarg, 2, sum)), sum(nontarg))
                 names(nontarget) <- c(1:nocc, 'Total')
-                rownames(nontarget) <- 'detectors nontarg'
+                rownames(nontarget) <- 'detectors nontarget'
             }
             else nontarget <- NULL
             
