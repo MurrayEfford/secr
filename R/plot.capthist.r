@@ -5,21 +5,28 @@
 ## 2015-10-11 type = 'sightings'
 ## 2016-10-08 secr 3.0
 ## 2016-12-08 type = "centres"
+## 2022-05-11 type = "nontarget"
 ##############################################################################
 
-plot.capthist <- function(x, rad = 5,
-   hidetraps = FALSE, tracks = FALSE,
-   title = TRUE, subtitle = TRUE,
-   add = FALSE,
-   varycol = TRUE, icolours = NULL, randcol = FALSE,
-   lab1cap = FALSE, laboffset = 4,
-   ncap = FALSE,
-   splitocc = NULL, col2 = 'green',
-   type = c("petal", "n.per.detector", "n.per.cluster", "sightings", "centres", "telemetry"),
-   cappar = list(cex=1.3, pch=16, col='blue'),
-   trkpar = list(col='blue', lwd=1),
-   labpar = list(cex=0.7, col='black'),
-   ...)
+plot.capthist <- function(x, 
+    rad = 5,
+    hidetraps = FALSE, 
+    tracks = FALSE,
+    title = TRUE, 
+    subtitle = TRUE,
+    add = FALSE,
+    varycol = TRUE, 
+    icolours = NULL, 
+    randcol = FALSE,
+    lab1cap = FALSE, 
+    laboffset = 4,
+    ncap = FALSE,
+    splitocc = NULL, col2 = 'green',
+    type = c("petal", "n.per.detector", "n.per.cluster", "sightings", "centres", "telemetry", "nontarget"),
+    cappar = list(cex=1.3, pch=16, col='blue'),
+    trkpar = list(col='blue', lwd=1),
+    labpar = list(cex=0.7, col='black'),
+    ...)
 
     # see also version in d:\single sample with stems=F, mst=F 2009 02 22
 
@@ -176,6 +183,29 @@ plot.capthist <- function(x, rad = 5,
             points (rep(trapxy$x, nocc) + dx, rep(trapxy$y, nocc) - dy, pch=16, cex=0.4)
         }
         
+        plotnontarget <- function (x) {
+            nontarget <- attr(x, "nontarget")
+            if (is.null(nontarget)) stop ("nontarget type requires data in attribute 'nontarget'")
+            nontarget[nontarget==0] <- NA
+            dx  <- rep((cos((1:nocc) * 2 * pi / nocc) * rad), each = nrow(nontarget))
+            dy  <- rep((sin((1:nocc) * 2 * pi / nocc) * rad), each = nrow(nontarget))
+            dx0 <- dx; dx0[is.na(nontarget)] <- NA
+            
+            if (all(detector(traps(x)) %in% c('polygon'))) {
+                centres <- split(traps(x), polyID(traps(x)))
+                ## assume each polygon closed, so first vertex redundant
+                centres <- lapply(centres, function(xy) apply(xy[-1,,drop=FALSE], 2, mean))
+                trapxy <- data.frame(do.call(rbind,centres))
+                names(trapxy) <- c('x','y')
+            }
+            else trapxy <- traps(x)
+            
+            par(labpar)
+            text (rep(trapxy$x, nocc) + dx, rep(trapxy$y, nocc) - dy, nontarget, cex = 0.8)
+            par(cappar)
+            points (rep(trapxy$x, nocc) + dx0, rep(trapxy$y, nocc) - dy)
+        }
+        
         plotcentres <- function (x) {
             xtraps <- traps(x)
             meanxya <- function(xy) apply(xy, 2, mean)
@@ -228,6 +258,8 @@ plot.capthist <- function(x, rad = 5,
             cappar <- replacedefaults (list(cex=1.3, pch=16, col='blue'), cappar)
         if (type == 'sightings')
             cappar <- replacedefaults (list(cex=1, pch=16, col='blue'), cappar)
+        if (type == 'nontarget')
+            cappar <- replacedefaults (list(cex=1, pch=16, fg='black'), cappar)
         if (type %in% c('n.per.cluster','n.per.detector'))
             cappar <- replacedefaults (list(cex = 3, pch = 21), cappar)
 
@@ -368,6 +400,9 @@ plot.capthist <- function(x, rad = 5,
         else if (type == 'sightings') {
             plotsightings(x)
         }
+        else if (type == 'nontarget') {
+            plotnontarget(x)
+        }
         else if (type == 'centres') {
             plotcentres(x)
         }
@@ -377,8 +412,9 @@ plot.capthist <- function(x, rad = 5,
             caught <- apply(abs(x[seqnum,detectr!='telemetry',,drop=FALSE]),1,sum)>0
             mapply (plotpolygoncapt, lxy, seqnum, caught)
         }
-        else
+        else {
             if (type != 'null') stop ("type not recognised")
+        }
         
 
         ####################################################
@@ -424,9 +460,16 @@ plot.capthist <- function(x, rad = 5,
                     else
                         paste0(nocc, ' sighting occasion', pl, ', ', nd, ' sightings of unmarked animals')
                 }
-                else if (type == 'telemetry')
+                else if (type == 'nontarget') {
+                    nontarget <- attr(x,'nontarget')
+                    tot <- sum(nontarget)
+                    paste0(nocc, ' occasion', pl, ', ', tot, 
+                        ' nontarget or interference events (', round(mean(nontarget*100),1), '%)')
+                }
+                else if (type == 'telemetry') {
                     paste0(nocc, ' occasion', pl, ', ', nd, ' fixes,',
                            nanimal, ' animals')
+                }
                 else
                     paste0(nocc, ' occasion', pl, ', ', nd, ' detections, ',
                            nanimal, ' animals')

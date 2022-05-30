@@ -13,7 +13,7 @@
     title = TRUE, subtitle = TRUE, add = FALSE, varycol = TRUE, 
     icolours = NULL, randcol = FALSE, lab1cap = FALSE, laboffset = 4, ncap = FALSE, 
     splitocc = NULL, col2 = "green", type = c("petal", "n.per.detector", "n.per.cluster",
-        "sightings", "centres", "telemetry"),
+        "sightings", "centres", "telemetry", "nontarget"),
     cappar = list(cex = 1.3, pch = 16, col = "blue"), 
     trkpar = list(col = "blue", lwd = 1), 
     labpar = list(cex = 0.7, col = "black"), ...)
@@ -66,6 +66,8 @@ displayed on a petal-like plot (requires mark-resight data) (see also \code{\lin
 If \code{type = "centres"} then a single point is plotted for each animal, jittered on each axis by a random amount (limits +/- \code{rad}/2).
 
 If \code{type = "telemetry"} and the `telemetryxy' attribute is not NULL then the telemetry locations are plotted.
+
+If \code{type = "nontarget"} and the `nontarget' attribute is not NULL then the nontarget captures or interference events are plotted.
 
 If \code{title} = FALSE no title is displayed; if \code{title} = TRUE,
 the session identifer is used for the title.
