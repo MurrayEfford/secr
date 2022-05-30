@@ -28,7 +28,6 @@ predictD <- function (object, regionmask, group, session,
         regionmask <- object$mask
     if (ms(regionmask))
         regionmask <- regionmask[[session]]
-
 ## line commented out 2014-09-20
 ## group <- match (group, grouplevels)   ## numeric
 
@@ -86,7 +85,11 @@ predictD <- function (object, regionmask, group, session,
         D <- getD (designD, object$fit$par, regionmask, object$parindx,
                    object$link$D, object$fixed, grouplevels, sessionlevels,
                    'D')
-        return(D[,group,session])
+        ###########################################
+        ## 2022-05-24 temp fix for unresolved issue
+        ## return(D[,group,session])
+        return(D[,group+1,session])
+        ###########################################
     }
     ## linear density model on link scale
     else {
@@ -253,10 +256,10 @@ predictDsurface <- function (object, mask = NULL, se.D = FALSE, cl.D = FALSE, al
     parameter <- match.arg(parameter)
     sessionlevels <- session(object$capthist)
     grouplevels <- group.levels(object$capthist, object$groups)
+    
     if (is.null(mask))
         mask <- object$mask
     densitylist <- vector('list')
-    
     ## 2015-12-04 to fix bug found by Rahel Sollmann
     if (ms(mask)) {
         if (is.null(names(mask)))
