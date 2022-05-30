@@ -7,6 +7,7 @@ using namespace Rcpp;
  
  trappingsingle
  trappingmulti
+ trappingcapped
  trappingproximity
  trappingcount
  trappingpolygon
