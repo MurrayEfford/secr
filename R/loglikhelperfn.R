@@ -148,10 +148,16 @@ getD <- function (designD, beta, mask, parindx, link, fixed,
     }
     else {
         if (is.function(designD)) {
-            ## fixed 2021-12-10
-            for (session in 1:nsession) {
-                m <- nrow(mask[[session]])
-                D[1:m,,session] <- designD(beta[parindx[[parameter]]], mask[[session]], ngroup, 1)
+            ## fixed 2021-12-10, 2022-05-24
+            if (ms(mask)) {
+                for (session in 1:nsession) {
+                    m <- nrow(mask[[session]])
+                    D[1:m,,session] <- designD(beta[parindx[[parameter]]], mask[[session]], ngroup, 1)
+                }
+            } 
+            else {
+                m <- nrow(mask)
+                D[1:m,,1] <- designD(beta[parindx[[parameter]]], mask, ngroup, 1)
             }
         }
         else {
