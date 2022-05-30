@@ -254,13 +254,11 @@ plot.mask <- function(x, border = 20, add = FALSE, covariate = NULL,
         }
         else {
             pixelsize <- attr(x,'spacing')
-            ## dx <- c(-0.5, -0.5, +0.5, +0.5) * pixelsize
-            ## dy <- c(-0.5, +0.5, +0.5, -0.5) * pixelsize
             dx <- pixelsize / 2
             dy <- pixelsize / 2
             plotpixel <- function (xy) {
                 rect (xy[1]-dx, xy[2]-dy, xy[1]+dx, xy[2]+dy, col = col[xy[3]],
-                      density=-1, border = meshcol)
+                    density=-1, border = meshcol)
             }
             apply(cbind(x,as.numeric(covfactor)),1,plotpixel)
         }
@@ -297,8 +295,9 @@ plot.mask <- function(x, border = 20, add = FALSE, covariate = NULL,
                 do.call(strip.legend, args)
             }
         }
-        if (!is.null(covariate))
+        if (!is.null(covariate)) {
             invisible(levels(covfactor)[1:ncolour])
+        }
     }
 }
 ###############################################################################
