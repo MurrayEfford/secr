@@ -31,6 +31,12 @@ plotMaskEdge(mask, plt = TRUE, add = FALSE, ...)
   A numeric matrix of 4 columns is returned invisibly. The columns may be used as arguments x0, y0, x1, y1 in a call to segments().
 }
 
+\seealso{
+
+\code{\link{gridCells}}
+
+}
+
 \note{
 
 A bug in \pkg{secr} <3.2.2 caused some internal lines to appear when the mask spacing was not an integer.
