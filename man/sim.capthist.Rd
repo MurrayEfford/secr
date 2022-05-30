@@ -69,7 +69,7 @@ between detectors and, in the case of `single' detectors, between animals. See
 Efford (2004) and other papers below for details.
 
 Detection parameters in \code{detectpar} are specific to the detection
-function, which is indicated by a numeric code (\code{\link{detectfn}}).
+function, which is indicated by \code{\link{detectfn}}.
 Parameters may vary with time - for this provide a vector of length
 \code{noccasions}.  The g0 parameter may vary both by time and detector
 - for this provide a matrix with \code{noccasions} rows and as many
