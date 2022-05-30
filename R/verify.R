@@ -21,7 +21,7 @@
 ## 2020-08-14 bug in checkcovariatelevels caused by bug in stringsAsFactors
 ## 2020-08-27 verify.traps did not report markocc checks
 ## 2020-08-27 verify.capthist returns capture checks invisibly
-
+## 2022-05-07 verify.capthist checks nontarget matrix if present
 ############################################################################################
 
 verify <- function (object, report, ...) UseMethod("verify")
@@ -449,6 +449,8 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
     MOK <- TRUE
     ROK <- TRUE
     telemOK <- TRUE
+    nontargetdimOK <- TRUE
+    nontargetOK <- TRUE
     
     if (!is.null(covariates(object)))
       if ((ncol(covariates(object)) == 0 ) |
@@ -722,6 +724,19 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
           if ( any((r > 0) & (markocc>0))) ROK <- FALSE
       }
     }
+    nontarget <- attr(object, 'nontarget', exact = TRUE)
+    if (!is.null(nontarget)) {
+        nontarget <- as.matrix(nontarget)
+        if (nrow(nontarget) != dim(object)[3] ||
+                ncol(nontarget) != dim(object)[2])
+            nontargetdimOK <- FALSE
+        if (nontargetdimOK && detectortype[1] %in% c('single', 'capped')) {
+            # capture and nontarget mutually exclusive 
+            obs <- t(apply(abs(object), 2:3, sum))
+            if (any(obs & nontarget))
+                nontargetOK <- FALSE
+        }
+    }
     
     errors <- !all(c(trapspresentOK,
       trapsOK,
@@ -744,11 +759,15 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
       xyinpolyOK,
       xyontransectOK,
       rownamesOK,
+        
       sightingsOK,
       sightingusageOK,
       MOK,
       ROK,
-      telemOK))
+      telemOK,
+      nontargetdimOK,
+      nontargetOK
+        ))
     
     if (report > 0) {
       if (errors) {
@@ -888,9 +907,12 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
         if (!ROK) {
           cat("Sighting(s) on marking-only occasion\n")
         }
-        if (!telemOK) {
-          cat ("Telemetry data (telemetryxy) do not match capture histories\n")
-        }
+          if (!nontargetdimOK) {
+              cat ("Nontarget dimensions do not match capthist\n")
+          }
+          if (!nontargetOK) {
+              cat ("Nontarget data conflict with capthist\n")
+          }
       }
       
       if ((report == 2) & !errors) message('No errors found :-)')
@@ -917,11 +939,14 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
       xyinpolyOK = xyinpolyOK,
       xyontransectOK = xyontransectOK,
       rownamesOK = rownamesOK,
+        
       sightingsOK = sightingsOK,
       sightingusageOK = sightingusageOK,
       MOK = MOK,
       ROK = ROK,
-      telemOK = telemOK
+      telemOK = telemOK,
+        nontargetdimOK = nontargetdimOK,
+        nontargetOK = nontargetOK
     )
     
     out <- list(errors = errors, trapcheck = trapcheck, captcheck = captcheck)
