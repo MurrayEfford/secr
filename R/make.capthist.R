@@ -155,7 +155,7 @@ make.capthist <- function (captures, traps, fmt = c("trapID", "XY"), noccasions 
                             vlist <- lapply(vlist, st_linestring)
                             # combine linestrings in one sfc
                             v <- st_sfc(vlist)     
-                            xy <- st_as_sf(captures[,4:5], coords = 1:2)
+                            xy <- st_as_sf(captures[,4:5, drop = FALSE], coords = 1:2)
                             xy2 <- snap_points (xy, v, max_dist = tol) # see utility.R
                             distances <- st_distance(xy,v) 
                             OK <- distances < tol

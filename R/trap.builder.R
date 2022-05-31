@@ -73,6 +73,7 @@ trap.builder <- function (n = 10, cluster, region = NULL, frame =
 
     centreinside <- function (xy) {
         xy <- apply(as.matrix(xy),2,mean)
+        xy <- matrix(xy, ncol = 2)  # 2022-05-27
         xy <- st_as_sf(data.frame(xy), coords = 1:2)
         st_crs(xy) <- st_crs(region)
         OK <- st_within(xy, region, sparse = FALSE)
@@ -81,6 +82,7 @@ trap.builder <- function (n = 10, cluster, region = NULL, frame =
     
     centreoutside <- function (xy) {
         xy <- apply(as.matrix(xy),2,mean)
+        xy <- matrix(xy, ncol = 2)  # 2022-05-27
         xy <- st_as_sf(data.frame(xy), coords = 1:2)
         st_crs(xy) <- st_crs(region)
         OK <- st_within(xy, region, sparse = FALSE)
@@ -443,6 +445,7 @@ make.systematic <- function (n, cluster, region, spacing = NULL,
     ##-----------------------------------------------------------------
     
     if (chequerboard != 'all') {
+        if (order != 'y') stop ("chequerboard option requires order = 'y'")
         whitesquares <- trunc(rowcol$row + rowcol$col + 0.1) %% 2L == 1L
         if (chequerboard == 'white')
             centres <- centres[whitesquares,]
@@ -452,7 +455,7 @@ make.systematic <- function (n, cluster, region, spacing = NULL,
     
     args <- list(...)
     if (!is.null(args$edgemethod)) {
-        if (args$edgemethod %in% c('allinside', 'centreinside')) {
+        if (args$edgemethod %in% c('allinside', 'centreinside','allowoverlap')) {
             sfcentres <- st_as_sf(centres, coords=1:2)
             st_crs(sfcentres) <- st_crs(region)                       
             OK <- st_within(sfcentres, region, sparse = FALSE)
