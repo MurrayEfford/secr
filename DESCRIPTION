@@ -16,4 +16,4 @@ License: GPL (>= 2)
 LazyData: yes
 LazyDataCompression: xz
 SystemRequirements: GNU make
-URL: https://github.com/MurrayEfford/secr, https://www.otago.ac.nz/density
+URL: https://github.com/MurrayEfford/secr/, https://www.otago.ac.nz/density/
