@@ -20,7 +20,7 @@
 ## 2022-01-23 uniformusage() function to assign all-ones usage matrix
 ## 2022-02-10 4.5.2 shift to sf where possible
 ## 2022-04-22 4.5.4
-## 2022-04-23 4.5.5
+## 2022-05-31 4.5.5
 #######################################################################################
 
 # Global variables in namespace
@@ -30,8 +30,8 @@
 
 .localstuff <- new.env()
 
-.localstuff$packageType <- ' pre-release'
-#.localstuff$packageType <- ''
+#.localstuff$packageType <- ' pre-release'
+.localstuff$packageType <- ''
 
 .localstuff$validdetectors <- c('single','multi','proximity','count', 
     'polygonX', 'transectX', 'signal', 'polygon', 'transect', 

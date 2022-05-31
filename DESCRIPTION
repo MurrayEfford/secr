@@ -9,7 +9,7 @@ Imports: abind, graphics, grDevices, MASS, utils, parallel, nlme, sf,
 Suggests: gdistance, knitr, readxl, rmarkdown, sp, testthat, spsurvey (>= 5.3.0)
 LinkingTo: Rcpp, RcppParallel, RcppEigen, RcppNumerical, BH
 VignetteBuilder: knitr
-Date: 2022-05-30
+Date: 2022-05-31
 Authors@R: person("Murray", "Efford", email = "murray.efford@otago.ac.nz", role = c("aut","cre"), comment = c(ORCID = "0000-0001-5231-5184"))
 Description: Functions to estimate the density and size of a spatially distributed animal population sampled with an array of passive detectors, such as traps, or by searching polygons or transects. Models incorporating distance-dependent detection are fitted by maximizing the likelihood. Tools are included for data manipulation and model selection.
 License: GPL (>= 2)

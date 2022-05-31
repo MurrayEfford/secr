@@ -869,6 +869,7 @@ Here is an index of **secr** functions classified by use (some minor functions a
 |	`dbar`		| mean distance between capture locations |
 |	`distancetotrap`	| from an arbitrary set of points |
 |    `edist`    	| Euclidean distance |
+| `gridCells` 	| grid cells around points (e.g. traps object) |
 |    `MMDM`		| mean maximum distance moved |
 |	`moves`		| distances between capture locations |
 |	`nearesttrap`	| from an arbitrary set of points |

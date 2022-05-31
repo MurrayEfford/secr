@@ -1,4 +1,4 @@
-Changes in version 4.5.5 (2022-05-30)
+Changes in version 4.5.5 (2022-05-31)
 
 New features or changed behaviour of old functions
     o   verify.capthist() checks nontarget matrix if present
