@@ -30,6 +30,7 @@
 ## 2021-07-12 BVN simulation uses rweibull
 ## 2021-07-12 BVT simulation uses inverse distribution function
 ## 2021-09-08 "truncate" as synonym of "normalize"
+## 2022-06-06 IHP safe for multicolumn D df)
 ###############################################################################
 
 toroidal.wrap <- function (pop) {
@@ -138,16 +139,12 @@ reflect <- function (pop) {
 tile <- function (popn, method = "reflect") {
     bbox <- attr(popn, 'boundingbox')
     if (method== "reflect") {
-        # p2 <- rbind.popn(popn, flip(popn,lr=min(bbox$x)), flip(popn,lr=max(bbox$x)))
-        # rbind.popn(p2, flip(p2,tb=min(bbox$y)), flip(p2,tb=max(bbox$y)))
         p2 <- rbind(popn, flip(popn,lr=min(bbox$x)), flip(popn,lr=max(bbox$x)))
         rbind(p2, flip(p2,tb=min(bbox$y)), flip(p2,tb=max(bbox$y)))
     }
     else if (method == "copy") {
         ht <- max(bbox$y) - min(bbox$y)
         wd <- max(bbox$x) - min(bbox$x)
-        # p2 <- rbind.popn(popn, shift(popn,c(-wd,0)), shift(popn, c(wd,0)))
-        # rbind.popn(p2, shift(p2,c(0,-ht)), shift(p2, c(0,ht)))
         p2 <- rbind(popn, shift(popn,c(-wd,0)), shift(popn, c(wd,0)))
         rbind(p2, shift(p2,c(0,-ht)), shift(p2, c(0,ht)))
     }
@@ -270,13 +267,15 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
             fr <- x-trunc(x)
             sample (c(trunc(x), trunc(x)+1), size=1, prob=c(1-fr, fr))
         }
-        ## session.popn <- function (s, D, Nbuffer) {
         session.popn <- function (s, D=NULL, Nbuffer=NULL, Ndist) {
             ## independent population
             if (s > 1) seed <- NULL   ## 2015-02-18
-            if (!is.null(Nbuffer))
-                if (is.na(Nbuffer)) Nbuffer <- NULL
-            sim.popn (D[1], core, buffer, model2D, buffertype, poly,
+            if (!is.null(Nbuffer) && is.na(Nbuffer)) {
+                Nbuffer <- NULL
+            }
+            ## sim.popn (D[1], core, buffer, model2D, buffertype, poly,
+            if (ms(core)) core <- core[[s]]
+            sim.popn (D, core, buffer, model2D, buffertype, poly,
                 covariates, number.from, Ndist, nsessions = 1, details, seed,
                 keep.mask, Nbuffer[1])
         }
@@ -428,11 +427,8 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
         }
         
         #---------------------------------------------------------------------------------
-        
         if (is.null(details$lambda)) {
             ## independent populations
-            ## MSpopn <- lapply (1:nsessions, session.popn)
-            ## 2014-04-18, 2015-02-18
             if (missing(D))
                 D <- rep(NA, nsessions)
             else if (length(D) == 1)
@@ -445,7 +441,6 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                 Nbuffer <- rep(Nbuffer, nsessions)
             else
                 if (length(Nbuffer) != nsessions) stop ("length(Nbuffer) should equal nsessions")
-
             MSpopn <- mapply (session.popn, 1:nsessions, D, Nbuffer, Ndist, SIMPLIFY = FALSE)
         }
         else {
@@ -489,8 +484,6 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
             
             turnoverpar$lambda  <- expands(turnoverpar$lambda, nsessions)
             turnoverpar$phi     <- expands(turnoverpar$phi, nsessions)
-            ## turnoverpar$sigma.m <- expands(turnoverpar$sigma.m, nsessions)
-            ## consistent
             turnoverpar$move.a <- expands(turnoverpar$move.a, nsessions)
             turnoverpar$move.b <- expands(turnoverpar$move.b, nsessions)
             turnoverpar$Nrecruits <- expands(turnoverpar$Nrecruits, nsessions-1)
@@ -548,9 +541,10 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
         }
         ##########################
 
-        getnm <- function (scaleattribute = 'area', scale = 1, D) {
-            
-            ## 2014-09-03 for "IHP" and "linear"
+        # 2022-06-06 simplify
+        # getnm <- function (scaleattribute = 'area', scale = 1, D) {
+        getnm <- function (cellsize, D) {
+                ## 2014-09-03 for "IHP" and "linear"
             if ((length(D) == 1) & (is.character(D)))
                 D <- covariates(core)[,D]
             if ((length(D) == 1) & (is.numeric(D)))
@@ -564,8 +558,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                 warning ("negative D set to zero")
             }
             ## D vector, 1 per cell
-            D <- D * attr(core, scaleattribute) * scale
-            ## 2015-04-06 using Nbuffer
+            D <- D * cellsize
             if (!is.null(Nbuffer)) {  ## includes Ndist == 'specified'
               N <- round(Nbuffer)
             }
@@ -594,7 +587,8 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                 if (any(is.na(s)) || min(s)<0 || max(s)>1) 
                     stop('settle covariate should be in range 0-1 with none missing')
             }
-            nm <- getnm('area', 1, D)
+            cellsize <- attr(core, 'area')
+            nm <- getnm(cellsize, unlist(D))
             jitter <- matrix ((runif(2*sum(nm))-0.5) * attr(core,'spacing'), ncol = 2)
             animals <- core[rep(1:nrow(core), nm),] + jitter
             animals <- as.data.frame(animals)
@@ -604,7 +598,8 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
         else  if (model2D == 'linear') {
             if (!inherits(core, 'linearmask'))
                 stop ("for model2D = linear, 'core' should be a linear mask")
-            nm <- getnm('spacing', 0.001, D)
+            cellsize <- attr(core, 'spacing') * 0.001
+            nm <- getnm(cellsize, D)
             animals <- core[rep(1:nrow(core), nm),] * 1  ## * 1 to shed attributes...
             animals <- as.data.frame(animals)
             xl <- range(animals[,1])
