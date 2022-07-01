@@ -47,7 +47,7 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
     details <- replace (defaultdetails, names(details), details)
     
     NP <- max(unlist(parindx))
-    
+
     ############################################
     # Start values (model-specific)
     # 'start' is vector of beta values (i.e. transformed) or a list 
