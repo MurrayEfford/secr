@@ -20,7 +20,7 @@ This document provides an overview of **secr** 4.5, an R package for spatially e
 
 NOTE: **secr** was extensively re-written between versions 3.2 and 4.0, but the interface remained unchanged. For many datasets version 4 is significantly faster. Other changes are described in [secr-version4.pdf][].
 
-Two add-on packages extend the capability of **secr** and are documented separately. **secrlinear** enables the estimation of linear density (e.g., animals per km) for populations in linear habitats such as stream networks ([secrlinear-vignette.pdf][]). **secrdesign** enables the assessment of alternative study designs by  Monte Carlo simulation; scenarios may differ in detector (trap) layout, sampling intensity, and other characteristics ([secrdesign-vignette.pdf][]).
+Add-on packages extend the capability of **secr** and are documented separately. **secrlinear** enables the estimation of linear density (e.g., animals per km) for populations in linear habitats such as stream networks ([secrlinear-vignette.pdf][]). **ipsecr** fits models by simulation and inverse prediction, rather than maximum likelihood; this is a rigorous way to analyse data from single-catch traps ([ipsecr-vignette.pdf][]). **secrdesign** enables the assessment of alternative study designs by  Monte Carlo simulation; scenarios may differ in detector (trap) layout, sampling intensity, and other characteristics ([secrdesign-vignette.pdf][]).
 
 Spatial open-population capture--recapture models are implemented in the R package **openCR** (Efford and Schofield 2020). Other open-population packages due to Ben Augustine and Richard Glennie are available on GitHub (https://github.com/benaug/OpenPopSCR; https://github.com/r-glennie/openpopscr). 
 
@@ -166,9 +166,13 @@ competition -- between animals for traps. Multi-catch and single-catch
 traps therefore represent distinct detector types. No general
 adjustment has been found for the per-trap probability of capture in
 the single-catch case (it's an open research question), and there is
-strictly no known maximum likelihood estimator. However, density
-estimates using the multi-catch likelihood for single-catch data
-appear only slightly biased (Efford, Borchers and Byrom 2009).
+strictly no known maximum likelihood estimator. Estimates of average density 
+using the multi-catch likelihood for single-catch data
+appear only slightly biased (Efford, Borchers and Byrom 2009), and this 
+substitution is made automatically in **secr**, with a warning. However, the
+substitution is imperfect when density varies (Distiller 
+and Borchers 2015). Simulation and inverse prediction in **ipsecr** is an 
+alternative and more robust method for single-catch data.
 
 Polygon and transect detectors are for binary or count detection data
 (e.g., number of detections per animal per polygon per occasion)
@@ -528,7 +532,7 @@ their output density, SE, and confidence limits.
 
 On processors with multiple cores it is possible to speed up computation by using cores in parallel. In **secr** 4.5 this happens automatically in `secr.fit` and a few other functions using the multi-threading paradigm of **RcppParallel** (Allaire et al. 2021). The number of threads may be set directly with the function `setNumThreads`, or via the 'ncores' argument of several functions. 
 
-Earlier versions of **secr** relied on parallel processing with the **parallel** package (invoked when the argument ncores was set greater than 1). The benefits of that form of parallel processing were variable (considerable with simulations in `sim.secr` and `ip.secr`, but otherwise unimpressive). 
+Earlier versions of **secr** relied on parallel processing with the **parallel** package (invoked when the argument ncores was set greater than 1). The benefits of that form of parallel processing were variable (considerable with simulations in `sim.secr`, but otherwise unimpressive). 
 
 The functions `par.secr.fit`, `par.region.N` and `par.derived` allowed models to be fitted or analysed in parallel, one per core. The greater speed of `secr.fit` in **secr** 4.5 makes `par.secr.fit` redundant. All three functions now appear to run faster with ncores=1 than with ncores>1. They are retained because it is sometimes useful to process several models at once.
 
@@ -566,6 +570,8 @@ Borchers, D. L. and Kidney, D. (2014) Flexible density surface estimation for sp
 Chandler, R. B. and Royle, J. A. (2013) Spatially explicit models for inference about density in unmarked or partially marked populations. *Annals of Applied Statistics* **7**, 936--954.
 
 Cooch, E. and White, G. (eds) (2014) *Program MARK: A Gentle Introduction*. 13th edition. Available online at http://www.phidot.org/software/mark/docs/book/.
+
+Distiller, G. and Borchers, D. L. (2015) A spatially explicit capture--recapture estimator for single-catch traps. *Ecology and Evolution* **5**, 5075--5087.
 
 Eddelbuettel, D. and Francois, R. (2011) Rcpp: Seamless R and C++ Integration. *Journal of
   Statistical Software* **40(8)**, 1--18. https://www.jstatsoft.org/v40/i08/.
@@ -809,7 +815,6 @@ Here is an index of **secr** functions classified by use (some minor functions a
 | `trap`	        | detector |
 | `xy`      	| detection coordinates (polygon and transect detectors)|
 |  <a name="fit"></a>  **Fit SECR model(s)** | |
-| `ip.secr`	| fit simple SECR model by simulation \| inverse prediction |
 | `par.secr.fit`  | parallel secr.fit() (several models, using multiple cores) |
 | `secr.fit`	| maximum likelihood fit; result is a fitted `secr` object | 
 | <a name="operate"></a> **Operate on fitted model(s)** | |
@@ -950,6 +955,7 @@ Stoat *Mustela erminea* hair tube DNA data from Matakitaki Valley, South Island,
 
 [secrdesign-vignette.pdf]: https://www.otago.ac.nz/density/pdfs/secrdesign-vignette.pdf
 [secrlinear-vignette.pdf]: https://CRAN.R-project.org/package=secrlinear/vignettes/secrlinear-vignette.pdf
+[ipsecr-vignette.pdf]: https://CRAN.R-project.org/package=ipsecr/vignettes/ipsecr-vignette.pdf
 
 [secr-version4.pdf]: https://www.otago.ac.nz/density/pdfs/secr-version4.pdf
 
