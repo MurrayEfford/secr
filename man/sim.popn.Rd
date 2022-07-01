@@ -22,7 +22,7 @@ tile(popn, method = "reflect")
 }
 
 \arguments{
-  \item{D}{ density animals / hectare (10 000 m\^2) (see Details for
+  \item{D}{ density animals / hectare (10 000 m^2) (see Details for
   IHP case) }
   \item{core}{ data frame of points defining the core area }
   \item{buffer}{ buffer radius about core area }

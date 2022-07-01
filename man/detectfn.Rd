@@ -180,7 +180,7 @@ line-transect method. \emph{Biometrics} \bold{39}, 29--42.
 
 Royle, J. A. and Gardner, B. (2011) Hierarchical spatial
 capture--recapture models for estimating density from trapping
-arrays. In: A.F. O'Connell, J.D. Nichols \& K.U. Karanth (eds)
+arrays. In: A.F. O'Connell, J.D. Nichols & K.U. Karanth (eds)
 \emph{Camera Traps in Animal Ecology: Methods and Analyses}. Springer,
 Tokyo.  Pp. 163--190.
 

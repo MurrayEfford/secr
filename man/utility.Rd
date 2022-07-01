@@ -44,7 +44,7 @@ nedist(xy1, xy2, mask, inf = Inf, ...)
 
   \code{nedist} computes the non-Euclidean distance between each point
   in xy1 and each point in xy2, in two dimensions. The calculation uses
-  \pkg{gdistance} (van Etten 2017; see also Csardi \& Nepusz 2006): a
+  \pkg{gdistance} (van Etten 2017; see also Csardi & Nepusz 2006): a
   transition layer is formed representing the connections between
   adjacent points in \code{mask}. By default, points within a 16-point
   neighbourhood are considered `adjacent'. Distances are obtained by
