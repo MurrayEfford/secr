@@ -13,13 +13,9 @@ detector (trap) locations, individual covariates and other data needed
 for a spatially explicit capture-recapture analysis with
 \code{secr.fit}. 
 
-For `single' and `multi' detectors, \code{capthist} is a matrix with one
-row per animal and one column per occasion (i.e. dim(capthist) = c(nc,
-noccasions)); each element is either zero (no detection) or a detector
-number.  For other detectors (`proximity', `count', `signal' etc.),
-\code{capthist} is an array of values and dim(capthist) = c(nc,
-noccasions, ntraps); values maybe binary (\{--1, 0, 1\}) or integer
-depending on the detector type.
+A \code{capthist} is primarily an array of values with dim(capthist) = c(nc,
+noccasions, ntraps) where nc is the number of detected individuals. 
+Values maybe binary (\{--1, 0, 1\}) or integer depending on the detector type.
 
 Deaths during the experiment are represented as negative values. 
 
@@ -63,6 +59,15 @@ by spatially explicit capture-recapture: likelihood-based methods. In:
 D. L. Thomson, E. G. Cooch and M. J. Conroy (eds) \emph{Modeling
 Demographic Processes in Marked Populations}. Springer, New York. Pp.
 255--269.
+}
+
+\notes{
+
+Early versions of \pkg{secr} (before 3.0) used an individual x occasion matrix 
+for data from single-catch and multi-catch traps, instead of a 3-D array. 
+Entries in the matrix corresponded to trap numbers. The function 
+\code{\link{updateCH}} converts the old format.
+
 }
 
 \seealso{ \code{\link{traps}}, \code{\link{secr.fit}},
