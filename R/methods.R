@@ -1814,6 +1814,9 @@ subset.capthist <- function (x, subset=NULL, occasions=NULL, traps=NULL,
         if (!is.null(secr::traps(temp))) {
             usage(secr::traps(temp)) <- usage(trapsx)[traps, occasions,
                   drop = FALSE][,OK2, drop = FALSE]  ## drop null occasions
+            ## 2022-08-09
+            attr(temp, 'nontarget') <- attr(x, 'nontarget')[traps, occasions,
+                drop = FALSE][,OK2, drop = FALSE]  ## drop null occasions
         }
 
         if (length(detector(trapsx))>1)
