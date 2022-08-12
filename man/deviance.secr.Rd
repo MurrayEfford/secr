@@ -35,16 +35,16 @@ log-likelihood of the saturated model, calculated thus:
 
 Likelihood conditional on \eqn{n} -
 
-\eqn{L_{sat} = \mbox{log}(n!) + \sum\limits _{\omega} [n_\omega \mbox{log} (\frac{n_\omega}{n}) - \mbox{log} 
+\eqn{L_{sat} = \log(n!) + \sum\limits _{\omega} [n_\omega \log (\frac{n_\omega}{n}) - \log 
  (n_\omega !)]}{ L_sat = log(n!) + sum-over-w ( n_w log (n_w / n) - log (n_w !)))}
 
 Full likelihood, Poisson \eqn{n} -
 
-\eqn{L_{sat} = n\mbox{log}(n) - n + \sum\limits _{\omega} [n_\omega \mbox{log} (\frac{n_\omega}{n}) - \mbox{log} (n_\omega !)]}{ L_sat = nlog(n) - n + sum-over-w [n_w log (n_w / n) - log (n_w !)] }
+\eqn{L_{sat} = n\log(n) - n + \sum\limits _{\omega} [n_\omega \log (\frac{n_\omega}{n}) - \log (n_\omega !)]}{ L_sat = nlog(n) - n + sum-over-w [n_w log (n_w / n) - log (n_w !)] }
 
 Full likelihood, binomial \eqn{n} -
 
-\eqn{L_{sat} = n\mbox{log}(\frac{n}{N}) + (N-n)\mbox{log}(\frac{N-n}{N}) + \mbox{log} (\frac{N!}{(N-n)!}) + \sum\limits _{\omega} [n_\omega \mbox{log} (\frac{n_\omega}{n}) - \mbox{log} (n_\omega !)]}{ L_sat = nlog(n/N) + (N-n)log((N-n)/N) + log(N!/(N-n)!) + sum-over-w [n_w log (n_w/n) - log (n_w!)]}
+\eqn{L_{sat} = n\log(\frac{n}{N}) + (N-n)\log(\frac{N-n}{N}) + \log (\frac{N!}{(N-n)!}) + \sum\limits _{\omega} [n_\omega \log (\frac{n_\omega}{n}) - \log (n_\omega !)]}{ L_sat = nlog(n/N) + (N-n)log((N-n)/N) + log(N!/(N-n)!) + sum-over-w [n_w log (n_w/n) - log (n_w!)]}
 
 \eqn{n} is the number of individuals observed at least once, \eqn{n_\omega}{n_w} is the number of distinct histories, and \eqn{N} is the number in a chosen area \eqn{A} that we estimate by \eqn{\hat{N} = \hat{D}A}{N-hat = D-hat.A}.
 

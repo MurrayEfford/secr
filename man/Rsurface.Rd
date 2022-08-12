@@ -82,28 +82,28 @@ capture--recapture. \emph{Methods in Ecology and Evolution} \bold{4},
 \note{
   
 Consider a focal pixel \bold{s} and another point in the habitat mask
-\bold{x}, with distance \eqn{d = |\mbox{\bold{x}} - \mbox{\bold{s}}|}{d
+\bold{x}, with distance \eqn{d = |x - s|}{d
 = |x-s|}. Weights are given by a kernel \eqn{f(d)}. Typically the kernel
-will be halfnormal \eqn{f(d) = \mbox{exp}(-d^2/(2\sigma^2))}{f(d) =
+will be halfnormal \eqn{f(d) = \exp(-d^2/(2\sigma^2))}{f(d) =
 exp(-d^2/(2 \sigma^2))} (detectfn = \sQuote{HHN}) or exponential
-\eqn{f(d) = \mbox{exp}(-d/\sigma)}{exp(-d/\sigma)} (detectfn =
+\eqn{f(d) = \exp(-d/\sigma)}{exp(-d/\sigma)} (detectfn =
 \sQuote{HEX}) (see \link{detectfn} for other possibilities).
 
-If \eqn{z(\mbox{\bold{x}})}{z(x)} represents the covariate value at point
+If \eqn{z(x)} represents the covariate value at point
 \bold{x}, the summed resource availability at \bold{s} is given by
-\deqn{R(\mbox{\bold{s}}) = \sum_x f(d)\, \mbox{exp}(\alpha_2 \,
-  z(\mbox{\bold{x}})).}{R(s) = \sum f(d) exp(\alpha2 z(x)).}
+\deqn{R(s) = \sum_x f(d)\, \exp(\alpha_2 \,
+  z(x)).}{R(s) = \sum f(d) exp(\alpha2 z(x)).}
 This corresponds to the denominator of eqn 4 in Royle et al. (2013).
 
 By default, the numerical values reported by \code{Rsurface} are not raw
 \eqn{R} values. If \code{scale = TRUE}, values are standardized by
-dividing by the mean: \eqn{R'(\mbox{\bold{s}}) = R(\mbox{\bold{s}}) /
-  (\sum_s R(\mbox{\bold{s}}) / n)}{R'(s) = R(s) / (\sum R(s) / n)} where \eqn{n} is the number of
-pixels. Values of \eqn{R'(\mbox{\bold{s}})}{R'(s)} are centred on 1.0.
+dividing by the mean: \eqn{R'(s) = R(s) /
+  (\sum_s R(s) / n)}{R'(s) = R(s) / (\sum R(s) / n)} where \eqn{n} is the number of
+pixels. Values of \eqn{R'(s)}{R'(s)} are centred on 1.0.
 
 If \code{inverse = TRUE}, the numeric values are \eqn{1 /
-  R'(\mbox{\bold{s}})}{1 / R'(s)}
-or \eqn{1 / R(\mbox{\bold{s}})}{1 / R(s)} as determined by \code{scale}.
+  R'(s)}{1 / R'(s)}
+or \eqn{1 / R(s)}{1 / R(s)} as determined by \code{scale}.
 
 }
 

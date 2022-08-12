@@ -127,7 +127,7 @@ If not provided, the starting values are determined automatically
 with \code{\link{autoini}}.
 
 Linear measurements are assumed to be in metres and density in animals
-per hectare (10 000 \eqn{\mbox{m}^2}{m^2}).
+per hectare (10 000 \eqn{\text{m}^2}{m^2}).
 
 If \code{ncores > 1} the \pkg{parallel} package is used to create
 processes on multiple cores (see \link{Parallel} for more).
@@ -137,7 +137,7 @@ processes on multiple cores (see \link{Parallel} for more).
 \value{
 For \code{ip.secr}, a list comprising
   \item{call}{ the function call }
-  \item{IP}{ dataframe with estimated density \eqn{\mbox{ha}^{-1}}{/ha}, g0 and sigma (m) }
+  \item{IP}{ dataframe with estimated density \eqn{\text{ha}^{-1}}{/ha}, g0 and sigma (m) }
   \item{vcov}{ variance-covariance matrix of estimates }
   \item{ip.nsim}{ total number of simulations }
   \item{variance.bootstrap}{ dataframe summarising simulations for variance estimation }

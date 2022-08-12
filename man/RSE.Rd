@@ -27,7 +27,7 @@ RSE(fit, parm = NULL, newdata = NULL)
 
 The relative standard error (RSE) of parameter \eqn{\theta} is \eqn{RSE(\hat \theta) = \widehat{SE} (\theta) / {\hat \theta}}. 
 
-For a parameter estimated using a log link with single coefficient \eqn{\beta}, the RSE is also \eqn{RSE(\hat \theta) = \sqrt {\exp(\var (\beta))-1}}{RSE(\hat \theta) = \sqrt {\exp(\var (\beta))-1}}.
+For a parameter estimated using a log link with single coefficient \eqn{\beta}, the RSE is also \eqn{RSE(\hat \theta) = \sqrt {\exp( var(\beta))-1}}{RSE(\hat \theta) = \sqrt {exp(var (\beta))-1}}.
 This formula is used wherever applicable.
 
 }

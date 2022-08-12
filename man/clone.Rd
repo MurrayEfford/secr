@@ -22,7 +22,7 @@ Replicate Rows
 
 \arguments{
   \item{object}{any object}
-  \item{type}{character 'constant', 'poisson' or 'nbinom'}
+  \item{type}{character `constant', `poisson',  `truncatedpoisson' or `nbinom'}
   \item{\dots}{other arguments for distribution function }
 }
 \details{
@@ -70,6 +70,15 @@ pop <- clone (pop, "poisson", 5)
 attr(pop[[1]],"freq")
 
 clone(captdata, "poisson", 3)
+
+# To avoid losing any individuals use zero-truncated Poisson
+# First find lambda of truncated Poisson with given mean
+getlambda <- function (target) {
+    fn <- function(x) x / (1-exp(-x)) - target
+    uniroot(interval = c(1e-8, target), f = fn)$root
+}
+clone(captdata, "truncatedpoisson", getlambda(3))
+
 }
 
 \keyword{ manip }

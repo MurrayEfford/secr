@@ -45,7 +45,7 @@ issued if \code{\link{AICcompatible}} reveals a problem.
 
 AIC with small sample adjustment is given by
 
-\deqn{ \mbox{AIC}_c = -2\log(L(\hat{\theta})) + 2K +
+\deqn{ \text{AIC}_c = -2\log(L(\hat{\theta})) + 2K +
 \frac{2K(K+1)}{n-K-1} }{AICc = -2log(L(theta-hat)) + 2K +
 2K(K+1)/(n-K-1)}
 

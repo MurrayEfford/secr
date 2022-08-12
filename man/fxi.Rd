@@ -10,7 +10,7 @@
   Display contours of the probability density function for the estimated
   location of one or more range centres, compute values for
   particular points X, or compute mode of pdf. The pdf is given by
-  \eqn{f(X_j|\omega_i) = \mbox{Pr}(\omega_i|X_j)\pi(X_j)}{f(X_j|\omega_i) =
+  \eqn{f(X_j|\omega_i) = \text{Pr}(\omega_i|X_j)\pi(X_j)}{f(X_j|\omega_i) =
   Pr(\omega_i|X)\pi(X_j)}, where \eqn{\pi(X)} is the probability density
   of range centres across the mask (Borchers and Efford 2008).
 }
@@ -72,7 +72,7 @@ fxi.mode(object, i = 1, sessnum = 1, start = NULL, ncores = NULL, ...)
   multi-session fit); otherwise it will be interpreted as a row number.
   
   Values of the pdf are normalised by dividing by the
-  integral of \eqn{\mbox{Pr}(\omega_i|X)\pi(X)}{Pr(\omega_i|X)\pi(X)}
+  integral of \eqn{\text{Pr}(\omega_i|X)\pi(X)}{Pr(\omega_i|X)\pi(X)}
   over the habitat mask in \code{object}. (May differ in secr 4.0).
   
   Setting \code{ncores = NULL} uses the existing value from the environment variable 

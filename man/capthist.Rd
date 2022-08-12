@@ -61,7 +61,7 @@ Demographic Processes in Marked Populations}. Springer, New York. Pp.
 255--269.
 }
 
-\notes{
+\note{
 
 Early versions of \pkg{secr} (before 3.0) used an individual x occasion matrix 
 for data from single-catch and multi-catch traps, instead of a 3-D array. 

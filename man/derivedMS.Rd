@@ -93,7 +93,7 @@ reported by \code{derived} is equal to the harmonic mean of the
 \eqn{a_i (\hat{\theta})}{a_i (theta-hat)} (arithmetic
 mean prior to version 1.5). The sampling variance of
 \eqn{a(\hat{\theta})}{a(theta-hat)} is estimated by
-\deqn{\widehat{\mbox{var}}(a(\hat{\theta})) = \hat{G}_\theta^T
+\deqn{\widehat{\text{var}}(a(\hat{\theta})) = \hat{G}_\theta^T
 \hat{V}_\theta \hat{G}_\theta, }{ var(a(theta)) = G-hat^T V-hat G-hat,}
 where \eqn{\hat{V}}{V-hat} is the asymptotic estimate of the
 variance-covariance matrix of the beta detection parameters
@@ -169,9 +169,9 @@ Huggins' \eqn{s^2}), and `varcomp2' (the variance in \eqn{\hat{D}}{D-hat} due to
 
 These quantities are related to CVn and CVa as follows:
 
-\eqn{\mbox{CVn} = \sqrt{ \mbox{varcomp1} } / \hat{D} }{ CVn = sqrt(varcomp1) / D-hat}
+\eqn{\text{CVn} = \sqrt{ \text{varcomp1} } / \hat{D} }{ CVn = sqrt(varcomp1) / D-hat}
 
-\eqn{\mbox{CVa} = \sqrt{ \mbox{varcomp2} } / \hat{D} }{ CVa = sqrt(varcomp2) / D-hat}
+\eqn{\text{CVa} = \sqrt{ \text{varcomp2} } / \hat{D} }{ CVa = sqrt(varcomp2) / D-hat}
 
 }
 
