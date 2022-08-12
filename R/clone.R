@@ -3,6 +3,7 @@
 ## clone.R
 ## last changed 2016-11-29, 2018-11-16...
 ## 2021-05-19 sortorder for polygon data
+## 2022-08-08 truncated Poisson, revised 'constant'
 ############################################################################################
 
 clone <- function (object, type, ...) UseMethod("clone")
@@ -16,10 +17,12 @@ clone.default <- function (object,  type, ...)       {
         out <- object
     }
     else {
-        if (type == 'constant')
-            freq <- rep(..., n)
+        if (type == 'constant') 
+            freq <- rep(list(...)[[1]], length.out = n)
         else if (type == 'poisson')
             freq <- rpois(n, ...)
+        else if (type == 'truncatedpoisson')
+            freq <- rtpois(n, ...)
         else if (type == 'nbinom')
             freq <- rnbinom(n, ...)
         else
@@ -44,9 +47,11 @@ clone.popn <- function (object, type, ...) {
         }
         else {
             if (type == 'constant')
-                freq <- rep(..., n)
+                freq <- rep(list(...)[[1]], length.out = n)
             else if (type == 'poisson')
                 freq <- rpois(n, ...)
+            else if (type == 'truncatedpoisson')
+                freq <- rtpois(n, ...)
             else if (type == 'nbinom')
                 freq <- rnbinom(n, ...)
             else
@@ -85,9 +90,11 @@ clone.capthist <- function (object, type, ...) {
         }
         else {
             if (type == 'constant')
-                freq <- rep(..., n)
+                freq <- rep(list(...)[[1]], length.out = n)
             else if (type == 'poisson')
                 freq <- rpois(n, ...)
+            else if (type == 'truncatedpoisson')
+                freq <- rtpois(n, ...)
             else if (type == 'nbinom')
                 freq <- rnbinom(n, ...)
             else
