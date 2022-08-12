@@ -30,8 +30,8 @@
 
 .localstuff <- new.env()
 
-.localstuff$packageType <- ' pre-release'
-#.localstuff$packageType <- ''
+#.localstuff$packageType <- ' pre-release'
+.localstuff$packageType <- ''
 
 .localstuff$validdetectors <- c('single','multi','proximity','count', 
     'polygonX', 'transectX', 'signal', 'polygon', 'transect', 
@@ -2280,4 +2280,8 @@ snap_points <- function(x, y, max_dist = 1000) {
         })
     )
     return(out)
+}
+
+rtpois <- function(n, lambda) {
+    qpois(runif(n, dpois(0, lambda), 1), lambda)
 }
