@@ -265,22 +265,24 @@ plot.mask <- function(x, border = 20, add = FALSE, covariate = NULL,
         if (legend & !is.null(covariate)) {
             legendtext <- levels(covfactor)[1:ncolour]
             if (dots) {
-                args <- formals(graphics::legend)    # untidy 2017-12-15 but graphics::legend fails??
-                args$merge <- FALSE    # to dodge do.lines
-                args$pt.cex <- args$cex
-                args$pt.lwd <- args$lwd
-                args$title.col <- args$text.col
+                leg.args <- formals(graphics::legend)    
+                leg.args$merge <- FALSE    # to dodge do.lines
+                leg.args$pt.cex <- leg.args$cex
+                leg.args$pt.lwd <- leg.args$lwd
+                leg.args$title.col <- leg.args$text.col
+                leg.args$title.cex <- leg.args$cex[1]          # 2022-08-12
+                leg.args$title.font <- leg.args$text.font[1]   # 2022-08-12
                 newargs <- list(x = 'right', legend = rev(legendtext), pch = NA,
                        col = rev(col[1:ncolour]), title = covariate,
                        fill = rev(col[1:ncolour]))
-                args <- replace(args, names(newargs), newargs)
-                args <- replace(args, names(dotsargs), dotsargs)           
+                leg.args <- replace(leg.args, names(newargs), newargs)
+                leg.args <- replace(leg.args, names(dotsargs), dotsargs)           
                 if ('xy' %in% names(allargs))
-                    args$x <- allargs$xy
-                do.call('legend', args)
+                    leg.args$x <- allargs$xy
+                do.call('legend', leg.args)
             }
             else { 
-                args <- formals(strip.legend)
+                leg.args <- formals(strip.legend)
                 newargs <- list(xy = 'right', col = col[1:ncolour],
                                 legend = legendtext, tileborder = meshcol,
                                 title = covariate)
@@ -290,9 +292,9 @@ plot.mask <- function(x, border = 20, add = FALSE, covariate = NULL,
                   newargs$legendtype <- 'other'
                   newargs$height <- min(1, length(legendtext) * 0.06)
                 }
-                args <- replace(args, names(newargs), newargs)
-                args <- replace(args, names(allargs), allargs)
-                do.call(strip.legend, args)
+                leg.args <- replace(leg.args, names(newargs), newargs)
+                leg.args <- replace(leg.args, names(allargs), allargs)
+                do.call(strip.legend, leg.args)
             }
         }
         if (!is.null(covariate)) {
