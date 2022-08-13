@@ -19,7 +19,7 @@
 Package: \tab secr\cr
 Type: \tab Package\cr
 Version: \tab 4.5.6\cr
-Date: \tab 2022-08-12\cr
+Date: \tab 2022-08-13\cr
 License: \tab GNU General Public License Version 2 or later\cr
 }
 
@@ -77,16 +77,22 @@ More specialised topics \tab \cr
 The datasets \code{\link{captdata}} and \code{\link{ovenbird}} include examples of fitted
 models. For models fitted to other datasets see \href{https://www.otago.ac.nz/density/pdfs/secr-version4.pdf}{secr-version4.pdf} Appendix 2.
 
-Two add-on packages extend the capability of \pkg{secr} and are
-documented separately. \pkg{secrlinear} enables the estimation of linear
+Add-on packages extend the capability of \pkg{secr} and are
+documented separately. 
+\pkg{secrlinear} enables the estimation of linear
 density (e.g., animals per km) for populations in linear habitats such
 as stream networks
-(\href{https://cran.r-project.org/package=secrlinear/vignettes/secrlinear-vignette.pdf}{secrlinear-vignette.pdf}). \pkg{secrdesign}
+(\href{https://cran.r-project.org/package=secrlinear/vignettes/secrlinear-vignette.pdf}{secrlinear-vignette.pdf}). 
+\pkg{secrdesign}
 enables the assessment of alternative study designs by Monte Carlo
 simulation; scenarios may differ in detector (trap) layout, sampling
 intensity, and other characteristics
 (\href{https://www.otago.ac.nz/density/pdfs/secrdesign-vignette.pdf}{secrdesign-vignette.pdf}).
-
+\pkg{ipsecr} fits some awkward models (e.g., for single-catch traps) by simulation and inverse prediction 
+(\href{https://CRAN.R-project.org/package=ipsecr/vignettes/ipsecr-vignette.pdf}{ipsecr-vignette.pdf}).
+\pkg{openCR} fits open population models, both non-spatial and spatial
+(\href{https://CRAN.R-project.org/package=openCR/vignettes/openCR-vignette.pdf}{openCR-vignette.pdf}).
+ 
 The analyses in \pkg{secr} extend those available in the software
 Density (see
 \href{https://www.otago.ac.nz/density/}{www.otago.ac.nz/density/}

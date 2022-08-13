@@ -1,4 +1,4 @@
-# 2022-02-15
+# 2022-08-13
 
 import (parallel)
 import (RcppNumerical)
@@ -15,7 +15,7 @@ importFrom (stats, AIC, approx, approxfun, as.formula, chisq.test, coef,
     cutree, deviance, df.residual, dist, dpois,  formula, hclust,
     integrate, lm, logLik, median, model.matrix, nlm, nls, optim,
     optimise, optimize, pchisq, pgamma, plnorm, pnorm, poisson,
-    predict, qchisq, qnorm, rbeta, rbinom, rexp, rgamma, rlnorm, 
+    predict, qchisq, qnorm, qpois, rbeta, rbinom, rexp, rgamma, rlnorm, 
     rmultinom, rnbinom, rnorm, rpois, rt, runif, rweibull, sd, 
     simulate, smooth.spline, terms, uniroot, update, update.formula, 
     var, vcov)

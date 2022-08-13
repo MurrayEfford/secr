@@ -1,10 +1,15 @@
-Changes in version 4.5.6 (2022-07-01)
+Changes in version 4.5.6 (2022-08-13)
 
 New features or changed behaviour of old functions
     o   sim.popn() model2D = 'IHP' allows session-specific density
+    o   clone() new option type = 'truncatedpoisson'
+
+Bugs fixed
+    o   plot.mask legend sometimes failed ("object 'cex' not found")
 
 Other
-    o   fix latex specials for CRAN
+    o   for CRAN, update latex specials in help pages 
+    o   nontarget documentation
 
 Changes in version 4.5.5 (2022-05-31)
 
