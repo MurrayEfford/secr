@@ -209,15 +209,15 @@ Thompson, S. K. (2002) \emph{Sampling}. 2nd edition. Wiley, New York.
     \sum_{j=1}^{J}{n_j}}{sum(n_j)}). We use a delta-method approximation
   that assumes independence of the components:
 
-  \deqn{ \widehat{\text{var}}(\hat{D}) = \hat{D}^2
-    \{\frac{\widehat{\text{var}}(n)}{n^2} +
-    \frac{\widehat{\text{var}}(\hat{a})}{\hat{a}^2}\} }{var(D-hat) =
+  \deqn{ \widehat{\mbox{var}}(\hat{D}) = \hat{D}^2
+    \{\frac{\widehat{\mbox{var}}(n)}{n^2} +
+    \frac{\widehat{\mbox{var}}(\hat{a})}{\hat{a}^2}\} }{var(D-hat) =
     D-hat^2 (var(n)/n^2 + var(a-hat)/a-hat^2) }
 
-where \eqn{\widehat{\text{var}}(n) = \frac{J}{J-1}
+where \eqn{\widehat{\mbox{var}}(n) = \frac{J}{J-1}
   \sum_{j=1}^{J}(n_j-n/J)^2}{var(n) = J/(J-1).sum((n_j - n/J)^2)}. The
-  estimate of \eqn{\text{var}(\hat{a})}{var(a-hat)} is model-based while
-  that of \eqn{\text{var}(n)}{var(n)} is design-based. This formulation follows
+  estimate of \eqn{\mbox{var}(\hat{a})}{var(a-hat)} is model-based while
+  that of \eqn{\mbox{var}(n)}{var(n)} is design-based. This formulation follows
   that of Buckland et al. (2001, p. 78) for conventional distance
   sampling. Given sufficient independent replicates, it is a robust way
   to allow for unmodelled spatial overdispersion.
@@ -225,7 +225,7 @@ where \eqn{\widehat{\text{var}}(n) = \frac{J}{J-1}
   There is a complication in SECR owing to the fact that
   \eqn{\hat{a}}{a-hat} is a derived quantity (actually an integral)
   rather than a model parameter. Its sampling variance
-  \eqn{\text{var}(\hat{a})}{var(a-hat)} is estimated indirectly in
+  \eqn{\mbox{var}(\hat{a})}{var(a-hat)} is estimated indirectly in
   \pkg{secr} by combining the asymptotic estimate of the covariance
   matrix of the fitted detection parameters \eqn{\theta}{theta} with a
   numerical estimate of the gradient of \eqn{a(\theta)}{a(theta)} with
