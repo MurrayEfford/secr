@@ -46,6 +46,8 @@ From \code{summary.capthist}, an object of class
 or, when \code{terse = TRUE}, a vector (single session) or dataframe (multiple sessions) of counts (Occasions, Detections, Animals, Detectors, and optionally Moves).
 
 A summary of individual covariates is provided if these are present (from \pkg{secr} 4.0.1).
+
+A summary of interference/non-target captures is provided if there is a \link{nontarget} attribute (from \pkg{secr} 4.5.5).
   
 }
 
