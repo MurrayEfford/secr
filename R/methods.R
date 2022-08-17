@@ -19,6 +19,7 @@ markocc    <- function (object, ...) UseMethod("markocc")
 Tu         <- function (object, ...) UseMethod("Tu")
 Tm         <- function (object, ...) UseMethod("Tm")
 Tn         <- function (object, ...) UseMethod("Tn")
+nontarget  <- function (object, ...) UseMethod("nontarget")
 clusterID  <- function (object, ...) UseMethod("clusterID")
 clustertrap <- function (object, ...) UseMethod("clustertrap")
 covariates <- function (object, ...) UseMethod("covariates")
@@ -109,6 +110,11 @@ Tm.default <- function (object, ...)       {
 Tn.default <- function (object, ...)       {
     if (ms(object)) lapply(object, Tn.default, ...)
     else attr(object,'Tn',exact = TRUE)
+}
+
+nontarget.default <- function (object, ...) {
+    if (ms(object)) lapply(object, nontarget.default, ...)
+    else attr(object,'nontarget',exact = TRUE)
 }
 
 sighting <- function(object) {
@@ -921,7 +927,7 @@ flip.default <- function (object, lr = FALSE, tb = FALSE, ...) {
             stop("replacement of Tu for multisession object requires a list")
         }
         else {
-            temp <- mapply('markocc<-', object, value, SIMPLIFY = FALSE)
+            temp <- mapply('Tu<-', object, value, SIMPLIFY = FALSE)
             class(temp) <- class(object)
             temp
         }
@@ -1004,6 +1010,36 @@ flip.default <- function (object, lr = FALSE, tb = FALSE, ...) {
                 stop ("sighting counts cannot be negative")
         }
         structure (object, Tn = value)
+    }
+}
+
+'nontarget<-' <- function (object, value) {
+    
+    if (ms(object)) {
+        if (!is.list(value)) {
+            stop("replacement of nontarget for multisession object requires a list")
+        }
+        else {
+            if (length(value) != length(object)) {
+                stop ("require one non-target matrix for each session")
+            }
+            temp <- mapply('nontarget<-', object, value, SIMPLIFY = FALSE)
+            class(temp) <- class(object)
+            temp
+        }
+    }
+    else {
+        if (!is.null(value)) {
+            if (length(value)>1) {
+                if (length(dims <- dim(value)) != 2)
+                    stop ("require traps x occasions matrix")
+                if (dims[1] != ndetector(traps(object)))
+                    stop ("nontarget not compatible with traps attribute")
+            }
+            if (any(value<0))
+                stop ("nontarget values cannot be negative")
+        }
+        structure (object, nontarget = as.matrix(value))
     }
 }
 
