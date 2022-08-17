@@ -1,7 +1,10 @@
-Changes in version 4.5.7 (2022-08-13)
+Changes in version 4.5.7 (2022-08-18)
 
 New features or changed behaviour of old functions
-    o   none
+    o   nontarget() replacement function
+
+Bugs fixed
+    o   Tu<- replacement failed with multi-session capthist
 
 Changes in version 4.5.6 (2022-08-13)
 
