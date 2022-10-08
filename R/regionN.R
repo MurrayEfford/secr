@@ -8,6 +8,7 @@
 ##            because PIA0 not trimmed to session-specific n; fixed 2020-11-04
 ## 2020-11-04 session names used in output for multi-session data
 ## 2022-01-22 fixed bug in sumDpdot that ignored details$ignoreusage
+## 2022-10-08 fixed bug in region.N when region is mask other than original
 ############################################################################################
 
 region.N.secrlist <- function (object, region = NULL, spacing = NULL, session = NULL,
@@ -129,13 +130,10 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
                     check.poly = FALSE)
             }
             else {
-                ## dodge circular dependence and anticipate release of secrlinear
-                ## 2014-09-09
-                stop("construction of linear masks not yet supported in region.N")
-                ## if (!requireNamespace("secrlinear", quietly=TRUE))
-                ##     stop ("could not load secrlinear")
-                ## regionmask <- secrlinear::read.linearmask(data = region,
-                ##     spacing = spacing, spacingfactor = attr(mask, "spacingfactor"))
+                if (!requireNamespace("secrlinear", quietly=TRUE))
+                    stop ("could not load secrlinear")
+                regionmask <- secrlinear::read.linearmask(data = region,
+                    spacing = spacing, spacingfactor = attr(mask, "spacingfactor"))
             }
         }
 
@@ -147,8 +145,7 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
         }
         #######################################################
 
-        ## region now inherits from mask, so has area attribute
-        cellsize <- getcellsize(mask)
+        cellsize <- getcellsize(regionmask)    ## bug fixed 2022-10-08
         regionsize <- nrow(regionmask) * cellsize
 
         ngrp <- function(x) sum(getgrpnum(x, object$groups) == group)
@@ -158,8 +155,9 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
             else
                 n <- ngrp(object$capthist[[session]])
         }
-        else
+        else {
             n <- nrow(object$capthist)
+        }
         sessnum <- match (session, session(object$capthist))
         #######################################################
         ## for conditional likelihood fit,
