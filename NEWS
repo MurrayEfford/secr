@@ -1,10 +1,12 @@
-Changes in version 4.5.7 (2022-08-18)
+Changes in version 4.5.7 (2022-10-08)
 
 New features or changed behaviour of old functions
     o   nontarget() replacement function
+    o   addCovariates() may be applied to popn object
 
 Bugs fixed
     o   Tu<- replacement failed with multi-session capthist
+    o   region.N erroneous values with new mask
 
 Changes in version 4.5.6 (2022-08-13)
 
