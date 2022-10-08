@@ -10,12 +10,13 @@
 ## 2021-09-16 allow raster
 ## 2021-12-07 SpatRaster (terra)
 ## 2022-02-13 Revamped for sf, added tests
+## 2022-08-28 extended to popn objects
 
 ###############################################################################
 
 addCovariates <- function (object, spatialdata, columns = NULL, strict = FALSE, replace = FALSE) {
 
-    if (!(inherits(object, 'mask') | inherits(object, 'traps')))
+    if (!(inherits(object, c('mask', 'traps', 'popn')))) 
         object <- matrix(unlist(object), ncol = 2)
     if (!ms(object) & ms(spatialdata))
         stop ("mismatch of single session object, multisession spatialdata")
