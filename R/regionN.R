@@ -130,10 +130,11 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
                     check.poly = FALSE)
             }
             else {
-                if (!requireNamespace("secrlinear", quietly=TRUE))
-                    stop ("could not load secrlinear")
-                regionmask <- secrlinear::read.linearmask(data = region,
-                    spacing = spacing, spacingfactor = attr(mask, "spacingfactor"))
+                stop("linear mask not available")
+                # if (!requireNamespace("secrlinear", quietly=TRUE))
+                #     stop ("could not load secrlinear")
+                # regionmask <- secrlinear::read.linearmask(data = region,
+                #     spacing = spacing, spacingfactor = attr(mask, "spacingfactor"))
             }
         }
 
