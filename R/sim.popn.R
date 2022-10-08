@@ -528,7 +528,6 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
         ##########################
         ## set random seed
         ## copied from simulate.lm
-
         if (!exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE))
             runif(1)
         if (is.null(seed))
