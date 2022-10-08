@@ -13,11 +13,13 @@ from a spatial data source.
 }
 
 \usage{
+
 addCovariates(object, spatialdata, columns = NULL, strict = FALSE, replace = FALSE)
+
 }
 
 \arguments{
-  \item{object}{mask or traps object}
+  \item{object}{mask, traps or popn object}
   \item{spatialdata}{spatial data source (see Details)}
   \item{columns}{character vector naming columns to include (all by default)}
   \item{strict}{logical; if TRUE a check is performed for points in \code{object} that
