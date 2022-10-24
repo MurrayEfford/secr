@@ -600,20 +600,25 @@ generalsecrloglikfn <- function (
       # adjustment for mixture probabilities when class known
       known <- sum(data$knownclass[ok]>1)
       if (details$nmix>1 && known>0) {
-          # 2020-10-11
-          # nm <- tabulate(data$knownclass[ok], nbins = max(data$knownclass))
           nb <- details$nmix + 1
           nm <- tabulate(data$knownclass[ok], nbins = nb)
           pmix <- attr(pmixn, 'pmix')
+          
           # for (x in 1:details$nmix) {
           #     # need group-specific pmix
           #     # comp[4,g] <- comp[4,g] + nm[x+1] * log(pmix[x]) 
           # }
           
-          ## 2022-01-16
-          firstx <- match ((1:details$nmix)+1, data$knownclass[ok])
-          tempsum <- sum(pdot[ok][firstx] * pmix)
-          comp[4,g] <- sum(nm[-1] * log(pdot[ok][firstx] * pmix / tempsum))
+          ## 2022-01-16 bug fix
+          # firstx <- match ((1:details$nmix)+1, data$knownclass[ok])
+          # tempsum <- sum(pdot[ok][firstx] * pmix)
+          # comp[4,g] <- sum(nm[-1] * log(pdot[ok][firstx] * pmix / tempsum))
+          
+          ## 2022-10-25 bug fix
+          firstx <- match ((1:details$nmix)+1, data$knownclass)
+          pd <- pdot[firstx]
+          pd[is.na(pd)] <- 0
+          comp[4,1] <- sum(nm[-1] * log(pd * pmix / sum(pd * pmix)))
           
       }
    
