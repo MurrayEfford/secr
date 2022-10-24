@@ -47,6 +47,8 @@ In general it is better not to specify \code{origin}. Specifying both \code{orig
 
 Set \code{radius} < spacing[1]/2 to break lacework into multiple cross-shaped arrays centred on the intersections (crossing points) and truncated at \code{radius} metres (assuming you follow advice and express all linear measurements in metres).
 
+The number of detectors should not exceed 5000.
+
 }
 
 \value{
