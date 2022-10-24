@@ -60,11 +60,6 @@ make.mask <- function (traps, buffer = 100, spacing = NULL, nx = 64, ny = 64,
     temp
   }
   else {
-    allowedType <- c('traprect','trapbuffer','polygon', 'pdot', 'clusterrect',
-      'clusterbuffer', 'rectangular', 'polybuffer')
-    if (! (type %in% allowedType))
-      stop ("mask type must be one of ",
-        paste(sapply(allowedType, dQuote), collapse=","))
     dots <- match.call(expand.dots = FALSE)$...
     if ((length(dots)==0) & (type == 'pdot'))
       warning ("no detection parameters supplied; using defaults")
