@@ -501,16 +501,22 @@ make.lacework <- function (region, spacing = c(100, 20), times = NULL,
     spacing <- as.numeric(spacing)
     if (length(spacing) == 1) {
         if (is.null(times)) stop("make.lacework requires times if spacing length 1")
-        spacing <- c(spacing * times, spacing)
+        b <- spacing[1]
+        a <- b * times
+    }
+    else {
+        if (length(spacing) != 2) {
+            stop("invalid spacing 2-vector in make.lacework")
+        }
+        a <- spacing[1]
+        b <- spacing[2]
     }
     temporigin <- origin
     fraction <- 1.0  ## suspended code
-    if (length(spacing) != 2) {
-        stop("invalid spacing 2-vector in make.lacework")
-    }
-    
     region <- boundarytoSF(region)
-    
+    A <- st_area(region)
+    K <- A/a^2 * (2*a/b - 1)
+    if (K>5000) stop("Expected number of detectors ", K, " exceeds 5000")
     if (rotate != 0) {
         centrexy <- st_centroid(st_as_sfc(st_bbox(region)))
         centrexy <- st_coordinates(centrexy)
@@ -520,21 +526,21 @@ make.lacework <- function (region, spacing = c(100, 20), times = NULL,
     bbox <- matrix(st_bbox(region), ncol = 2)                   ## after rotation
     if (is.null(origin)) {
         origin <- bbox[,1]
-        origin <- origin - runif(2)*spacing[1]
+        origin <- origin - runif(2)*a
     }
     rx <- diff(bbox[1,])
     ry <- diff(bbox[2,])
-    n1 <- ceiling((rx + spacing[1]) / spacing[1]) + 2
-    n2 <- ceiling((ry + spacing[1]) / spacing[2]) + 2
-    gridx <- make.grid(nx=n1, ny=n2, spacex = spacing[1], spacey = spacing[2], originxy = origin, 
-                       detector = detector, ID = 'numxb')
-    n1 <- ceiling((ry + spacing[1]) / spacing[1]) + 2
-    n2 <- ceiling((rx + spacing[1]) / spacing[2]) + 2
-    gridy <- make.grid(ny=n1, nx=n2, spacey = spacing[1], spacex = spacing[2], originxy = origin, 
-                       detector = detector, ID = 'numyb')
+    n1 <- ceiling((rx + a) / a) + 2
+    n2 <- ceiling((ry + a) / b) + 2
+    gridx <- make.grid(nx=n1, ny=n2, spacex = a, spacey = b, 
+        originxy = origin, detector = detector, ID = 'numxb')
+    n1 <- ceiling((ry + a) / a) + 2
+    n2 <- ceiling((rx + a) / b) + 2
+    gridy <- make.grid(ny=n1, nx=n2, spacey = a, spacex = b, 
+        originxy = origin, detector = detector, ID = 'numyb')
     if (fraction < 1) {
-        OKx <- ((gridx$y-origin[2]) %% spacing[1]) < fraction * spacing[1]
-        OKy <- ((gridy$x-origin[1]) %% spacing[1]) < fraction * spacing[1]
+        OKx <- ((gridx$y-origin[2]) %% a) < fraction * a
+        OKy <- ((gridy$x-origin[1]) %% a) < fraction * 
         gridx <- subset(gridx,OKx)
         gridy <- subset(gridy,OKy)
     }
