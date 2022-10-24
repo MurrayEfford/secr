@@ -211,9 +211,9 @@ fastsecrloglikfn <- function (
 
             ## 2022-10-25 bug fix
             firstx <- match ((1:details$nmix)+1, data$knownclass)
-            pd <- pdot[firstx]
-            pd[is.na(pd)] <- 0
-            comp[4,1] <- sum(nm[-1] * log(pd * pmix / sum(pd * pmix)))
+            pdpmix <- pdot[firstx] * pmix
+            pdpmix <- pdpmix[!is.na(pdpmix)]
+            comp[4,1] <- sum(nm[-1] * log(pdpmix / sum(pdpmix)))
             ##
             
         }

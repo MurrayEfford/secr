@@ -91,17 +91,48 @@ test_that("join works on nonspatial data", {
 # after adjusting code in generalsecrloglik.R and fastsecrloglik.R 
 # to match secr 3.2
 
-test_that("correct likelihood (hcov, pmix with knownclass)", {
-    msk2 <- make.mask(traps(ovenCH[[1]]), buffer = 200, nx = 20, type = 'trapbuffer')
-    args <- list(capthist = ovenCH[[1]], mask = msk2, detectfn = 'HN',
-        CL = TRUE, start = c(-3.5387, 4.1798, 0.3418, 0.1656),
-        model = sigma~h2, hcov = 'Sex', details = list(LLonly = TRUE))
-    expect_equal(do.call(secr.fit, args)[1], -179.0642562, tolerance = 1e-4, 
-        check.attributes = FALSE)
-    args$capthist <- ovenCHp[[1]]
-    expect_equal(do.call(secr.fit, args)[1], -121.4355435 , tolerance = 1e-4, 
+# extended test 2022-10-25 to fix when one level missing (Mathias Tobler)
+
+msk2 <- make.mask(traps(ovenCH[[1]]), buffer = 200, nx = 20, type = 'trapbuffer')
+args <- list(
+    mask     = msk2, 
+    detectfn = 'HN',
+    CL       = TRUE, 
+    start    = c(-3.5387, 4.1798, 0.3418, 0.1656),
+    model    = sigma~h2, 
+    hcov     = 'Sex', 
+    details  = list(LLonly = TRUE))
+
+args$capthist = subset(ovenCH, sessions=1:2)
+LL1 <- do.call(secr.fit, args)[1]
+covariates(args$capthist[[2]])$Sex[covariates(args$capthist[[2]])$Sex == 'F'] <- NA
+LL2 <- do.call(secr.fit, args)[1]
+
+args$capthist <-subset(ovenCHp, sessions=1:2)
+LL3 <- do.call(secr.fit, args)[1]
+covariates(args$capthist[[2]])$Sex[covariates(args$capthist[[2]])$Sex == 'F'] <- NA
+LL4 <- do.call(secr.fit, args)[1]
+
+test_that("correct likelihood (hcov, pmix with knownclass, multi)", {
+    expect_equal(LL1, -393.62886, tolerance = 1e-4, 
         check.attributes = FALSE)
 })
+
+test_that("correct likelihood (hcov, pmix with knownclass, fastproximity)", {
+    expect_equal(LL3, -260.04119 , tolerance = 1e-4, 
+        check.attributes = FALSE)
+})
+
+test_that("correct likelihood (hcov, pmix with knownclass, missing one level, multi)", {
+    expect_equal(LL2, -379.08746, tolerance = 1e-4, 
+        check.attributes = FALSE)
+})
+
+test_that("correct likelihood (hcov, pmix with knownclass, missing one level, fastproximity)", {
+    expect_equal(LL4, -245.68867, tolerance = 1e-4, 
+        check.attributes = FALSE)
+})
+
 ###############################################################################
 
 ## ignoreusage bug 2022-01-22
