@@ -540,7 +540,7 @@ make.lacework <- function (region, spacing = c(100, 20), times = NULL,
         originxy = origin, detector = detector, ID = 'numyb')
     if (fraction < 1) {
         OKx <- ((gridx$y-origin[2]) %% a) < fraction * a
-        OKy <- ((gridy$x-origin[1]) %% a) < fraction * 
+        OKy <- ((gridy$x-origin[1]) %% a) < fraction * a
         gridx <- subset(gridx,OKx)
         gridy <- subset(gridy,OKy)
     }
