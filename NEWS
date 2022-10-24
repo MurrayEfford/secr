@@ -1,7 +1,14 @@
-Changes in version 4.5.8 (2022-10-09)
+Changes in version 4.5.8 (2022-10-19)
 
 New features or changed behaviour of old functions
-    o   none
+    o   plot method for traps acquires argument 'frame'
+
+Bugs fixed
+    o   hcov failed with one level missing in some sessions
+        (following change in 4.5.1)
+
+Other
+    o   make.lacework limit of 5000 detectors
 
 Changes in version 4.5.7 (2022-10-08)
 
