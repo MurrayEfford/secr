@@ -12,7 +12,7 @@
   hidetr = FALSE, detpar = list(), txtpar = list(), bg = "white",
   gridlines = !add, gridspace = 100, gridcol = "grey", 
   markused = FALSE, markvarying = FALSE, markvertices = FALSE,
-  labelclusters = FALSE, ...)
+  labelclusters = FALSE, frame = NULL, ...)
 }
 
 \arguments{
@@ -33,6 +33,7 @@
   \item{markvarying}{ logical to distinguish detectors whose usage varies among occasions }
   \item{markvertices}{ logical or 0,1,2 for plotting transect or polygon points }
   \item{labelclusters}{ logical to label clusters}
+  \item{frame}{data defining a boundary polygon (see \code{\link{boundarytoSF}}  }
   \item{\dots}{ arguments to pass to \code{eqscplot} }
 }
 \details{
@@ -56,6 +57,8 @@ From 4.4.0, polygon detectors are shaded with detpar$col and outlined (border) w
 
 \code{labelclusters} requires \code{x} to have attributes `clusterID' and
 `clustertrap'.
+
+A boundary polygon is plotted in black if \code{frame} is not NULL.
 
 }
 

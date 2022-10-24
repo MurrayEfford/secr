@@ -2,33 +2,36 @@
 ## package 'secr'
 ## plot.traps.R
 ## 2017-01-26 moved from methods.R
+## 2022-10-19 add frame argument
 ##############################################################################
 
 plot.traps <- function(x,
-                       border = 100,
-                       label = FALSE,
-                       offset = c(6,6),
-                       add = FALSE,
-                       hidetr = FALSE,
-                       detpar=list(),
-                       txtpar=list(),
-                       bg = 'white',
-                       gridlines = !add,
-                       gridspace = 100,
-                       gridcol = 'grey',
-                       markused = FALSE,
-                       markvarying = FALSE,
-                       markvertices = FALSE,
-                       labelclusters = FALSE,
-                       ... )
+    border = 100,
+    label = FALSE,
+    offset = c(6,6),
+    add = FALSE,
+    hidetr = FALSE,
+    detpar=list(),
+    txtpar=list(),
+    bg = 'white',
+    gridlines = !add,
+    gridspace = 100,
+    gridcol = 'grey',
+    markused = FALSE,
+    markvarying = FALSE,
+    markvertices = FALSE,
+    labelclusters = FALSE,
+    frame = NULL,
+    ... )
 {
     #### NEED TO HANDLE CLUSTER, CLUSTERTRAP 2011-04-12
     if (ms(x)) {
         lapply(x, plot.traps,
-               border, label, offset,
-               add, hidetr, detpar, txtpar,
-               bg, gridlines, gridspace, gridcol,
-               markused, markvarying, markvertices, labelclusters, ...)
+            border, label, offset,
+            add, hidetr, detpar, txtpar,
+            bg, gridlines, gridspace, gridcol,
+            markused, markvarying, markvertices, labelclusters, 
+            frame, ...)
     }
     else {
         trappar <- list(...)
@@ -64,8 +67,13 @@ plot.traps <- function(x,
         if (!add) {
             par(bg=bg)
             ## axes = FALSE blocks bty = 'o' 2011-05-08
-            eqscplot (x$x, x$y, xlim=range(x$x)+buff, ylim=range(x$y)+buff,
-                      xlab='', ylab='', type='n', axes=F, ...)
+            if (!is.null(frame)) {
+                plot(boundarytoSF(frame), border = 'black')
+            }
+            else {
+                eqscplot (x$x, x$y, xlim=range(x$x)+buff, ylim=range(x$y)+buff,
+                    xlab='', ylab='', type='n', axes=F, ...)
+            }
             if (!is.null(trappar$bty)) {
                 if (trappar$bty=='o') rect(xl[1],yl[1],xl[2],yl[2])
             }
