@@ -75,7 +75,7 @@ plot.traps <- function(x,
                     xlab='', ylab='', type='n', axes=F, ...)
             }
             if (!is.null(trappar$bty)) {
-                if (trappar$bty=='o') rect(xl[1],yl[1],xl[2],yl[2])
+                if (trappar$bty=='o') rect(xl[1],yl[1],xl[2],yl[2], border = 'black')
             }
         }
         plotvertices <- function (df) {
