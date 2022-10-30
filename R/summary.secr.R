@@ -18,7 +18,7 @@ summary.secr <- function (object, newdata = NULL, alpha = 0.05, deriv = FALSE, .
     ## Data description
 
     if (ms(object$capthist)) {
-        out$capthist <- summary(object$capthist, terse = TRUE, moves = TRUE)
+        out$capthist <- summary(object$capthist, terse = TRUE, moves = TRUE, tpa = TRUE)
         if (!is.null(markocc(traps(object$capthist)[[1]]))) {
             out$Tu <- sapply(object$capthist, function(y) attr(y,'Tu',exact = TRUE))
         }
@@ -38,7 +38,7 @@ summary.secr <- function (object, newdata = NULL, alpha = 0.05, deriv = FALSE, .
             out$traps$UsagePct <- 100 * sum(usage(trp))/length(usage(trp))
         if (length(detector(trp))>1)
             out$detector <- detector(trp)
-        out$capthist <- summary(object$capthist, terse = TRUE, moves = TRUE)
+        out$capthist <- summary(object$capthist, terse = TRUE, moves = TRUE, tpa = TRUE)
 
         if (!is.null(markocc(traps(object$capthist) ))) {
             defaultmarkresight <- list(Tu='as.is', Tm='as.is', Tn='ignore')

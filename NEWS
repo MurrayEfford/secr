@@ -1,7 +1,10 @@
-Changes in version 4.5.8 (2022-10-26)
+Changes in version 4.5.8 (2022-10-31)
 
 New features or changed behaviour of old functions
     o   plot method for traps acquires argument 'frame'
+    o   trapsPerAnimal() new capthist summary function
+    o   summary method for capthist optionally includes frequency 
+        distribution of traps per animal (count of tpa >= 2 if terse)
 
 Bugs fixed
     o   hcov failed with one level missing in some sessions

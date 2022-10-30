@@ -9,7 +9,7 @@
   Concise description of \code{capthist} object.
 }
 \usage{
-\method{summary}{capthist}(object, terse = FALSE, moves = FALSE, ...)
+\method{summary}{capthist}(object, terse = FALSE, moves = FALSE, tpa = FALSE, ...)
 
 \method{print}{summary.capthist}(x, ...)
 
@@ -18,10 +18,11 @@ counts(CHlist, counts = "M(t+1)")
 }
 
 \arguments{
-  \item{object }{ \code{\link{capthist}} object }
-  \item{terse }{ logical; if TRUE return only summary counts }
-  \item{moves }{ logical; if TRUE then summary includes detected movements }
-  \item{x }{ \code{summary.capthist} object }
+  \item{object}{ \code{\link{capthist}} object }
+  \item{terse}{ logical; if TRUE return only summary counts }
+  \item{moves}{ logical; if TRUE then summary includes detected movements }
+  \item{tpa}{ logical; if TRUE then summary includes number of detectors per animal}
+  \item{x}{ \code{summary.capthist} object }
   \item{\dots}{ arguments passed to other functions }
 
   \item{CHlist}{ capthist object, especially a multi-session object }
@@ -43,7 +44,7 @@ From \code{summary.capthist}, an object of class
   \item{dbar }{mean recapture distance }
   \item{RPSV }{root pooled spatial variance }
 
-or, when \code{terse = TRUE}, a vector (single session) or dataframe (multiple sessions) of counts (Occasions, Detections, Animals, Detectors, and optionally Moves).
+or, when \code{terse = TRUE}, a vector (single session) or dataframe (multiple sessions) of counts (Occasions, Detections, Animals, Detectors, and optionally Moves and Animals2).
 
 A summary of individual covariates is provided if these are present (from \pkg{secr} 4.0.1).
 
@@ -66,6 +67,8 @@ These counts are reported by \code{summary.capthist}
 The last two rows are dropped if the data are nonspatial (object has no traps attribute).
 
 Movements are as reported by \code{\link{moves}}. When \code{terse = TRUE} the number of non-zero moves is reported. The temporal sequence of detections at `proximity' and `count' detectors is not recorded in the capthist object, so the movement statistics are not to be taken too seriously. The problem is minimised when detections are sparse (seldom more than one per animal per occasion), and does not occur with `single` or `multi` detectors.
+
+The `tpa' option provides the frequency distribution of detectors per animal. When \code{terse = TRUE} the number of animals at >= 2 detectors is reported ('Animal2').
 
 \code{counts} may be used to return the specified counts in a compact 
 session x occasion table. If more than one count is named then a list is returned

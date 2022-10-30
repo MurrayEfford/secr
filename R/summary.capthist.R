@@ -5,14 +5,14 @@
 ## 2019-11-10 summary of covariates
 #############################################################################
 
-summary.capthist <- function(object, terse = FALSE, moves = FALSE, ...) {
+summary.capthist <- function(object, terse = FALSE, moves = FALSE, tpa = FALSE, ...) {
     ## recursive if list of capthist
     if (ms(object)) {
         if (terse) {
-            sapply (object, summary, terse = TRUE, moves = moves, ...)
+            sapply (object, summary, terse = TRUE, moves = moves, tpa = tpa, ...)
         }
         else {
-            lapply (object, summary, terse = FALSE, moves = moves, ...)
+            lapply (object, summary, terse = FALSE, moves = moves, tpa = tpa, ...)
         }
     }
     else {
@@ -24,7 +24,9 @@ summary.capthist <- function(object, terse = FALSE, moves = FALSE, ...) {
               Detections = sum(abs(object)),
               Animals = nrow(object),
               Detectors = nd,
-              Moves = if (moves) sum(unlist(sapply(moves(object), function(y) y>0))) else NULL)
+              Moves = if (moves) sum(unlist(sapply(moves(object), function(y) y>0))) else NULL,
+              Animals2 = if (tpa) sum(trapsPerAnimal(object)[-1]) else NULL
+            )
         }
         else {
             detector <- expanddet(object) # detector(traps)
@@ -73,6 +75,7 @@ summary.capthist <- function(object, terse = FALSE, moves = FALSE, ...) {
             PSV <-  NULL
             dbar <- NULL
             movesummary <- NULL
+            tpasummary = NULL
             
             if (is.null(trps)) {
                 trapsum <- NULL
@@ -90,6 +93,9 @@ summary.capthist <- function(object, terse = FALSE, moves = FALSE, ...) {
                         mov <- lapply(mov, function(x) x[x>0])
                         movesummary <- list (peranimal = table(sapply(mov, length)),
                                              distance = summary(unlist(mov)))
+                    }
+                    if (tpa) {
+                        tpasummary <- trapsPerAnimal(object)
                     }
                 }
                 trapsum <- summary(trps)
@@ -194,6 +200,7 @@ summary.capthist <- function(object, terse = FALSE, moves = FALSE, ...) {
                 dbar = dbar,
                 RPSV = PSV,
                 moves = movesummary,
+                tpa = tpasummary,
                 cutval = cutval,        # signal, signalnoise only
                 signalsummary = signalsummary,
                 telemsummary = telemsummary,
@@ -246,6 +253,11 @@ print.summary.capthist <- function (x, ...) {
         print(x$moves$peranimal)
         cat ('\nDistance moved, excluding zero (m)\n')
         print(x$moves$distance)
+    }
+    
+    if (!is.null(x$tpa)) {
+        cat ('\nNumber of detectors per animal\n')
+        print(x$tpa)
     }
     
     if (!nonspatial) {

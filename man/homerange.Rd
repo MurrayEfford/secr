@@ -6,6 +6,7 @@
 \alias{moves}
 \alias{centroids}
 \alias{ORL}
+\alias{trapsPerAnimal}
 
 \title{ Home Range Statistics }
 
@@ -37,6 +38,8 @@ pooled over individuals (cf Calhoun and Casby 1958, Slade and Swihart 1983).
 \code{ORL} reports the observed range length of each animal, the maximum 
 distance between any two detections.
 
+\code{trapsPerAnimal} tabulates the number of animals recorded at 1, 2, ..., K detectors
+
 }
 
 \usage{
@@ -47,6 +50,7 @@ moves(capthist, userdist = NULL, mask = NULL, names = FALSE)
 RPSV(capthist, CC = FALSE)
 ORL(capthist, userdist = NULL, mask = NULL)
 centroids(capthist)
+trapsPerAnimal(capthist)
 }
 
 \arguments{
@@ -134,6 +138,10 @@ For \code{centroids} --
 For a single-session capthist, a matrix of two columns, the x- and y-coordinates of the centroid of the detections of each animal. The number of detections is returned as the attribute `Ndetections', a 1-column matrix.
 
 For a multi-session capthist, a 3-D array as before, but with a third dimension for the session. Centroid coordinates are missing (NA) if the animal was not detected in a session. The attribute `Ndetections' with the number of detections per animal and session is a matrix.
+
+For \code{trapsPerAnimal} --
+
+A vector with the number of animals detected at k detectors.
 
 }
 
