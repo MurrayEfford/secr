@@ -151,7 +151,6 @@ simulate.secr <- function (object, nsim = 1, seed = NULL, maxperpoly = 100, chat
         sim.detect(object, sesspopn, maxperpoly)
     }
     sesscapt <- lapply(1:nsim, runone)
-
     ## experimental
     if (chat>1) sesscapt <- lapply(sesscapt, replicate, chat)
 
@@ -321,6 +320,7 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE)
         stop ("all behavioural responses must be of same type in sim.detect")
     if (length(btype) == 0)
         btype <- 0
+
     ## --------------------------------------------------------------------
     ## setup
     if (is.null(object$details$ignoreusage))
@@ -422,6 +422,7 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE)
     
     output <- list()
     for (sessnum in 1:nsession) {
+        
         ## in multi-session case must get session-specific data from lists
         if (ms(object)) {
             s <- ncol(object$capthist[[sessnum]])
@@ -452,6 +453,7 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE)
         session.animals <- popnlist[[sessnum]]
 
         ## pre-compute distances from detectors to animals
+        
         ## pass miscellaneous unmodelled parameter(s)
         nmiscparm <- length(object$details$miscparm)
         if (nmiscparm > 0) {
@@ -477,8 +479,6 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE)
             k <- nrow(session.traps)
             K <- k
         }
-        ## no obvious reason to retain this; using sessnum 2019-10-20
-        ## sessg <- min (sessnum, design0$R)
 
         #------------------------------------------
         ## simulate this session...
@@ -547,45 +547,50 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE)
                 #                            as.double(gkhk$gk), as.double(gkhk$hk))  
             }
         }
-  
+
+        # debug
+        # message('sessnum  ', sessnum, ' NR ', NR, ' sum gkhk0$gk ', sum(gkhk0$gk))
+        
         if (all(dettype %in% c(-1,0,1,2,8))) {
-            temp <- simdetectpointcpp (dettype[1],      ## detector -1 single, 0 multi, 1 proximity, 2 count,... 
-                                       as.integer(NR), 
-                                       as.integer(nrow(Xrealparval1)),
-                                       as.double(gkhk0$gk), 
-                                       as.double(gkhk$gk), 
-                                       as.double(gkhk0$hk), 
-                                       as.double(gkhk$hk), 
-                                       as.integer(design0$PIA[sessnum,1:NR,1:s,1:K,]),       ## naive
-                                       as.integer(design1$PIA[sessnum,1:NR,1:s,1:K,]),       
-                                       as.integer(object$details$nmix),
-                                       as.integer(knownclass),
-                                       as.double(pmix),
-                                       as.matrix(usge),
-                                       as.integer(btype),       ## code for behavioural response  0 none etc. 
-                                       as.integer(Markov),      ## learned vs transient behavioural response 0 learned 1 Markov 
-                                       as.integer(binomN)      ## number of trials for 'count' detector modelled with binomial 
+            temp <- simdetectpointcpp (
+                as.integer (dettype[1]),           ## detector -1 single, 0 multi, 1 proximity, 2 count,...
+                as.integer (NR),
+                as.integer (nrow(Xrealparval0)),   ## cc0
+                as.integer (nrow(Xrealparval1)),   ## cc
+                as.double  (gkhk0$gk),
+                as.double  (gkhk$gk),
+                as.double  (gkhk0$hk),
+                as.double  (gkhk$hk),
+                as.integer (design0$PIA[sessnum,1:NR,1:s,1:K,]),       ## naive
+                as.integer (design1$PIA[sessnum,1:NR,1:s,1:K,]),
+                as.integer (object$details$nmix),
+                as.integer (knownclass),
+                as.double  (pmix),
+                as.matrix  (usge),
+                as.integer (btype),      ## code for behavioural response  0 none etc.
+                as.integer (Markov),     ## learned vs transient behavioural response 0 learned 1 Markov
+                as.integer (binomN)      ## number of trials for 'count' detector modelled with binomial
             )
         }
         else if (all(dettype %in% c(3,4,6,7))) {
             temp <- simdetectpolycpp (
                 as.integer (dettype[1]),       ## detector 3 exclusive polygon, 4 exclusive transect, 6 polygon, 7 transecr
-                as.integer (object$detectfn),  ## code 0 = halfnormal, 1 = hazard, 2 = exponential, 3 = uniform 
-                as.integer (object$details$nmix), ## number of classes 
-                as.integer (btype),            ## code for behavioural response  0 none etc. 
-                as.integer (Markov),           ## learned vs transient behavioural response 0 learned 1 Markov 
+                as.integer (object$detectfn),  ## code 0 = halfnormal, 1 = hazard, 2 = exponential, 3 = uniform
+                as.integer (object$details$nmix), ## number of classes
+                as.integer (btype),            ## code for behavioural response  0 none etc.
+                as.integer (Markov),           ## learned vs transient behavioural response 0 learned 1 Markov
                 as.integer (k),                ## number of vertices per polygon (zero-terminated vector)
-                as.matrix  (session.animals),   ## x,y points of animal range centres (first x, then y) 
-                as.matrix  (session.traps),     ## x,y locations of traps (first x, then y) 
+                as.matrix  (session.animals),   ## x,y points of animal range centres (first x, then y)
+                as.matrix  (session.traps),     ## x,y locations of traps (first x, then y)
                 as.matrix  (Xrealparval0),      ## Parameter values (matrix nr= comb of g0,sigma,b nc=3) [naive animal]
                 as.matrix  (Xrealparval1),      ## Parameter values (matrix nr= comb of g0,sigma,b nc=3) [caught before]
-                as.integer (design0$PIA[sessnum,1:NR,1:s,1:K,]), ## lookup which g0/sigma/b combination to use for given g, S, K [naive animal] 
-                as.integer (design1$PIA[sessnum,1:NR,1:s,1:K,]), ## lookup which g0/sigma/b combination to use for given n, S, K  [caught before] 
-                as.integer (knownclass),       ## known membership of 'latent' classes 
+                as.integer (design0$PIA[sessnum,1:NR,1:s,1:K,]), ## lookup which g0/sigma/b combination to use for given g, S, K [naive animal]
+                as.integer (design1$PIA[sessnum,1:NR,1:s,1:K,]), ## lookup which g0/sigma/b combination to use for given n, S, K  [caught before]
+                as.integer (knownclass),       ## known membership of 'latent' classes
                 as.double  (pmix),             ## membership probabilities
-                as.matrix  (usge),              ## ss x kk array of 0/1 usage codes or effort 
-                as.integer (binomN),            ## number of trials for 'count' detector modelled with binomial 
-                as.integer (maxperpoly)        ##  
+                as.matrix  (usge),              ## ss x kk array of 0/1 usage codes or effort
+                as.integer (binomN),            ## number of trials for 'count' detector modelled with binomial
+                as.integer (maxperpoly)        ##
             )
             if ((temp$resultcode == 2) & (any(dettype %in% c(6,7)))) {
                 stop (">100 detections per animal per polygon per occasion")
@@ -614,6 +619,7 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE)
         if (temp$resultcode != 0) {
             stop ("simulated detection failed, code ", temp$resultcode)
         }
+
         w <- array(temp$value, dim=c(s, K, NR), dimnames = list(1:s,NULL,NULL))
         w <- aperm(w, c(3,1,2))
         w <- w[apply(w,1,sum)>0,,, drop = FALSE] 

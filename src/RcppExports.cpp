@@ -526,28 +526,29 @@ BEGIN_RCPP
 END_RCPP
 }
 // simdetectpointcpp
-List simdetectpointcpp(const int detect, const int N, const int cc, const NumericVector gk0, const NumericVector gk, const NumericVector hk0, const NumericVector hk, const IntegerVector& PIA0, const IntegerVector& PIA1, const int nmix, const IntegerVector& knownclass, const NumericVector& pmix, const NumericMatrix& Tsk, const int btype, const int Markov, const IntegerVector& binomN);
-RcppExport SEXP _secr_simdetectpointcpp(SEXP detectSEXP, SEXP NSEXP, SEXP ccSEXP, SEXP gk0SEXP, SEXP gkSEXP, SEXP hk0SEXP, SEXP hkSEXP, SEXP PIA0SEXP, SEXP PIA1SEXP, SEXP nmixSEXP, SEXP knownclassSEXP, SEXP pmixSEXP, SEXP TskSEXP, SEXP btypeSEXP, SEXP MarkovSEXP, SEXP binomNSEXP) {
+List simdetectpointcpp(const int& detect, const int& N, const int& cc0, const int& cc, const NumericVector& gk0, const NumericVector& gk, const NumericVector& hk0, const NumericVector& hk, const IntegerVector& PIA0, const IntegerVector& PIA1, const int& nmix, const IntegerVector& knownclass, const NumericVector& pmix, const NumericMatrix& Tsk, const int& btype, const int& Markov, const IntegerVector& binomN);
+RcppExport SEXP _secr_simdetectpointcpp(SEXP detectSEXP, SEXP NSEXP, SEXP cc0SEXP, SEXP ccSEXP, SEXP gk0SEXP, SEXP gkSEXP, SEXP hk0SEXP, SEXP hkSEXP, SEXP PIA0SEXP, SEXP PIA1SEXP, SEXP nmixSEXP, SEXP knownclassSEXP, SEXP pmixSEXP, SEXP TskSEXP, SEXP btypeSEXP, SEXP MarkovSEXP, SEXP binomNSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int >::type detect(detectSEXP);
-    Rcpp::traits::input_parameter< const int >::type N(NSEXP);
-    Rcpp::traits::input_parameter< const int >::type cc(ccSEXP);
-    Rcpp::traits::input_parameter< const NumericVector >::type gk0(gk0SEXP);
-    Rcpp::traits::input_parameter< const NumericVector >::type gk(gkSEXP);
-    Rcpp::traits::input_parameter< const NumericVector >::type hk0(hk0SEXP);
-    Rcpp::traits::input_parameter< const NumericVector >::type hk(hkSEXP);
+    Rcpp::traits::input_parameter< const int& >::type detect(detectSEXP);
+    Rcpp::traits::input_parameter< const int& >::type N(NSEXP);
+    Rcpp::traits::input_parameter< const int& >::type cc0(cc0SEXP);
+    Rcpp::traits::input_parameter< const int& >::type cc(ccSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type gk0(gk0SEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type gk(gkSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type hk0(hk0SEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type hk(hkSEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type PIA0(PIA0SEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type PIA1(PIA1SEXP);
-    Rcpp::traits::input_parameter< const int >::type nmix(nmixSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nmix(nmixSEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type knownclass(knownclassSEXP);
     Rcpp::traits::input_parameter< const NumericVector& >::type pmix(pmixSEXP);
     Rcpp::traits::input_parameter< const NumericMatrix& >::type Tsk(TskSEXP);
-    Rcpp::traits::input_parameter< const int >::type btype(btypeSEXP);
-    Rcpp::traits::input_parameter< const int >::type Markov(MarkovSEXP);
+    Rcpp::traits::input_parameter< const int& >::type btype(btypeSEXP);
+    Rcpp::traits::input_parameter< const int& >::type Markov(MarkovSEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type binomN(binomNSEXP);
-    rcpp_result_gen = Rcpp::wrap(simdetectpointcpp(detect, N, cc, gk0, gk, hk0, hk, PIA0, PIA1, nmix, knownclass, pmix, Tsk, btype, Markov, binomN));
+    rcpp_result_gen = Rcpp::wrap(simdetectpointcpp(detect, N, cc0, cc, gk0, gk, hk0, hk, PIA0, PIA1, nmix, knownclass, pmix, Tsk, btype, Markov, binomN));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -846,7 +847,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_secr_Tsightinglikcpp", (DL_FUNC) &_secr_Tsightinglikcpp, 6},
     {"_secr_sightingchatcpp", (DL_FUNC) &_secr_sightingchatcpp, 20},
     {"_secr_expectedmucpp", (DL_FUNC) &_secr_expectedmucpp, 18},
-    {"_secr_simdetectpointcpp", (DL_FUNC) &_secr_simdetectpointcpp, 16},
+    {"_secr_simdetectpointcpp", (DL_FUNC) &_secr_simdetectpointcpp, 17},
     {"_secr_simdetectpolycpp", (DL_FUNC) &_secr_simdetectpolycpp, 17},
     {"_secr_simdetectsignalcpp", (DL_FUNC) &_secr_simdetectsignalcpp, 13},
     {"_secr_trappingsingle", (DL_FUNC) &_secr_trappingsingle, 8},

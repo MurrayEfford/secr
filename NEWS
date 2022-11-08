@@ -1,4 +1,4 @@
-Changes in version 4.5.8 (2022-10-31)
+Changes in version 4.5.8 (2022-11-08)
 
 New features or changed behaviour of old functions
     o   plot method for traps acquires argument 'frame'
@@ -9,6 +9,7 @@ New features or changed behaviour of old functions
 Bugs fixed
     o   hcov failed with one level missing in some sessions
         (following change in 4.5.1)
+    o   sim.secr() crashed R when used with learned-response models (b, B etc.)
 
 Other
     o   make.lacework limit of 5000 detectors

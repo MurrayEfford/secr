@@ -84,10 +84,12 @@ summary.capthist <- function(object, terse = FALSE, moves = FALSE, tpa = FALSE, 
             else {
                 
                 if (all(detector %in% .localstuff$individualdetectors)) {
-                    if (-diff(counts$Total[1:2]) > 1)
+                    if (-diff(counts$Total[1:2]) > 1) {
                         PSV <- RPSV(object)
-                    if (all(detector(trps) %in% .localstuff$exclusivedetectors))
+                    }
+                    if (all(detector(trps) %in% .localstuff$exclusivedetectors)) {
                         dbar <- dbar(object)
+                    }
                     if (moves) {
                         mov <- moves(object)
                         mov <- lapply(mov, function(x) x[x>0])

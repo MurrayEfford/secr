@@ -105,8 +105,8 @@ expectedmucpp <- function(nc, cc, Tu, Tm, sightmodel, binomN, markocc, pID, grou
     .Call('_secr_expectedmucpp', PACKAGE = 'secr', nc, cc, Tu, Tm, sightmodel, binomN, markocc, pID, group, gk, hk, pi_density, Nm, PIA, Tsk, h, hindex, a0)
 }
 
-simdetectpointcpp <- function(detect, N, cc, gk0, gk, hk0, hk, PIA0, PIA1, nmix, knownclass, pmix, Tsk, btype, Markov, binomN) {
-    .Call('_secr_simdetectpointcpp', PACKAGE = 'secr', detect, N, cc, gk0, gk, hk0, hk, PIA0, PIA1, nmix, knownclass, pmix, Tsk, btype, Markov, binomN)
+simdetectpointcpp <- function(detect, N, cc0, cc, gk0, gk, hk0, hk, PIA0, PIA1, nmix, knownclass, pmix, Tsk, btype, Markov, binomN) {
+    .Call('_secr_simdetectpointcpp', PACKAGE = 'secr', detect, N, cc0, cc, gk0, gk, hk0, hk, PIA0, PIA1, nmix, knownclass, pmix, Tsk, btype, Markov, binomN)
 }
 
 simdetectpolycpp <- function(detect, fn, nmix, btype, Markov, kk, animals, traps, gsb0val, gsb1val, PIA0, PIA1, knownclass, pmix, Tsk, binomN, maxperpoly) {

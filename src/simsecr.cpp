@@ -4,7 +4,6 @@
 #include <Rcpp.h>
 #include "poly.h"
 using namespace Rcpp;
-
 //==============================================================================
 
 NumericVector getpar (
@@ -96,21 +95,22 @@ int bswitch (
 
 // [[Rcpp::export]]
 List simdetectpointcpp (
-        const int           detect,      // detector -1 single, 0 multi, 1 proximity, 2 count,... 
-        const int           N, 
-        const int           cc,
-        const NumericVector gk0, 
-        const NumericVector gk, 
-        const NumericVector hk0, 
-        const NumericVector hk, 
+        const int           &detect,      // detector -1 single, 0 multi, 1 proximity, 2 count,... 
+        const int           &N, 
+        const int           &cc0,
+        const int           &cc,
+        const NumericVector &gk0, 
+        const NumericVector &gk, 
+        const NumericVector &hk0, 
+        const NumericVector &hk, 
         const IntegerVector &PIA0,       // lookup which g0/sigma/b combination to use for given g, S, K [naive animal] 
         const IntegerVector &PIA1,        // lookup which g0/sigma/b combination to use for given n, S, K  [caught before] 
-        const int           nmix,        // number of classes 
+        const int           &nmix,        // number of classes 
         const IntegerVector &knownclass, // known membership of 'latent' classes 
         const NumericVector &pmix,       // membership probabilities
         const NumericMatrix &Tsk,        // ss x kk array of 0/1 usage codes or effort 
-        const int           btype,       // code for behavioural response  0 none etc. 
-        const int           Markov,      // learned vs transient behavioural response 0 learned 1 Markov 
+        const int           &btype,       // code for behavioural response  0 none etc. 
+        const int           &Markov,      // learned vs transient behavioural response 0 learned 1 Markov 
         const IntegerVector &binomN     // number of trials for 'count' detector modelled with binomial 
 )
 {
@@ -132,7 +132,7 @@ List simdetectpointcpp (
     int    wxi = 0;
     int    c = 0;
     double Tski = 1.0;  
-    bool before;
+    bool   before;
     
     std::vector<int> caughtbefore(N * kk, 0);
     std::vector<int> x(N, 0);          // mixture class of animal i 
@@ -151,6 +151,7 @@ List simdetectpointcpp (
     int    nextcombo;
     int    finished;
     int    OK;
+    double lambda;
     double event_time;
     std::vector<int> occupied(kk);
     std::vector<double> intrap(N);
@@ -206,7 +207,7 @@ List simdetectpointcpp (
             nextcombo = 0;
             
             // make tran 
-            for (i=0; i<N; i++) {  // animals 
+            for (i=0; i<N; i++) {  // animals randomtime
                 for (k=0; k<kk; k++) { // traps 
                     Tski = Tsk(k,s);
                     if (fabs(Tski) > 1e-10) {
@@ -218,13 +219,11 @@ List simdetectpointcpp (
                             c = PIA0[wxi] - 1;
                         if (c >= 0) {    // ignore unused detectors 
                             if (before)
-                                p = gk[i3(c, k, i, cc, kk)];
+                                lambda = hk[i3(c, k, i, cc, kk)];
                             else
-                                p = gk0[i3(c, k, i, cc, kk)];
-                            
-                            if (fabs(Tski-1) > 1e-10) 
-                                p = 1 - pow(1-p, Tski);    // ************************ better use hazard?
-                            event_time = randomtime(p);
+                                lambda = hk0[i3(c, k, i, cc0, kk)];
+                            lambda = lambda * Tski;
+                            event_time = randomtimel(lambda);
                             if (event_time <= 1) {
                                 tran[tr_an_indx].time   = event_time;
                                 tran[tr_an_indx].animal = i;    // 0..N-1 
@@ -290,7 +289,7 @@ List simdetectpointcpp (
                             if (before)
                                 h[k * N + i] = Tski * hk[i3(c, k, i, cc, kk)];
                             else
-                                h[k * N + i] = Tski * hk0[i3(c, k, i, cc, kk)];
+                                h[k * N + i] = Tski * hk0[i3(c, k, i, cc0, kk)];
                             hsum[i] += h[k * N + i];
                         }
                     }
@@ -332,7 +331,7 @@ List simdetectpointcpp (
                             if (before)
                                 p = gk[i3(c, k, i, cc, kk)];
                             else
-                                p = gk0[i3(c, k, i, cc, kk)];
+                                p = gk0[i3(c, k, i, cc0, kk)];
                             if (p < -0.1) { 
                                 return(nullresult);
                             }  

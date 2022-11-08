@@ -4,7 +4,8 @@
 
 using namespace std;
 using namespace Rcpp;
-using namespace RcppParallel;
+using namespace RcppParallel; 
+
 
 //===============================================================================
 
