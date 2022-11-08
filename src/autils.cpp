@@ -582,6 +582,25 @@ double randomtime (double p)
 }
 //----------------------------------------------------------------
 
+double randomtimel (double lambda)
+    // return random event time for event with hazard lambda
+{
+    double random_U;
+    if (lambda <= 0) {
+        return(huge);
+    }
+    else {
+        random_U = unif_rand();
+        if (random_U <= 0) {                  // trap for zero 
+            return(huge);
+        }
+        else {
+            return (-log(random_U)/lambda);   // random exponential e.g. Ripley 1987 Algorithm 3.2 p 55 
+        }
+    }
+}
+//----------------------------------------------------------------
+
 void probsort (
         const int n, 
         std::vector<trap_animal> &tran)

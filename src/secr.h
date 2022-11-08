@@ -121,6 +121,7 @@ rpoint getxy(
 //---------------------------------------------------------------------
 
 double randomtime (double p);
+double randomtimel (double lambda);
 //---------------------------------------------------------------------
 
 void probsort (
