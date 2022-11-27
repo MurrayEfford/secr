@@ -154,8 +154,11 @@ trapsPerAnimal <- function (capthist) {
         lapply(capthist, trapsPerAnimal)   ## recursive
     }
     else {
-        nk <- apply( apply(abs(capthist), c(1,3), sum)>0, 1, sum)
-        out <- tabulate (nk, nbins = max(nk))
+        nki <- apply( apply(abs(capthist), c(1,3), sum)>0, 1, sum)
+        if (length(nki)>0)
+            out <- tabulate (nki, nbins = max(nki))
+        else
+            out <- 0
         names(out) <- 1:length(out)
         out
     }
