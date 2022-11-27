@@ -367,7 +367,6 @@ prepareSessionData <- function (capthist, mask, maskusage,
         ngroup <- max(1,length(group.levels(capthist, groups)))
         CH <- compressCH(capthist, binomNcode, details$fastproximity)   
         ## CH0 <- nullCH(dim(CH), packageVersion('secr')<'4.0.0' || design0$individual || ngroup>1)   ## all-zero CH
-
         CH0 <- nullCH(dim(CH), packageVersion('secr')<'4.0.0' || design0$individual || ngroup>1 || !is.null(hcov))   ## all-zero CH
         
         #####################################################################
