@@ -1,4 +1,4 @@
-# 2022-08-13
+# 2022-11-18
 
 import (parallel)
 import (RcppNumerical)
@@ -162,6 +162,8 @@ export (derivedMash)
 export (derivedExternal)
 export (derivednj)
 export (pdot)
+export (Enk)
+export (chat.nk)
 export (esa.plot)
 export (esa.plot.secr)
 export (suggest.buffer)
