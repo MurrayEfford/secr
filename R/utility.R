@@ -430,10 +430,17 @@ sine     <- function (x) asin (x*2-1)
 invsine  <- function (y) (sin(y)+1) / 2
 odds     <- function (x) x / (1-x)
 invodds  <- function (y) y / (1+y)
+############################################################################################
 
 lnbinomial <- function (x,size,prob) {
-  lgamma (size+1) - lgamma (size-x+1) - lgamma (x+1) +
-      x * log(prob) + (size-x) * log (1-prob)
+    # dbinom allowing non-integer x, forcing log = TRUE
+    if (x <= size) {
+        lgamma (size+1) - lgamma (size-x+1) - lgamma (x+1) +
+            x * log(prob) + (size-x) * log (1-prob)
+    }
+    else {
+        -Inf
+    }
 }
 ############################################################################################
 ## moved from methods.r 2012-10-28

@@ -234,6 +234,30 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// nkpointcpp
+NumericVector nkpointcpp(const NumericVector& D, const NumericMatrix& mask, const NumericMatrix& traps, const NumericMatrix& dist2, const IntegerVector& detect, const NumericMatrix& Tsk, const IntegerVector& markocc, const int& fn, const NumericVector& gsb, const NumericVector& miscparm, const double& w2, const IntegerVector& binomN, const int& grain, const int& ncores);
+RcppExport SEXP _secr_nkpointcpp(SEXP DSEXP, SEXP maskSEXP, SEXP trapsSEXP, SEXP dist2SEXP, SEXP detectSEXP, SEXP TskSEXP, SEXP markoccSEXP, SEXP fnSEXP, SEXP gsbSEXP, SEXP miscparmSEXP, SEXP w2SEXP, SEXP binomNSEXP, SEXP grainSEXP, SEXP ncoresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericVector& >::type D(DSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type mask(maskSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type traps(trapsSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type dist2(dist2SEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type detect(detectSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type Tsk(TskSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type markocc(markoccSEXP);
+    Rcpp::traits::input_parameter< const int& >::type fn(fnSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type gsb(gsbSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type miscparm(miscparmSEXP);
+    Rcpp::traits::input_parameter< const double& >::type w2(w2SEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type binomN(binomNSEXP);
+    Rcpp::traits::input_parameter< const int& >::type grain(grainSEXP);
+    Rcpp::traits::input_parameter< const int& >::type ncores(ncoresSEXP);
+    rcpp_result_gen = Rcpp::wrap(nkpointcpp(D, mask, traps, dist2, detect, Tsk, markocc, fn, gsb, miscparm, w2, binomN, grain, ncores));
+    return rcpp_result_gen;
+END_RCPP
+}
 // ontransectcpp
 bool ontransectcpp(NumericVector xy, NumericMatrix transect, int n1, int n2, double tol);
 RcppExport SEXP _secr_ontransectcpp(SEXP xySEXP, SEXP transectSEXP, SEXP n1SEXP, SEXP n2SEXP, SEXP tolSEXP) {
@@ -835,6 +859,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_secr_makelookupcpp", (DL_FUNC) &_secr_makelookupcpp, 1},
     {"_secr_pdotpointcpp", (DL_FUNC) &_secr_pdotpointcpp, 13},
     {"_secr_hdotpolycpp", (DL_FUNC) &_secr_hdotpolycpp, 11},
+    {"_secr_nkpointcpp", (DL_FUNC) &_secr_nkpointcpp, 14},
     {"_secr_ontransectcpp", (DL_FUNC) &_secr_ontransectcpp, 5},
     {"_secr_alongtransectcpp", (DL_FUNC) &_secr_alongtransectcpp, 5},
     {"_secr_fasthistoriescpp", (DL_FUNC) &_secr_fasthistoriescpp, 15},
