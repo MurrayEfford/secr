@@ -95,9 +95,19 @@ small proportion of the points are wrapped.
 
 If \code{model2D = "IHP"} then an inhomogeneous Poisson distribution is
 simulated.  \code{core} should be a habitat \link{mask} and \code{D}
-should be either a vector of length equal to the number of cells (rows)
-in \code{core} or the name of a covariate in \code{core} that contains
-cell-specific densities (animals / hectare), or a constant. The number
+should be one of --
+\itemize{
+\item a vector of length equal to the number of cells (rows)
+in \code{core}, 
+\item the name of a covariate in \code{core} that contains
+cell-specific densities (animals / hectare),
+\item a function to generate the intensity of the distribution at each mask point, or
+\item a constant. 
+}
+
+If a function, \code{D} should take two arguments, a habitat mask and a list of parameter values ('core' and 'details' are passed internally as these arguments).
+
+The number
 of individuals in each cell is either (i) Poisson-distributed with mean
 \eqn{DA} where \eqn{A} is the cell area (an attribute of the mask)
 (\code{Ndist = "poisson"}) or (ii) multinomial with size \eqn{DA} and

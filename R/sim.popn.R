@@ -543,11 +543,14 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
         # 2022-06-06 simplify
         # getnm <- function (scaleattribute = 'area', scale = 1, D) {
         getnm <- function (cellsize, D) {
-                ## 2014-09-03 for "IHP" and "linear"
-            if ((length(D) == 1) & (is.character(D)))
+            ## 2014-09-03 for "IHP" and "linear"
+            if ((length(D) == 1) & (is.character(D))) {
                 D <- covariates(core)[,D]
-            if ((length(D) == 1) & (is.numeric(D)))
+            }
+            else if ((length(D) == 1) & (is.numeric(D))) {
                 D <- rep(D, nrow(core))
+            }
+            
             if (any(is.na(D))) {
                 D[is.na(D)] <- 0
                 warning ("NA values of D set to zero")
@@ -587,6 +590,12 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                     stop('settle covariate should be in range 0-1 with none missing')
             }
             cellsize <- attr(core, 'area')
+            
+            ## 2022-11-24 function D
+            if (is.function(D)) {
+                D <- D(mask = core, parm = details)
+            }
+
             nm <- getnm(cellsize, unlist(D))
             jitter <- matrix ((runif(2*sum(nm))-0.5) * attr(core,'spacing'), ncol = 2)
             animals <- core[rep(1:nrow(core), nm),] + jitter
