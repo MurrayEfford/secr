@@ -116,6 +116,11 @@ This implementation allows only two habitat classes. The parameter A is
   filters (i.e. other than rook- or queen-move filters) that are not
   available in \pkg{raster}.
 
+Gaussian random fields provide an alternative method for simulating 
+random habitats. These are not implemented in \pkg{secr} as 
+the package RandomFields and its dependent package NLMR are not 
+currently on CRAN.
+
 }
 
 \seealso{
@@ -135,9 +140,9 @@ pop <- sim.popn(10, mrcmask, model2D = "IHP")
 plot(pop, add = TRUE)
 
 ## plot intermediate steps A, C, D
-par(mfrow = c(1,3))
+opar <- par(mfrow = c(1,3))
 mrcmask <- randomHabitat(tempmask, p = 0.4, A = 0.4, plt = TRUE)
-par(mfrow = c(1,1))    ## reset to default
+par(opar) 
 
 ## keep non-habitat cells
 mrcmask <- randomHabitat(tempmask, p = 0.4, A = 0.4, drop = FALSE)

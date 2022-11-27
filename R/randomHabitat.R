@@ -66,29 +66,29 @@ randomHabitat <- function (mask, p = 0.5, A = 0.5, directions = 4, minpatch = 1,
                                 ymn = miny, ymx = maxy)
 
         ## A. Percolation map generation
-        values(layer) <- rep(0, n)
-        values(layer)[sample.int(n, round(n*p))] <- 1   ## as close as possible
-        if (plt) plot(layer, useRaster = FALSE)
+        raster::values(layer) <- rep(0, n)
+        raster::values(layer)[sample.int(n, round(n*p))] <- 1   ## as close as possible
+        if (plt) raster::plot(layer, useRaster = FALSE)
 
         ## B. Cluster identification (single-linkage clustering of adjoining pixels)
-        clumped <- clump(layer, directions = directions, gaps = FALSE)
+        clumped <- raster::clump(layer, directions = directions, gaps = FALSE)
 
         ## C. Cluster type assignment
-        ncluster <- max(values(clumped), na.rm = TRUE)
+        ncluster <- max(raster::values(clumped), na.rm = TRUE)
         types <- factor(c(0,1))          # nonhabitat, habitat
         numTypes <- as.numeric(types)    # 1,2
         clustertype <- sample(numTypes, ncluster, replace = TRUE, prob = c(1-A,A))
-        values(clumped) <- clustertype[values(clumped)]
-        if (plt) plot(clumped, useRaster = FALSE)
+        raster::values(clumped) <- clustertype[raster::values(clumped)]
+        if (plt) raster::plot(clumped, useRaster = FALSE)
 
         ## D. Filling in image
-        cellsUnassigned <- (1:n)[is.na(values(clumped))]
-        cellsAssigned <- (1:n)[!is.na(values(clumped))]
+        cellsUnassigned <- (1:n)[is.na(raster::values(clumped))]
+        cellsAssigned <- (1:n)[!is.na(raster::values(clumped))]
         tempadj <- raster::adjacent (clumped, cells = cellsUnassigned, target = cellsAssigned,
                              directions = 8)
         tempadj <- split(tempadj[,2], tempadj[,1])
         fillinType <- function (adjcells) {
-            type <- values(clumped)[adjcells]
+            type <- raster::values(clumped)[adjcells]
             type <- factor(type)
             freq <- tabulate(type)
             result <- as.numeric(levels(type)[freq == max(freq)])
@@ -99,30 +99,30 @@ randomHabitat <- function (mask, p = 0.5, A = 0.5, directions = 4, minpatch = 1,
         # cells with typed neighbours
         filled <- sapply(tempadj, fillinType)
         filledCells <- as.numeric(names(filled))
-        values(clumped)[filledCells] <- filled
+        raster::values(clumped)[filledCells] <- filled
         # cells with no typed neighbours
         notfilledCells <- cellsUnassigned[!(cellsUnassigned %in% filledCells)]
         randomType <- sample(numTypes, length(notfilledCells), replace = TRUE, prob = c(1-A,A))
-        values(clumped)[notfilledCells] <- randomType
-        if (plt) plot(clumped, useRaster = FALSE)
-        values(clumped) <- values(clumped) - 1
+        raster::values(clumped)[notfilledCells] <- randomType
+        if (plt) raster::plot(clumped, useRaster = FALSE)
+        raster::values(clumped) <- raster::values(clumped) - 1
 
         ## optionally filter small patches
         if (minpatch > 1) {
             reclumped <- raster::clump(clumped, directions = directions, gaps = FALSE)
-            nperclump <- table(values(reclumped))
-            values(clumped)[nperclump[as.character(values(reclumped))] < minpatch] <- 0
+            nperclump <- table(raster::values(reclumped))
+            raster::values(clumped)[nperclump[as.character(raster::values(reclumped))] < minpatch] <- 0
             temp <- clumped
-            values(temp) <- 1-values(temp)   ## swap 0,1
+            raster::values(temp) <- 1-raster::values(temp)   ## swap 0,1
             reclumped <- raster::clump(temp   , directions = directions, gaps = FALSE)
-            nperclump <- table(values(reclumped))
-            values(clumped)[nperclump[as.character(values(reclumped))] < minpatch] <- 1
+            nperclump <- table(raster::values(reclumped))
+            raster::values(clumped)[nperclump[as.character(raster::values(reclumped))] < minpatch] <- 1
         }
 
         # pad if necessary (sets attribute OK with padding cells FALSE)
         rectmask <- rectangularMask(mask)
         # restrict to 'habitat'; discard padding
-        tempmask <- subset(rectmask, attr(rectmask, 'OK') & (values(clumped)>0))
+        tempmask <- subset(rectmask, attr(rectmask, 'OK') & (raster::values(clumped)>0))
         # optionally return mask with only 'habitat' points
         if (drop) {
             mask <- tempmask
