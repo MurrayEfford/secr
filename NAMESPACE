@@ -47,7 +47,8 @@ importFrom (raster,
     adjacent, 
     clump, 
     "values<-", 
-    values)
+    values,
+    plot)
 
 importMethodsFrom (raster, raster)
 exportMethods     (raster)
