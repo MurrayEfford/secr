@@ -7,7 +7,7 @@
 \description{
 
 Compute spatially explicit net probability of detection for individual(s) 
-at given coordinates. 
+at given coordinates (pdot).
 
 }
 
@@ -15,7 +15,7 @@ at given coordinates.
 pdot(X, traps, detectfn = 0, detectpar = list(g0 = 0.2,
     sigma = 25, z = 1), noccasions = NULL, binomN = NULL,
     userdist = NULL, ncores = NULL) 
-    
+
 CVpdot(..., conditional = FALSE)    
 
 }
