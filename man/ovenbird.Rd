@@ -156,33 +156,14 @@ ovenmask <- make.mask(traps(ovenCH)[["2005"]], type = "pdot",
 
 ## fit constant-density model
 ovenbird.model.1 <- secr.fit(ovenCH, mask = ovenmask)
-ovenbird.model.1
 
-## fit net avoidance model
-ovenbird.model.1b <- secr.fit(ovenCH, mask = ovenmask, model =
-    list(g0~b))
-ovenbird.model.1b
+## fit temporal trend in density (Session capitalized)
+ovenbird.model.D <- secr.fit(ovenCH, mask = ovenmask, 
+    model = list(D ~ Session))
 
-## fit model with time trend in detection
-ovenbird.model.1T <- secr.fit(ovenCH, mask = ovenmask, model =
-    list(g0 ~ T))
-ovenbird.model.1T
+## compare pre-fitted models
+AIC(ovenbird.model.1, ovenbird.model.D)
 
-## fit model with 2-class mixture for g0
-ovenbird.model.h2 <- secr.fit(ovenCH, mask = ovenmask, model =
-    list(g0~h2))
-ovenbird.model.h2
-
-## compare & average pre-fitted models
-AIC (ovenbird.model.1, ovenbird.model.1b, ovenbird.model.1T,
-    ovenbird.model.h2)
-modelAverage (ovenbird.model.1,ovenbird.model.1b, ovenbird.model.1T,
-    ovenbird.model.h2, realnames = "D")
-
-## select one year to plot
-plot(ovenbird.model.1b, newdata = data.frame(session = "2005",
-    b = 0))
-    
 }
 
 
