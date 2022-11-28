@@ -16,7 +16,7 @@ Dawson & Robbins 2004).  A restricted range of SECR models may be fitted
 are covariates).
 
 These functions are replaced by \code{ipsecr.fit} and \code{proxyfn1}
-in the forthcoming package \pkg{ipsecr} (https://github.com/MurrayEfford/ipsecr). 
+in the package \pkg{ipsecr} (https://github.com/MurrayEfford/ipsecr). 
 They will be removed in future versions of \pkg{secr}.
 
 }
@@ -226,39 +226,13 @@ from a simple halfnormal model if variances are not required.
 
 \seealso{
 
-\code{\link{capthist}}, \code{\link{secr.fit}}, \code{\link{RPSV}}, \code{\link{autoini}},
-    \code{\link{sim.popn}}, \code{\link{Detection functions}}
+\code{\link{capthist}}, 
+\code{\link{secr.fit}}, 
+\code{\link{RPSV}}, 
+\code{\link{autoini}},
+\code{\link{sim.popn}}, 
+\code{\link{Detection functions}}
 
-}
-
-\examples{
-
-\dontrun{
-
-## these calculations may take several minutes
-
-## default settings
-ip.secr (captdata)
-
-## coarse initial fit, no variance step
-ip1 <- ip.secr (captdata, boxsize = 0.2, CVmax=0.01, var=0)
-## refined fit
-ip2 <- ip.secr (captdata, start = ip1$IP[,"estimate"],
-    boxsize = 0.1, CVmax=0.002, var=1000)
-ip2
-
-## compare to MLE of same data using multi-catch assumption
-predict(secrdemo.0)
-
-## improvise another predictor function (dbar instead of RPSV)
-pfn2 <- function (capthist, v) {  ## v is not used
-    sumni <- sum(capthist!=0)   ## total detections
-    n <- nrow(capthist)         ## number of individuals
-    nocc <- ncol(capthist)      ## number of occasions
-    c(N = n, p = sumni/n/nocc, dbar = dbar(capthist))
-}
-ip.secr (captdata, predictorfn = pfn2)
-}
 }
 
 \keyword{ models }
