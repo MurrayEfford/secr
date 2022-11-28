@@ -8,6 +8,7 @@
 ## 2016-05-13 plot.Dsurface no longer requires 'covariate' specified for multisession input
 ## 2018-04-29 drop dim of predictD output
 ## 2020-11-05 rectangularMask rewritten to allow disjunct mask blocks
+## 2022-11-28 spotHeight bug fixed xy <- data.frame(locator(1))
 ############################################################################################
 
 predictD <- function (object, regionmask, group, session,
@@ -443,7 +444,6 @@ spotHeight <- function (object, prefix = NULL, dec = 2, point = FALSE, text = TR
     else
       prefix <- ''
     }
-
     # can only deal with one session
     if (ms(object))
         object <- object[[session]]
@@ -458,13 +458,13 @@ spotHeight <- function (object, prefix = NULL, dec = 2, point = FALSE, text = TR
     out <- vector('list')
     i <- 0
     repeat {
-        xy <- unlist(locator(1))
-        if (is.null(xy))
+        xy <- data.frame(locator(1))
+        if (is.null(xy) || nrow(xy) == 0)
             break
-        
         maskrow <- nearesttrap(xy, object)
         if (distancetotrap(xy,object[maskrow,]) > (2 * spacing(object)))
             break
+
         xy <- object[maskrow,,drop = FALSE]  ## centre
         if (point)
             points(xy, ...)
