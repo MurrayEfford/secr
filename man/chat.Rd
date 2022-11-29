@@ -1,6 +1,7 @@
 \name{chat}
 \alias{Enk}
 \alias{chat.nk}
+\alias{adjustVariance}
 
 \title{ Overdispersion of Activity Centres}
 
@@ -14,6 +15,9 @@ addressed with a variance inflation factor, essentially a measure of overdispers
 Functions described here compute the expected number of individuals detected at each detector 
 (Enk) and use that to compute Fletcher's \eqn{\hat c} estimate of overdispersion 
 for use as a variance inflation factor. 
+
+\code{adjustVarD} adjusts the SE and confidence limits of density estimates 
+using Fletcher's \eqn{\hat c}.
 
 See Cooch and White (2022) for an introduction to measurement of overdispersion 
 in capture--recapture. The focus here is on overdispersion of activity centres 
@@ -29,6 +33,8 @@ Enk(D, mask, traps, detectfn = 0, detectpar = list(g0 = 0.2,
     userdist = NULL, ncores = NULL) 
 
 chat.nk(object)
+
+adjustVarD(object, chatmin = 1, alpha = 0.05)
 
 }
 
@@ -46,24 +52,32 @@ chat.nk(object)
 
 \item{object}{fitted secr model (see Warnings for restrictions)}
 
+\item{chatmin}{minimum value of Fletcher's \eqn{\hat c}}
+
+\item{alpha}{alpha level for confidence intervals }
 }
+
 \details{
 
 If \code{traps} has a \link{usage} attribute then \code{noccasions} is
 set accordingly; otherwise it must be provided.
 
-Setting \code{ncores = NULL} uses the existing value from the environment variable 
-RCPP_PARALLEL_NUM_THREADS (see \code{\link{setNumThreads}}).
+The environment variable RCPP_PARALLEL_NUM_THREADS determines the number of 
+parallel threads. It is set to the value of \code{ncores}, unless that is NULL 
+(see \code{\link{setNumThreads}}).
 
 The conventional lack-of-fit statistic is
 \eqn{\hat c_X = X^2/(K-1)} where \eqn{K} is the number of detectors and 
 \deqn{X^2 = \sum_k (n_k - E (n_k))^2/  E(n_k).} 
 
-Fletcher's \eqn{\hat c} is an improvement on \eqn{\hat c_X} that is less affected by sparse counts. 
-It is defined by
+Fletcher's \eqn{\hat c} is an improvement on \eqn{\hat c_X} that is less affected 
+by many small expected counts. It is defined by
 \deqn{\hat c = c_X / (1+ \bar s),} 
 where \eqn{\bar s = \sum_k s_k / K} and \eqn{s_k = (n_k - E(n_k)) / E(n_k)}.
  
+In \code{adjustVarD} no adjustment is made when \eqn{\hat c} is less than the 
+minimum. Estimates of \eqn{\hat c} are session-specific.
+
 }
 
 \value{
@@ -77,13 +91,15 @@ For \code{chat.nk}, a list comprising --
 \item{stats}{vector of summary statistics: mean(expected.nk), var(expected.nk), mean(nk), var(nk), X2/nu}
 \item{chat}{Fletcher's \eqn{\hat c}}
  
+For \code{adjustVarD}, a dataframe with one row for each session, based on \code{\link{predict.secr}} or \code{\link{derived.secr}}, with extra column `c-hat'.
+
 }
 
 \section{Warning}{
 
 These functions are experimental in secr 4.5.8, and do not work with 
 polygon-like detectors. No allowance is made for varying detection parameters
-with respect to occasion, detector, animal.
+with respect to occasion, detector or animal.
 
 }
 

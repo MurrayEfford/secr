@@ -1,9 +1,10 @@
-Changes in version 4.5.8 (2022-11-28)
+Changes in version 4.5.8 (2022-11-29)
 
 New features or changed behaviour of old functions
     o   plot method for traps acquires argument 'frame'
     o   trapsPerAnimal() new capthist summary function
     o   Enk() new function expected individuals per detector
+    o   chat.nk() and adjustVarD() new functions for spatial overdispersion
     o   summary method for capthist optionally includes frequency 
         distribution of traps per animal (count of tpa >= 2 if terse)
     o   sim.popn() with model2D = 'IHP' the density argument may be a function
@@ -14,6 +15,7 @@ Bugs fixed
     o   sim.secr() crashed R when used with learned-response models (b, B etc.)
     o   secr.fit() failed occasionally with distribution = 'binomial'
     o   randomHabitat(..., plt = TRUE) assumed raster::plot loaded
+    o   spotHeight() not working
 
 Other
     o   make.lacework limit of 5000 detectors

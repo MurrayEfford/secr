@@ -1,7 +1,7 @@
 ###############################################################################
 ## package 'secr'
 ## chatnk.R
-## 2022-11-18
+## 2022-11-18, 29
 ###############################################################################
 
 chat.nk.sess <- function(object, D, capthist, mask, detpar) {
@@ -107,17 +107,12 @@ chat.nk <- function(object) {
     }
 }
 
-# sapply(chat.nk(oven), '[[','chat')
-
 # 2022-11-20
-# unpublished
 # experimental adjustment of SE and CL
 # apply to density linear predictor (on link scale)
-
-# also derived.secr?
 # include in predict.secr?
 
-chatVariance <- function(object, chatmin = 1.0, alpha = 0.05) {
+adjustVarD <- function(object, chatmin = 1.0, alpha = 0.05) {
     adjustonesession <- function (pred, chat, chatmin = 1.0, alpha = 0.05) {
         link <- pred['D', 'link']
         if (is.null(link)) link <- 'log'
@@ -154,23 +149,23 @@ chatVariance <- function(object, chatmin = 1.0, alpha = 0.05) {
         SIMPLIFY = FALSE))
 }
 
-#-------------------------------------------------------------------------------
-# cf Paul Hiemstra Aug 23 2012 StackOverFlow
-binarystring <- function(number, noBits) {
-    binary_vector = rev(as.numeric(intToBits(number)))
-    paste(binary_vector[-(1:(length(binary_vector) - noBits))], collapse='')
-}
-
-# steps towards overdispersion of detection Nov 2022
-
-chat.i <- function (object) {
-    ch <- object$capthist
-    noccasions <- ncol(ch)
-    chis <- apply(abs(ch),1:2,sum)
-    chis <- pmin(chis,1) # ignore detection at multiple traps
-    observedCH <- apply(chis,1,paste, collapse='')
-    possibleCH <- sapply(1:2^noccasions, binarystring,noccasions)
-    table(factor(observedCH, levels = possibleCH))  
-}
-# chat.i(secrdemo.0)
-#-------------------------------------------------------------------------------
+# #-------------------------------------------------------------------------------
+# # cf Paul Hiemstra Aug 23 2012 StackOverFlow
+# binarystring <- function(number, noBits) {
+#     binary_vector = rev(as.numeric(intToBits(number)))
+#     paste(binary_vector[-(1:(length(binary_vector) - noBits))], collapse='')
+# }
+# 
+# # steps towards overdispersion of detection Nov 2022
+# 
+# chat.i <- function (object) {
+#     ch <- object$capthist
+#     noccasions <- ncol(ch)
+#     chis <- apply(abs(ch),1:2,sum)
+#     chis <- pmin(chis,1) # ignore detection at multiple traps
+#     observedCH <- apply(chis,1,paste, collapse='')
+#     possibleCH <- sapply(1:2^noccasions, binarystring,noccasions)
+#     table(factor(observedCH, levels = possibleCH))  
+# }
+# # chat.i(secrdemo.0)
+# #-------------------------------------------------------------------------------
