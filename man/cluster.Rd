@@ -65,11 +65,11 @@ clustertrap(object) <- value
 
 \examples{
 
-## 81 4-detector clusters
+## 25 4-detector clusters
 mini <- make.grid(nx = 2, ny = 2)
 tempgrid <- trap.builder (cluster = mini , method = "all",
-    frame = expand.grid(x = seq(100, 900, 100), y = seq(100,
-    900, 100)))
+    frame = expand.grid(x = seq(100, 500, 100), y = seq(100,
+    500, 100)))
 clusterID(tempgrid)
 clustertrap(tempgrid)
 
