@@ -818,7 +818,9 @@ Here is an index of **secr** functions classified by use (some minor functions a
 | `par.secr.fit`  | parallel secr.fit() (several models, using multiple cores) |
 | `secr.fit`	| maximum likelihood fit; result is a fitted `secr` object | 
 | <a name="operate"></a> **Operate on fitted model(s)** | |
+|   `adjustVarD` | apply c-hat to density SE and confidence intervals |
 |	`AIC`*	| model selection, model weights |
+|   `chat.nk` | overdispersion of activity centres |
 |	`coef`*	| 'beta' parameters |
 |	`collate`	| tabulate estimates from several models |
 |	`confint`*	| profile likelihood confidence intervals |
@@ -874,6 +876,7 @@ Here is an index of **secr** functions classified by use (some minor functions a
 |	`dbar`		| mean distance between capture locations |
 |	`distancetotrap`	| from an arbitrary set of points |
 |    `edist`    	| Euclidean distance |
+|   `Enk`       | expected individuals per detector | 
 | `gridCells` 	| grid cells around points (e.g. traps object) |
 |    `MMDM`		| mean maximum distance moved |
 |	`moves`		| distances between capture locations |
@@ -885,6 +888,7 @@ Here is an index of **secr** functions classified by use (some minor functions a
 | `pmixProfileLL`  | profile likelihood as function of mixing proportion |
 |	`RPSV`		| 'root pooled spatial variance', a simple measure of home-range size |
 |  `setNumThreads` | sets environment variable RCPP_PARALLEL_NUM_THREADS |
+| `trapsPerAnimal` | frequency distribution of detectors per animal |
 
 \pagebreak
 
