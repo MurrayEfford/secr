@@ -129,11 +129,11 @@ circular.r (detectfn = "HHN")
 circular.r (detectfn = "HHR", detectpar = list(sigma = 1, z = 4))
 circular.r (detectfn = "HEX")
 
-plot(seq(0, 5, 0.01), circular.p(r = seq(0, 5, 0.01)),
+plot(seq(0, 5, 0.05), circular.p(r = seq(0, 5, 0.05)),
     type = "l", xlab = "Radius (multiples of sigma)", ylab = "Probability")
-lines(seq(0, 5, 0.01), circular.p(r = seq(0, 5, 0.01), detectfn = 2),
+lines(seq(0, 5, 0.05), circular.p(r = seq(0, 5, 0.05), detectfn = 2),
     type = "l", col = "red")
-lines(seq(0, 5, 0.01), circular.p(r = seq(0, 5, 0.01), detectfn = 1,
+lines(seq(0, 5, 0.05), circular.p(r = seq(0, 5, 0.05), detectfn = 1,
     detectpar = list(sigma = 1,z = 4)), type = "l", col = "blue")
 abline (h = 0.95, lty = 2)
 
