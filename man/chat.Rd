@@ -1,7 +1,7 @@
 \name{chat}
 \alias{Enk}
 \alias{chat.nk}
-\alias{adjustVariance}
+\alias{adjustVarD}
 
 \title{ Overdispersion of Activity Centres}
 
@@ -67,7 +67,7 @@ parallel threads. It is set to the value of \code{ncores}, unless that is NULL
 (see \code{\link{setNumThreads}}).
 
 The conventional lack-of-fit statistic is
-\eqn{\hat c_X = X^2/(K-1)} where \eqn{K} is the number of detectors and 
+\eqn{\hat c_X = X^2/(K-p)} where \eqn{K} is the number of detectors,  \eqn{p} is the number of estimated parameters, and 
 \deqn{X^2 = \sum_k (n_k - E (n_k))^2/  E(n_k).} 
 
 Fletcher's \eqn{\hat c} is an improvement on \eqn{\hat c_X} that is less affected 
@@ -88,7 +88,7 @@ For \code{chat.nk}, a list comprising --
 
 \item{expected.nk}{expected number at each detector} 
 \item{nk}{observed number at each detector}
-\item{stats}{vector of summary statistics: mean(expected.nk), var(expected.nk), mean(nk), var(nk), X2/nu}
+\item{stats}{vector of summary statistics: mean(expected.nk), var(expected.nk), mean(nk), var(nk), nu (=df), X2/nu}
 \item{chat}{Fletcher's \eqn{\hat c}}
  
 For \code{adjustVarD}, a dataframe with one row for each session, based on \code{\link{predict.secr}} or \code{\link{derived.secr}}, with extra column `c-hat'.
@@ -98,8 +98,7 @@ For \code{adjustVarD}, a dataframe with one row for each session, based on \code
 \section{Warning}{
 
 These functions are experimental in secr 4.5.8, and do not work with 
-polygon-like detectors. No allowance is made for varying detection parameters
-with respect to occasion, detector or animal.
+polygon-like detectors. No allowance is made for modelled variation in detection parameters with respect to occasion, detector or animal.
 
 }
 
@@ -123,9 +122,7 @@ Fletcher, D. (2012) Estimating overdispersion when fitting a generalized linear 
 }
 
 \examples{
-
 \donttest{
-
   temptrap <- make.grid()
   msk <- make.mask(temptrap)
   ## expected number of individuals per detector. 

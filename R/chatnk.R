@@ -26,8 +26,16 @@ chat.nk.sess <- function(object, D, capthist, mask, detpar) {
         
         nk <- apply(apply(abs(capthist),c(1,3),sum)>0, 2, sum)
         X2 <- sum((nk - expected.nk)^2 / expected.nk)
-        si <- mean((nk - expected.nk) / expected.nk)
-        nu <- nrow(traps(capthist)) - 1
+        
+        # number of detectors
+        K <- nrow(traps(capthist))
+        
+        np <- length(object$betanames)
+        if (np > (K-1)) stop ("c-hat not estimated when np > K-1")
+
+        si <- sum((nk - expected.nk) / expected.nk) / K
+        nu <- K-np
+        
         chat <- X2/nu / (1 + si)
         list(
             expected.nk = expected.nk, 
@@ -37,6 +45,7 @@ chat.nk.sess <- function(object, D, capthist, mask, detpar) {
                 var.expected = sd(expected.nk)^2,
                 mean.nk = mean(nk), 
                 var.nk = sd(nk)^2, 
+                nu = nu,
                 cX2 = X2/nu),
             chat = chat
         )
