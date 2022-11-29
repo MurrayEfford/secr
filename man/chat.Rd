@@ -71,12 +71,12 @@ The conventional lack-of-fit statistic is
 \deqn{X^2 = \sum_k (n_k - E (n_k))^2/  E(n_k).} 
 
 Fletcher's \eqn{\hat c} is an improvement on \eqn{\hat c_X} that is less affected 
-by many small expected counts. It is defined by
+by small expected counts. It is defined by
 \deqn{\hat c = c_X / (1+ \bar s),} 
 where \eqn{\bar s = \sum_k s_k / K} and \eqn{s_k = (n_k - E(n_k)) / E(n_k)}.
  
-In \code{adjustVarD} no adjustment is made when \eqn{\hat c} is less than the 
-minimum. Estimates of \eqn{\hat c} are session-specific.
+No adjustment is made by \code{adjustVarD} when \eqn{\hat c} is less than the 
+minimum. 
 
 }
 

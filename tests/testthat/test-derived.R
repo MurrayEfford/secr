@@ -8,7 +8,7 @@ library(secr)
 Sys.setenv(RCPP_PARALLEL_BACKEND = "tinythread")
 
 test_that("correct chat.nk secrdemo.0", {
-    expect_equal(chat.nk(secrdemo.0)$chat, 1.3089236, 
+    expect_equal(chat.nk(secrdemo.0)$chat, 1.33591167, 
         tolerance = 1e-6, check.attributes = FALSE)
 })
 
