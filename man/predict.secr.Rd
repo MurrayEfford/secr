@@ -55,7 +55,7 @@ all factor levels.
 
 Standard errors for parameters on the response (real) scale are by the
 delta method (Lebreton et al. 1992), and confidence intervals are
-backtransformed from the link scale.
+backtransformed from the link scale. 
 
 The value of \code{newdata} is optionally saved as an attribute.
 
@@ -105,12 +105,20 @@ session).
   
   The argument `scaled' was removed from both predict methods in version 2.10 as the scaleg0 and scalesigma features had been superceded by other parameterisations.
   
+  Overdispersion results in confidence intervals that are too narrow. See \code{\link{adjustVarD}} for a partial solution.
+  
 }
 
 \references{ 
 Lebreton, J.-D., Burnham, K. P., Clobert, J. and Anderson, D. R. (1992) Modeling survival and testing biological hypotheses using marked animals: a unified approach with case studies. \emph{Ecological Monographs} \bold{62}, 67--118. }
 
-\seealso{ \code{\link{secr.fit}}, \code{\link{predictDsurface}} }
+\seealso{ 
+
+\code{\link{secr.fit}}, 
+\code{\link{predictDsurface}} 
+\code{\link{adjustVarD}}
+
+}
 
 \examples{
 
