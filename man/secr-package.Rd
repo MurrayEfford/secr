@@ -19,7 +19,7 @@
 Package: \tab secr\cr
 Type: \tab Package\cr
 Version: \tab 4.5.9\cr
-Date: \tab 2022-11-30\cr
+Date: \tab 2022-12-27\cr
 License: \tab GNU General Public License Version 2 or later\cr
 }
 

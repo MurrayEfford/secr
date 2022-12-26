@@ -1,7 +1,11 @@
-Changes in version 4.5.9 (2022-11-30)
+Changes in version 4.5.9 (2022-12-27)
 
 New features or changed behaviour of old functions
     o   none
+
+Bugs fixed
+    o   make.capthist() failed with points snapped to transects
+    o   sim.popn() model2D 'cluster' mistakenly allowed Ndist = 'fixed'
 
 Changes in version 4.5.8 (2022-11-29)
 
