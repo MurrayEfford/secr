@@ -2254,6 +2254,8 @@ uniformusage <- function(object, noccasions) {
   object
 }
 
+#--------------------------------------------------------------------------------
+
 sfrotate <- function (x, degrees, centrexy = NULL, usecentroid = FALSE) {
     rot = function(a) matrix(c(cos(a), sin(a), -sin(a), cos(a)), 2, 2)
     gx <- st_geometry(x)
@@ -2271,6 +2273,7 @@ sfrotate <- function (x, degrees, centrexy = NULL, usecentroid = FALSE) {
     (gx - centrexy) * rot(degrees/360*2*pi) + centrexy
 }
 
+#--------------------------------------------------------------------------------
 # Based on Tim Salabim stackoverflow Jul 12 2018
 # https://stackoverflow.com/questions/51292952/snap-a-point-to-the-closest-point-on-a-line-segment-using-sf
 
@@ -2290,7 +2293,10 @@ snap_points <- function(x, y, max_dist = 1000) {
     )
     return(out)
 }
+#--------------------------------------------------------------------------------
 
+# random truncated Poisson
 rtpois <- function(n, lambda) {
     qpois(runif(n, dpois(0, lambda), 1), lambda)
 }
+#--------------------------------------------------------------------------------
