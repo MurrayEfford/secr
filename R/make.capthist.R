@@ -158,8 +158,10 @@ make.capthist <- function (captures, traps, fmt = c("trapID", "XY"), noccasions 
                             xy <- st_as_sf(captures[,4:5, drop = FALSE], coords = 1:2)
                             xy2 <- snap_points (xy, v, max_dist = tol) # see utility.R
                             distances <- st_distance(xy,v) 
+                            distances <- apply(distances,1,min)   # nearest 2022-12-01
                             OK <- distances < tol
                             if (any(!OK)) {
+                                cat('points not within tol = ', tol, 'of any transect\n')
                                 print(cbind(captures, distances)[!OK,])                       
                             }
                             captures[OK,4:5] <- st_coordinates(xy2)[OK,]
