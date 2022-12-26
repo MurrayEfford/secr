@@ -2292,8 +2292,9 @@ detectpar.secr <- function(object, ..., byclass = FALSE) {
         names(temp) <- session(object$capthist)
         temp
     }
-    else
+    else {
         extractpar(temppred)
+    }
 }
 
 ############################################################################################
