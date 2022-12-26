@@ -739,14 +739,15 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                                        poisson = rpois(1, lambda=D[1] * area/details$mu),
                                        fixed = discreteN (1, D[1] * area / details$mu),
                                        specified = discreteN (1, D[1] / details$mu))  ## here arg D is N
-                    N <- nparent * details$mu
                     if (nparent==0)
                         warning ("zero clusters")
                     parent <-  sweep(matrix(runif(2*nparent), ncol = 2), 2, c(xrange,yrange), '*')
-                    
+                    noffspr <- rpois(nparent, details$mu)
+                    N <- sum(noffspr) # nparent * details$mu
                     offspr <- matrix(rnorm(2*N), ncol = 2) * details$hsigma
-                    parentn <- rep(1:nparent, details$mu)
-                    offspr <- offspr + parent[parentn,]
+                    parentn <- rep(1:nparent, noffspr)
+                    # parentn <- rep(1:nparent, details$mu)
+                    offspr <- offspr + parent[parentn,,drop = FALSE]
                     while (any ((offspr[,1]<0) | (offspr[,1]>xrange) | (offspr[,2]<0) |
                                 (offspr[,2]>yrange))) {
                         offspr[,1] <- ifelse (offspr[,1]<0, offspr[,1]+xrange, offspr[,1])
