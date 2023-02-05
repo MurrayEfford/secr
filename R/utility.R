@@ -235,7 +235,8 @@ valid.userdist <- function (userdist, detector, xy1, xy2, mask, sessnum) {
             if ((length(OK)>0) & !all(OK))
                 stop ("covariates required by userdist function not in mask : ",
                       paste(getuserdistnames(userdist)[!OK], collapse=','))
-            result <- do.call(userdist, c(list(xy1, xy2, mask)))
+            # 2023-02-06 selected columns 1:2 only (mask passes miscparm)
+            result <- do.call(userdist, c(list(xy1[,1:2], xy2[,1:2], mask)))
         }
         else {
             if (is.character(userdist)) {
