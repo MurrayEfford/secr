@@ -36,10 +36,15 @@
   will be replaced with sequential integers. The \dots argument may include
   lists of single-session capthist objects.
   
-  \code{rbind.capthist} is used to pool capture data from more than one
+  The \code{rbind} method for capthist objects is used to pool capture data 
+  from more than one
   session into a single session. The number of rows in the output
   session is the sum of the number of rows in the input sessions
-  (i.e. each animal appears in only one session).
+  (i.e. each animal appears in only one session). Sessions to be pooled with 
+  \code{rbind} must have the same number of capture occasions and use the 
+  same detectors (traps). At present there is no function to pool capthist 
+  data from different detector arrays. For this it is recommended that you 
+  merge the input files and rebuild the capthist object from scratch.
 
   For \code{rbind.capthist}, the \dots argument may be \enumerate{
       \item A series of single-session capthist objects, which are
@@ -50,12 +55,6 @@
     and `B') from 5 old ones. If \code{pool = NULL} (the default) then all the
     sessions are pooled to form one single-session capthist object.
     }
-
-    Sessions to be pooled must have the same number of capture occasions
-    and use the same detectors (traps). At present there is no function
-    to pool capthist data from different detector arrays. For this it is
-    recommended that you merge the input files and rebuild the capthist
-    object from scratch.
 
     The names of arguments other than \dots should be given in full. If
 \code{renumber = TRUE} (the default), the session name will be prepended
