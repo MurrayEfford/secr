@@ -9,6 +9,7 @@
 ## 2020-11-04 session names used in output for multi-session data
 ## 2022-01-22 fixed bug in sumDpdot that ignored details$ignoreusage
 ## 2022-10-08 fixed bug in region.N when region is mask other than original
+## 2023-02-06 sumDpdot tweaked for robustness to varying detectors/session
 ############################################################################################
 
 region.N.secrlist <- function (object, region = NULL, spacing = NULL, session = NULL,
@@ -241,7 +242,6 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
         else { RN <- NA; seRN <- NA }
 
         #######################################################################
-
         temp <- data.frame(
             row.names = c('E.N','R.N'),
             estimate = c(EN,RN),
@@ -330,7 +330,9 @@ sumDpdot <- function (object, sessnum = 1, mask, D, noneuc, cellsize, constant =
     }
     else {
         # PIA0 <- object$design0$PIA[sessnum,,1:s,,,drop = FALSE]
-        PIA0 <- object$design0$PIA[sessnum,1:n,1:s,,,drop = FALSE]   ## 2020-11-04
+        # PIA0 <- object$design0$PIA[sessnum,1:n,1:s,,,drop = FALSE]   ## 2020-11-04
+        PIA0 <- object$design0$PIA[sessnum,1:n,1:s,1:K,,drop = FALSE]  ## 2023-02-06
+        
         #############################################
         ## trick to allow for changed data 2009 11 20
         ## nmix>1 needs further testing 2010 02 26
@@ -388,7 +390,6 @@ sumDpdot <- function (object, sessnum = 1, mask, D, noneuc, cellsize, constant =
         }
         #############################################################
         ## across all traps, regardless of clusters
-        
         gkhk <- makegk (dettype, object$detectfn, trps, mask, object$details, sessnum, 
                         noneuc, D, miscparm, Xrealparval0, grain, ncores)
             
