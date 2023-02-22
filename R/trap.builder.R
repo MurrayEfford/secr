@@ -361,7 +361,6 @@ make.systematic <- function (n, cluster, region, spacing = NULL,
     temporigin <- origin
     chequerboard <- match.arg(chequerboard)
     order <- match.arg(order)
-    
     region <- boundarytoSF(region)
     if (rotate != 0) {
         ## 2022-02-01 see utility.R for sfrotate

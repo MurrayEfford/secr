@@ -106,8 +106,8 @@ export (par.secr.fit)
 export (par.derived)
 export (par.region.N)
 export (expected.n)
-export (ip.secr)
-export (pfn)
+# export (ip.secr) defunct 4.5.9
+# export (pfn)     defunct 4.5.9
 export (read.traps)
 export (read.telemetry)
 export (make.grid)

@@ -1,4 +1,4 @@
-Changes in version 4.5.9 (2023-02-06)
+Changes in version 4.5.9 (2023-02-22)
 
 New features or changed behaviour of old functions
     o   none
@@ -11,6 +11,7 @@ Bugs fixed
 
 Other
     o   MS.capthist() help clarified
+    o   ip.secr() and pfn() defunct
 
 Changes in version 4.5.8 (2022-11-29)
 

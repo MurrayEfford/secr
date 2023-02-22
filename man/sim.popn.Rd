@@ -67,26 +67,18 @@ it is used in some open-population simulations.
 
 If \code{model2D = "cluster"} then the simulated population approximates a Neyman-Scott
 clustered Poisson distribution. Ancillary parameters are passed as
-components of \code{details}: details$mu is the fixed number of
+components of \code{details}: details$mu is the expected number of
 individuals per cluster and details$hsigma is the spatial scale
 (\eqn{\sigma}{sigma}) of a 2-D kernel for location within each cluster.
 The algorithm is
 \enumerate{
-
 \item Determine the number of clusters (parents) as a random Poisson variate
 with \eqn{\lambda = DA/\mu}{ lambda = DA/mu }
-
 \item Locate each parent by drawing uniform random x- and y-coordinates
-
-\item Generate mu offspring for each parent and locate them by adding random
-normal error to each parent coordinate
-
+\item Determine number of offspring for each parent by drawing from a Poisson distribution with mean mu
+\item Locate offspring by adding random normal error to each parent coordinate
 \item Apply toroidal wrapping to ensure all offspring locations are
 inside the buffered area
-
-Function \code{tile} replicates a popn pattern by either reflecting or
-copying and translating it to fill a 3 x 3 grid.
-
 }
 
 Toroidal wrapping is a compromise. The result is more faithful to the
@@ -168,6 +160,10 @@ parameters provided as components of \code{details} and described in \link{turno
 The optional covariate 'age' is the number of sessions from the session of recruitment.
 
 The random number seed is managed as in \code{simulate.lm}.
+
+
+Function \code{tile} replicates a popn pattern by either reflecting or
+copying and translating it to fill a 3 x 3 grid.
 
 }
 
