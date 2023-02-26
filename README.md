@@ -1,7 +1,7 @@
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/secr)](https://cran.r-project.org/package=secr)
 [![Downloads (total)](https://cranlogs.r-pkg.org/badges/grand-total/secr)](https://www.r-pkg.org/pkg/secr)
-[![GitHub version](https://img.shields.io/badge/devel%20version-1.2.0-yellow.svg)](https://github.com/MurrayEfford/secr)
+[![GitHub version](https://img.shields.io/badge/devel%20version-4.5.9-yellow.svg)](https://github.com/MurrayEfford/secr)
 [![R-CMD-check](https://github.com/MurrayEfford/secr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/MurrayEfford/secr/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
