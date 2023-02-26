@@ -8,3 +8,4 @@ src\*.o
 revdep
 extraR
 README.md
+^\.github$
