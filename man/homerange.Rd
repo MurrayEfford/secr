@@ -97,9 +97,9 @@ and Casby (1958) with a different denominator --
 	  (\code{CC = FALSE}) is retained as the default for compatibility with
 	  previous versions of \pkg{secr}.
 	  
-\code{dbar} and \code{RPSV} have a specific role as proxies for
+\code{RPSV} has a specific role as a proxy for
 detection scale in inverse-prediction estimation of density (Efford
-2004; see \code{\link{ip.secr-deprecated}}).
+2004, 2023).
 
 \code{RPSV} is used in \code{autoini} to obtain plausible starting
 values for maximum likelihood estimation.
@@ -153,6 +153,9 @@ Calhoun, J. B. and Casby, J. U. (1958) Calculation of home range and
   
 Efford, M. G. (2004) Density estimation in live-trapping studies.
 \emph{Oikos} \bold{106}, 598--610.
+
+Efford, M. G. (2023) ipsecr: An R package for awkward spatial capture--recapture data.
+\emph{Methods in Ecology and Evolution} In press.
 
 Jett, D. A. and Nichols, J. D. (1987) A field comparison of nested grid
 and trapping web density estimators. \emph{Journal of Mammalogy}
