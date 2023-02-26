@@ -2,6 +2,11 @@
 # Derived from https://github.com/r-lib/actions/tree/v2/examples
 # https://github.com/r-lib/actions#where-to-find-help
 
+# critical changes --
+# - uses: r-lib/actions/setup-tinytex@v2
+# run: brew install --cask xquartz
+#  build_args: '"--compact-vignettes=both"'
+
 # 2023-02-27 first tested
 
 on:
