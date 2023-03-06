@@ -375,8 +375,14 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     allvars <- unlist(lapply(model, all.vars))
     learnedresponse <- any(.localstuff$learnedresponses %in% allvars) ## || !is.null(dframe)
     timevarying <- any(c('t', 'T', 'tcov', names(timecov)) %in% allvars) ## || !is.null(dframe)
+    
     ## 2022-01-05
     timevarying <- timevarying || any(names(timevaryingcov(traps(capthist))) %in% allvars)
+    
+    ## 2023-03-07 detect multi-session list of time covariate dataframes
+    if (inherits(timecov, 'list')) {
+        timevarying <- timevarying || any(names(timecov[[1]]) %in% allvars)
+    }
     
     ##############################################
     ## 2019-09-01 fast proximity option
