@@ -1257,7 +1257,6 @@ double pski ( int binomN,
             result = exp(-lambda);            // routinely apply Tsk adjustment to cum. hazard 
         }
         else {
-            //result = R::dpois(count, Tski * g * pI); 
             boost::math::poisson_distribution<> pois(lambda);
             result = boost::math::pdf(pois,count);
         }
