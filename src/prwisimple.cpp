@@ -241,7 +241,11 @@ struct simplehistories : public Worker {
                 if (count<0) {count = -count; dead = true; }
                 for (m=0; m<mm; m++) {
                     if (mbool(n,m)) {
-                        pm[m] *= pski(binomN[s], count, Tsk(k,s), gk[i3(c, k, m, cc, kk)], pID[s]);  
+                        // bug fix 2023-03-09 for Poisson counts
+                        if (binomN[s]==0)
+                            pm[m] *= pski(binomN[s], count, Tsk(k,s), hk[i3(c, k, m, cc, kk)], pID[s]);  
+                        else 
+                            pm[m] *= pski(binomN[s], count, Tsk(k,s), gk[i3(c, k, m, cc, kk)], pID[s]);  
                     }
                     else {
                         pm[m] = 0.0; 

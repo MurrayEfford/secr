@@ -1,4 +1,5 @@
 ## Started 2021-11-09
+## revised 2023-03-09
 
 library(secr)
 
@@ -29,8 +30,9 @@ test_that("correct likelihood (Poisson count data)", {
     
     args$details <- list(LLonly = TRUE, fastproximity = FALSE)
     LL2 <- do.call(secr.fit, args)[1]
-    expect_equal(LL2, -122.1523842, tolerance = 1e-4, check.attributes = FALSE)
-
+    # expect_equal(LL2, -122.1523842, tolerance = 1e-4, check.attributes = FALSE)
+    expect_equal(LL2, -122.1385378, tolerance = 1e-4, check.attributes = FALSE)  # 4.5.9
+    
     args$detectfn <- 'HHN'  
     args$start <- c(2.121836235, -1.342742898, 3.201525519)
     
@@ -40,7 +42,8 @@ test_that("correct likelihood (Poisson count data)", {
 
     args$details <- list(LLonly = TRUE, fastproximity = FALSE)
     LL4 <- do.call(secr.fit, args)[1]
-    expect_equal(LL4, -122.3167724, tolerance = 1e-4, check.attributes = FALSE)
+    # expect_equal(LL4, -122.3167724, tolerance = 1e-4, check.attributes = FALSE)
+    expect_equal(LL4, -122.1523842, tolerance = 1e-4, check.attributes = FALSE) # 4.5.9
 })
 
 ###############################################################################
@@ -63,4 +66,5 @@ test_that("correct likelihood (binomial count data)", {
     LL2 <- do.call(secr.fit, args)[1]
     expect_equal(LL2, -250.716399 , tolerance = 1e-4, check.attributes = FALSE)
 })    
+
 
