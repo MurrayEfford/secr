@@ -778,11 +778,6 @@ sim.capthist <- function (
             }
         }
 
-        # 2017-01-11
-        # if (detector(traps)[1] %in% 'telemetryonly')  ## 2013-11-21
-        #     if (!is.na(chulltol))
-        #      if (chulltol >= 0) w <- refreshMCP(w, chulltol)
-
         if (renumber & (nrow(w)>0)) 
             rownames(w) <- 1:nrow(w)
         else {

@@ -3,8 +3,24 @@
 ## secr.design.MS.R
 
 ## 2019-12-03 replaced bygroup with CL
+## 2023-03-10 individualcovariates() moved from utility.R
 
 ################################################################################
+
+## Based on Charles C. Berry on R-help 2008-01-13
+## drop = FALSE 2018-11-22
+n.unique.rows <- function(x) {
+    order.x <- do.call(order, as.data.frame(x))
+    equal.to.previous <- rowSums(x[tail(order.x,-1),,drop = FALSE] != 
+            x[head(order.x,-1),,drop = FALSE])==0 
+    1 + sum(!equal.to.previous)
+}
+
+individualcovariates <- function (PIA) {
+    pia <- matrix(aperm(PIA, c(2:5,1)), nrow = dim(PIA)[2])
+    n.unique.rows(pia) > 1
+}
+#-------------------------------------------------------------------------------
 
 secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
                             groups = NULL, hcov = NULL, dframe = NULL, naive = FALSE,
