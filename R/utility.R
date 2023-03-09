@@ -24,6 +24,7 @@
 ## 2022-10-08 4.5.7
 ## 2022-11-29 4.5.8
 ## 2023-03-09 4.5.9
+## 2023-03-10 4.5.10
 #######################################################################################
 
 # Global variables in namespace
@@ -33,8 +34,8 @@
 
 .localstuff <- new.env()
 
-#.localstuff$packageType <- ' pre-release'
-.localstuff$packageType <- ''
+.localstuff$packageType <- ' pre-release'
+# .localstuff$packageType <- ''
 
 .localstuff$validdetectors <- c('single','multi','proximity','count', 
     'polygonX', 'transectX', 'signal', 'polygon', 'transect', 
