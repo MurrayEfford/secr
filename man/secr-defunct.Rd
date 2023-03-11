@@ -17,7 +17,7 @@ These functions are no longer available in \pkg{secr}.
 
 \usage{
 
-# Defunct in 4.5.9
+# Defunct in 4.5.10 (2023-03-10)
 
 ip.secr()
 pfn()
