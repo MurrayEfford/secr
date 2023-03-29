@@ -1,7 +1,10 @@
-Changes in version 4.5.11 (2023-03-10)
+Changes in version 4.5.11 (2023-03-30)
 
 New features or changed behaviour of old functions
     o   none
+
+Bugs fixed
+    o   make.capthist() lost covariates when creating non-spatial capthist
 
 Changes in version 4.5.9 (2023-03-09)
 

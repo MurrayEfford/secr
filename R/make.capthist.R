@@ -112,6 +112,7 @@ make.capthist <- function (captures, traps, fmt = c("trapID", "XY"), noccasions 
         
         if (is.null(traps)) {
             captTrap <- rep(1, nrow(captures))
+            fmt <- "nonspatial"   # 2023-03-30
         }
         else if (all(validcapt)) {
             if (!(fmt %in% c('trapID','XY')))
@@ -224,8 +225,9 @@ make.capthist <- function (captures, traps, fmt = c("trapID", "XY"), noccasions 
             if (nocc <  max(abs(captures[,3])))
                 stop("fewer usage fields than max(occasion)")
         }
-        else
+        else {
             nocc <- max(abs(captures[,3]))
+        }
         nocc <- ifelse (is.null(noccasions), nocc, noccasions)
         if (!is.null(traps)) {
             if (is.null(detector(traps)))
@@ -295,16 +297,16 @@ make.capthist <- function (captures, traps, fmt = c("trapID", "XY"), noccasions 
                 print (wout[rw,,,drop=F])
                 stop ("missing values not allowed")
             }
-
             ## code to input permanent individual covariates if these are present
             zi <- NULL
-            startcol <- ifelse (fmt=='trapID', 5, 6)
-            if (all(detector(traps) %in% c('signal'))) startcol <- startcol+1
-            if (all(detector(traps) %in% c('signalnoise'))) startcol <- startcol+1
-            if (ncol(captures) >= startcol)
+            startcol <- switch(fmt, nonspatial = 4, trapID = 5, XY = 6, 6)
+            if (fmt != "nonspatial" && all(detector(traps) %in% c('signal'))) startcol <- startcol+1
+            if (fmt != "nonspatial" && all(detector(traps) %in% c('signalnoise'))) startcol <- startcol+1
+            if (ncol(captures) >= startcol) {
                 ## zi <- as.data.frame(captures[,startcol:ncol(captures), drop=F])
                 zi <- as.data.frame(captures[,startcol:ncol(captures), drop = FALSE], 
                                     stringsAsFactors = TRUE)   ## 2020-05-18
+            }
             if (!is.null(zi)) {
                 ## find first match of ID with positive value for each covar
                 temp <- zi[1:length(uniqueID),,drop=FALSE]
