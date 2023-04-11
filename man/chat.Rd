@@ -34,7 +34,7 @@ Enk(D, mask, traps, detectfn = 0, detectpar = list(g0 = 0.2,
 
 chat.nk(object)
 
-adjustVarD(object, chatmin = 1, alpha = 0.05)
+adjustVarD(object, chatmin = 1, alpha = 0.05, chat = NULL)
 
 }
 
@@ -50,11 +50,12 @@ adjustVarD(object, chatmin = 1, alpha = 0.05)
   \item{userdist}{user-defined distance function or matrix (see \link{userdist})}
   \item{ncores}{integer number of threads}
 
-\item{object}{fitted secr model (see Warnings for restrictions)}
+\item{object}{fitted secr model or dataframe (see Warnings for restrictions)}
 
 \item{chatmin}{minimum value of Fletcher's \eqn{\hat c}}
 
 \item{alpha}{alpha level for confidence intervals }
+\item{chat}{numeric chat (optional)}
 }
 
 \details{
@@ -76,7 +77,10 @@ by small expected counts. It is defined by
 where \eqn{\bar s = \sum_k s_k / K} and \eqn{s_k = (n_k - E(n_k)) / E(n_k)}.
  
 No adjustment is made by \code{adjustVarD} when \eqn{\hat c} is less than the 
-minimum. 
+minimum. \code{adjustVarD} by default computes Fletcher's `chat' using \code{chat.nk}, 
+but a value may be provided.
+
+If chat has been computed separately and provided in the argument of that name, \code{adjustVarD} also accepts a single dataframe as the argument `object'; the dataframe should have row `D' and columns `link', `estimate', `SE.estimate' as in the output from \code{\link{predict.secr}}.
 
 }
 
@@ -97,8 +101,9 @@ For \code{adjustVarD}, a dataframe with one row for each session, based on \code
 
 \section{Warning}{
 
-These functions are experimental in secr 4.5.8, and do not work with 
-polygon-like detectors. No allowance is made for modelled variation in detection parameters with respect to occasion, detector or animal.
+These functions are experimental in secr 4.5.11, and do not work with 
+polygon-like detectors. No allowance is made for modelled variation in 
+detection parameters with respect to occasion, detector or animal.
 
 }
 

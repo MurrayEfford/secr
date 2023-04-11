@@ -101,7 +101,8 @@ chat.nk <- function(object) {
             D <- derived(object)['D', 'estimate']
         }
         else if (object$model$D == ~1) {
-            D <- predict(object)['D', 'estimate']
+            pred <- predict(object)
+            D <- pred['D', 'estimate']
         }
         else {
             D <- covariates(predictDsurface(object))$D.0
@@ -121,7 +122,7 @@ chat.nk <- function(object) {
 # apply to density linear predictor (on link scale)
 # include in predict.secr?
 
-adjustVarD <- function(object, chatmin = 1.0, alpha = 0.05) {
+adjustVarD <- function(object, chatmin = 1.0, alpha = 0.05, chat = NULL) {
     adjustonesession <- function (pred, chat, chatmin = 1.0, alpha = 0.05) {
         link <- pred['D', 'link']
         if (is.null(link)) link <- 'log'
@@ -137,21 +138,28 @@ adjustVarD <- function(object, chatmin = 1.0, alpha = 0.05) {
         pred['D', 'c-hat'] <- chat
         pred
     }
-    if ('D' %in% names(object$model)) {
-        pred <- predict(object)
+    if (!inherits(object, 'secr')) {
+        # expect dataframe input
+        pred <- list(object['D',])  
+        if (is.null(chat)) stop ("specify chat for data.frame input")
     }
     else {
-        pred <- derived(object, se.esa = FALSE, se.D = TRUE)
-    }
-    
-    # pred and chat should be lists with one component per session
-    if (ms(object)) {
-        pred <- lapply(pred, '[', 'D',)
-        chat <- sapply(chat.nk(object), '[[', 'chat') # vector of chat
-    }
-    else {
-        pred <- list(pred['D',])
-        chat <- chat.nk(object)$chat
+        if ('D' %in% names(object$model)) {
+            pred <- predict(object)
+        }
+        else {
+            pred <- derived(object, se.esa = FALSE, se.D = TRUE)
+        }
+        
+        # pred and chat should be lists with one component per session
+        if (ms(object)) {
+            if (is.null(chat)) chat <- sapply(chat.nk(object), '[[', 'chat') # vector of chat
+            pred <- lapply(pred, '[', 'D',)
+        }
+        else {
+            if (is.null(chat)) chat <- chat.nk(object)$chat
+            pred <- list(pred['D',])
+        }
     }
     do.call(rbind, mapply(adjustonesession, pred, chat, 
         MoreArgs = list(chatmin = chatmin, alpha = alpha),
