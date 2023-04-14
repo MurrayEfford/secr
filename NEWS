@@ -1,4 +1,4 @@
-Changes in version 4.5.11 (2023-04-11)
+Changes in version 4.5.11 (2023-04-14)
 
 New features or changed behaviour of old functions
     o   adjustVarD() acquires optional argument chat
@@ -6,6 +6,9 @@ New features or changed behaviour of old functions
 Bugs fixed
     o   make.capthist() lost covariates when creating non-spatial capthist
 
+Other
+    o   trim() method for secrlist objects
+    
 Changes in version 4.5.9 (2023-03-09)
 
 New features or changed behaviour of old functions

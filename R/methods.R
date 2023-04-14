@@ -11,6 +11,7 @@
 ## 2022-01-05 fixed alive() problem with one animal
 ## 2022-08-23 summary.mask and summary.popn removed to separate files
 ## 2022-11-15 read.mask separate file
+## 2023-04-14 trim.secrlist
 ###############################################################################
 
 # Generic methods for extracting attributes etc
@@ -2181,8 +2182,16 @@ subset.mask <- function (x, subset, ...) {
 ############################################################################################
 
 trim.secr <- function (object, drop = c('call', 'mask', 'designD', 'designNE', 
-                                        'design','design0'), keep = NULL) {
+    'design','design0'), keep = NULL) {
     trim.default(object, drop = drop, keep = keep)
+}
+############################################################################################
+
+trim.secrlist <- function (object, drop = c('call', 'mask', 'designD', 'designNE', 
+    'design','design0'), keep = NULL) {
+    out <- lapply(object, trim, drop = drop, keep = keep)
+    class(out) <- class(object)
+    out
 }
 ############################################################################################
 

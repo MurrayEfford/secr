@@ -455,6 +455,7 @@ S3method(deviance, secr)
 S3method(df.residual, secr)
 S3method(simulate, secr)
 S3method(trim, secr)
+S3method(trim, secrlist)
 S3method(modelAverage, secr)
 
 S3method(print, secrdata)

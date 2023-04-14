@@ -2,6 +2,7 @@
 \alias{trim}
 \alias{trim.default}
 \alias{trim.secr}
+\alias{trim.secrlist}
 
 \title{
 Drop Unwanted List Components
@@ -17,6 +18,8 @@ Drop unwanted components from a \code{list} object, usually to save space.
 
 \method{trim}{default}(object, drop, keep)
 \method{trim}{secr}(object, drop = c("call", "mask", "designD", "designNE", 
+    "design", "design0"), keep = NULL)
+\method{trim}{secrlist}(object, drop = c("call", "mask", "designD", "designNE", 
     "design", "design0"), keep = NULL)
 
 }
@@ -47,8 +50,11 @@ a list retaining selected components.
 
 names(secrdemo.0)
 names(trim(secrdemo.0))
+
 object.size(secrdemo.0)
 object.size(trim(secrdemo.0))
+
+object.size(trim(secrlist(secrdemo.0, secrdemo.b)))
 
 }
 
