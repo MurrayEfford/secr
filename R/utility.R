@@ -496,6 +496,7 @@ lnbinomial <- function (x,size,prob) {
 #-------------------------------------------------------------------------------
 
 model.string <- function (model, userDfn) {
+    # 2023-04-16 Note: model should be a list
     if (!is.null(userDfn)) {
         if (!is.null(model$D))
             model$D <- paste('~userD', userDfn('name'), sep='.')
