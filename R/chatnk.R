@@ -4,6 +4,26 @@
 ## 2022-11-18, 29
 ###############################################################################
 
+Fletcher.chat <- function(observed, expected, np) {
+    K <- length(observed)
+    X2 <- sum((observed - expected)^2 / expected)
+    si <- sum((observed - expected) / expected) / K
+    nu <- K-np
+    list(
+        expected = expected, 
+        observed = observed, 
+        stats = c(
+            mean.expected = mean(expected), 
+            var.expected = sd(expected)^2,
+            mean.observed = mean(observed), 
+            var.observed = sd(observed)^2, 
+            si = si,
+            nu = nu,
+            cX2 = X2/nu),
+        chat = X2/nu / (1 + si)
+    )
+}
+
 chat.nk.sess <- function(object, D, capthist, mask, detpar) {
     
     if (ms(object)) {
@@ -25,32 +45,13 @@ chat.nk.sess <- function(object, D, capthist, mask, detpar) {
             ncores     = NULL)
         
         nk <- apply(apply(abs(capthist),c(1,3),sum)>0, 2, sum)
-        X2 <- sum((nk - expected.nk)^2 / expected.nk)
-        
-        # number of detectors
-        K <- nrow(traps(capthist))
         
         np <- length(object$betanames)
-        if (np > (K-1)) stop ("c-hat not estimated when np > K-1")
+        if (np > (nrow(traps(capthist))-1)) stop ("c-hat not estimated when np > K-1")
 
-        si <- sum((nk - expected.nk) / expected.nk) / K
-        nu <- K-np
+        Fletcher.chat(nk, expected.nk, np)
         
-        chat <- X2/nu / (1 + si)
-        list(
-            expected.nk = expected.nk, 
-            nk = nk, 
-            stats = c(
-                expected.nk = mean(expected.nk), 
-                var.expected = sd(expected.nk)^2,
-                mean.nk = mean(nk), 
-                var.nk = sd(nk)^2, 
-                nu = nu,
-                cX2 = X2/nu),
-            chat = chat
-        )
         ##-------------------------------------------------------------
-        
     }
 }
 

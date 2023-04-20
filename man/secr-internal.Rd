@@ -1,6 +1,7 @@
 \name{Internal}
 
 \alias{boundarytoSF}
+\alias{Fletcher.chat}
 
 \title{Internal Functions}
 
@@ -14,12 +15,18 @@ Functions called internally by \pkg{secr} and not exported.
 
 boundarytoSF (poly)
 
+Fletcher.chat (observed, expected, np)
+
 }
 
 \arguments{
 
   \item{poly}{data to define one or more polygons}
-  
+
+\item{observed}{integer vector of observed counts}
+\item{expected}{numeric vector of expected counts}
+\item{np}{integer number of parameters estimated}
+
 }
 
 \details{
@@ -40,7 +47,9 @@ boundarytoSF (poly)
   }
   
   Matrix input defines a single polygon.
-  
+
+\code{Fletcher.chat} applies the overdispersion formula of Fletcher (2012). It is used by \code{\link{chat.nk}} and \code{\link{adjustVarD}}.
+
   }
 
 \value{
@@ -48,15 +57,22 @@ boundarytoSF (poly)
 \code{boundarytoSF} -- Spatial object of \pkg{sf} class sfc, containing 
 a geometry set of type POLYGON or MULTIPOLYGON. NULL input results in NULL output.
 
+\code{Fletcher.chat} -- list comprising input values, various summary statistics, and the computed overdispersion (`chat'). The statistic `cX2' is the conventional chi-square/df measure of overdispersion.
+
 }
 
 \seealso{
 
-\code{\link{pointsInPolygon}}, \href{https://www.otago.ac.nz/density/pdfs/secr-spatialdata.pdf}{secr-spatialdata.pdf}
+\code{\link{pointsInPolygon}}, \href{https://www.otago.ac.nz/density/pdfs/secr-spatialdata.pdf}{secr-spatialdata.pdf},
+
+\code{\link{chat.nk}}
 
 }
 
 \references{
+
+Fletcher, D. (2012) Estimating overdispersion when fitting a generalized linear model to sparse data.
+\emph{Biometrika} \bold{99}, 230--237.
 
 Hijmans, R. J. (2022) terra: Spatial Data Analysis. R package version 1.5-14. https://rspatial.org/terra/
 

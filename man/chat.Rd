@@ -112,7 +112,8 @@ detection parameters with respect to occasion, detector or animal.
   \code{\link{secr}}, 
   \code{\link{make.mask}},
   \code{\link{Detection functions}}, 
-  \code{\link{pdot}}
+  \code{\link{pdot}},
+  \code{\link{Fletcher.chat}}
 
 }
   
