@@ -7,7 +7,7 @@
 Enk <- function (D, mask, traps, detectfn = 0, 
     detectpar = list(g0 = 0.2, sigma = 25, z = 1),
     noccasions = NULL, binomN = NULL, userdist = NULL, ncores = NULL) {
-    
+
     ncores <- setNumThreads(ncores)
     grain <- if (ncores==1) 0 else 1
     
@@ -58,6 +58,7 @@ Enk <- function (D, mask, traps, detectfn = 0,
         D <- rep(D * getcellsize(mask), length.out = nrow(mask))  # per cell; includes linear
         distmat2 <- getuserdist (traps, mask, userdist, sessnum = NA, NULL, NULL, miscparm, detectfn == 20)
         #-------------------------------------------------------------
+
         nkpointcpp(
             as.double  (D),
             as.matrix  (mask),
