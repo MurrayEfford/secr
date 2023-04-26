@@ -31,7 +31,7 @@ Evaluate a spatially explicit capture--recapture model. That is, compute the `re
   \item{se.fit}{ logical for whether output should include SE and confidence intervals }
   \item{alpha}{ alpha level for confidence intervals }
   \item{savenew}{ logical for whether newdata should be saved }
-  \item{\dots}{ other arguments passed to \code{\link{newdata}} }
+  \item{\dots}{ other arguments passed to \code{\link{makeNewData}} }
   \item{byclass}{ logical; if TRUE values are returned for each latent
   class in a mixture model, or class in a hybrid mixture (hcov) model}
 }
