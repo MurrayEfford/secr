@@ -1,4 +1,4 @@
-Changes in version 4.5.11 (2023-04-21)
+Changes in version 4.5.11 (2023-04-28)
 
 New features or changed behaviour of old functions
     o   adjustVarD() acquires optional argument chat
@@ -9,6 +9,7 @@ Bugs fixed
 Other
     o   trim() method for secrlist objects
     o   chat.nk() 'stats' components renamed; s_i added
+    o   Enk() (and hence chat.nk) works for multi-catch traps
     o   Fletcher.chat() internal function used by chat.nk()
     
 Changes in version 4.5.9 (2023-03-09)
