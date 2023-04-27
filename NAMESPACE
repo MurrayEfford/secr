@@ -16,7 +16,7 @@ importFrom (stats, AIC, approx, approxfun, as.formula, chisq.test, coef,
     integrate, lm, logLik, median, model.matrix, nlm, nls, optim,
     optimise, optimize, pchisq, pgamma, plnorm, pnorm, poisson,
     predict, qchisq, qnorm, qpois, rbeta, rbinom, rexp, rgamma, rlnorm, 
-    rmultinom, rnbinom, rnorm, rpois, rt, runif, rweibull, sd, 
+    rmultinom, rnbinom, rnorm, rpois, rt, runif, rweibull, sd, setNames,
     simulate, smooth.spline, terms, uniroot, update, update.formula, 
     var, vcov)
 importFrom (tools, file_ext)
