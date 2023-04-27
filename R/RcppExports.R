@@ -49,16 +49,16 @@ makelookupcpp <- function(x) {
     .Call('_secr_makelookupcpp', PACKAGE = 'secr', x)
 }
 
+nkpointcpp <- function(D, dist2, detect, Tsk, markocc, fn, gsb, miscparm, w2, binomN, grain, ncores) {
+    .Call('_secr_nkpointcpp', PACKAGE = 'secr', D, dist2, detect, Tsk, markocc, fn, gsb, miscparm, w2, binomN, grain, ncores)
+}
+
 pdotpointcpp <- function(xy, traps, dist2, detect, Tsk, markocc, fn, gsb, miscparm, w2, binomN, grain, ncores) {
     .Call('_secr_pdotpointcpp', PACKAGE = 'secr', xy, traps, dist2, detect, Tsk, markocc, fn, gsb, miscparm, w2, binomN, grain, ncores)
 }
 
 hdotpolycpp <- function(xy, traps, Tsk, markocc, cumk, detectfn, gsb, convex, dim, grain, ncores) {
     .Call('_secr_hdotpolycpp', PACKAGE = 'secr', xy, traps, Tsk, markocc, cumk, detectfn, gsb, convex, dim, grain, ncores)
-}
-
-nkpointcpp <- function(D, mask, traps, dist2, detect, Tsk, markocc, fn, gsb, miscparm, w2, binomN, grain, ncores) {
-    .Call('_secr_nkpointcpp', PACKAGE = 'secr', D, mask, traps, dist2, detect, Tsk, markocc, fn, gsb, miscparm, w2, binomN, grain, ncores)
 }
 
 ontransectcpp <- function(xy, transect, n1, n2, tol) {

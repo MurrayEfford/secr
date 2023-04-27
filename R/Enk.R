@@ -2,6 +2,7 @@
 ## package 'secr'
 ## Enk.R
 ## 2022-11-18 cf pdot()
+## 2023-04-28 improve nkpointcpp (allows multi), block unsupported detector types
 ###############################################################################
 
 Enk <- function (D, mask, traps, detectfn = 0, 
@@ -51,8 +52,8 @@ Enk <- function (D, mask, traps, detectfn = 0,
     if (!inherits(mask, 'mask')) {
         stop("mask input should be a mask object")
     }
-    if (any(detector(traps) %in% c('polygon','polygonX','transect', 'transectX'))) {
-        stop("nkpoint is not ready for polygon-like detectors")
+    if (!all(detector(traps) %in% c('multi','proximity','count'))) {
+        stop("Enk available only for multi, proximity and count detectors")
     }
     else {
         D <- rep(D * getcellsize(mask), length.out = nrow(mask))  # per cell; includes linear
@@ -61,8 +62,6 @@ Enk <- function (D, mask, traps, detectfn = 0,
 
         nkpointcpp(
             as.double  (D),
-            as.matrix  (mask),
-            as.matrix  (traps),
             as.matrix  (distmat2),
             as.integer (dettype),
             as.matrix  (usge),
