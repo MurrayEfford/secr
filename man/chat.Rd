@@ -102,9 +102,10 @@ For \code{adjustVarD}, a dataframe with one row for each session, based on \code
 \section{Warning}{
 
 These functions are experimental in secr 4.5.11, and do not work with 
-polygon-like detectors. No allowance is made for modelled variation in 
+polygon-like and single-catch detectors. No allowance is made for modelled variation in 
 detection parameters with respect to occasion, detector or animal.
 
+Versions before 4.5.11 did not correctly compute expected counts for multi-catch detectors. 
 }
 
 \seealso{ 

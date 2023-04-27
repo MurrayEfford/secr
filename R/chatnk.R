@@ -50,6 +50,10 @@ chat.nk.sess <- function(object, D, capthist, mask, detpar) {
 }
 
 chat.nk <- function(object) {
+    det <- unlist(detector(traps(object$capthist)))
+    if (!all(det %in% c('multi','proximity','count'))) {
+        stop("chat.nk available only for multi, proximity and count detectors")
+    }
     
     if (ms(object)) {
         if (object$CL) {
