@@ -2121,7 +2121,7 @@ getdistmat2 <- function (traps, mask, userdist, HPX = FALSE) {
             }
             else {
                 # Euclidean distance
-              # edist(as.matrix(traps), as.matrix(mask))^2
+              ## edist(as.matrix(traps), as.matrix(mask))^2
               edist2cpp(as.matrix(traps), as.matrix(mask))
             }
         }
