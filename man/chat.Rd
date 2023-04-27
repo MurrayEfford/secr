@@ -132,11 +132,10 @@ Fletcher, D. (2012) Estimating overdispersion when fitting a generalized linear 
 \donttest{
   temptrap <- make.grid()
   msk <- make.mask(temptrap)
-  ## expected number of individuals per detector. 
+  ## expected number of individuals per detector (multi-catch) 
   Enk (D = 5, msk, temptrap, detectpar = list(g0 = 0.2, sigma = 25),
     noccasions = 5)
 
-  chat.nk(secrdemo.0)    
 }
 
 }
