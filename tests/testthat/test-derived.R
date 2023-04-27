@@ -7,9 +7,10 @@ library(secr)
 ## e.g. https://github.com/RcppCore/RcppParallel/issues/169
 Sys.setenv(RCPP_PARALLEL_BACKEND = "tinythread")
 
-test_that("correct chat.nk secrdemo.0", {
-    expect_equal(chat.nk(secrdemo.0)$chat, 1.33591167, 
-        tolerance = 1e-6, check.attributes = FALSE)
+test_that("correct chat.nk ovenbird.model.1", {
+    expect_equal(sapply(chat.nk(ovenbird.model.1), '[[', 'chat'), 
+        c(0.8312778, 1.7388806, 1.3127876, 1.2391087, 1.1826071), 
+        tolerance = 1e-5, check.attributes = FALSE)
 })
 
 test_that("correct derived density secrdemo.CL", {
