@@ -5,24 +5,27 @@
 ## 2023-04-26
 ###############################################################################
 
-Fletcher.chat <- function(observed, expected, np) {
+Fletcher.chat <- function(observed, expected, np, verbose = TRUE) {
     K <- length(observed)
     X2 <- sum((observed - expected)^2 / expected)
     si <- sum((observed - expected) / expected) / K
     nu <- K-np
-    list(
-        expected = expected, 
-        observed = observed, 
-        stats = c(
-            mean.expected = mean(expected), 
-            var.expected = sd(expected)^2,
-            mean.observed = mean(observed), 
-            var.observed = sd(observed)^2, 
-            si = si,
-            nu = nu,
-            cX2 = X2/nu),
-        chat = X2/nu / (1 + si)
-    )
+    if (verbose) {
+        list(
+            expected = expected, 
+            observed = observed, 
+            stats = c(
+                mean.expected = mean(expected), 
+                var.expected = sd(expected)^2,
+                mean.observed = mean(observed), 
+                var.observed = sd(observed)^2, 
+                si = si,
+                nu = nu,
+                cX2 = X2/nu),
+            chat = X2/nu / (1 + si)
+        )
+    }
+    else X2/nu / (1 + si)
 }
 
 chat.nk.sess <- function(object, D, capthist, mask, detpar) {

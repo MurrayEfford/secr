@@ -15,7 +15,7 @@ Functions called internally by \pkg{secr} and not exported.
 
 boundarytoSF (poly)
 
-Fletcher.chat (observed, expected, np)
+Fletcher.chat (observed, expected, np, verbose = TRUE)
 
 }
 
@@ -26,6 +26,7 @@ Fletcher.chat (observed, expected, np)
 \item{observed}{integer vector of observed counts}
 \item{expected}{numeric vector of expected counts}
 \item{np}{integer number of parameters estimated}
+\item{verbose}{logical; if TRUE returns extended output}
 
 }
 
@@ -57,7 +58,7 @@ Fletcher.chat (observed, expected, np)
 \code{boundarytoSF} -- Spatial object of \pkg{sf} class sfc, containing 
 a geometry set of type POLYGON or MULTIPOLYGON. NULL input results in NULL output.
 
-\code{Fletcher.chat} -- list comprising input values, various summary statistics, and the computed overdispersion (`chat'). The statistic `cX2' is the conventional chi-square/df measure of overdispersion.
+\code{Fletcher.chat} -- numeric value or a list comprising input values, various summary statistics, and the computed overdispersion (`chat'). The statistic `cX2' is the conventional chi-square/df measure of overdispersion.
 
 }
 
