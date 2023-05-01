@@ -208,16 +208,19 @@ adjustVarD <- function(object, chatmin = 1.0, alpha = 0.05, chat = NULL) {
             pred <- derived(object, se.esa = FALSE, se.D = TRUE)
         }
         
-        # pred and chat should be lists with one component per session
+        # chat should be vector with one element per session
+        if (is.null(chat)) {
+            chat <- unlist(chat.nk(object, verbose = FALSE, type = 'Fletcher')) 
+        }
+        # pred should be list with one component per session
         if (ms(object)) {
-            if (is.null(chat)) chat <- sapply(chat.nk(object), '[[', 'chat') # vector of chat
             pred <- lapply(pred, '[', 'D',)
         }
         else {
-            if (is.null(chat)) chat <- chat.nk(object)$chat
             pred <- list(pred['D',])
         }
     }
+    if (length(pred) != length(chat)) stop ("mismatch of chat vector and predicted values")
     do.call(rbind, mapply(adjustonesession, pred, chat, 
         MoreArgs = list(chatmin = chatmin, alpha = alpha),
         SIMPLIFY = FALSE))
