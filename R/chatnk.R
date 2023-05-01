@@ -48,9 +48,9 @@ Fletcher.chat <- function(observed, expected, np, verbose = TRUE,
             )
         }
         else {   # scalar
-            if (type == 'fletcher') chat 
-            else if (type == 'pearson') cX2
-            else c(Fletcher = chat, Pearson = cX2)
+            if (type == "fletcher") chat 
+            else if (type == "pearson") cX2
+            else c(Fletcher = chat, Pearson = cX2) # "both"
         }
     }
 }

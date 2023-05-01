@@ -19,7 +19,8 @@ for use as a variance inflation factor.
 \code{Enk} uses exact formulae for 'multi', 'proximity' and 'count' detector types. Other types may be simulated by setting a positive value for 'nrepl', which should be large (e.g., nrepl = 10000).
 
 \code{adjustVarD} adjusts the SE and confidence limits of density estimates 
-using Fletcher's \eqn{\hat c}.
+using Fletcher's \eqn{\hat c}. The implementation is limited to simple detection models 
+(see Warnings).
 
 See Cooch and White (2022) for an introduction to measurement of overdispersion 
 in capture--recapture. The focus here is on overdispersion of activity centres 
@@ -108,7 +109,8 @@ For \code{adjustVarD}, a dataframe with one row for each session, based on \code
 
 These functions are experimental in secr 4.5.11, and do not work with 
 polygon-like and single-catch detectors. No allowance is made for modelled variation in 
-detection parameters with respect to occasion, detector or animal.
+detection parameters with respect to occasion, detector or animal; 
+this includes mixture models (e.g., g0~h2).
 
 Versions before 4.5.11 did not correctly compute expected counts for multi-catch detectors. 
 }
@@ -118,7 +120,6 @@ Versions before 4.5.11 did not correctly compute expected counts for multi-catch
   \code{\link{secr}}, 
   \code{\link{make.mask}},
   \code{\link{Detection functions}}, 
-  \code{\link{pdot}},
   \code{\link{Fletcher.chat}}
 
 }
