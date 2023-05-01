@@ -2,57 +2,110 @@
 ## package 'secr'
 ## chatnk.R
 ## 2022-11-18, 29
-## 2023-04-26
+## 2023-04-26 to 2023-05-01
 ###############################################################################
 
-Fletcher.chat <- function(observed, expected, np, verbose = TRUE) {
-    K <- length(observed)
-    X2 <- sum((observed - expected)^2 / expected)
-    si <- sum((observed - expected) / expected) / K
-    nu <- K-np
-    if (verbose) {
-        list(
-            expected = expected, 
-            observed = observed, 
-            stats = c(
-                mean.expected = mean(expected), 
-                var.expected = sd(expected)^2,
-                mean.observed = mean(observed), 
-                var.observed = sd(observed)^2, 
-                si = si,
-                nu = nu,
-                cX2 = X2/nu),
-            chat = X2/nu / (1 + si)
-        )
+# Fletcher.chat is called by chat.nk.sess;
+# it is not exported by secr
+Fletcher.chat <- function(observed, expected, np, verbose = TRUE, 
+    type = c('Fletcher', 'Pearson', 'both')) {
+    type <- match.arg(tolower(type), choices = c('fletcher', 'pearson', 'both'))
+    if (is.list(observed)) {
+        # apply Fletcher.chat recursively to each component of 'observed'
+        if (type == 'both') {
+            list(
+                Fletcher = sapply(observed, Fletcher.chat, expected = expected, 
+                    np = np, verbose = FALSE, type = 'Fletcher'),
+                Pearson = sapply(observed, Fletcher.chat, expected = expected, 
+                    np = np, verbose = FALSE, type = 'Pearson')
+            )
+        }
+        else {
+            sapply(observed, Fletcher.chat, expected = expected, 
+                np = np, verbose = FALSE, type = type)
+        }
     }
-    else X2/nu / (1 + si)
+    else {
+        K <- length(observed)
+        X2 <- sum((observed - expected)^2 / expected)
+        si <- sum((observed - expected) / expected) / K
+        nu <- K-np
+        cX2 <- X2 / nu
+        chat <- cX2 / (1 + si)
+        if (verbose) {
+            list(
+                expected = expected, 
+                observed = observed, 
+                stats = c(
+                    mean.expected = mean(expected), 
+                    var.expected = sd(expected)^2,
+                    mean.observed = mean(observed), 
+                    var.observed = sd(observed)^2, 
+                    si = si,
+                    nu = nu,
+                    cX2 = cX2),
+                chat = chat
+            )
+        }
+        else {   # scalar
+            if (type == 'fletcher') chat 
+            else if (type == 'pearson') cX2
+            else c(Fletcher = chat, Pearson = cX2)
+        }
+    }
 }
 
-chat.nk.sess <- function(object, D, capthist, mask, detpar) {
+chat.nk.sess <- function(object, D, capthist, mask, detpar, nsim, ...) {
     
+    ## c-hat for one session
+    
+    ## potential development:
     ## check PIA0 for variation over occasions, animals, detectors?
     ## substitute detectpar by lookup of Xrealparval0 with PIA0?
+    
+    noccasions <- dim(capthist)[2]
+    traps <- traps(capthist)
     expected.nk <- Enk(
         D          = D, 
         mask       = mask, 
-        traps      = traps(capthist), 
+        traps      = traps, 
         detectfn   = object$detectfn, 
         detectpar  = detpar, 
-        noccasions = dim(capthist)[2],
+        noccasions = noccasions,
         binomN     = object$binomN, 
         userdist   = object$details$userdist, 
-        ncores     = NULL)
-    
-    nk <- apply(apply(abs(capthist),c(1,3),sum)>0, 2, sum)
+        ncores     = NULL,
+        nrepl      = NULL)   # do not simulate expected
     
     np <- length(object$betanames)
-    if (np > (nrow(traps(capthist))-1)) stop ("c-hat not estimated when np > K-1")
+    if (np > (nrow(traps)-1)) stop ("c-hat not estimated when np > K-1")
     
-    Fletcher.chat(nk, expected.nk, np)
+    if (is.null(nsim) || nsim < 1) {
+        observed.nk <- apply(apply(abs(capthist),c(1,3),sum)>0, 2, sum)
+        
+    }   
+    else {
+        # simulate a list of 'observed' nk vectors
+        onesimnk <- function (r) {
+            pop <- sim.popn(D, core = mask, model2D = 'IHP')
+            ch <- sim.capthist(
+                traps      = traps, 
+                popn       = pop, 
+                detectfn   = object$detectfn, 
+                detectpar  = detpar, 
+                noccasions = noccasions, 
+                nsessions  = 1, 
+                binomN     = object$binomN)
+            apply(apply(ch, c(1,3), max),2,sum)  # individuals per detector
+        }
+        observed.nk <- lapply(1:nsim, onesimnk)
+    }
+    
+    Fletcher.chat(observed.nk, expected.nk, np, ...)
     
 }
 
-chat.nk <- function(object) {
+chat.nk <- function(object, nsim = NULL, ...) {
     det <- unlist(detector(traps(object$capthist)))
     if (!all(det %in% c('multi','proximity','count'))) {
         stop("chat.nk available only for multi, proximity and count detectors")
@@ -78,7 +131,7 @@ chat.nk <- function(object) {
             capthist = object$capthist,   # 2023-04-23 previously object$capthist[[1]] 
             mask = object$mask, 
             detpar = detparlist, 
-            MoreArgs = list(object = object), 
+            MoreArgs = list(object = object, nsim = nsim, ...), 
             SIMPLIFY = FALSE)
         
     }
@@ -116,7 +169,7 @@ chat.nk <- function(object) {
         capthist <- object$capthist
         mask <- object$mask
         detpar <- detectpar(object)
-        chat.nk.sess (object, D, capthist, mask, detpar)
+        chat.nk.sess (object, D, capthist, mask, detpar, nsim = nsim, ...)
         
     }
 }

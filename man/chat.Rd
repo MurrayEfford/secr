@@ -16,6 +16,8 @@ Functions described here compute the expected number of individuals detected at 
 (Enk) and use that to compute Fletcher's \eqn{\hat c} estimate of overdispersion 
 for use as a variance inflation factor. 
 
+\code{Enk} uses exact formulae for 'multi', 'proximity' and 'count' detector types. Other types may be simulated by setting a positive value for 'nrepl', which should be large (e.g., nrepl = 10000).
+
 \code{adjustVarD} adjusts the SE and confidence limits of density estimates 
 using Fletcher's \eqn{\hat c}.
 
@@ -30,9 +32,9 @@ spatial detection process.
 
 Enk(D, mask, traps, detectfn = 0, detectpar = list(g0 = 0.2,
     sigma = 25, z = 1), noccasions = NULL, binomN = NULL,
-    userdist = NULL, ncores = NULL) 
+    userdist = NULL, ncores = NULL, nrepl = NULL) 
 
-chat.nk(object)
+chat.nk(object, nsim = NULL, ...)
 
 adjustVarD(object, chatmin = 1, alpha = 0.05, chat = NULL)
 
@@ -49,8 +51,11 @@ adjustVarD(object, chatmin = 1, alpha = 0.05, chat = NULL)
     \code{\link{secr.fit}}) }
   \item{userdist}{user-defined distance function or matrix (see \link{userdist})}
   \item{ncores}{integer number of threads}
+  \item{nrepl}{integer number of replicates for E(nk) by simulation (optional)}
 
-\item{object}{fitted secr model or dataframe (see Warnings for restrictions)}
+  \item{object}{fitted secr model or dataframe (see Warnings for restrictions)}
+  \item{nsim}{integer number of c-hat values to simulate (optional) }
+  \item{...}{other arguments passed to \code{\link{Fletcher.chat}} (verbose, type)}
 
 \item{chatmin}{minimum value of Fletcher's \eqn{\hat c}}
 
