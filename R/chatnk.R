@@ -220,7 +220,7 @@ adjustVarD <- function(object, chatmin = 1.0, alpha = 0.05, chat = NULL) {
             pred <- list(pred['D',])
         }
     }
-    if (length(pred) != length(chat)) stop ("mismatch of chat vector and predicted values")
+    # if (length(pred) != length(chat)) stop ("mismatch of chat vector and predicted values")
     do.call(rbind, mapply(adjustonesession, pred, chat, 
         MoreArgs = list(chatmin = chatmin, alpha = alpha),
         SIMPLIFY = FALSE))
