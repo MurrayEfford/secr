@@ -10,7 +10,6 @@ Enk <- function (D, mask, traps, detectfn = 0,
     detectpar = list(g0 = 0.2, sigma = 25, z = 1),
     noccasions = NULL, binomN = NULL, userdist = NULL, 
     ncores = NULL, nrepl = NULL) {
-
     if (is.character(detectfn))
         detectfn <- detectionfunctionnumber(detectfn)
     if ((detectfn > 9) & (detectfn<14) & is.null(detectpar$cutval))
