@@ -53,11 +53,11 @@ chat.nk.sess <- function(object, D, capthist, mask, detpar, nsim, ...) {
         simchat <- unlist(Fletcher.chat(simnk, expected.nk, np, type = type))
         obschat <- Fletcher.chat(observed.nk, expected.nk, np, verbose = FALSE, type = type)
         list(
-            type     = type,
+            type     = type, 
+            nsim     = nsim,
             sim.chat = simchat, 
             chat     = obschat, 
-            p        = 1 - rank(c(obschat, simchat))[1] / (nsim+1), 
-            nsim     = nsim)
+            p        = 1 - rank(c(obschat, simchat))[1] / (nsim+1))
     }
     else {
         Fletcher.chat(observed.nk, expected.nk, np, ...)
