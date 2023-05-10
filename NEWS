@@ -1,17 +1,19 @@
-Changes in version 4.5.11 (2023-05-01)
+Changes in version 4.5.11 (2023-05-11)
 
 New features or changed behaviour of old functions
     o   adjustVarD() acquires optional argument chat
     o   Enk() simulation option
     o   exports Fletcher.chat()
+    o   chat.nk() optionally simulates c-hat
 
 Bugs fixed
     o   make.capthist() lost covariates when creating non-spatial capthist
 
 Other
     o   trim() method for secrlist objects
-    o   chat.nk() 'stats' components renamed; s_i added
+    o   chat.nk() 'stats' components renamed; sbar added
     o   Enk() (and hence chat.nk) works for multi-catch traps
+    o   sim.popn() model2D 'cluster' has clone-in-place option
     
 Changes in version 4.5.9 (2023-03-09)
 
