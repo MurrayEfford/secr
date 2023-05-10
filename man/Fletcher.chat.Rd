@@ -6,7 +6,7 @@
 
 \description{ 
 
-General function for estimating a variance inflation factor (\eqn{\hat c}) from count data.
+General function for estimating a variance inflation factor (\eqn{\hat c}) from observed counts.
 
 }
 
