@@ -5,56 +5,6 @@
 ## 2023-04-26 to 2023-05-01
 ###############################################################################
 
-# Fletcher.chat is called by chat.nk.sess;
-# it is not exported by secr
-Fletcher.chat <- function(observed, expected, np, verbose = TRUE, 
-    type = c('Fletcher', 'Pearson', 'both')) {
-    type <- match.arg(tolower(type), choices = c('fletcher', 'pearson', 'both'))
-    if (is.list(observed)) {
-        # apply Fletcher.chat recursively to each component of 'observed'
-        if (type == 'both') {
-            list(
-                Fletcher = sapply(observed, Fletcher.chat, expected = expected, 
-                    np = np, verbose = FALSE, type = 'Fletcher'),
-                Pearson = sapply(observed, Fletcher.chat, expected = expected, 
-                    np = np, verbose = FALSE, type = 'Pearson')
-            )
-        }
-        else {
-            sapply(observed, Fletcher.chat, expected = expected, 
-                np = np, verbose = FALSE, type = type)
-        }
-    }
-    else {
-        K <- length(observed)
-        X2 <- sum((observed - expected)^2 / expected)
-        si <- sum((observed - expected) / expected) / K
-        nu <- K-np
-        cX2 <- X2 / nu
-        chat <- cX2 / (1 + si)
-        if (verbose) {
-            list(
-                expected = expected, 
-                observed = observed, 
-                stats = c(
-                    mean.expected = mean(expected), 
-                    var.expected = sd(expected)^2,
-                    mean.observed = mean(observed), 
-                    var.observed = sd(observed)^2, 
-                    si = si,
-                    nu = nu,
-                    cX2 = cX2),
-                chat = chat
-            )
-        }
-        else {   # scalar
-            if (type == "fletcher") chat 
-            else if (type == "pearson") cX2
-            else c(Fletcher = chat, Pearson = cX2) # "both"
-        }
-    }
-}
-
 chat.nk.sess <- function(object, D, capthist, mask, detpar, nsim, ...) {
     
     ## c-hat for one session
@@ -80,11 +30,8 @@ chat.nk.sess <- function(object, D, capthist, mask, detpar, nsim, ...) {
     np <- length(object$betanames)
     if (np > (nrow(traps)-1)) stop ("c-hat not estimated when np > K-1")
     
-    if (is.null(nsim) || nsim < 1) {
-        observed.nk <- apply(apply(abs(capthist),c(1,3),sum)>0, 2, sum)
-        
-    }   
-    else {
+    observed.nk <- apply(apply(abs(capthist),c(1,3),sum)>0, 2, sum)
+    if (!is.null(nsim) && nsim >= 1) {
         # simulate a list of 'observed' nk vectors
         onesimnk <- function (r) {
             pop <- sim.popn(D, core = mask, model2D = 'IHP')
@@ -98,11 +45,23 @@ chat.nk.sess <- function(object, D, capthist, mask, detpar, nsim, ...) {
                 binomN     = object$binomN)
             apply(apply(ch, c(1,3), max),2,sum)  # individuals per detector
         }
-        observed.nk <- lapply(1:nsim, onesimnk)
+        simnk <- lapply(1:nsim, onesimnk)
+        dots <- list(...)
+        type <- dots$type
+        if (is.null(type)) type <- 'Fletcher'
+        else type <- match.arg(type, choices = c('Wedderburn', 'Fletcher'))
+        simchat <- unlist(Fletcher.chat(simnk, expected.nk, np, type = type))
+        obschat <- Fletcher.chat(observed.nk, expected.nk, np, verbose = FALSE, type = type)
+        list(
+            type     = type,
+            sim.chat = simchat, 
+            chat     = obschat, 
+            p        = 1 - rank(c(obschat, simchat))[1] / (nsim+1), 
+            nsim     = nsim)
     }
-    
-    Fletcher.chat(observed.nk, expected.nk, np, ...)
-    
+    else {
+        Fletcher.chat(observed.nk, expected.nk, np, ...)
+    }    
 }
 
 chat.nk <- function(object, nsim = NULL, ...) {
