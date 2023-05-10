@@ -73,7 +73,7 @@ The environment variable RCPP_PARALLEL_NUM_THREADS determines the number of
 parallel threads. It is set to the value of \code{ncores}, unless that is NULL 
 (see \code{\link{setNumThreads}}).
 
-The conventional lack-of-fit statistic is
+A conventional variance inflation factor due to Wedderburn (1974) is
 \eqn{\hat c_X = X^2/(K-p)} where \eqn{K} is the number of detectors,  \eqn{p} is the number of estimated parameters, and 
 \deqn{X^2 = \sum_k (n_k - E (n_k))^2/  E(n_k).} 
 
@@ -81,7 +81,9 @@ Fletcher's \eqn{\hat c} is an improvement on \eqn{\hat c_X} that is less affecte
 by small expected counts. It is defined by
 \deqn{\hat c = c_X / (1+ \bar s),} 
 where \eqn{\bar s = \sum_k s_k / K} and \eqn{s_k = (n_k - E(n_k)) / E(n_k)}.
- 
+
+\code{chat.nk} may be used to simulate \eqn{\hat c} values under the given model (set nsim > 0).
+
 No adjustment is made by \code{adjustVarD} when \eqn{\hat c} is less than the 
 minimum. \code{adjustVarD} by default computes Fletcher's `chat' using \code{chat.nk}, 
 but a value may be provided.
@@ -94,13 +96,25 @@ If chat has been computed separately and provided in the argument of that name, 
 
 For \code{Enk}, a vector of expected counts, one for each detector in \code{traps}.
 
-For \code{chat.nk}, a list comprising --
+\cr
+For \code{chat.nk}, usually a list comprising --
 
 \item{expected.nk}{expected number at each detector} 
 \item{nk}{observed number at each detector}
 \item{stats}{vector of summary statistics: mean(expected.nk), var(expected.nk), mean(nk), var(nk), nu (=df), X2/nu}
-\item{chat}{Fletcher's \eqn{\hat c}}
+\item{chat}{\eqn{\hat c} (Fletcher or Wedderburn depending on `type')}
+There are two variations --
  
+If `verbose = FALSE' then only the numeric value of \eqn{\hat c} is returned (a vector of 2 values if `type = "both"').
+
+If \code{chat.nk} is called with `nsim > 0' then the output is a list comprising --
+
+\item{type}{from input}
+\item{nsim}{from input}
+\item{sim.chat}{vector of simulated \eqn{\hat c}} 
+\item{chat}{\eqn{\hat c} (Fletcher or Wedderburn depending on `type')}
+\item{p}{probability of observing \eqn{\hat c} as large as this (from rank of chat among sim.chat)}
+
 For \code{adjustVarD}, a dataframe with one row for each session, based on \code{\link{predict.secr}} or \code{\link{derived.secr}}, with extra column `c-hat'.
 
 }
@@ -131,6 +145,9 @@ Cooch, E. and White, G. (eds) (2022) \emph{Program MARK: A Gentle Introduction}.
 
 Fletcher, D. (2012) Estimating overdispersion when fitting a generalized linear model to sparse data.
 \emph{Biometrika} \bold{99}, 230--237.
+
+Wedderburn, R. W. M. (1974) Quasi-likelihood functions, generalized linear models, and the Gauss-Newton
+method. \emph{Biometrika} \bold{61}, 439--47.
 
 }
 
