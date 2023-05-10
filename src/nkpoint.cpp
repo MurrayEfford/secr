@@ -79,25 +79,33 @@ struct nkpoint : public Worker {
                     if (Tski > 1e-10) {
                         p = pfnS(fn, dist2R(k,m), gsbS, miscparmS, w2);
                         
-                        if (detectR[s] == 0) {         /* multi-catch trap */
-                            p = (1 - std::exp(-H(m,s))) * Tski * hazard(p) / H(m,s);
-                        }
-                        else if (detectR[s] == 2) {    /* counts */
-                            if (binomNR[s] == 0)
-                                p = 1 - countp(0, 0, Tski * hazard(p));
-                            else if (binomNR[s] == 1)
-                                p = 1 - countp(0, round(Tski), p);
+                        if (detectR[s] == 0) {         
+                            /* multi-catch trap */
+                            if (H(m,s) > 0) {
+                                p = (1 - std::exp(-H(m,s))) * Tski * hazard(p) / H(m,s);
+                            }
                             else {
-                                if (fabs(Tski-1) > 1e-10)
-                                    p = 1 - pow(1-p, Tski);
-                                p = 1 - countp(0, binomNR[s], p);
+                                p = 0;
                             }
                         }
-                        else {                        /* binary proximity detector */
+                    else if (detectR[s] == 2) {    
+                        /* counts */
+                        if (binomNR[s] == 0)
+                            p = 1 - countp(0, 0, Tski * hazard(p));
+                        else if (binomNR[s] == 1)
+                            p = 1 - countp(0, round(Tski), p);
+                        else {
                             if (fabs(Tski-1) > 1e-10)
                                 p = 1 - pow(1-p, Tski);
+                            p = 1 - countp(0, binomNR[s], p);
                         }
-                        tempval *= 1 - p;
+                    }
+                    else {                        
+                        /* binary proximity detector */
+                        if (fabs(Tski-1) > 1e-10)
+                            p = 1 - pow(1-p, Tski);
+                    }
+                    tempval *= 1 - p;
                     }
                 }
             }
