@@ -96,7 +96,6 @@ If chat has been computed separately and provided in the argument of that name, 
 
 For \code{Enk}, a vector of expected counts, one for each detector in \code{traps}.
 
-\cr
 For \code{chat.nk}, usually a list comprising --
 
 \item{expected.nk}{expected number at each detector} 
