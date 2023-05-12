@@ -2,7 +2,7 @@
 ## package 'secr'
 ## chatnk.R
 ## 2022-11-18, 29
-## 2023-04-26 to 2023-05-01
+## 2023-04-26 to 2023-05-13
 ###############################################################################
 
 chat.nk.sess <- function(object, D, capthist, mask, detpar, nsim, ...) {
@@ -30,7 +30,7 @@ chat.nk.sess <- function(object, D, capthist, mask, detpar, nsim, ...) {
     np <- length(object$betanames)
     if (np > (nrow(traps)-1)) stop ("c-hat not estimated when np > K-1")
     
-    observed.nk <- apply(apply(abs(capthist),c(1,3),sum)>0, 2, sum)
+    observed.nk <- nk(capthist)
     if (!is.null(nsim) && nsim >= 1) {
         # simulate a list of 'observed' nk vectors
         onesimnk <- function (r) {
@@ -43,7 +43,7 @@ chat.nk.sess <- function(object, D, capthist, mask, detpar, nsim, ...) {
                 noccasions = noccasions, 
                 nsessions  = 1, 
                 binomN     = object$binomN)
-            apply(apply(ch, c(1,3), max),2,sum)  # individuals per detector
+            nk(ch)  # individuals per detector
         }
         simnk <- lapply(1:nsim, onesimnk)
         dots <- list(...)
