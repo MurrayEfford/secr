@@ -4,7 +4,17 @@
 ## 2022-11-18 cf pdot()
 ## 2023-04-28 improve nkpointcpp (allows multi), block unsupported detector types
 ## 2023-04-28 simulation option: average nrepl simulations
+## 2023-05-13 nk()
 ###############################################################################
+
+nk <- function(capthist) {
+    if (ms(capthist)) {
+        lapply(capthist, nk)
+    }
+    else {
+        apply(apply(abs(capthist),c(1,3),sum)>0, 2, sum)
+    }
+}
 
 Enk <- function (D, mask, traps, detectfn = 0, 
     detectpar = list(g0 = 0.2, sigma = 25, z = 1),
@@ -62,7 +72,7 @@ Enk <- function (D, mask, traps, detectfn = 0,
                 noccasions = noccasions, 
                 nsessions  = 1, 
                 binomN     = binomN)
-            apply(apply(ch, c(1,3), max),2,sum)  # individuals per detector
+            nk(ch)  # individuals per detector
         }
         out <- sapply(1:nrepl, onesimnk)
         apply(out,1,mean)
