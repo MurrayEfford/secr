@@ -1,4 +1,5 @@
 \name{chat}
+\alias{nk}
 \alias{Enk}
 \alias{chat.nk}
 \alias{adjustVarD}
@@ -12,8 +13,7 @@ the model used in \code{\link{secr.fit}} (Borchers and Efford 2008). This causes
 the sampling variance of density estimates to be understated. The problem is 
 addressed with a variance inflation factor, essentially a measure of overdispersion.
 
-Functions described here compute the expected number of individuals detected at each detector 
-(Enk) and use that to compute Fletcher's \eqn{\hat c} estimate of overdispersion 
+Functions described here compute the observed (nk) or expected (Enk) number of individuals detected at each detector and use that to compute Fletcher's \eqn{\hat c} estimate of overdispersion 
 for use as a variance inflation factor. 
 
 \code{Enk} uses exact formulae for 'multi', 'proximity' and 'count' detector types. Other types may be simulated by setting a positive value for 'nrepl', which should be large (e.g., nrepl = 10000).
@@ -31,6 +31,8 @@ spatial detection process.
 
 \usage{
 
+nk(capthist)
+
 Enk(D, mask, traps, detectfn = 0, detectpar = list(g0 = 0.2,
     sigma = 25, z = 1), noccasions = NULL, binomN = NULL,
     userdist = NULL, ncores = NULL, nrepl = NULL) 
@@ -42,6 +44,7 @@ adjustVarD(object, chatmin = 1, alpha = 0.05, chat = NULL)
 }
 
 \arguments{
+\item{capthist}{secr \code{capthist} object}
   \item{D}{numeric density, either scalar or vector of length nrow(mask)}
   \item{mask}{single-session habitat mask}
   \item{traps}{ \code{traps} object }
@@ -93,6 +96,8 @@ If chat has been computed separately and provided in the argument of that name, 
 }
 
 \value{
+
+For \code{nk}, a vector of observed counts, one for each detector in \code{traps(capthist)}.
 
 For \code{Enk}, a vector of expected counts, one for each detector in \code{traps}.
 

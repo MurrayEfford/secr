@@ -1,9 +1,9 @@
-Changes in version 4.5.11 (2023-05-11)
+Changes in version 4.5.11 (2023-05-13)
 
 New features or changed behaviour of old functions
     o   adjustVarD() acquires optional argument chat
     o   Enk() simulation option
-    o   exports Fletcher.chat()
+    o   exports Fletcher.chat(), nk()
     o   chat.nk() optionally simulates c-hat
 
 Bugs fixed
