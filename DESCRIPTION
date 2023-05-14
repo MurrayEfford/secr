@@ -17,6 +17,7 @@ Depends:
     methods
 Imports: 
     abind, 
+    dbscan, 
     graphics, 
     grDevices, 
     MASS, 

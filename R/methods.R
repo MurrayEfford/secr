@@ -206,8 +206,13 @@ spacing.traps <- function (object, ..., recalculate = FALSE)    {
             ## 2019-01-16
             if (is.null(temp) | recalculate) {
                 if (nrow(object)>1) {
-                    spacing <- as.matrix(dist(object))
-                    sp <- apply(spacing,1,function(x) min(x[x>0]))
+                    # Make points unique to ensure the second neighbor is not identity.
+                    points = matrix(unlist(object), ncol=2)
+                    unique_points = uniquecombs(points)
+                    # Retrieve two neighbors as the first result will be the query itself.
+                    knn_results = kNN(unique_points, 2, points)
+                    # Choose the distance to the second neighbor for each point.
+                    sp = knn_results$dist[,2]
                     ## 2020-08-25 changed
                     ## mean(sp)
                     median(sp)
