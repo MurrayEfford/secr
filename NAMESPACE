@@ -29,9 +29,6 @@ importFrom (utils, count.fields, flush.console, getS3method, head,
 importFrom (abind, 
     abind)
 
-importFrom (dbscan,
-    kNN)
-
 importFrom (MASS, 
     ginv, 
     eqscplot)
@@ -41,8 +38,7 @@ importFrom (mgcv,
     s, 
     te, 
     formula.gam, 
-    predict.gam,
-    uniquecombs)
+    predict.gam)
 
 importFrom (nlme, 
     fdHess)

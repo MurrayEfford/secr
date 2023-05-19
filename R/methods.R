@@ -206,13 +206,9 @@ spacing.traps <- function (object, ..., recalculate = FALSE)    {
             ## 2019-01-16
             if (is.null(temp) | recalculate) {
                 if (nrow(object)>1) {
-                    # Make points unique to ensure the second neighbor is not identity.
                     points = matrix(unlist(object), ncol=2)
-                    unique_points = uniquecombs(points)
-                    # Retrieve two neighbors as the first result will be the query itself.
-                    knn_results = kNN(unique_points, 2, points)
-                    # Choose the distance to the second neighbor for each point.
-                    sp = knn_results$dist[,2]
+                    nearest <- nearestcpp(points, points, non_zero = TRUE)
+                    sp <- nearest$distance[nearest$index > -1]
                     ## 2020-08-25 changed
                     ## mean(sp)
                     median(sp)
@@ -235,8 +231,9 @@ spacing.mask <- function (object, ..., recalculate = FALSE)    {
         else {
             temp <- attr(object,'spacing',exact = TRUE)
             if ((is.null(temp) | recalculate)& (nrow(object)>1) ) {
-                spacing <- as.matrix(dist(object))
-                sp <- apply(spacing,1,function(x) min(x[x>0]))
+                points = matrix(unlist(object), ncol=2)
+                nearest <- nearestcpp(points, points, non_zero = TRUE)
+                sp <- nearest$distance[nearest$index > -1]
                 ## 2020-08-25 bug fix
                 ## mean(sp)
                 median(sp)

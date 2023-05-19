@@ -36,14 +36,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // nearestcpp
-List nearestcpp(const NumericMatrix xy, const NumericMatrix traps);
-RcppExport SEXP _secr_nearestcpp(SEXP xySEXP, SEXP trapsSEXP) {
+List nearestcpp(const NumericMatrix& xy, const NumericMatrix& traps, bool non_zero);
+RcppExport SEXP _secr_nearestcpp(SEXP xySEXP, SEXP trapsSEXP, SEXP non_zeroSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const NumericMatrix >::type xy(xySEXP);
-    Rcpp::traits::input_parameter< const NumericMatrix >::type traps(trapsSEXP);
-    rcpp_result_gen = Rcpp::wrap(nearestcpp(xy, traps));
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type xy(xySEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type traps(trapsSEXP);
+    Rcpp::traits::input_parameter< bool >::type non_zero(non_zeroSEXP);
+    rcpp_result_gen = Rcpp::wrap(nearestcpp(xy, traps, non_zero));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -845,7 +846,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_secr_edist2cpp", (DL_FUNC) &_secr_edist2cpp, 2},
     {"_secr_xydist2cpp", (DL_FUNC) &_secr_xydist2cpp, 2},
-    {"_secr_nearestcpp", (DL_FUNC) &_secr_nearestcpp, 2},
+    {"_secr_nearestcpp", (DL_FUNC) &_secr_nearestcpp, 3},
     {"_secr_insidecpp", (DL_FUNC) &_secr_insidecpp, 4},
     {"_secr_naivedcpp", (DL_FUNC) &_secr_naivedcpp, 5},
     {"_secr_naivecap3cpp", (DL_FUNC) &_secr_naivecap3cpp, 7},
