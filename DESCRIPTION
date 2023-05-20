@@ -8,12 +8,12 @@ Description: Functions to estimate the density and size of a spatially
   such as traps, or by searching polygons or transects. Models incorporating 
   distance-dependent detection are fitted by maximizing the likelihood. 
   Tools are included for data manipulation and model selection.
-Authors@R: person("Murray", "Efford", 
+Authors@R: c(person("Murray", "Efford", 
     email = "murray.efford@otago.ac.nz", 
     role = c("aut","cre"), 
     comment = c(ORCID = "0000-0001-5231-5184")),
     person("Philipp", "Jund", 
-    role = c("ctb"))
+    role = c("ctb")))
 Depends: 
     R (>= 3.5.0), 
     methods
