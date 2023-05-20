@@ -1,10 +1,12 @@
-Changes in version 4.5.11 (2023-05-20)
+Changes in version 4.6.0 (2023-05-21)
 
 New features or changed behaviour of old functions
-    o   adjustVarD() acquires optional argument chat
+    o   adjustVarD() acquires optional argument 'chat'
     o   Enk() simulation option
     o   exports Fletcher.chat(), nk()
     o   chat.nk() optionally simulates c-hat
+    o   AIC methods acquire variance inflation argument 'chat' for optional 
+        computation of quasi-AIC etc.
 
 Bugs fixed
     o   make.capthist() lost covariates when creating non-spatial capthist
