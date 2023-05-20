@@ -198,19 +198,11 @@ spacing.traps <- function (object, ..., recalculate = FALSE)    {
         }
         else {
             temp <- attr(object,'spacing')
-            # if ((is.null(temp) | recalculate) & (nrow(object)>1)) {
-            #     spacing <- as.matrix(dist(object))
-            #     sp <- apply(spacing,1,function(x) min(x[x>0]))
-            #     mean(sp)
-            # }
-            ## 2019-01-16
-            if (is.null(temp) | recalculate) {
+            if (is.null(temp) || recalculate) {
                 if (nrow(object)>1) {
-                    points = matrix(unlist(object), ncol=2)
+                    points <- matrix(unlist(object), ncol=2)
                     nearest <- nearestcpp(points, points, non_zero = TRUE)
                     sp <- nearest$distance[nearest$index > -1]
-                    ## 2020-08-25 changed
-                    ## mean(sp)
                     median(sp)
                 }
                 else
@@ -224,18 +216,16 @@ spacing.traps <- function (object, ..., recalculate = FALSE)    {
 
 spacing.mask <- function (object, ..., recalculate = FALSE)    {
     if (ms(object)) {
-        sapply(object, spacing.mask, ...)
+        sapply(object, spacing.mask, ..., recalculate = recalculate)
     }
     else {
         if (is.null(object)) NULL
         else {
             temp <- attr(object,'spacing',exact = TRUE)
-            if ((is.null(temp) | recalculate)& (nrow(object)>1) ) {
-                points = matrix(unlist(object), ncol=2)
+            if ((is.null(temp) || recalculate) && (nrow(object)>1) ) {
+                points <- matrix(unlist(object), ncol=2)
                 nearest <- nearestcpp(points, points, non_zero = TRUE)
                 sp <- nearest$distance[nearest$index > -1]
-                ## 2020-08-25 bug fix
-                ## mean(sp)
                 median(sp)
             }
             else

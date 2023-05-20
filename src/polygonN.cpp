@@ -483,6 +483,7 @@ rpoint getxycpp(
     int j = 1;  // initialised 2022-01-18
     double pr, d, d12;
     rpoint xy;
+    // refined by PJ GitHub PR 2023-05-15
     auto upper = std::upper_bound(cumd.begin() + 1,
                                   cumd.begin() + (n2 - n1), l);
     j = std::distance(cumd.begin(), upper);

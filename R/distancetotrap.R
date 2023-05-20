@@ -82,7 +82,7 @@ distancetotrap <- function (X, traps) {
         trps <- matrix(unlist(traps), ncol = 2)
     }
     
-    temp <- nearestcpp(as.matrix(X), as.matrix(trps))
+    temp <- nearestcpp(as.matrix(X), as.matrix(trps), non_zero = FALSE)
     if (all(detecttype %in% c('polygon', 'polygonX'))) {
         inside <- lapply(traps, pointsInPolygon, xy = X)
         inside <- do.call(rbind, inside)
@@ -106,7 +106,7 @@ nearesttrap <- function (X, traps) {
         # traps <- sp::coordinates(traps@polygons[[1]]@Polygons[[1]])
         # warning("using only first polygon of SpatialPolygons")
     }
-    temp <- nearestcpp(as.matrix(X), as.matrix(traps))
+    temp <- nearestcpp(as.matrix(X), as.matrix(traps), non_zero = FALSE)
     temp$index
 }
 #-------------------------------------------------------------------------------

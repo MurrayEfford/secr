@@ -9,7 +9,7 @@ xydist2cpp <- function(A1, A2) {
     .Call('_secr_xydist2cpp', PACKAGE = 'secr', A1, A2)
 }
 
-nearestcpp <- function(xy, traps, non_zero = FALSE) {
+nearestcpp <- function(xy, traps, non_zero) {
     .Call('_secr_nearestcpp', PACKAGE = 'secr', xy, traps, non_zero)
 }
 
