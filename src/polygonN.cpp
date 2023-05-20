@@ -483,9 +483,9 @@ rpoint getxycpp(
     int j = 1;  // initialised 2022-01-18
     double pr, d, d12;
     rpoint xy;
-    for (j=1; j<=(n2-n1); j++) {
-        if (cumd[j]>l) break;
-    }
+    auto upper = std::upper_bound(cumd.begin() + 1,
+                                  cumd.begin() + (n2 - n1), l);
+    j = std::distance(cumd.begin(), upper);
     d = l - cumd[j-1];  // distance along leg 
     d12 = cumd[j] - cumd[j-1];
     if (d12>0)
