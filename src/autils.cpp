@@ -218,8 +218,9 @@ NumericVector gxy (const int fn, const NumericVector par, const double w) {
 
 // [[Rcpp::export]]
 List nearestcpp (
-        const NumericMatrix xy,       // input points 
-        const NumericMatrix traps)   // input 
+        const NumericMatrix& xy,       // input points 
+        const NumericMatrix& traps,    // input 
+        bool non_zero)  // If true, return nearest with non-zero distance.
 {
     std::vector<int> p(xy.nrow());        // output indices of nearest point 
     std::vector<double> d (xy.nrow());        // output distances to nearest point 
@@ -237,7 +238,9 @@ List nearestcpp (
         {
             d2 = (traps(i,0) - xy(j,0)) * (traps(i,0) - xy(j,0)) +
                 (traps(i,1) - xy(j,1)) * (traps(i,1) - xy(j,1));
-            if (d2 < d2min) { d2min = d2; id = i; }
+            if (d2 < d2min && (!non_zero || d2 > 0)) {
+                d2min = d2; id = i;
+            }
         }
         d[j] = std::sqrt(d2min);
         p[j] = id+1;
