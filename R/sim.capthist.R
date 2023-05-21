@@ -572,7 +572,7 @@ sim.capthist <- function (
             else {
                 polynames <- levels(transectID(traps))
                 nk <- length(polynames)
-                if (nk>1) stop("simulation not working for multiple transects in secr 4.5")
+                if (nk>1) stop("simulation not working for multiple transects in secr 4.6")
                 k <- table(transectID(traps))
                 temp <- trappingtransectX (
                     as.double(df0),
@@ -642,7 +642,7 @@ sim.capthist <- function (
             ##-----------------------------------------------------------------------
             if (detector(traps)[1] == 'transect') {
                 nk <- length(levels(transectID(traps)))
-                if (nk>1) stop("simulation not working for multiple transects in secr 4.5")
+                if (nk>1) stop("simulation not working for multiple transects in secr 4.6")
                 k <- table(transectID(traps))
                 temp <- trappingtransect (
                            as.double(df0),

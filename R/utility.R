@@ -28,6 +28,7 @@
 ## 2023-03-10 4.5.11
 ## 2023-03-10 distancetotrap and nearesttrap moved to separate file
 ## 2023-03-10 setNumThreads moved to separate file
+## 2023-05-21 4.6.0
 ################################################################################
 
 # Global variables in namespace

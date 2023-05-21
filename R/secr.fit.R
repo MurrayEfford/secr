@@ -1,4 +1,4 @@
-## package 'secr' 4.5
+## package 'secr'
 ## secr.fit.R
 
 ## 2019-12-03 secr.design.MS uses CL argument

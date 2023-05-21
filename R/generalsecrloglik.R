@@ -506,7 +506,7 @@ generalsecrloglikfn <- function (
                                    debug = details$debug>3)
         }
         else {
-            stop ("this detector type, or mixed detector types, not available yet in secr 4.5")
+            stop ("this detector type, or mixed detector types, not available yet in secr 4.6")
         }
     }    
         ## polygon types
