@@ -143,26 +143,6 @@ for (i in 1:8)
 #   user  system elapsed 
 # 193.07    0.56   42.34 
 
-for (i in 1:8) 
-    print(system.time(ip.secr (captdata, trace = FALSE, ncores = i)))
-
-#   user  system elapsed 
-# 121.88    0.08  122.27 
-#   user  system elapsed 
-#   0.54    0.42   72.85 
-#   user  system elapsed 
-#   0.55    0.76   55.91 
-#   user  system elapsed 
-#   0.91    0.77   47.65 
-#   user  system elapsed 
-#   1.21    0.81   44.83 
-#   user  system elapsed 
-#   1.42    1.23   43.21 
-#   user  system elapsed 
-#   1.18    1.98   42.46 
-#   user  system elapsed 
-#   1.81    1.81   42.54  
- 
 for (i in 1:8)
     print(system.time(LLsurface(secrdemo.0, ncores = i)))
 
