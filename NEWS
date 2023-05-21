@@ -5,8 +5,8 @@ New features or changed behaviour of old functions
     o   Enk() simulation option
     o   exports Fletcher.chat(), nk()
     o   chat.nk() optionally simulates c-hat
-    o   AIC methods acquire variance inflation argument 'chat' for optional 
-        computation of quasi-AIC etc.
+    o   AIC and modelAverage methods acquire variance inflation argument 'chat'
+        for optional computation of quasi-AIC etc.
 
 Bugs fixed
     o   make.capthist() lost covariates when creating non-spatial capthist

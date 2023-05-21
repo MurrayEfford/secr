@@ -23,7 +23,8 @@ modelAverage <- function (object, ...,
     covar = FALSE, 
     average = c('link', 'real'), 
     criterion = c('AICc','AIC'), 
-    CImethod = c('Wald', 'MATA')) 
+    CImethod = c('Wald', 'MATA'),
+    chat = NULL) 
 {
     UseMethod("modelAverage") 
 } 
@@ -31,7 +32,7 @@ modelAverage <- function (object, ...,
 modelAverage.default <- function (object, ..., realnames = NULL, betanames = NULL,
     newdata = NULL, alpha = 0.05, dmax = 10, covar = FALSE, average =
         c('link', 'real'), criterion = c('AICc','AIC'), CImethod =
-        c('Wald', 'MATA')) 
+        c('Wald', 'MATA'), chat = NULL) 
 {
     cat ('no modelAverage method for objects of class', class(object), '\n')
 }
@@ -39,7 +40,7 @@ modelAverage.default <- function (object, ..., realnames = NULL, betanames = NUL
 modelAverage.secr <- function (object, ..., realnames = NULL, betanames = NULL,
     newdata = NULL, alpha = 0.05, dmax = 10, covar = FALSE, average =
         c('link', 'real'), criterion = c('AICc','AIC'), CImethod =
-        c('Wald', 'MATA')) 
+        c('Wald', 'MATA'), chat = NULL) 
 {
     allargs <- list(...)
     modelnames <- (c ( as.character(match.call(expand.dots=FALSE)$object),
@@ -48,13 +49,14 @@ modelAverage.secr <- function (object, ..., realnames = NULL, betanames = NULL,
     names(allargs) <- modelnames
     modelAverage(allargs,  realnames = realnames, betanames = betanames,
         newdata = newdata, alpha = alpha, dmax = dmax, covar = covar, 
-        average = average, criterion = criterion, CImethod = CImethod)
+        average = average, criterion = criterion, CImethod = CImethod,
+        chat = NULL)
 }
 
  modelAverage.secrlist <- function (object, ..., realnames = NULL, betanames = NULL,
     newdata = NULL, alpha = 0.05, dmax = 10, covar = FALSE, average =
         c('link', 'real'), criterion = c('AICc','AIC'), CImethod =
-        c('Wald', 'MATA')) 
+        c('Wald', 'MATA'), chat = NULL) 
 {
      if (length(list(...)) > 0) {
          warning ("... argument ignored in 'modelAverage.secrlist'")
@@ -66,6 +68,8 @@ modelAverage.secr <- function (object, ..., realnames = NULL, betanames = NULL,
     ## match character arguments
     CImethod <- match.arg(CImethod)
     criterion <- match.arg(criterion)
+    quasi <- !is.null(chat)
+    Q <- if (quasi) "Q" else ""
     average <- match.arg(average)
 
     if (!is.null(names(object))) {
@@ -150,8 +154,8 @@ modelAverage.secr <- function (object, ..., realnames = NULL, betanames = NULL,
 
     ## VECTOR OF MODEL WEIGHTS
 
-    AICdf <- AIC(object, sort = FALSE, dmax = dmax, criterion = criterion)
-    wt <- unlist(AICdf[,paste(criterion, 'wt', sep = '')])
+    AICdf <- AIC(object, sort = FALSE, dmax = dmax, criterion = criterion, chat = chat)
+    wt <- unlist(AICdf[,paste0(Q, criterion, 'wt')])
 
     ## AVERAGE MODELS
 

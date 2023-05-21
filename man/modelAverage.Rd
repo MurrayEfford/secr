@@ -17,11 +17,11 @@ from multiple fitted secr models.
 
 \method{modelAverage}{secr}(object, ..., realnames = NULL, betanames = NULL, newdata = NULL, 
     alpha = 0.05, dmax = 10, covar = FALSE, average = c("link", "real"),
-    criterion = c("AICc","AIC"), CImethod = c("Wald", "MATA"))
+    criterion = c("AICc","AIC"), CImethod = c("Wald", "MATA"), chat = NULL)
 
 \method{modelAverage}{secrlist}(object, ..., realnames = NULL, betanames = NULL, newdata = NULL, 
     alpha = 0.05, dmax = 10, covar = FALSE, average = c("link", "real"),
-    criterion = c("AICc","AIC"), CImethod = c("Wald", "MATA"))
+    criterion = c("AICc","AIC"), CImethod = c("Wald", "MATA"), chat = NULL)
 
 collate (..., realnames = NULL, betanames = NULL, newdata = NULL, 
     alpha = 0.05, perm = 1:4, fields = 1:4)
@@ -41,6 +41,7 @@ collate (..., realnames = NULL, betanames = NULL, newdata = NULL,
     parameters }
   \item{criterion}{ character, information criterion to use for model weights}  
   \item{CImethod}{ character, type of confidence interval (see Details)}
+  \item{chat}{numeric optional variance inflation factor for quasi-AIC weights}
   \item{perm}{ permutation of dimensions in output from \code{collate} }
   \item{fields}{ vector to restrict summary fields in output }
 }
@@ -85,6 +86,9 @@ interval length (Turek and Fletcher 2012). Turek and Fletcher (2012)
 also found averaging with AIC weights (here \code{criterion = 'AIC'})
 preferable to using AICc weights, even for small
 samples. \code{CImethod} does not affect the reported standard errors.
+
+If 'chat' is provided then quasi-AIC or quasi-AICc weights are used, 
+depending on the value of 'criterion'.
 
 \code{collate} extracts parameter estimates from a set of fitted secr
 model objects. \code{fields} may be used to select a subset of summary

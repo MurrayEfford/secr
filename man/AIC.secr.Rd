@@ -17,8 +17,8 @@ are included.
 }
 
 \usage{
-\method{AIC}{secr}(object, ..., sort = TRUE, k = 2, dmax = 10, criterion = c("AICc","AIC"))
-\method{AIC}{secrlist}(object, ..., sort = TRUE, k = 2, dmax = 10, criterion = c("AICc","AIC"))
+\method{AIC}{secr}(object, ..., sort = TRUE, k = 2, dmax = 10, criterion = c("AICc","AIC"), chat = NULL)
+\method{AIC}{secrlist}(object, ..., sort = TRUE, k = 2, dmax = 10, criterion = c("AICc","AIC"), chat = NULL)
 \method{logLik}{secr}(object, ...)
 secrlist(...)
 \method{[}{secrlist}(x, i)
@@ -33,6 +33,7 @@ secrlist(...)
   \item{dmax}{ numeric, maximum AIC difference for inclusion in confidence set}
   \item{criterion}{ character, criterion to use for model comparison and
   weights}
+  \item{chat}{numeric optional variance inflation factor for quasi-AIC}
   \item{x}{secrlist}
   \item{i}{indices}
 }
@@ -43,20 +44,25 @@ Models to be compared must have been fitted to the same data and use the
 same likelihood method (full vs conditional).  From version 4.1 a warning is 
 issued if \code{\link{AICcompatible}} reveals a problem.
 
+AIC is given by
+
+\deqn{ \mbox{AIC} = -2\log(L(\hat{\theta})) + 2K}{AICc = -2log(L(theta-hat)) + 2K}
+
+where \eqn{K} is the number of "beta" parameters estimated. 
+
 AIC with small sample adjustment is given by
 
 \deqn{ \mbox{AIC}_c = -2\log(L(\hat{\theta})) + 2K +
-\frac{2K(K+1)}{n-K-1} }{AICc = -2log(L(theta-hat)) + 2K +
-2K(K+1)/(n-K-1)}
+\frac{2K(K+1)}{n-K-1}.}{AICc = -2log(L(theta-hat)) + 2K +
+2K(K+1)/(n-K-1).}
 
-where \eqn{K} is the number of "beta" parameters estimated. The sample size
-\eqn{n} is the number of individuals observed at least once (i.e. the
+The sample size \eqn{n} is the number of individuals observed at least once (i.e. the
 number of rows in \code{capthist}).
 
-Model weights are calculated as \deqn{w_i = \frac{\exp(-\Delta_i / 2)}{
+Model weights are calculated as \deqn{w_i = \frac{\exp(-\Delta_i / 2),}{
 \sum{\exp(-\Delta_i / 2)}}}{w_i = exp(-delta_i / 2) / sum{ exp(-delta_i
-/ 2) }}, where \eqn{\Delta}{delta} refers to differences in AIC or AICc depending on the
-argument `criterion'.
+/ 2) },} where \eqn{\Delta}{delta} refers to differences in AIC or AICc depending on the
+argument `criterion'. AICc is widely used, but AIC may be better (Fletcher 2018, p. 60).
 
 Models for which delta > \code{dmax} are given a weight of zero and are
 excluded from the summation. Model weights may be used to form
@@ -71,10 +77,18 @@ The argument \code{k} is included for consistency with the generic method \code{
 secrlists. If secr components are named the model names will be retained
 (see Examples).
 
+If chat (\eqn{\hat c}) is provided then quasi-AIC values are computed (\pkg{secr} >= 4.6.0):
+
+\deqn{ \mbox{QAIC} = -2\log(L(\hat{\theta}))/ \hat c + 2K.}{AICc = -2log(L(theta-hat))/ \hat c + 2K.}
+
+
 }
 
 \value{
-  A data frame with one row per model.  By default, rows are sorted by ascending AICc.
+
+  A data frame with one row per model.  By default, rows are sorted by ascending 
+  'criterion' (default AICc).
+
   \item{model }{character string describing the fitted model}
   \item{detectfn }{shape of detection function fitted (halfnormal vs hazard-rate) }
   \item{npar }{number of parameters estimated}
@@ -93,12 +107,17 @@ secrlists. If secr components are named the model names will be retained
   attribute \code{df} (degrees of freedom = number of estimated
   parameters).
   
+  If the variance inflation factor 'chat' is provided then outputs AIC, AICc 
+  etc. are replaced by the corresponding quasi-AIC values labelled QAIC, QAICc etc.
+  
 }
 \references{ 
 
 Buckland S. T., Burnham K. P. and Augustin, N. H. (1997) Model selection: an integral part of inference. \emph{Biometrics} \bold{53}, 603--618.
 
 Burnham, K. P. and Anderson, D. R. (2002) \emph{Model Selection and Multimodel Inference: A Practical Information-Theoretic Approach}. Second edition. New York: Springer-Verlag.
+
+Fletcher, D. (2019) Model averaging. SpringerBriefs in Statistics. Berlin: Springer-Verlag.
 
 Hurvich, C. M. and Tsai, C. L. (1989) Regression and time series model selection in small samples. \emph{Biometrika} \bold{76}, 297--307.
 

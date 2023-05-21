@@ -4,7 +4,7 @@
 ## 2018-01-10
 ###############################################################################
 
-oneline.secr <- function (secr, k) {
+oneline.secr <- function (secr, k, chat = NULL) {
     
     if (ms(secr$capthist)) {
         n <- sum(sapply (secr$capthist, nrow))
@@ -15,11 +15,13 @@ oneline.secr <- function (secr, k) {
         ncapt <- sum( abs( secr$capthist)>0)
     }
     
-    ## 2015-03-31, 2017-02-10
+    ## 2015-03-31, 2017-02-10, 2023-05-21
+    if (is.null(chat)) chat <- 1.0
     Npar <- nparameters(secr)   ## see utility.R
-    AICval <- 2*secr$fit$value + k *Npar
+    nLL <- secr$fit$value
+    AICval <- 2*nLL/chat + k *Npar
     AICcval <- ifelse ((n - Npar - 1)>0,
-                       2*(secr$fit$value + Npar) + 2 * Npar * (Npar+1) / (n - Npar - 1),
+                       2*(nLL/chat + Npar) + 2 * Npar * (Npar+1) / (n - Npar - 1),
                        NA)
     
     c (
@@ -41,22 +43,23 @@ logLik.secr <- function(object, ...) {
 
 ############################################################################################
 
-AIC.secr <- function (object, ..., sort = TRUE, k = 2, dmax = 10, criterion = c('AICc','AIC')) {
+AIC.secr <- function (object, ..., sort = TRUE, k = 2, dmax = 10, 
+                      criterion = c('AICc','AIC'), chat = NULL) {
     allargs <- list(...)
     modelnames <- (c ( as.character(match.call(expand.dots=FALSE)$object),
                        as.character(match.call(expand.dots=FALSE)$...) ))
     allargs <- secrlist(object, allargs)
     names(allargs) <- modelnames
-    ## 2019-11-29
     if (!all(AICcompatible(allargs))) {
         warning ("models not compatible for AIC")
     }
-    AIC(allargs, sort=sort, k=k, dmax=dmax, criterion=criterion)
+    AIC(allargs, sort=sort, k=k, dmax=dmax, criterion=criterion, chat=chat)
 }
 ############################################################################################
 ############################################################################################
 
-AIC.secrlist <- function (object, ..., sort = TRUE, k = 2, dmax = 10, criterion = c('AICc','AIC')) {
+AIC.secrlist <- function (object, ..., sort = TRUE, k = 2, dmax = 10, 
+                          criterion = c('AICc','AIC'), chat = NULL) {
     
     if (k != 2)
         warning ("k != 2 and AIC.secr output may be mis-labelled")
@@ -72,12 +75,14 @@ AIC.secrlist <- function (object, ..., sort = TRUE, k = 2, dmax = 10, criterion 
     }
     
     criterion <- match.arg(criterion)
+    quasi <- !is.null(chat)
     modelnames <- names(object)
     allargs <- object
     if (any(sapply(allargs,class) != 'secr'))
         stop ("components of 'object' must be 'secr' objects")
     
-    output <- data.frame(t(sapply(allargs, oneline.secr, k = k)), stringsAsFactors = FALSE)
+    output <- data.frame(t(sapply(allargs, oneline.secr, k = k, chat = chat)), 
+                         stringsAsFactors = FALSE)
     for (i in 3:6)
         output[,i] <- as.numeric(output[,i])
     
@@ -90,6 +95,7 @@ AIC.secrlist <- function (object, ..., sort = TRUE, k = 2, dmax = 10, criterion 
     names(output)[7] <- paste('d',criterion,sep='')
     names(output)[8] <- paste(criterion,'wt',sep='')
     if (nrow(output)==1) { output[,8] <- NULL; output[,7] <- NULL}
+    if (quasi) names(output) <- gsub('AIC','QAIC', names(output))
     
     output
 }
