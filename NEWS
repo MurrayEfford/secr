@@ -1,12 +1,12 @@
-Changes in version 4.6.0 (2023-05-21)
+Changes in version 4.6.0 (2023-05-22)
 
 New features or changed behaviour of old functions
-    o   adjustVarD() acquires optional argument 'chat'
-    o   Enk() simulation option
     o   exports Fletcher.chat(), nk()
+    o   Enk() simulation option
     o   chat.nk() optionally simulates c-hat
     o   AIC and modelAverage methods acquire variance inflation argument 'chat'
         for optional computation of quasi-AIC etc.
+    o   adjustVarD() acquires optional argument 'chat'
 
 Bugs fixed
     o   make.capthist() lost covariates when creating non-spatial capthist
@@ -17,7 +17,8 @@ Other
     o   Enk() (and hence chat.nk) works for multi-catch traps
     o   sim.popn() model2D 'cluster' has clone-in-place option
     o   fast computation of spacing (PR of Philipp Jund, now ctb)
-    o   faster transect fitting (PR of Philipp Jund)
+    o   faster C++ for transect fitting (PR of Philipp Jund)
+    o   suggests microbenchmark
     
 Changes in version 4.5.9 (2023-03-09)
 
