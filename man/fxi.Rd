@@ -168,20 +168,21 @@ plot(traps(captdata))
 fxi.contour(secrdemo.0, i = 1:5, add = TRUE, p = c(0.5,0.95), drawlabels
     = FALSE, nx = 256, fill = topo.colors(4), lty = 0)
 
-## output as SpatialPolygonsDataFrame
-spdf <- fxi.contour(secrdemo.0, i = 1:3, plt = FALSE, p = c(0.5,0.95),
-    nx = 256, output = 'SPDF', fitmode = TRUE)
-
 ## output as simple features
 sf <- fxi.contour(secrdemo.0, i = 1:3, plt = FALSE, p = c(0.5,0.95),
     nx = 256, output = 'sf', fitmode = TRUE)
 
-## save as ESRI shapefile test.shp etc.
+## save as ESRI shapefile testsf.shp etc.
 library(sf)
 st_write(sf, 'testsf.shp')
-
 ## plot contours and modes
-plot(spdf)
+plot(st_as_sfc(sf))    # outline only
+points(sf$modex, sf$modey)
+
+## output as SpatialPolygonsDataFrame
+spdf <- fxi.contour(secrdemo.0, i = 1:3, plt = FALSE, p = c(0.5,0.95),
+    nx = 256, output = 'SPDF', fitmode = TRUE)
+sp::plot(spdf)
 points(data.frame(spdf))
 
 }
