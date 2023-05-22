@@ -291,7 +291,7 @@ transect2point <- function (object, detector = 'count') {
 ## function to make list in which each component is a
 ## subset of occasions (for use in reduce.capthist)
 
-split.by <- function (x, by) {
+splitby <- function (x, by) {
     if ((length(x) == 1) & (x[1] > 1))
         x <- 1:x
     if (by < 1)
@@ -357,7 +357,7 @@ reduce.capthist <- function (object, newtraps = NULL, span = NULL,
         nrw <- nrow(object)
         if (is.null(newoccasions)) {
             if (tolower(by) == 'all') by <- ncol(object)
-            newoccasions <- split.by (1:ncol(object), by)
+            newoccasions <- splitby (1:ncol(object), by)
             if ((ncol(object) %% by) > 0)
                 warning ("number of occasions is not a multiple of 'by'")
         }
