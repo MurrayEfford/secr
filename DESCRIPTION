@@ -42,8 +42,7 @@ Suggests:
     rmarkdown, 
     sp, 
     spsurvey (>= 5.3.0),
-    testthat,
-    microbenchmark
+    testthat
 LinkingTo: 
     BH,
     Rcpp, 
