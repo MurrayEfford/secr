@@ -76,7 +76,7 @@ LLsurface.secr <- function (object, betapar = c('g0', 'sigma'), xval = NULL, yva
                 )
         }
 
-        cat ('Evaluating log likelihood across grid of', nrow(grid), 'points...\n')
+        message ('Evaluating log likelihood across grid of', nrow(grid), 'points...')
         flush.console()
 
         temp <- apply (grid, 1, LL)
