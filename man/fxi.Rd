@@ -177,11 +177,6 @@ sf <- fxi.contour(secrdemo.0, i = 1:3, plt = FALSE, p = c(0.5,0.95),
     nx = 256, output = 'sf', fitmode = TRUE)
 
 ## save as ESRI shapefile test.shp etc.
-## replace tempdir() with your own folder name
-library(rgdal)
-writeOGR(spdf, dsn = tempdir(), layer = 'test', driver="ESRI Shapefile")
-
-## or
 library(sf)
 st_write(sf, 'testsf.shp')
 

@@ -57,7 +57,7 @@ The resulting RasterLayer may optionally include a PROJ.4 map projection
 defined via \code{crs}. The specification may be very simple (as in the
 example below) or complex, including an explicit datum and other
 arguments. Projections are used by \pkg{sf}, \pkg{terra}, \pkg{raster}, 
-\pkg{sp}, \pkg{rgdal} and other packages. See \code{\link[raster]{raster}} for 
+\pkg{sp} and other packages. See \code{\link[raster]{raster}} for 
 further explanation and links.
 
 The S3 classes `mask' and `Dsurface' are defined in \pkg{secr} as
