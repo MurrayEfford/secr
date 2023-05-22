@@ -133,7 +133,7 @@ fxi.contour <- function (
       temp <- fxi2sf(temp)
   }
   else if (output == 'SPDF') {
-    temp <- fxi2SPDF(temp)
+      temp <- fxi2SPDF(temp)
   }
   
   if (plt)
