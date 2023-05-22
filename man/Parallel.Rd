@@ -93,83 +93,69 @@ It appears that multicore operations in \pkg{secr} using \pkg{parallel} may fail
 \dontrun{
 
 sessionInfo()
-# R version 3.6.1 (2019-07-05)
+# R version 4.3.0 (2023-04-21 ucrt)
 # Platform: x86_64-w64-mingw32/x64 (64-bit)
-# Running under: Windows 7 x64 (build 7601) Service Pack 1
-# quad-core i7 CPU, 16 Gb RAM
+# Running under: Windows 11 x64 (build 22621)
+# on Dell-XPS 8950 Intel i7-12700K
 # ...
+# see stackoverflow suggestion for microbenchmark list argument
+# https://stackoverflow.com/questions/32950881/how-to-use-list-argument-in-microbenchmark
+
+library(microbenchmark)
+options(digits = 4)
 
 ## benefit from multi-threading in secr.fit
 
-for (i in 1:8) 
-     print(system.time(secr.fit(ovenCH, buffer = 400, trace = FALSE, ncores = i)))
-     
-#   user  system elapsed 
-#  54.25    0.17   54.43 
-#   user  system elapsed 
-#  29.48    0.16   20.30 
-#   user  system elapsed 
-#  43.34    0.17   25.04 
-#   user  system elapsed 
-#  43.92    0.14   22.95 
-#   user  system elapsed 
-#  46.16    0.22   22.70 
-#   user  system elapsed 
-#  31.59    0.17   15.19 
-#   user  system elapsed 
-#  45.58    0.12   21.93 
-#   user  system elapsed 
-#  37.43    0.15   18.43 
+jobs <- lapply(seq(2,8,2), function(nc) 
+    bquote(suppressWarnings(secr.fit(captdata, trace = FALSE, ncores = .(nc)))))
+microbenchmark(list = jobs, times = 10, unit = "seconds")
+# [edited output]
+# Unit: seconds
+# expr     min      lq   mean median     uq    max neval
+# ncores = 2 1.75880 2.27978 2.6680 2.7450 3.0960 3.4334    10
+# ncores = 4 1.13549 1.16280 1.6120 1.4431 2.0041 2.4018    10
+# ncores = 6 0.88003 0.98215 1.2333 1.1387 1.5175 1.6966    10
+# ncores = 8 0.78338 0.90033 1.5001 1.0406 1.2319 4.0669    10
+
+## sometimes (surprising) lack of benefit with ncores>2
+
+msk <- make.mask(traps(ovenCH[[1]]), buffer = 300, nx = 25)
+jobs <- lapply(c(1,2,4,8), function(nc) 
+    bquote(secr.fit(ovenCH, trace = FALSE, ncores = .(nc), mask = msk)))
+microbenchmark(list = jobs, times = 10, unit = "seconds")
+# [edited output]
+# Unit: seconds
+# expr     min      lq   mean median     uq    max neval
+# ncores = 1 12.5010 13.4951 15.674 15.304 16.373 21.723    10
+# ncores = 2 10.0363 11.8634 14.407 13.726 16.782 22.966    10
+# ncores = 4  8.6335 10.3422 13.085 12.449 15.729 17.914    10
+# ncores = 8  8.5286  9.9008 10.751 10.736 10.796 14.885    10
 
 ## and for simulation...
- 
-for (i in 1:8)
-     print(system.time(sim.secr(secrdemo.0, nsim = 20, tracelevel = 0, ncores = i)))
-     
-#   user  system elapsed 
-# 160.68    0.78  161.93 
-#   user  system elapsed 
-# 158.48    0.56   89.42 
-#   user  system elapsed 
-# 158.54    0.43   65.05 
-#   user  system elapsed 
-# 165.00    0.39   55.06 
-#   user  system elapsed 
-# 171.38    0.53   48.03 
-#   user  system elapsed 
-# 191.03    0.47   48.14 
-#   user  system elapsed 
-# 184.46    0.52   43.42 
-#   user  system elapsed 
-# 193.07    0.56   42.34 
 
-for (i in 1:8)
-    print(system.time(LLsurface(secrdemo.0, ncores = i)))
+jobs <- lapply(seq(2,8,2), function(nc)
+    bquote(sim.secr(secrdemo.0, nsim = 20, tracelevel = 0,  ncores = .(nc))))
+microbenchmark(list = jobs, times = 10, unit = "seconds")
+# [edited output]
+# Unit: seconds
+# expr    min     lq   mean median     uq     max neval
+# ncores = 2 48.610 49.932 59.032 52.485 54.730 119.905    10
+# ncores = 4 29.480 29.996 30.524 30.471 31.418  31.612    10
+# ncores = 6 22.583 23.594 24.148 24.354 24.644  25.388    10
+# ncores = 8 19.924 20.651 25.581 21.002 21.696  51.920    10
 
-# Evaluating log likelihood across grid of 121 points...
-#    user  system elapsed 
-#   26.59    0.14   26.80 
-# Evaluating log likelihood across grid of 121 points...
-#    user  system elapsed 
-#   25.74    0.13   17.73 
-# Evaluating log likelihood across grid of 121 points...
-#    user  system elapsed 
-#   26.08    0.18   15.12 
-# Evaluating log likelihood across grid of 121 points...
-#    user  system elapsed 
-#   26.93    0.19   13.82 
-# Evaluating log likelihood across grid of 121 points...
-#    user  system elapsed 
-#   28.32    0.06   13.52 
-# Evaluating log likelihood across grid of 121 points...
-#    user  system elapsed 
-#   29.40    0.16   13.05 
-# Evaluating log likelihood across grid of 121 points...
-#    user  system elapsed 
-#   29.76    0.22   12.92 
-# Evaluating log likelihood across grid of 121 points...
-#    user  system elapsed 
-#   29.10    0.20   12.81 
+## and log-likelihood surface
+
+jobs <- lapply(seq(2,8,2), function(nc) 
+    bquote(suppressMessages(LLsurface(secrdemo.0,  ncores = .(nc)))))
+microbenchmark(list = jobs, times = 10, unit = "seconds")
+# [edited output]
+# Unit: seconds
+# expr    min     lq   mean median     uq    max neval
+# ncores = 2 20.941 21.098 21.290 21.349 21.471 21.619    10
+# ncores = 4 14.982 15.125 15.303 15.263 15.449 15.689    10
+# ncores = 6 13.994 14.299 14.529 14.342 14.458 16.515    10
+# ncores = 8 13.597 13.805 13.955 13.921 14.128 14.353    10
 
 }
 
