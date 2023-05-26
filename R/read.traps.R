@@ -48,7 +48,7 @@ read.traps <- function (file = NULL, data = NULL, detector = 'multi', covnames =
         }
         xyi
     }
-    
+  
     if (!all( detector %in% .localstuff$validdetectors ))
         stop ("invalid detector type")
     if (is.null(file) & is.null(data))
@@ -266,14 +266,17 @@ read.traps <- function (file = NULL, data = NULL, detector = 'multi', covnames =
                 }
             }
             else {
-                ## tentative 2012-12-18
                 tempcon <- textConnection(splitfield[,1, drop = FALSE])
                 usge <- as.matrix(read.table(tempcon))
                 close(tempcon)
+                ## tidy up 2023-05-27
+                if (is.character(usge)) {
+                    usge <- gsub(',', '', usge)  ## remove commas
+                    class(usge) <- 'numeric'     ## convert from character if needed
+                    # alternatively usge <- apply(usge, 2, as.numeric)
+                }
                 nocc <- ncol(usge)
                 if (all(detector %in% .localstuff$polydetectors)) {
-                    ## 2014-08-23 bug fix
-                    ## usge <- usge[tempindex,]
                     usge <- usge[tempindex,,drop = FALSE]
                     dimnames(usge) <- list( tempID, 1:nocc)
                 }
