@@ -1,7 +1,10 @@
-Changes in version 4.6.1 (2023-05-23)
+Changes in version 4.6.1 (2023-05-27)
 
 New features or changed behaviour of old functions
     o   none
+
+Other
+    o   read.traps() allows comma-separated usage values when binary.usage = FALSE
 
 Changes in version 4.6.0 (2023-05-22)
 
