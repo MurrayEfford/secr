@@ -31,6 +31,7 @@
 ## 2021-07-12 BVT simulation uses inverse distribution function
 ## 2021-09-08 "truncate" as synonym of "normalize"
 ## 2022-06-06 IHP safe for multicolumn D df)
+## 2023-05-30 IHP rmultinom handles boundary N = 0
 ###############################################################################
 
 toroidal.wrap <- function (pop) {
@@ -229,9 +230,9 @@ disperse <- function (newpopn, turnoverpar, t, core, disp) {
     newpopn
 }
 
-sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
-    "cluster", "IHP", "coastal", "hills", "linear", "even"), buffertype =
-    c("rect", "concave", "convex"), poly = NULL,
+sim.popn <- function (D, core, buffer = 100, model2D = c("poisson", 
+    "cluster", "IHP", "coastal", "hills", "linear", "even"), 
+    buffertype = c("rect", "concave", "convex"), poly = NULL,
     covariates = list(sex = c(M = 0.5,F = 0.5)), number.from = 1, Ndist
     = c('poisson','fixed','specified'), nsessions = 1, details = NULL,
     seed = NULL, keep.mask = model2D %in% c('IHP','linear'), Nbuffer = NULL,
@@ -570,7 +571,13 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
             if (Ndist == 'poisson') {
                 N <- rpois(1,N)
             }
-            rmultinom (1, N, D)
+            # 2023-05-30 catch boundary case
+            if (N<=0) {   
+                rep(0,length(D))
+            }
+            else {
+                rmultinom (1, N, D)
+            }
         }
         ##########################
 
@@ -594,6 +601,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
             ## 2022-11-24 function D
             if (is.function(D)) {
                 D <- D(mask = core, parm = details)
+                # save summary in case needed? 2023-05-29
             }
 
             nm <- getnm(cellsize, unlist(D))
