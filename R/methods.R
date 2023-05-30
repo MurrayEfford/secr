@@ -12,6 +12,7 @@
 ## 2022-08-23 summary.mask and summary.popn removed to separate files
 ## 2022-11-15 read.mask separate file
 ## 2023-04-14 trim.secrlist
+## 2023-05-30 shift.mask updates boundingbox
 ###############################################################################
 
 # Generic methods for extracting attributes etc
@@ -1353,9 +1354,6 @@ rotate.capthist <- function(object, degrees, centrexy=NULL, ...) {
     }
 }
 
-
-
-
 shift.traps <- function (object, shiftxy, ...)
 {
   object$x <- object$x + shiftxy[1]
@@ -1368,6 +1366,8 @@ shift.mask <- function (object, shiftxy, ...)
 {
   object$x <- object$x + shiftxy[1]
   object$y <- object$y + shiftxy[2]
+  bbox <-  attr(object, 'boundingbox',exact = TRUE)
+  attr(object, 'boundingbox') <- data.frame(shift(bbox, shiftxy))
   object
 }
 ###############################################################################
