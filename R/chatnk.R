@@ -5,7 +5,9 @@
 ## 2023-04-26 to 2023-05-13
 ###############################################################################
 
-chat.nk.sess <- function(object, D, capthist, mask, detpar, nsim, ...) {
+chat.nk.sess <- function(object, D, capthist, mask, detpar, nsim, 
+                         ncores = NULL, seed = NULL, 
+                         verbose = TRUE, type = 'Fletcher', mutinomial = FALSE) {
     
     ## c-hat for one session
     
@@ -38,29 +40,49 @@ chat.nk.sess <- function(object, D, capthist, mask, detpar, nsim, ...) {
             ch <- sim.capthist(
                 traps      = traps, 
                 popn       = pop, 
-                detectfn   = object$detectfn, 
+                detectfn   = detectfn, 
                 detectpar  = detpar, 
                 noccasions = noccasions, 
                 nsessions  = 1, 
-                binomN     = object$binomN)
+                binomN     = binomN)
             nk(ch)  # individuals per detector
         }
-        simnk <- lapply(1:nsim, onesimnk)
-        dots <- list(...)
-        type <- dots$type
-        if (is.null(type)) type <- 'Fletcher'
-        else type <- match.arg(type, choices = c('Wedderburn', 'Fletcher'))
-        simchat <- unlist(Fletcher.chat(simnk, expected.nk, np, type = type))
+        # optionally define cluster for parallel processing
+        if (is.null(ncores)) ncores <- setNumThreads()
+        detectfn <- object$detectfn
+        binomN <- object$binomN
+        if (ncores > 1) {
+            clustertype <- if (.Platform$OS.type == "unix") "FORK" else "PSOCK"
+            clust <- parallel::makeCluster(ncores, type = clustertype)
+            if (clustertype == "PSOCK") {
+                clusterExport(clust, c("sim.popn", "sim.capthist",
+                    "onesimnk", "D", "mask", "traps", "detectfn", 
+                    "detpar", "noccasions", "binomN"
+                ), environment())
+            }
+            parallel::clusterSetRNGStream(clust, seed)
+            on.exit(parallel::stopCluster(clust))
+            simnk <- parallel::parLapply(clust, 1:nsim, onesimnk)
+            
+        }
+        else {
+            set.seed(seed)
+            simnk <- lapply(1:nsim, onesimnk)
+        }
+        
+        simchat <- unlist(Fletcher.chat(simnk, expected.nk, np, verbose = FALSE, type = type))
         obschat <- Fletcher.chat(observed.nk, expected.nk, np, verbose = FALSE, type = type)
         list(
             type     = type, 
+            observed = observed.nk,
+            expected = expected.nk,
+            chat     = obschat, 
             nsim     = nsim,
             sim.chat = simchat, 
-            chat     = obschat, 
             p        = 1 - rank(c(obschat, simchat))[1] / (nsim+1))
     }
     else {
-        Fletcher.chat(observed.nk, expected.nk, np, ...)
+        Fletcher.chat(observed.nk, expected.nk, np, verbose, type, multinomial)
     }    
 }
 
