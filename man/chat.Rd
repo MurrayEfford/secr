@@ -165,6 +165,13 @@ method. \emph{Biometrika} \bold{61}, 439--47.
 
 }
 
+# useful plotting function for simulated chat (nsim>0)
+plotchat <- function(chat, head = '', breaks = seq(0.5,2.5,0.05)) {
+    hist(chat$sim.chat, xlim = range(breaks), main = head, xlab = 'c-hat',
+        breaks = breaks, cex.main = 1, yaxs = 'i')
+    abline(v = chat$chat, lwd = 1.5, col = 'blue')
+}
+
 }
 
 \keyword{ manip }
