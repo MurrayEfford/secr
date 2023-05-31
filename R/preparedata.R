@@ -334,10 +334,7 @@ prepareSessionData <- function (capthist, mask, maskusage,
         ## mark-resight
         MRdata <- markresightdata(capthist, mask, fixed,
             details$chat, details$markresight, details$knownmarks)
-        # markocc <- markocc(traps(capthist))
-        # if (is.null(markocc)) markocc <- rep(1,s)
-        # MRdata <- list(markocc = markocc)
-        
+
         ## knownclass for hcov mixture models
         knownclass <- getknownclass(capthist, details$nmix, hcov)
         
@@ -366,7 +363,6 @@ prepareSessionData <- function (capthist, mask, maskusage,
         }
         ngroup <- max(1,length(group.levels(capthist, groups)))
         CH <- compressCH(capthist, binomNcode, details$fastproximity)   
-        ## CH0 <- nullCH(dim(CH), packageVersion('secr')<'4.0.0' || design0$individual || ngroup>1)   ## all-zero CH
         CH0 <- nullCH(dim(CH), packageVersion('secr')<'4.0.0' || design0$individual || ngroup>1 || !is.null(hcov))   ## all-zero CH
         
         #####################################################################
