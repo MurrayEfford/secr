@@ -30,7 +30,7 @@ Fletcher.chat (observed, expected, np, verbose = TRUE,
 
 \details{
 
-\code{Fletcher.chat} applies the overdispersion formula of Fletcher (2012) or computes the conventional variance inflation factor \eqn{X^2/df}. It is used by \code{\link{chat.nk}} and \code{\link{adjustVarD}}. The inputs `observed' and `expected' are vectors of counts (e.g., number of distinct individuals per detector); `observed' may also be a list of such vectors, possibly simulated.
+\code{Fletcher.chat} applies the overdispersion formula of Fletcher (2012) or computes the conventional (Wedderburn 1974) variance inflation factor \eqn{X^2/df}. It is used by \code{\link{chat.nk}} and \code{\link{adjustVarD}}. The inputs `observed' and `expected' are vectors of counts (e.g., number of distinct individuals per detector); `observed' may also be a list of such vectors, possibly simulated.
 
   }
 
