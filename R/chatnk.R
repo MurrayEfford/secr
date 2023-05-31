@@ -7,7 +7,7 @@
 
 chat.nk.sess <- function(object, D, capthist, mask, detpar, nsim, 
                          ncores = NULL, seed = NULL, 
-                         verbose = TRUE, type = 'Fletcher', mutinomial = FALSE) {
+                         verbose = TRUE, type = 'Fletcher', multinomial = FALSE) {
     
     ## c-hat for one session
     
@@ -70,8 +70,8 @@ chat.nk.sess <- function(object, D, capthist, mask, detpar, nsim,
             simnk <- lapply(1:nsim, onesimnk)
         }
         
-        simchat <- unlist(Fletcher.chat(simnk, expected.nk, np, verbose = FALSE, type = type))
-        obschat <- Fletcher.chat(observed.nk, expected.nk, np, verbose = FALSE, type = type)
+        simchat <- unlist(Fletcher.chat(simnk, expected.nk, np, verbose = FALSE, type, multinomial))
+        obschat <- Fletcher.chat(observed.nk, expected.nk, np, verbose = FALSE, type, multinomial)
         list(
             type     = type, 
             observed = observed.nk,
