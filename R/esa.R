@@ -21,6 +21,11 @@ esa <- function (object, sessnum = 1, beta = NULL, real = NULL, noccasions = NUL
     else
         capthists <- object$capthist
 
+    # 2023-06-01
+    if (nrow(capthists) == 0) {
+        return (numeric(0))    
+    }
+    
     if (ms(object$mask))
         mask <- object$mask[[sessnum]]
     else
