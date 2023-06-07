@@ -1940,8 +1940,11 @@ boundarytoSF <- function (poly) {
   else if(inherits(poly, c('sf','sfc'))) {
     poly <- st_geometry(poly) # extract sfc if not already sfc
     geomtype <- st_geometry_type(poly, by_geometry = FALSE)
-    if (!geomtype %in% c("POLYGON", "MULTIPOLYGON")) {
-      stop ("poly sfc should be of type POLYGON or MULTIPOLYGON")
+    if (geomtype == 'GEOMETRY') {   # 2023-06-02
+        geomtype <- st_geometry_type(poly, by_geometry = TRUE)
+    }
+    if (!all(geomtype %in% c("POLYGON", "MULTIPOLYGON"))) {
+      stop ("poly sf/sfc should be of type POLYGON or MULTIPOLYGON")
     }
     poly
   }
