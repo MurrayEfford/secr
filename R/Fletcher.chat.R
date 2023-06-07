@@ -28,10 +28,30 @@ Fletcher.chat <- function(observed, expected, np, verbose = TRUE,
     else {
         K <- length(observed)
         nu <- K - np - multinomial
+        protected <- TRUE
+        
         # Wedderburn
         cX2 <- sum( (observed - expected)^2 / expected ) / nu  
+        if (protected) {
+            # Guard against divide-by-zero 2023-06-07
+            ok <- observed>0
+            if (any(observed>0 & expected<1e-20)) {
+                warning ("observed>0 when expected<1e-20")
+                cX2 <- NA
+            }
+            else {
+                cX2 <- (
+                    sum(observed[ok]^2 / expected[ok])
+                    - 2 * sum(observed)
+                    + sum(expected)
+                ) / nu
+            }
+        }
         # Fletcher
         sbar <- sum( (observed - expected) / expected ) / (K - multinomial)
+        if (protected) {
+            sbar <- (sum( observed[ok] / expected[ok] ) ) / (K - multinomial) - 1
+        }
         chat <- cX2 / (1 + sbar)  
         if (verbose) {
             list(
