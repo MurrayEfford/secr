@@ -362,8 +362,16 @@ prepareSessionData <- function (capthist, mask, maskusage,
             stop("group is missing for at least one animal")
         }
         ngroup <- max(1,length(group.levels(capthist, groups)))
-        CH <- compressCH(capthist, binomNcode, details$fastproximity)   
-        CH0 <- nullCH(dim(CH), packageVersion('secr')<'4.0.0' || design0$individual || ngroup>1 || !is.null(hcov))   ## all-zero CH
+        CH <- compressCH(capthist, binomNcode, details$fastproximity) 
+        
+        # 2023-06-09 tentatively remove hcov from condition
+        # this leaves some uncertainty: 
+        # when is full CH0 (1 row per animal) really needed?
+        # why is this an issue for polygonhistoriescpp and not simplehistoriescpp?
+        
+        # CH0 <- nullCH(dim(CH), packageVersion('secr')<'4.0.0' || design0$individual || ngroup>1 || !is.null(hcov))   ## all-zero CH
+        
+        CH0 <- nullCH(dim(CH), packageVersion('secr')<'4.0.0' || design0$individual || ngroup>1)   ## all-zero CH
         
         #####################################################################
         ## unclear whether this is correct wrt groups
