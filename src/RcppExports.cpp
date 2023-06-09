@@ -313,8 +313,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // polygonhistoriescpp
-NumericVector polygonhistoriescpp(const int nc, const int detectfn, const int grain, const int ncores, const double minp, const IntegerVector binomN, const IntegerVector w, const NumericMatrix xy, const IntegerVector start, const IntegerVector group, const NumericVector hk, const NumericVector H, const NumericMatrix gsbval, const NumericMatrix pID, const NumericMatrix mask, const NumericMatrix density, const IntegerVector PIA, const NumericMatrix Tsk, const NumericMatrix h, const IntegerMatrix hindex, const LogicalMatrix mbool);
-RcppExport SEXP _secr_polygonhistoriescpp(SEXP ncSEXP, SEXP detectfnSEXP, SEXP grainSEXP, SEXP ncoresSEXP, SEXP minpSEXP, SEXP binomNSEXP, SEXP wSEXP, SEXP xySEXP, SEXP startSEXP, SEXP groupSEXP, SEXP hkSEXP, SEXP HSEXP, SEXP gsbvalSEXP, SEXP pIDSEXP, SEXP maskSEXP, SEXP densitySEXP, SEXP PIASEXP, SEXP TskSEXP, SEXP hSEXP, SEXP hindexSEXP, SEXP mboolSEXP) {
+NumericVector polygonhistoriescpp(const int nc, const int detectfn, const int grain, const int ncores, const double minp, const IntegerVector binomN, const IntegerVector w, const NumericMatrix xy, const IntegerVector start, const IntegerVector group, const NumericVector hk, const NumericVector H, const NumericMatrix gsbval, const NumericMatrix pID, const NumericMatrix mask, const NumericMatrix density, const IntegerVector PIA, const NumericMatrix Tsk, const NumericMatrix h, const IntegerMatrix hindex, const LogicalMatrix mbool, const int debug);
+RcppExport SEXP _secr_polygonhistoriescpp(SEXP ncSEXP, SEXP detectfnSEXP, SEXP grainSEXP, SEXP ncoresSEXP, SEXP minpSEXP, SEXP binomNSEXP, SEXP wSEXP, SEXP xySEXP, SEXP startSEXP, SEXP groupSEXP, SEXP hkSEXP, SEXP HSEXP, SEXP gsbvalSEXP, SEXP pIDSEXP, SEXP maskSEXP, SEXP densitySEXP, SEXP PIASEXP, SEXP TskSEXP, SEXP hSEXP, SEXP hindexSEXP, SEXP mboolSEXP, SEXP debugSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -339,7 +339,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const NumericMatrix >::type h(hSEXP);
     Rcpp::traits::input_parameter< const IntegerMatrix >::type hindex(hindexSEXP);
     Rcpp::traits::input_parameter< const LogicalMatrix >::type mbool(mboolSEXP);
-    rcpp_result_gen = Rcpp::wrap(polygonhistoriescpp(nc, detectfn, grain, ncores, minp, binomN, w, xy, start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, mbool));
+    Rcpp::traits::input_parameter< const int >::type debug(debugSEXP);
+    rcpp_result_gen = Rcpp::wrap(polygonhistoriescpp(nc, detectfn, grain, ncores, minp, binomN, w, xy, start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, mbool, debug));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -862,7 +863,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_secr_ontransectcpp", (DL_FUNC) &_secr_ontransectcpp, 5},
     {"_secr_alongtransectcpp", (DL_FUNC) &_secr_alongtransectcpp, 5},
     {"_secr_fasthistoriescpp", (DL_FUNC) &_secr_fasthistoriescpp, 15},
-    {"_secr_polygonhistoriescpp", (DL_FUNC) &_secr_polygonhistoriescpp, 21},
+    {"_secr_polygonhistoriescpp", (DL_FUNC) &_secr_polygonhistoriescpp, 22},
     {"_secr_polygonfxicpp", (DL_FUNC) &_secr_polygonfxicpp, 21},
     {"_secr_signalhistoriescpp", (DL_FUNC) &_secr_signalhistoriescpp, 16},
     {"_secr_gethr", (DL_FUNC) &_secr_gethr, 7},

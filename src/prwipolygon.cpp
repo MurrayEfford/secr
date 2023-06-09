@@ -28,6 +28,7 @@ struct polygonhistories : public Worker {
   const RMatrix<int>    hindex;
   
   const RMatrix<int>    mbool;    
+  const int debug;
 
   // working variables
   int  mm, nk, ss, cc;
@@ -59,13 +60,14 @@ struct polygonhistories : public Worker {
     const IntegerMatrix hindex, 
     
     const LogicalMatrix mbool,
+    const int           debug,
     
     NumericVector output)
     :
     nc(nc), detectfn(detectfn), grain(grain), minp(minp), 
     binomN(binomN), w(w), xy(xy), start(start), group(group), hk(hk), H(H), gsbval(gsbval), 
     pID(pID), mask(mask), density(density), PIA(PIA), Tsk(Tsk),  h(h), hindex(hindex), mbool(mbool),
-    output(output) {
+    debug(debug), output(output) {
     // now can initialise these derived counts
     mm = mask.nrow();       // number of mask points
     nk = Tsk.nrow();        // number of polygons (detectors)
@@ -191,7 +193,7 @@ struct polygonhistories : public Worker {
           bool dead = false;
           double hint;
           double Tski;
-          
+          if (debug>0) Rprintf("starting prwpolygon\n");
           for (s=0; s<ss; s++) {  // over occasions
               if (binomN[s] < 0) Rcpp::stop ("negative binomN < 0 not allowed in C++ fn prwpolygon");
               for (k=0; k<nk; k++) {   // over polygons
@@ -203,6 +205,7 @@ struct polygonhistories : public Worker {
                   if (c >= 0) {                          // skip if this polygon not used 
                       Tski = Tsk(k,s);
                       for (m=0; m<mm; m++) {
+                          if (debug>0) Rprintf("k %d, m %d \n", k,m);
                           if (mbool(n,m)) {
                               gi  = i3(c,k,m,cc,nk);
                               pm[m] *= pski(binomN[s], count, Tski, hk[gi], 1.0);
@@ -271,24 +274,27 @@ NumericVector polygonhistoriescpp (
     const NumericMatrix Tsk,
     const NumericMatrix h,
     const IntegerMatrix hindex, 
-    const LogicalMatrix mbool
+    const LogicalMatrix mbool,
+    const int           debug
     ) {
   
   NumericVector output(nc);
   
+  if (debug>0 && ncores==1) Rprintf("starting polygonhistoriescpp\n");
+  
   // Construct and initialise
-  polygonhistories somehist (nc, detectfn, grain, minp, binomN, w, xy, 
+  polygonhistories somehist (nc, detectfn, grain, minp, binomN, w, xy,
                              start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, mbool,
-                             output);
+                             debug, output);
   
   if (ncores>1) {
-     // Run operator() on multiple threads
-     parallelFor(0, nc, somehist, grain, ncores);
-   }
-   else {
-    // for debugging avoid multithreading and allow R calls e.g. Rprintf
-    somehist.operator()(0,nc);
-   }
+      // Run operator() on multiple threads
+      parallelFor(0, nc, somehist, grain, ncores);
+  }
+  else {
+      // for debugging avoid multithreading and allow R calls e.g. Rprintf
+      somehist.operator()(0,nc);
+  }
   // Return consolidated result
   return output;
 }

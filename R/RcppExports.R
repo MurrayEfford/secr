@@ -73,8 +73,8 @@ fasthistoriescpp <- function(mm, nc, cc, grain, ncores, binomN, indiv, w, ki, gk
     .Call('_secr_fasthistoriescpp', PACKAGE = 'secr', mm, nc, cc, grain, ncores, binomN, indiv, w, ki, gk, hk, density, PIA, Tsk, mbool)
 }
 
-polygonhistoriescpp <- function(nc, detectfn, grain, ncores, minp, binomN, w, xy, start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, mbool) {
-    .Call('_secr_polygonhistoriescpp', PACKAGE = 'secr', nc, detectfn, grain, ncores, minp, binomN, w, xy, start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, mbool)
+polygonhistoriescpp <- function(nc, detectfn, grain, ncores, minp, binomN, w, xy, start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, mbool, debug) {
+    .Call('_secr_polygonhistoriescpp', PACKAGE = 'secr', nc, detectfn, grain, ncores, minp, binomN, w, xy, start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, mbool, debug)
 }
 
 polygonfxicpp <- function(nc, detectfn, grain, ncores, minp, binomN, w, xy, start, group, hk, H, gsbval, pID, mask, density, PIA, Tsk, h, hindex, mbool) {
