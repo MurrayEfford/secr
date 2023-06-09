@@ -239,7 +239,8 @@ allhistpolygon <- function (detectfn, realparval, haztemp, hk, H, pi.density, PI
         as.matrix(usge),
         as.matrix (hx),                
         as.matrix (hi),      
-        as.matrix(maskusage)
+        as.matrix(maskusage),
+        as.integer(debug)
       )
       sump <- sump + pmixn[x,] * temp
   }
@@ -253,6 +254,7 @@ allhistpolygon <- function (detectfn, realparval, haztemp, hk, H, pi.density, PI
 integralprw1poly <- function (detectfn, realparval0, haztemp, hk, H, pi.density, PIA0, 
                               CH0, binomNcode, grp, usge, mask, pmixn, maskusage,
                               grain, ncores, minprob, debug = FALSE) {
+    
   nc <- dim(PIA0)[2]
   nr <- nrow(CH0)       ## unique naive animals (1 or nc)
   m <- nrow(pi.density)
@@ -287,7 +289,8 @@ integralprw1poly <- function (detectfn, realparval0, haztemp, hk, H, pi.density,
         as.matrix(usge),
         as.matrix (hx),                
         as.matrix (hi),      
-        as.matrix(maskusage)
+        as.matrix(maskusage),
+        as.integer(debug)
       )
       if (nr == 1) temp <- rep(temp, nc)
       sump[ok] <- sump[ok] + pmixn[x,ok] * (1-temp[ok])
