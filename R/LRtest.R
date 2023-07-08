@@ -6,11 +6,11 @@
 ## 2013-10-29 fixed name of p.value; use logLik
 ## 2017-10-14 allow for length class vector > 1 [any(class...)]
 ## 2017-10-14 generalised by getting np from logLik
-
+## 2023-06-26 class(model1)[1]
 ############################################################################################
 
 LR.test <- function (model1, model2) {
-    if (is.null(getS3method('logLik', class(model1), TRUE)))
+    if (is.null(getS3method('logLik', class(model1)[1], TRUE)))
         stop ("no logLik method for model")
     if (any(class(model1) != class(model2)))
         stop ("models must have same class")
