@@ -2,9 +2,6 @@
 \alias{modelAverage}
 \alias{modelAverage.secr}
 \alias{modelAverage.secrlist}
-\alias{collate}
-\alias{collate.secr}
-\alias{collate.secrlist}
 
 \title{ Averaging of SECR Models Using Akaike's Information Criterion}
 
@@ -25,12 +22,6 @@ from multiple fitted secr models, and the tabulation of estimates.
     alpha = 0.05, dmax = 10, covar = FALSE, average = c("link", "real"),
     criterion = c("AICc","AIC"), CImethod = c("Wald", "MATA"), chat = NULL)
 
-\method{collate}{secr}(object, ..., realnames = NULL, betanames = NULL, newdata = NULL, 
-    alpha = 0.05, perm = 1:4, fields = 1:4)
-
-\method{collate}{secrlist}(object, ..., realnames = NULL, betanames = NULL, newdata = NULL, 
-    alpha = 0.05, perm = 1:4, fields = 1:4)
-
 }
 
 \arguments{
@@ -47,8 +38,6 @@ from multiple fitted secr models, and the tabulation of estimates.
   \item{criterion}{ character, information criterion to use for model weights}  
   \item{CImethod}{ character, type of confidence interval (see Details)}
   \item{chat}{numeric optional variance inflation factor for quasi-AIC weights}
-  \item{perm}{ permutation of dimensions in output from \code{collate} }
-  \item{fields}{ vector to restrict summary fields in output }
 }
 
 \details{
@@ -95,10 +84,6 @@ samples. \code{CImethod} does not affect the reported standard errors.
 If 'chat' is provided then quasi-AIC or quasi-AICc weights are used, 
 depending on the value of 'criterion'.
 
-\code{collate} extracts parameter estimates from a set of fitted secr
-model objects. \code{fields} may be used to select a subset of summary
-fields ("estimate","SE.estimate","lcl","ucl") by name or number. 
-
 }
 
 \value{
@@ -111,12 +96,6 @@ parameters are averaged or averaging is requested for only one parameter
 then the array is collapsed to a matrix. If \code{covar = TRUE} then a
 list is returned with separate components for the estimates and the
 variance-covariance matrices.
-
-For \code{collate}, a 4-dimensional array of model-specific parameter
-estimates. By default, the dimensions correspond respectively to rows in
-\code{newdata} (usually sessions), models, statistic fields (estimate, SE.estimate, lcl,
-ucl), and parameters ("D", "g0" etc.). For particular comparisons it often helps
-to reorder the dimensions with the \code{perm} argument.
 
 }
 \references{ 
@@ -142,7 +121,14 @@ intervals. \emph{Computational statistics and data analysis} \bold{56},
 \note{\code{modelAverage} replaces the deprecated function \code{model.average} 
 whose name conflicted with a method in \pkg{RMark}.}
 
-\seealso{ \code{\link{modelAverage}}, \code{\link{AIC.secr}}, \code{\link{secr.fit}}}
+\seealso{ 
+
+\code{\link{modelAverage}}, 
+\code{\link{AIC.secr}}, 
+\code{\link{secr.fit}},
+\code{\link{collate}}
+
+}
 
 \examples{
 ## Compare two models fitted previously
@@ -154,8 +140,6 @@ modelAverage(secrdemo.0, secrdemo.b, betanames = c("D","g0","sigma"))
 
 ## In this case we find the difference was actually trivial...
 ## (subscripting of output is equivalent to setting fields = 1)
-
-collate (secrdemo.0, secrdemo.b, perm = c(4,2,3,1))[,,1,]
 
 }
 
