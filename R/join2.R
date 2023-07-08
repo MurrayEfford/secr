@@ -305,8 +305,9 @@ join <- function (object, remove.dupl.sites = TRUE, tol = 0.001,
         signal(tempnew) <- tempdf[!is.na(tempdf$newocc),'signal']
     ##------------------------------------------------------------------
     ## purge duplicate sites, if requested
-    if (remove.dupl.sites & !sametrp & !sites.by.name)
+    if (remove.dupl.sites & !sametrp & !sites.by.name) {
         tempnew <- reduce(tempnew, span=tol, dropunused = FALSE, verify = FALSE)
+    }
     ## remember previous structure, for MARK-style robust design
     tmpintervals <- unlist(sapply(nocc, function(x) c(1,rep(0,x-1))))[-1]
     if (!is.null(intervals)) {

@@ -214,7 +214,7 @@ reduce.traps <- function (object, newtraps = NULL, newoccasions = NULL, span = N
         # return to consider covariates when traps combined,
         # using 'daily' from preceding
 
-        if (!is.null(span) | !is.null(newtraps)) {
+        if (!is.null(span) || !is.null(newtraps)) {
 
             if (!is.null(covariates(object))) {
                 covlist <- split(covariates(object), splitfactor)
@@ -350,7 +350,6 @@ reduce.capthist <- function (object, newtraps = NULL, span = NULL,
         return(temp)
     }
     else {
-      
         select <- match.arg(select)
         polygons <- c('polygon','polygonX')
         transects <- c('transect','transectX')
@@ -422,7 +421,6 @@ reduce.capthist <- function (object, newtraps = NULL, span = NULL,
         nnew <- length(newoccasions)
         newcols <- rep(1:nnew, sapply(newoccasions,length))
         newcols <- factor(newcols)
-
         ####################################
         ## check and build newtraps
         if (outputdetector != 'nonspatial') {

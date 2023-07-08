@@ -146,7 +146,6 @@ rbind.capthist <- function (..., renumber = TRUE, pool = NULL, verify = TRUE)
         ## 1 to several elementary capthist objects
         ## conventional rbind, given compatible traps, covariates, noccasions
         ## optional renumbering
-        
         check <- function (x) {
             if (!is(x,'capthist'))
                 stop ("all arguments must be 'capthist' objects")
