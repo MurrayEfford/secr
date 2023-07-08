@@ -1,7 +1,10 @@
-Changes in version 4.6.1 (2023-06-09)
+Changes in version 4.6.1 (2023-07-08)
 
 New features or changed behaviour of old functions
     o   none
+
+Bugs fixed
+    o   collate() failed if betanames specified for multi-session model (multi-row newdata)
 
 Other
     o   read.traps() allows comma-separated usage values when binary.usage = FALSE
