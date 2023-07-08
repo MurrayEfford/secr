@@ -13,6 +13,7 @@ Other
     o   chat.nk may use clusters in parallel for simulation
     o   internal boundarytoSF extended to sf geometry objects
     o   Fletcher.chat() protected against near-zero expected values
+    o   collate() redefined as generic, behaviour mostly unchanged
 
 Bugs fixed
     o   secr.fit() crashed R for polygon data with hcov specified

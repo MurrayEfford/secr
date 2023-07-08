@@ -3,13 +3,15 @@
 \alias{modelAverage.secr}
 \alias{modelAverage.secrlist}
 \alias{collate}
+\alias{collate.secr}
+\alias{collate.secrlist}
 
 \title{ Averaging of SECR Models Using Akaike's Information Criterion}
 
 \description{
   
 AIC- or AICc-weighted average of estimated `real' or `beta' parameters
-from multiple fitted secr models.
+from multiple fitted secr models, and the tabulation of estimates.
 
 }
 
@@ -23,14 +25,17 @@ from multiple fitted secr models.
     alpha = 0.05, dmax = 10, covar = FALSE, average = c("link", "real"),
     criterion = c("AICc","AIC"), CImethod = c("Wald", "MATA"), chat = NULL)
 
-collate (..., realnames = NULL, betanames = NULL, newdata = NULL, 
+\method{collate}{secr}(object, ..., realnames = NULL, betanames = NULL, newdata = NULL, 
+    alpha = 0.05, perm = 1:4, fields = 1:4)
+
+\method{collate}{secrlist}(object, ..., realnames = NULL, betanames = NULL, newdata = NULL, 
     alpha = 0.05, perm = 1:4, fields = 1:4)
 
 }
 
 \arguments{
   \item{object}{secr or secrlist object}
-  \item{\dots}{other secr objects (\code{modelAverage.secr} and \code{collate} only)}
+  \item{\dots}{other secr objects } 
   \item{realnames}{ character vector of real parameter names }
   \item{betanames}{ character vector of beta parameter names }
   \item{newdata}{ optional dataframe of values at which to evaluate models }

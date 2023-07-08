@@ -5,10 +5,36 @@
 ## 2023-07-08 bug fixed: betanames failed with multiple sessions
 ############################################################################################
 
-collate <- function (..., realnames = NULL, betanames = NULL, newdata = NULL,
-                     alpha = 0.05, perm = 1:4, fields = 1:4) {
-    ## 2013-04-20
-    object <- secrlist(...)
+collate <- function (object, ..., 
+                     realnames = NULL, betanames = NULL, newdata = NULL,
+                     alpha = 0.05, perm = 1:4, fields = 1:4) 
+{
+    UseMethod("collate") 
+} 
+
+collate.default <- function (object, ..., 
+                             realnames = NULL, betanames = NULL, newdata = NULL,
+                             alpha = 0.05, perm = 1:4, fields = 1:4) 
+{
+    cat ('no collate method for objects of class', class(object), '\n')
+} 
+
+collate.secr <- function (object, ..., realnames = NULL, betanames = NULL, newdata = NULL,
+                            alpha = 0.05, perm = 1:4, fields = 1:4) {
+    allargs <- list(...)
+    modelnames <- (c ( as.character(match.call(expand.dots=FALSE)$object),
+                       as.character(match.call(expand.dots=FALSE)$...) ))
+    allargs <- secrlist(object, allargs)
+    names(allargs) <- modelnames
+    collate(allargs,  realnames = realnames, betanames = betanames,
+            newdata = newdata, alpha = alpha, perm = perm, fields = fields)
+}
+
+collate.secrlist <- function (object, ..., realnames = NULL, betanames = NULL, newdata = NULL,
+                                alpha = 0.05, perm = 1:4, fields = 1:4) {
+    if (length(list(...)) > 0) {
+        warning ("... argument ignored in 'collate.secrlist'")
+    }
     if (!is.null(names(object)))
         modelnames <- names(object)
     else
@@ -61,7 +87,6 @@ collate <- function (..., realnames = NULL, betanames = NULL, newdata = NULL,
                 f = object1$details[['f']]
             )
         }
-        ## check added 2016-06-16, fixed 2016-11-08
         if (any(unlist(nclusters(object1$capthist))>1))
             warning("collate is ignoring n.mashed", call. = FALSE)
         sapply (names(object1$model), getfield, simplify = FALSE)
@@ -74,9 +99,7 @@ collate <- function (..., realnames = NULL, betanames = NULL, newdata = NULL,
         ## start with list of model-specific newdata --
         ## each component of tempnewdata is a data.frame of newdata
         ## for the corresponding model
-        # tempnewdata <- lapply (object, secr.make.newdata)
         tempnewdata <- lapply (object, makeNewData)
-        ## modified 2010 02 14
         column.list <- list(0)
         for (i in 1:nsecr) column.list[[i]] <- as.list(tempnewdata[[i]])
         column.list <- unlist(column.list, recursive = FALSE)
@@ -86,7 +109,6 @@ collate <- function (..., realnames = NULL, betanames = NULL, newdata = NULL,
         common <- names(column.list)[names(column.list) %in% names(newdata)]
         column.list[common] <- newdata[common]   ## user input
         
-        ## modified 2010 02 23 to match levels of session covariates to session
         ## not tested with different session covariates in diff sessions
         sessioncovs <- lapply(object, function(x)
             if(!is.null(x$sessioncov)) data.frame(session=session(x$capthist), x$sessioncov)
@@ -98,8 +120,6 @@ collate <- function (..., realnames = NULL, betanames = NULL, newdata = NULL,
         sessioncovnames <- unlist(lapply(object, function(x) names(x$sessioncov)))
         sessioncovariate <- names(column.list) %in% sessioncovnames
         newdata <- expand.grid (column.list[!sessioncovariate])
-        ## replaced 2010 03 09 to retain sort order
-        #   if (nrow(sessioncovs)>0) newdata <- merge(newdata, sessioncovs)
         if (nrow(sessioncovs)>0) {
             for (i in names(sessioncovs)) {
                 if (i != 'session') newdata[,i] <- sessioncovs[newdata$session,i]
