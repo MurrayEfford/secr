@@ -459,6 +459,7 @@ S3method(trim, secr)
 S3method(trim, secrlist)
 S3method(modelAverage, secr)
 S3method(collate, secr)
+S3method(collate, ipsecr)
 
 S3method(print, secrdata)
 S3method(print, secrlist)

@@ -30,6 +30,20 @@ collate.secr <- function (object, ..., realnames = NULL, betanames = NULL, newda
             newdata = newdata, alpha = alpha, perm = perm, fields = fields)
 }
 
+collate.ipsecr <- function (object, ..., 
+                            realnames = NULL, betanames = NULL, newdata = NULL,
+                            alpha = 0.05, perm = 1:4, fields = 1:4) 
+{
+    allargs <- list(...)
+    modelnames <- (c ( as.character(match.call(expand.dots=FALSE)$object),
+                       as.character(match.call(expand.dots=FALSE)$...) ))
+    class(object) <- 'secr'
+    allargs <- secrlist(object, allargs)
+    names(allargs) <- modelnames
+    collate(allargs, realnames = realnames, betanames = betanames, 
+            newdata = newdata, alpha = alpha, perm = perm, fields = fields)
+}
+
 collate.secrlist <- function (object, ..., realnames = NULL, betanames = NULL, newdata = NULL,
                                 alpha = 0.05, perm = 1:4, fields = 1:4) {
     if (length(list(...)) > 0) {
@@ -40,13 +54,9 @@ collate.secrlist <- function (object, ..., realnames = NULL, betanames = NULL, n
     else
         modelnames <- as.character(match.call(expand.dots=FALSE)$...)
     
-    if ( any (!sapply(object, function (x) inherits(x, c('secr','ipsecr'))) ))
-        stop ("require fitted secr or ipsecr objects")
     if ( length(object) < 2 )
         warning ("only one model")
-    if (!is.list(object) | !inherits(object[[1]], c('secr','ipsecr')))
-        stop("object must be secr or list of secr")
-    
+
     type <- 'real'                     ## default
     
     parnames <- unique(as.vector(unlist(sapply(object,
