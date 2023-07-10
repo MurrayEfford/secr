@@ -1,7 +1,7 @@
-Changes in version 4.6.1 (2023-07-08)
+Changes in version 4.6.1 (2023-07-10)
 
 New features or changed behaviour of old functions
-    o   none
+    o   collate() redefined as generic, behaviour mostly unchanged
 
 Bugs fixed
     o   collate() failed if betanames specified for multi-session model (multi-row newdata)
@@ -13,7 +13,6 @@ Other
     o   chat.nk may use clusters in parallel for simulation
     o   internal boundarytoSF extended to sf geometry objects
     o   Fletcher.chat() protected against near-zero expected values
-    o   collate() redefined as generic, behaviour mostly unchanged
 
 Bugs fixed
     o   secr.fit() crashed R for polygon data with hcov specified
