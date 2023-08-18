@@ -1,8 +1,10 @@
-Changes in version 4.6.2 (2023-07-16)
+Changes in version 4.6.2 (2023-08-19)
 
 New features or changed behaviour of old functions
-    o   none
-
+    o   sim.popn() simulates log-gaussian Cox process (model2D = "LGCP") using 
+        packages spatstat and RandomFields
+    o   as.popn() converts spatstat ppp objects
+    
 Changes in version 4.6.1 (2023-07-10)
 
 New features or changed behaviour of old functions
