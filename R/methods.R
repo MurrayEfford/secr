@@ -13,6 +13,7 @@
 ## 2022-11-15 read.mask separate file
 ## 2023-04-14 trim.secrlist
 ## 2023-05-30 shift.mask updates boundingbox; explicitly call secr::shift 
+## 2023-08-19 as.popn()  ppp > popn
 ###############################################################################
 
 # Generic methods for extracting attributes etc
@@ -2617,6 +2618,20 @@ as.mask <- function (x) {
         attr(x,'boundingbox') <- expand.grid(x=xl,y=yl)[c(1,2,4,3),]
         x
     }
+}
+############################################################################################
+
+as.popn <- function (x) {
+    if (!inherits(x, "ppp")) {        
+        stop ("as.popn is defined only for ppp objects")
+    }        
+    pop <- coords(x)
+    class(pop) <- c('popn', 'data.frame')
+    xl <- x$window$xrange
+    yl <- x$window$yrange
+    attr(pop, 'boundingbox') <- expand.grid (x=xl, y=yl)[c(1,3,4,2),]
+    attr(pop, "Lambda") <- attr(x, "Lambda")   # if present
+    pop
 }
 ############################################################################################
 
