@@ -805,7 +805,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                 # D, var, scale
                 mu <- log(D/1e4) - details$LGCPvar/2    # mean density / m^2 on log scale
                 
-                pts <- spatstat.random::rLGCP(
+                pts <- rLGCP(
                     model = "exp",
                     mu    = mu,
                     var   = details$LGCPvar,

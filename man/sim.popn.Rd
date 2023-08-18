@@ -145,7 +145,7 @@ the displacement vector is (0,0) and rows are not offset.
 
 If \code{model2D = "even"} then the buffered area is divided into square cells with side sqrt(10000/D) and one animal is located at a random uniform location within each cell. If the height or width is not an exact multiple of the cell side then one whole extra row or column of cells is added; animals located at random in these cells are discarded if they fall outside the original area.
 
-If \code{model2D = "LGCP"} then a log-gaussian Cox process is simulated within the buffered area. This uses function \code{\link{rLGCP}} in package \pkg{spatstat} (Baddeley et al. 2015), which in turn calls functions from \pkg{RandomFields} (Schlather et al. 2015; see Notes). Certain options are fixed: the correlation function is RMexp from RandomFields, and there is no provision for covariate effects. Clipping to a polygon (poly) and fixed-N (Ndist = "fixed") are not supported. The algorithm first constructs the log spatial intensity as a realisation of a Gaussian random field; one realisation of an IHP with that intensity is then simulated. 
+If \code{model2D = "LGCP"} then a log-gaussian Cox process is simulated within the buffered area. This uses function \code{rLGCP} in package \pkg{spatstat} (Baddeley et al. 2015), which in turn calls functions from \pkg{RandomFields} (Schlather et al. 2015; see Notes). Certain options are fixed: the correlation function is RMexp from RandomFields, and there is no provision for covariate effects. Clipping to a polygon (poly) and fixed-N (Ndist = "fixed") are not supported. The algorithm first constructs the log spatial intensity as a realisation of a Gaussian random field; one realisation of an IHP with that intensity is then simulated. 
 
 The parameters for \code{model2D = "LGCP"} are the scalar density (D) and the variance and spatial scale of the random field (passed as details arguments LGCPvar and LGCPscale). The variance LGCPvar is on the log scale; the mean on the log scale is computed internally as mu = log(D) - LGCPvar/2. LGCPvar = 0 results in a random uniform (Poisson) distribution. The discretized intensity function is saved as the attribute "Lambda", a spatstat object of class "im". This may be used to construct further IHP realisations (see Examples).
 
@@ -277,11 +277,8 @@ pop <- sim.popn(D = 10, core = traps(captdata), buffer = 100, model2D = "LGCP",
 plot(pop)
 plot(traps(captdata), add = TRUE)
 
-# another IHP realisation from same intensity surface
-pop2 <- spatstat.random::rpoispp(lambda = attr(pop,'Lambda'))
-plot(as.popn(pop2))
-
 \dontrun{
+
 ## simulate from inhomogeneous fitted density model
 
 regionmask <- make.mask(traps(possumCH), type = "polygon",
@@ -294,6 +291,11 @@ posspop <- sim.popn(D = possD, core = dsurf, model = "IHP")
 plot(regionmask, dots = FALSE, ppoly = FALSE)
 plot(posspop, add = TRUE, frame = FALSE)
 plot(traps(possumCH), add = TRUE)
+
+# another IHP realisation from same LGCP intensity surface
+pop2 <- spatstat.random::rpoispp(lambda = attr(pop,'Lambda'))
+plot(as.popn(pop2))
+
 }
 
 }
