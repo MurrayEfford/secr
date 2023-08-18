@@ -32,6 +32,7 @@
 ## 2021-09-08 "truncate" as synonym of "normalize"
 ## 2022-06-06 IHP safe for multicolumn D df)
 ## 2023-05-30 IHP rmultinom handles boundary N = 0
+## 2023-08-19 model2D = "LGCP"
 ###############################################################################
 
 toroidal.wrap <- function (pop) {
@@ -231,7 +232,7 @@ disperse <- function (newpopn, turnoverpar, t, core, disp) {
 }
 
 sim.popn <- function (D, core, buffer = 100, model2D = c("poisson", 
-    "cluster", "IHP", "coastal", "hills", "linear", "even"), 
+    "cluster", "IHP", "coastal", "hills", "linear", "even", "LGCP"), 
     buffertype = c("rect", "concave", "convex"), poly = NULL,
     covariates = list(sex = c(M = 0.5,F = 0.5)), number.from = 1, Ndist
     = c('poisson','fixed','specified'), nsessions = 1, details = NULL,
@@ -262,6 +263,10 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
     if (model2D == 'even' & Ndist != 'fixed') {
         warning ('Ndist is coerced to "fixed" when model2D even')
         Ndist <- 'fixed'
+    }
+    if (model2D == 'LGCP' & Ndist == 'fixed') {
+        warning ('Ndist is coerced to "poisson" when model2D LGCP')
+        Ndist <- 'poisson'
     }
     if (nsessions > 1) {
         discrete <- function(x) {
@@ -620,7 +625,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
             animals <- as.data.frame(animals)
             xl <- range(animals[,1])
             yl <- range(animals[,2])
-
+            
         }
         else {
             ## 2014-12-29, 2015-01-11
@@ -787,6 +792,29 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                 animals <- centres + runif(nrow(centres*2)) * cellside - cellside/2
                 animals <- animals[animals[,1] <= xl[2] & animals[,2] <= yl[2], ]
                 # possibly save grid?
+            }
+            else  if (model2D == 'LGCP') {
+                if (!requireNamespace("spatstat")) {
+                    stop ("LGCP requires the packages spatstat and RandomFields")
+                }
+                if (!is.numeric(D) || length(D)>1) {
+                    stop ("for model2D = LGCP, D should be a scalar")
+                }
+                # spatstat window
+                ow <- owin(xl, yl)
+                # D, var, scale
+                mu <- log(D/1e4) - details$LGCPvar/2    # mean density / m^2 on log scale
+                
+                pts <- spatstat.random::rLGCP(
+                    model = "exp",
+                    mu    = mu,
+                    var   = details$LGCPvar,
+                    scale = details$LGCPscale,
+                    win   = ow)
+                
+                animals <- coords(pts)
+                animals <- as.data.frame(animals)
+                attr(animals, "Lambda") <- attr(pts, "Lambda")
             }
             else stop ("unrecognised 2-D distribution")
         }

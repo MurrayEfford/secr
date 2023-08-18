@@ -11,7 +11,7 @@ Simulate a Poisson process representing the locations of individual animals.
 \usage{
 
 sim.popn (D, core, buffer = 100, model2D = c("poisson", "cluster",
-  "IHP", "coastal", "hills", "linear", "even"), buffertype = c("rect",
+  "IHP", "coastal", "hills", "linear", "even", "LGCP"), buffertype = c("rect",
   "concave", "convex"), poly = NULL, covariates = list(sex = c(M = 0.5,
   F = 0.5)), number.from = 1, Ndist = c("poisson", "fixed",
   "specified"), nsessions = 1, details = NULL, seed = NULL, keep.mask =
@@ -145,6 +145,10 @@ the displacement vector is (0,0) and rows are not offset.
 
 If \code{model2D = "even"} then the buffered area is divided into square cells with side sqrt(10000/D) and one animal is located at a random uniform location within each cell. If the height or width is not an exact multiple of the cell side then one whole extra row or column of cells is added; animals located at random in these cells are discarded if they fall outside the original area.
 
+If \code{model2D = "LGCP"} then a log-gaussian Cox process is simulated within the buffered area. This uses function \code{\link{rLGCP}} in package \pkg{spatstat} (Baddeley et al. 2015), which in turn calls functions from \pkg{RandomFields} (Schlather et al. 2015; see Notes). Certain options are fixed: the correlation function is RMexp from RandomFields, and there is no provision for covariate effects. Clipping to a polygon (poly) and fixed-N (Ndist = "fixed") are not supported. The algorithm first constructs the log spatial intensity as a realisation of a Gaussian random field; one realisation of an IHP with that intensity is then simulated. 
+
+The parameters for \code{model2D = "LGCP"} are the scalar density (D) and the variance and spatial scale of the random field (passed as details arguments LGCPvar and LGCPscale). The variance LGCPvar is on the log scale; the mean on the log scale is computed internally as mu = log(D) - LGCPvar/2. LGCPvar = 0 results in a random uniform (Poisson) distribution. The discretized intensity function is saved as the attribute "Lambda", a spatstat object of class "im". This may be used to construct further IHP realisations (see Examples).
+
 If \code{poly} is specified, points outside \code{poly} are
 dropped. \code{poly} may be one of the types descrbed in 
 \code{\link{boundarytoSF}}.
@@ -185,17 +189,31 @@ If \code{model2D = "IHP"} or \code{model2D = "linear"} the value of
 
 \references{
 
+Baddeley, A., Rubak, E., and Turner, R. 2015. Spatial Point Patterns: Methodology and Applications with R. Chapman and Hall/CRC Press, London. ISBN 9781482210200, https://www.routledge.com/Spatial-Point-Patterns-Methodology-and-Applications-with-R/Baddeley-Rubak-Turner/p/book/9781482210200/. 
+
   Fewster, R. M. and Buckland, S. T. 2004. Assessment of distance
   sampling estimators. In: S. T. Buckland, D. R. Anderson,
   K. P. Burnham, J. L. Laake, D. L. Borchers and L. Thomas (eds)
   \emph{Advanced distance sampling}. Oxford University Press, Oxford,
   U. K. Pp. 281--306.
   
+  Schlather, M., Malinowski, A., Menck, P. J., Oesting, M. and Strokorb, K. 2015. Analysis, simulation and prediction of multivariate random fields with package RandomFields. \emph{Journal of Statistical Software}, \bold{63}, 1--25. URL
+  https://www.jstatsoft.org/v63/i08/.
+  
 }
 
 \seealso{ \code{\link{popn}}, \code{\link{plot.popn}},
   \code{\link{randomHabitat}}, \link{turnover}, 
   \code{\link[stats]{simulate}} }
+
+\section{Notes}{
+
+Package RandomFields is not currently on CRAN. It may be installed with this code:
+
+\code{install.packages("RandomFields", repos = c("https://spatstat.r-universe.dev", 
+   "https://cloud.r-project.org"))}
+
+}
 
 \examples{
 
@@ -252,6 +270,16 @@ polygon(cbind(-100,200,200,-100), c(-100,-100,200,200),
     col = "red", density = 0)
 title("reflect")
 
+# LGCP demonstration
+
+pop <- sim.popn(D = 10, core = traps(captdata), buffer = 100, model2D = "LGCP", 
+	 details = list(LGCPvar=1, LGCPscale = 30), seed = 1234)
+plot(pop)
+plot(traps(captdata), add = TRUE)
+
+# another IHP realisation from same intensity surface
+pop2 <- spatstat.random::rpoispp(lambda = attr(pop,'Lambda'))
+plot(as.popn(pop2))
 
 \dontrun{
 ## simulate from inhomogeneous fitted density model
