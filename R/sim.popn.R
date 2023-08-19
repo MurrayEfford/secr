@@ -795,8 +795,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
             }
             else  if (model2D == 'LGCP') {
                 if (requireNamespace("spatstat.geom", quietly = TRUE) && 
-                    requireNamespace("spatstat.random", quietly = TRUE) &&
-                    requireNamespace("RandomFields", quietly = TRUE)) {
+                    requireNamespace("spatstat.random", quietly = TRUE)) {
                     if (!is.numeric(D) || length(D)>1) {
                         stop ("for model2D = LGCP, D should be a scalar")
                     }
@@ -817,7 +816,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                     attr(animals, "Lambda") <- attr(pts, "Lambda")
                 }
                 else {
-                    stop ("LGCP requires the packages spatstat and RandomFields")
+                    stop ("LGCP requires the package spatstat")
                 }
             }
             else stop ("unrecognised 2-D distribution")

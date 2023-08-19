@@ -274,7 +274,7 @@ title("reflect")
 
 # LGCP demonstration
 
-if (requireNamespace("spatstat") && requireNamespace("RandomFields")) {
+if (requireNamespace("spatstat")) {
     pop <- sim.popn(D = 10, core = traps(captdata), buffer = 100, model2D = "LGCP", 
 	    details = list(LGCPvar=1, LGCPscale = 30), seed = 1234)
     plot(pop)

@@ -49,10 +49,7 @@ Suggests:
     testthat,
     spatstat (>= 3.0-2),
     spatstat.geom,
-    spatstat.random,
-    RandomFields (>= 3.1.24.1)
-Additional_repositories: 
-    https://spatstat.r-universe.dev
+    spatstat.random
 LinkingTo: 
     BH,
     Rcpp, 
