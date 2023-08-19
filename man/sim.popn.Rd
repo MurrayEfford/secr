@@ -272,19 +272,6 @@ polygon(cbind(-100,200,200,-100), c(-100,-100,200,200),
     col = "red", density = 0)
 title("reflect")
 
-# LGCP demonstration
-
-if (requireNamespace("spatstat")) {
-    pop <- sim.popn(D = 10, core = traps(captdata), buffer = 100, model2D = "LGCP", 
-	    details = list(LGCPvar=1, LGCPscale = 30), seed = 1234)
-    plot(pop)
-    plot(traps(captdata), add = TRUE)
-
-    # another IHP realisation from same LGCP intensity surface
-    pop2 <- spatstat.random::rpoispp(lambda = attr(pop,'Lambda'))
-    plot(as.popn(pop2))
-}
-
 \dontrun{
 
 ## simulate from inhomogeneous fitted density model
@@ -299,6 +286,21 @@ posspop <- sim.popn(D = possD, core = dsurf, model = "IHP")
 plot(regionmask, dots = FALSE, ppoly = FALSE)
 plot(posspop, add = TRUE, frame = FALSE)
 plot(traps(possumCH), add = TRUE)
+
+# LGCP demonstration
+# - assumes RandomFields has been installed manually
+
+if (requireNamespace("spatstat") && requireNamespace("RandomFields")) {
+    pop <- sim.popn(D = 10, core = traps(captdata), buffer = 100, 
+        model2D = "LGCP", details = list(LGCPvar=1, LGCPscale = 30), 
+        seed = 1234)
+    plot(pop)
+    plot(traps(captdata), add = TRUE)
+
+    # another IHP realisation from same LGCP intensity surface
+    pop2 <- spatstat.random::rpoispp(lambda = attr(pop,'Lambda'))
+    plot(as.popn(pop2))
+}
 
 }
 
