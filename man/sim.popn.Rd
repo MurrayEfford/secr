@@ -5,7 +5,9 @@
 \title{ Simulate 2-D Population }
 
 \description{
+
 Simulate a Poisson process representing the locations of individual animals.
+
 }
 
 \usage{
@@ -272,10 +274,16 @@ title("reflect")
 
 # LGCP demonstration
 
-pop <- sim.popn(D = 10, core = traps(captdata), buffer = 100, model2D = "LGCP", 
-	 details = list(LGCPvar=1, LGCPscale = 30), seed = 1234)
-plot(pop)
-plot(traps(captdata), add = TRUE)
+if (requireNamespace("spatstat") && requireNamespace("RandomFields")) {
+    pop <- sim.popn(D = 10, core = traps(captdata), buffer = 100, model2D = "LGCP", 
+	    details = list(LGCPvar=1, LGCPscale = 30), seed = 1234)
+    plot(pop)
+    plot(traps(captdata), add = TRUE)
+
+    # another IHP realisation from same LGCP intensity surface
+    pop2 <- spatstat.random::rpoispp(lambda = attr(pop,'Lambda'))
+    plot(as.popn(pop2))
+}
 
 \dontrun{
 
@@ -291,10 +299,6 @@ posspop <- sim.popn(D = possD, core = dsurf, model = "IHP")
 plot(regionmask, dots = FALSE, ppoly = FALSE)
 plot(posspop, add = TRUE, frame = FALSE)
 plot(traps(possumCH), add = TRUE)
-
-# another IHP realisation from same LGCP intensity surface
-pop2 <- spatstat.random::rpoispp(lambda = attr(pop,'Lambda'))
-plot(as.popn(pop2))
 
 }
 

@@ -794,27 +794,31 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                 # possibly save grid?
             }
             else  if (model2D == 'LGCP') {
-                if (!requireNamespace("spatstat")) {
+                if (requireNamespace("spatstat.geom", quietly = TRUE) && 
+                    requireNamespace("spatstat.random", quietly = TRUE) &&
+                    requireNamespace("RandomFields", quietly = TRUE)) {
+                    if (!is.numeric(D) || length(D)>1) {
+                        stop ("for model2D = LGCP, D should be a scalar")
+                    }
+                    # spatstat window
+                    ow <- spatstat.geom::owin(xl, yl)
+                    # D, var, scale
+                    mu <- log(D/1e4) - details$LGCPvar/2    # mean density / m^2 on log scale
+                    
+                    pts <- spatstat.random::rLGCP(
+                        model = "exp",
+                        mu    = mu,
+                        var   = details$LGCPvar,
+                        scale = details$LGCPscale,
+                        win   = ow)
+                    
+                    animals <- spatstat.geom::coords(pts)
+                    animals <- as.data.frame(animals)
+                    attr(animals, "Lambda") <- attr(pts, "Lambda")
+                }
+                else {
                     stop ("LGCP requires the packages spatstat and RandomFields")
                 }
-                if (!is.numeric(D) || length(D)>1) {
-                    stop ("for model2D = LGCP, D should be a scalar")
-                }
-                # spatstat window
-                ow <- owin(xl, yl)
-                # D, var, scale
-                mu <- log(D/1e4) - details$LGCPvar/2    # mean density / m^2 on log scale
-                
-                pts <- rLGCP(
-                    model = "exp",
-                    mu    = mu,
-                    var   = details$LGCPvar,
-                    scale = details$LGCPscale,
-                    win   = ow)
-                
-                animals <- coords(pts)
-                animals <- as.data.frame(animals)
-                attr(animals, "Lambda") <- attr(pts, "Lambda")
             }
             else stop ("unrecognised 2-D distribution")
         }

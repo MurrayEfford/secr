@@ -1,6 +1,5 @@
 #############################################################################
 ## package 'secr'
-## methods.R
 ## Methods for classes traps, capthist and mask
 ## Last changed
 ## 2019-10-25 masksize()
@@ -2624,14 +2623,19 @@ as.mask <- function (x) {
 as.popn <- function (x) {
     if (!inherits(x, "ppp")) {        
         stop ("as.popn is defined only for ppp objects")
-    }        
-    pop <- coords(x)
-    class(pop) <- c('popn', 'data.frame')
-    xl <- x$window$xrange
-    yl <- x$window$yrange
-    attr(pop, 'boundingbox') <- expand.grid (x=xl, y=yl)[c(1,3,4,2),]
-    attr(pop, "Lambda") <- attr(x, "Lambda")   # if present
-    pop
+    }       
+    if (requireNamespace("spatstat.geom", quietly = TRUE)) {
+        pop <- spatstat.geom::coords(x)
+        class(pop) <- c('popn', 'data.frame')
+        xl <- x$window$xrange
+        yl <- x$window$yrange
+        attr(pop, 'boundingbox') <- expand.grid (x=xl, y=yl)[c(1,3,4,2),]
+        attr(pop, "Lambda") <- attr(x, "Lambda")   # if present
+        pop
+    }
+    else {
+        stop ("as.popn requires package spatstat")
+    }
 }
 ############################################################################################
 
