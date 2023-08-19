@@ -117,9 +117,7 @@ This implementation allows only two habitat classes. The parameter A is
   available in \pkg{raster}.
 
 Gaussian random fields provide an alternative method for simulating 
-random habitats. These are not implemented in \pkg{secr} as 
-the package RandomFields and its dependent package NLMR are not 
-currently on CRAN.
+random habitats (e.g., LGCP option in \code{\link{sim.popn}}).
 
 }
 
