@@ -32,7 +32,8 @@
 ## 2021-09-08 "truncate" as synonym of "normalize"
 ## 2022-06-06 IHP safe for multicolumn D df)
 ## 2023-05-30 IHP rmultinom handles boundary N = 0
-## 2023-08-19 model2D = "LGCP"
+## 2023-08-19 model2D = "rLGCP"
+## 2023-08-21 model2D = "rThomas"
 ###############################################################################
 
 toroidal.wrap <- function (pop) {
@@ -232,7 +233,7 @@ disperse <- function (newpopn, turnoverpar, t, core, disp) {
 }
 
 sim.popn <- function (D, core, buffer = 100, model2D = c("poisson", 
-    "cluster", "IHP", "coastal", "hills", "linear", "even", "LGCP"), 
+    "cluster", "IHP", "coastal", "hills", "linear", "even", "rLGCP", "rThomas"), 
     buffertype = c("rect", "concave", "convex"), poly = NULL,
     covariates = list(sex = c(M = 0.5,F = 0.5)), number.from = 1, Ndist
     = c('poisson','fixed','specified'), nsessions = 1, details = NULL,
@@ -260,12 +261,12 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
     buffertype <- match.arg(buffertype)
     if (buffertype %in% c('convex','concave') & (model2D != 'poisson'))
         stop ("buffertype incompatible with model2D")
-    if (model2D == 'even' & Ndist != 'fixed') {
+    if (model2D == 'even' && Ndist != 'fixed') {
         warning ('Ndist is coerced to "fixed" when model2D even')
         Ndist <- 'fixed'
     }
-    if (model2D == 'LGCP' & Ndist == 'fixed') {
-        warning ('Ndist is coerced to "poisson" when model2D LGCP')
+    if (model2D %in% c("rLGCP", "rThomas") && Ndist == 'fixed') {
+        warning ('Ndist is coerced to "poisson" when model2D rLGCP, rThomas')
         Ndist <- 'poisson'
     }
     if (nsessions > 1) {
@@ -765,7 +766,9 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                     else {
                         noffspr <- rpois(nparent, details$mu)
                         N <- sum(noffspr) # nparent * details$mu
-                        offspr <- matrix(rnorm(2*N), ncol = 2) * details$hsigma
+                        # for backward compatibility
+                        if (is.null(details$scale)) details$scale <- details$hsigma
+                        offspr <- matrix(rnorm(2*N), ncol = 2) * details$scale
                         parentn <- rep(1:nparent, noffspr)
                         # parentn <- rep(1:nparent, details$mu)
                         offspr <- offspr + parent[parentn,,drop = FALSE]
@@ -793,30 +796,42 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                 animals <- animals[animals[,1] <= xl[2] & animals[,2] <= yl[2], ]
                 # possibly save grid?
             }
-            else  if (model2D == 'LGCP') {
+            else  if (model2D %in% c("rLGCP", "rThomas")) {
                 if (requireNamespace("spatstat.geom", quietly = TRUE) && 
                     requireNamespace("spatstat.random", quietly = TRUE)) {
                     if (!is.numeric(D) || length(D)>1) {
-                        stop ("for model2D = LGCP, D should be a scalar")
+                        stop ("for model2D in (rLGCP, rThomas) D should be a scalar")
                     }
                     # spatstat window
                     ow <- spatstat.geom::owin(xl, yl)
-                    # D, var, scale
-                    mu <- log(D/1e4) - details$LGCPvar/2    # mean density / m^2 on log scale
-                    
-                    pts <- spatstat.random::rLGCP(
-                        model = "exp",
-                        mu    = mu,
-                        var   = details$LGCPvar,
-                        scale = details$LGCPscale,
-                        win   = ow)
-                    
+                 
+                    if (model2D == 'rLGCP') {
+                        # D, var, scale
+                        # mu for rLGCP is derived from D, var
+                        mu <- log(D/1e4) - details$var/2    # mean density / m^2 on log scale
+                        
+                        pts <- spatstat.random::rLGCP(
+                            model = "exp",
+                            mu    = mu,
+                            var   = details$var,
+                            scale = details$scale,
+                            win   = ow)
+                    }
+                    else if (model2D == 'rThomas') {
+                        # kappa for rThomas is D/mu
+                        kappa <- D/1e4/details$mu   # mean density / m^2
+                        pts <- spatstat.random::rThomas(
+                            kappa = kappa,
+                            scale = details$scale,
+                            mu    = details$mu,
+                            win   = ow)
+                    }
                     animals <- spatstat.geom::coords(pts)
                     animals <- as.data.frame(animals)
                     attr(animals, "Lambda") <- attr(pts, "Lambda")
                 }
                 else {
-                    stop ("LGCP requires the package spatstat")
+                    stop ("rLGCP and rThomas use the package spatstat")
                 }
             }
             else stop ("unrecognised 2-D distribution")

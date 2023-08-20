@@ -117,7 +117,7 @@ This implementation allows only two habitat classes. The parameter A is
   available in \pkg{raster}.
 
 Gaussian random fields provide an alternative method for simulating 
-random habitats (e.g., LGCP option in \code{\link{sim.popn}}).
+random habitats (e.g., rLGCP option in \code{\link{sim.popn}}).
 
 }
 

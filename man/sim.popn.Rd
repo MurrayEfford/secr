@@ -6,18 +6,19 @@
 
 \description{
 
-Simulate a Poisson process representing the locations of individual animals.
+Simulate a point process representing the locations of individual animals.
 
 }
 
 \usage{
 
 sim.popn (D, core, buffer = 100, model2D = c("poisson", "cluster",
-  "IHP", "coastal", "hills", "linear", "even", "LGCP"), buffertype = c("rect",
-  "concave", "convex"), poly = NULL, covariates = list(sex = c(M = 0.5,
-  F = 0.5)), number.from = 1, Ndist = c("poisson", "fixed",
-  "specified"), nsessions = 1, details = NULL, seed = NULL, keep.mask =
-  model2D \%in\% c("IHP", "linear"), Nbuffer = NULL, age = FALSE, ...)
+  "IHP", "coastal", "hills", "linear", "even", "rLGCP", "rThomas"), 
+  buffertype = c("rect", "concave", "convex"), poly = NULL, 
+  covariates = list(sex = c(M = 0.5, F = 0.5)), number.from = 1, 
+  Ndist = c("poisson", "fixed", "specified"), nsessions = 1, details = NULL, 
+  seed = NULL, keep.mask = model2D \%in\% c("IHP", "linear"), 
+  Nbuffer = NULL, age = FALSE, ...)
 
 tile(popn, method = "reflect")
 
@@ -147,9 +148,13 @@ the displacement vector is (0,0) and rows are not offset.
 
 If \code{model2D = "even"} then the buffered area is divided into square cells with side sqrt(10000/D) and one animal is located at a random uniform location within each cell. If the height or width is not an exact multiple of the cell side then one whole extra row or column of cells is added; animals located at random in these cells are discarded if they fall outside the original area.
 
-If \code{model2D = "LGCP"} then a log-gaussian Cox process is simulated within the buffered area. This uses function \code{rLGCP} in package \pkg{spatstat} (Baddeley et al. 2015), which in turn calls functions from \pkg{RandomFields} (Schlather et al. 2015; see Notes). Certain options are fixed: the correlation function is RMexp from RandomFields, and there is no provision for covariate effects. Clipping to a polygon (poly) and fixed-N (Ndist = "fixed") are not supported. The algorithm first constructs the log spatial intensity as a realisation of a Gaussian random field; one realisation of an IHP with that intensity is then simulated. 
+From \pkg{secr} 4.6.2, \code{sim.popn} provides an interface to two simulation functions from \pkg{spatstat} (Baddeley et al. 2015): \code{\link{rLGCP}} and \code{\link{rThomas}}.
 
-The parameters for \code{model2D = "LGCP"} are the scalar density (D) and the variance and spatial scale of the random field (passed as details arguments LGCPvar and LGCPscale). The variance LGCPvar is on the log scale; the mean on the log scale is computed internally as mu = log(D) - LGCPvar/2. LGCPvar = 0 results in a random uniform (Poisson) distribution. The discretized intensity function is saved as the attribute "Lambda", a spatstat object of class "im". This may be used to construct further IHP realisations (see Examples).
+If \code{model2D = "rLGCP"} then a log-gaussian Cox process is simulated within the buffered area. Function \code{rLGCP} in \pkg{spatstat} calls functions from \pkg{RandomFields} (Schlather et al. 2015; see Notes). Certain options are fixed: the correlation function is RMexp from RandomFields, and there is no provision for covariate effects. Clipping to a polygon (poly) and fixed-N (Ndist = "fixed") are not supported. The algorithm first constructs the log spatial intensity as a realisation of a Gaussian random field; one realisation of an IHP with that intensity is then simulated. 
+
+The parameters for \code{model2D = "rLGCP"} are the scalar density (D) and the variance and spatial scale of the random field (passed as details arguments `var' and `scale'). The variance is on the log scale; the mean on the log scale is computed internally as mu = log(D) - var/2. var = 0 results in a random uniform (Poisson) distribution. The discretized intensity function is saved as the attribute "Lambda", a spatstat object of class "im". This may be used to construct further IHP realisations (see Examples).
+
+If \code{model2D = "rThomas"} then a Thomas process is simulated. This is a special case of the Neyman-Scott process in which each parent gives rise to a Poisson number of offspring (see Notes). The expected number of offspring per parent and the spatial scatter about each parent are specified by the details arguments `mu' and `scale'. Argument `kappa' of \code{\link{rThomas}} (density of parent process) is computed as D/mu/1e4. Other arguments remain at their defaults, including `expand' (4 * scale).
 
 If \code{poly} is specified, points outside \code{poly} are
 dropped. \code{poly} may be one of the types descrbed in 
@@ -215,6 +220,8 @@ Package RandomFields is not currently on CRAN. It may be installed with this cod
 \code{install.packages("RandomFields", repos = c("https://spatstat.r-universe.dev", 
    "https://cloud.r-project.org"))}
 
+\code{model2D = "rThomas"} and \code{model2D = "cluster"} (the builtin Neyman-Scott implementation) are equivalent. There may be some subtle differences. The \pkg{spatstat} implementation is usually to be preferred.
+
 }
 
 \examples{
@@ -231,7 +238,7 @@ plot(temppop, pch = 1, cex= 1.5,
 covariates(temppop)$size <- rnorm (nrow(temppop), mean = 15, sd = 3)
 summary(covariates(temppop))
 
-## Neyman-Scott cluster distribution
+## Neyman-Scott cluster distribution (see also rThomas)
 par(xpd = TRUE, mfrow=c(2,3))
 for (h in c(5,15))
 for (m in c(1,4,16)) {
@@ -287,12 +294,12 @@ plot(regionmask, dots = FALSE, ppoly = FALSE)
 plot(posspop, add = TRUE, frame = FALSE)
 plot(traps(possumCH), add = TRUE)
 
-# LGCP demonstration
-# - assumes RandomFields has been installed manually
+# rLGCP demonstration
+# - assumes RandomFields has been installed and loaded manually
 
 if (requireNamespace("spatstat") && requireNamespace("RandomFields")) {
     pop <- sim.popn(D = 10, core = traps(captdata), buffer = 100, 
-        model2D = "LGCP", details = list(LGCPvar=1, LGCPscale = 30), 
+        model2D = "rLGCP", details = list(var=1, scale = 30), 
         seed = 1234)
     plot(pop)
     plot(traps(captdata), add = TRUE)
