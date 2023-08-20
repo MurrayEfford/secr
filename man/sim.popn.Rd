@@ -148,13 +148,13 @@ the displacement vector is (0,0) and rows are not offset.
 
 If \code{model2D = "even"} then the buffered area is divided into square cells with side sqrt(10000/D) and one animal is located at a random uniform location within each cell. If the height or width is not an exact multiple of the cell side then one whole extra row or column of cells is added; animals located at random in these cells are discarded if they fall outside the original area.
 
-From \pkg{secr} 4.6.2, \code{sim.popn} provides an interface to two simulation functions from \pkg{spatstat} (Baddeley et al. 2015): \code{\link{rLGCP}} and \code{\link{rThomas}}.
+From \pkg{secr} 4.6.2, \code{sim.popn} provides an interface to two simulation functions from \pkg{spatstat} (Baddeley et al. 2015): \code{rLGCP} and \code{rThomas}.
 
 If \code{model2D = "rLGCP"} then a log-gaussian Cox process is simulated within the buffered area. Function \code{rLGCP} in \pkg{spatstat} calls functions from \pkg{RandomFields} (Schlather et al. 2015; see Notes). Certain options are fixed: the correlation function is RMexp from RandomFields, and there is no provision for covariate effects. Clipping to a polygon (poly) and fixed-N (Ndist = "fixed") are not supported. The algorithm first constructs the log spatial intensity as a realisation of a Gaussian random field; one realisation of an IHP with that intensity is then simulated. 
 
 The parameters for \code{model2D = "rLGCP"} are the scalar density (D) and the variance and spatial scale of the random field (passed as details arguments `var' and `scale'). The variance is on the log scale; the mean on the log scale is computed internally as mu = log(D) - var/2. var = 0 results in a random uniform (Poisson) distribution. The discretized intensity function is saved as the attribute "Lambda", a spatstat object of class "im". This may be used to construct further IHP realisations (see Examples).
 
-If \code{model2D = "rThomas"} then a Thomas process is simulated. This is a special case of the Neyman-Scott process in which each parent gives rise to a Poisson number of offspring (see Notes). The expected number of offspring per parent and the spatial scatter about each parent are specified by the details arguments `mu' and `scale'. Argument `kappa' of \code{\link{rThomas}} (density of parent process) is computed as D/mu/1e4. Other arguments remain at their defaults, including `expand' (4 * scale).
+If \code{model2D = "rThomas"} then a Thomas process is simulated. This is a special case of the Neyman-Scott process in which each parent gives rise to a Poisson number of offspring (see Notes). The expected number of offspring per parent and the spatial scatter about each parent are specified by the details arguments `mu' and `scale'. Argument `kappa' of \code{rThomas} (density of parent process) is computed as D/mu/1e4. Other arguments remain at their defaults, including `expand' (4 * scale).
 
 If \code{poly} is specified, points outside \code{poly} are
 dropped. \code{poly} may be one of the types descrbed in 
