@@ -294,8 +294,22 @@ plot(regionmask, dots = FALSE, ppoly = FALSE)
 plot(posspop, add = TRUE, frame = FALSE)
 plot(traps(possumCH), add = TRUE)
 
-# rLGCP demonstration
-# - assumes RandomFields has been installed and loaded manually
+## randomHabitat demonstration
+## - assumes igraph has been installed
+
+# The wrapper function randomDensity may be passed to generate
+# a new habitat map each time sim.popn is called. The `details' argument
+# of sim.popn is passed to randomDensity as the `parm' argument.
+
+tempmask <- make.mask(nx = 100, ny = 100, spacing = 20)
+# plt = TRUE causes randomHabitat to plot the random habitat
+pop <- sim.popn(D = randomDensity, core = tempmask, model2D = "IHP",
+    details = list(D = 10, p = 0.4, A = 0.5, plt = TRUE))
+# now overlay the simulated points    
+plot(pop, add = TRUE, frame = FALSE)
+
+## rLGCP demonstration
+## - assumes spatstat and RandomFields have been installed
 
 if (requireNamespace("spatstat") && requireNamespace("RandomFields")) {
     pop <- sim.popn(D = 10, core = traps(captdata), buffer = 100, 
@@ -312,7 +326,6 @@ if (requireNamespace("spatstat") && requireNamespace("RandomFields")) {
 }
 
 }
-
 
 
 \keyword{ datagen }

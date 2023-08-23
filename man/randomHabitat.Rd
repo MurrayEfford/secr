@@ -1,5 +1,6 @@
 \name{randomHabitat}
 \alias{randomHabitat}
+\alias{randomDensity}
 
 \title{Random Landscape}
 
@@ -12,12 +13,16 @@ matrix (`non-habitat' cells are optionally dropped). Spatial autocorrelation
 (fragmentation) of habitat patches is controlled via the parameter
 `p'. `A' is the expected proportion of `habitat' cells.
 
+\code{randomDensity} is a wrapper for \code{randomHabitat} that may be used as input to \code{\link{sim.popn}}.
+
 }
 
 \usage{
 
 randomHabitat(mask, p = 0.5, A = 0.5, directions = 4, minpatch = 1,
 drop = TRUE, covname = "habitat", plt = FALSE, seed = NULL)
+
+randomDensity(mask, parm)
 
 }
 
@@ -31,6 +36,7 @@ drop = TRUE, covname = "habitat", plt = FALSE, seed = NULL)
   \item{covname}{character name of covariate when \code{drop = FALSE}}
   \item{plt}{logical for whether intermediate stages should be plotted}
   \item{seed}{either NULL or an integer that will be used in a call to \code{set.seed}}
+  \item{parm}{list of arguments for \code{randomHabitat}, with added argument D}
 }
 
 \details{
@@ -65,9 +71,13 @@ requested name is included in the output mask, which has the same extent
 as the input. Otherwise, non-habitat cells are dropped and no covariate
 is added.
 
+The argument `parm' for \code{randomDensity} is a list with average density D and an optional subset of named values to override the defaults (p = 0.5, A = 0.5, directions = 4, minpatch = 1, plt = FALSE, seed = NULL). `rescale' is a further optional component of `parm'; if `rescale = TRUE' then the pixel-specific densities are adjusted upwards by the factor (# cells in mask) / (# positive cells) to maintain the same expected number of activity centres as if the nominal density applied throughout. Arguments `mask' and `drop' of \code{randomHabitat} are substituted automatically.  
+
 }
 
 \value{
+
+For randomHabitat --
 
   An object of class `mask'. By default (\code{drop = TRUE}) this
   has fewer rows (points) than the input mask.
@@ -76,6 +86,10 @@ is added.
   
   The \link{RNG} seed is stored as attribute `seed' (see \link{secrRNG}).
 
+For randomDensity --
+
+  A vector of cell-specific densities.
+  
 }
 
 \references{
@@ -136,6 +150,11 @@ mrcmask <- randomHabitat(tempmask, p = 0.4, A = 0.4)
 plot(mrcmask, dots = FALSE, col = "green")
 pop <- sim.popn(10, mrcmask, model2D = "IHP")
 plot(pop, add = TRUE)
+
+# OR
+plot(sim.popn(D = randomDensity, core = tempmask, model2D = "IHP",
+    details = list(D = 10, p = 0.4, A = 0.4, plt = TRUE)), 
+    add = TRUE, frame = FALSE)
 
 ## plot intermediate steps A, C, D
 opar <- par(mfrow = c(1,3))

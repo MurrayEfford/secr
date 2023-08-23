@@ -46,6 +46,7 @@ importFrom (nlme,
 importFrom (raster, 
     adjacent, 
     clump, 
+    flip,
     "values<-", 
     values,
     plot)
@@ -206,6 +207,7 @@ export (gridCells)
 export (spotHeight)
 export (strip.legend)
 export (randomHabitat)
+export (randomDensity)
 export (make.lookup)
 export (insertdim)
 export (as.mask)

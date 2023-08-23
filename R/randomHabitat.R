@@ -21,6 +21,8 @@
 ##   adjacency for step 'B' is based on a 1-step rook move (direction = 4)
 ##   (this yields an isotropic result)
 
+## 2023-08-23 randomDensity
+
 randomHabitat <- function (mask, p = 0.5, A = 0.5, directions = 4, minpatch = 1,
                      drop = TRUE, covname = 'habitat', plt = FALSE, seed = NULL) {
 
@@ -71,6 +73,9 @@ randomHabitat <- function (mask, p = 0.5, A = 0.5, directions = 4, minpatch = 1,
         if (plt) raster::plot(layer, useRaster = FALSE)
 
         ## B. Cluster identification (single-linkage clustering of adjoining pixels)
+        if (!requireNamespace("igraph", quietly = TRUE)) {
+            stop("you need to install the igraph package to be able to use randomHabitat")
+        }
         clumped <- raster::clump(layer, directions = directions, gaps = FALSE)
 
         ## C. Cluster type assignment
@@ -104,7 +109,10 @@ randomHabitat <- function (mask, p = 0.5, A = 0.5, directions = 4, minpatch = 1,
         notfilledCells <- cellsUnassigned[!(cellsUnassigned %in% filledCells)]
         randomType <- sample(numTypes, length(notfilledCells), replace = TRUE, prob = c(1-A,A))
         raster::values(clumped)[notfilledCells] <- randomType
-        if (plt) raster::plot(clumped, useRaster = FALSE)
+        if (plt) {
+            # flip for conformity to secr plotting rules 2023-08-23
+            raster::plot(raster::flip(clumped), useRaster = FALSE)
+        }
         raster::values(clumped) <- raster::values(clumped) - 1
 
         ## optionally filter small patches
@@ -142,3 +150,25 @@ randomHabitat <- function (mask, p = 0.5, A = 0.5, directions = 4, minpatch = 1,
         mask
     }
 }
+################################################################################
+
+randomDensity <- function (mask, parm) 
+{
+    defaultparm <- list(D = NULL, p = 0.5, A = 0.5, directions = 4, 
+                        minpatch = 1, plt = FALSE, seed = NULL, 
+                        rescale = TRUE)
+    if (is.null(parm$D)) stop ("myRandomHabitat requires D to be specified")
+    parm     <- replace(defaultparm, names(parm), parm)
+    userargs <- c("p", "A", "directions", "minpatch", "plt", "seed")
+    tempmask <- do.call(randomHabitat, 
+                        c(parm[userargs], mask = list(mask), drop = FALSE))
+    habitat  <- covariates(tempmask)[["habitat"]]
+    if (parm$rescale)
+        # adjust for habitat proportion
+        habitat * parm$D * nrow(mask) / sum(habitat)  
+    else
+        habitat * parm$D
+}
+################################################################################
+
+

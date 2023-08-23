@@ -1,10 +1,17 @@
-Changes in version 4.6.2 (2023-08-21)
+Changes in version 4.6.2 (2023-08-23)
 
 New features or changed behaviour of old functions
     o   sim.popn() simulates log-gaussian Cox process (model2D = "rLGCP") using 
         packages spatstat and RandomFields
     o   sim.popn() simulates Thomas process (model2D = "rThomas") using spatstat
     o   as.popn() converts spatstat ppp objects
+    o   randomDensity() wrapper for randomHabitat() for use with sim.popn()
+
+Other
+    o   suggests spatstat, spatstat.geom, spatstat.random (LGCP), 
+        and igraph (randomHabitat)
+    o   randomHabitat() loads igraph automatically if needed
+    o   imports raster::flip
     
 Changes in version 4.6.1 (2023-07-10)
 
