@@ -607,7 +607,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
             ## 2022-11-24 function D
             if (is.function(D)) {
                 D <- D(mask = core, parm = details)
-                # save summary in case needed? 2023-05-29
+                covariates(core)$D <- D 
             }
 
             nm <- getnm(cellsize, unlist(D))
@@ -852,8 +852,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
         if (nrow(animals) > 0)   ## condition added 2011-03-27
             row.names (animals) <- number.from : (nrow(animals)+number.from-1)
 
-        if (keep.mask) {
-            if (model2D %in% c('IHP','linear'))
+        if (keep.mask && model2D %in% c('IHP','linear')) {
                 attr(animals, 'mask') <- core
         }
         if (model2D == 'linear') {
