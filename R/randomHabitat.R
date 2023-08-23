@@ -52,6 +52,12 @@ randomHabitat <- function (mask, p = 0.5, A = 0.5, directions = 4, minpatch = 1,
     }
     else {
 
+        if (abs(A-1) < 1e-6) {
+            ## 2023-08-23 allow A=1 for 100% habitat
+            covariates(mask)[[covname]] <- rep(1, nrow(mask))    
+            return(mask)
+        }
+        
         ## extract limits etc. from input mask
         spacing <- attr(mask,'area')^0.5 * 100
         bb <- attr(mask, 'boundingbox')
@@ -74,7 +80,7 @@ randomHabitat <- function (mask, p = 0.5, A = 0.5, directions = 4, minpatch = 1,
 
         ## B. Cluster identification (single-linkage clustering of adjoining pixels)
         if (!requireNamespace("igraph", quietly = TRUE)) {
-            stop("you need to install the igraph package to be able to use randomHabitat")
+            stop("you need to install the igraph package to use randomHabitat")
         }
         clumped <- raster::clump(layer, directions = directions, gaps = FALSE)
 
@@ -110,7 +116,7 @@ randomHabitat <- function (mask, p = 0.5, A = 0.5, directions = 4, minpatch = 1,
         randomType <- sample(numTypes, length(notfilledCells), replace = TRUE, prob = c(1-A,A))
         raster::values(clumped)[notfilledCells] <- randomType
         if (plt) {
-            # flip for conformity to secr plotting rules 2023-08-23
+            # flip to match secr plotting (y=0 at bottom) 2023-08-23
             raster::plot(raster::flip(clumped), useRaster = FALSE)
         }
         raster::values(clumped) <- raster::values(clumped) - 1
@@ -164,8 +170,8 @@ randomDensity <- function (mask, parm)
                         c(parm[userargs], mask = list(mask), drop = FALSE))
     habitat  <- covariates(tempmask)[["habitat"]]
     if (parm$rescale)
-        # adjust for habitat proportion
-        habitat * parm$D * nrow(mask) / sum(habitat)  
+        # adjust for requested habitat proportion
+        habitat * parm$D / A
     else
         habitat * parm$D
 }
