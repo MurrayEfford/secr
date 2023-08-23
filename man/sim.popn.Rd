@@ -302,11 +302,10 @@ plot(traps(possumCH), add = TRUE)
 # of sim.popn is passed to randomDensity as the `parm' argument.
 
 tempmask <- make.mask(nx = 100, ny = 100, spacing = 20)
-# plt = TRUE causes randomHabitat to plot the random habitat
 pop <- sim.popn(D = randomDensity, core = tempmask, model2D = "IHP",
-    details = list(D = 10, p = 0.4, A = 0.5, plt = TRUE))
-# now overlay the simulated points    
-plot(pop, add = TRUE, frame = FALSE)
+    details = list(D = 10, p = 0.4, A = 0.5))
+plot(attr(pop, 'mask'), cov = 'D', dots = FALSE)
+plot(pop, add = TRUE)
 
 ## rLGCP demonstration
 ## - assumes spatstat and RandomFields have been installed
