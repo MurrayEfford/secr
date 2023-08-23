@@ -238,10 +238,9 @@ plot.mask <- function(x, border = 20, add = FALSE, covariate = NULL,
         }
         ncolour <- length(levels(covfactor))
         if (length(col) < ncolour) {
-            ## col <- heat.colors(ncolour)   # old default set
             if (length(col) > 1)
                 warning ("too few colours; using terrain.colors(", ncolour, ")")
-            col <- terrain.colors(ncolour)   # new default set 2.9.0
+            col <- terrain.colors(ncolour)   
         }
         cols <- col[as.numeric(covfactor)]
         allargs <- list(...)
