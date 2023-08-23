@@ -171,7 +171,7 @@ randomDensity <- function (mask, parm)
     habitat  <- covariates(tempmask)[["habitat"]]
     if (parm$rescale)
         # adjust for requested habitat proportion
-        habitat * parm$D / A
+        habitat * parm$D / parm$A
     else
         habitat * parm$D
 }

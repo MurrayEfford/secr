@@ -71,7 +71,7 @@ requested name is included in the output mask, which has the same extent
 as the input. Otherwise, non-habitat cells are dropped and no covariate
 is added.
 
-The argument `parm' for \code{randomDensity} is a list with average density D and an optional subset of named values to override the defaults (p = 0.5, A = 0.5, directions = 4, minpatch = 1, plt = FALSE, seed = NULL). `rescale' is a further optional component of `parm'; if `rescale = TRUE' then the pixel-specific densities are adjusted upwards by the factor (# cells in mask) / (# positive cells) to maintain the same expected number of activity centres as if the nominal density applied throughout. Arguments `mask' and `drop' of \code{randomHabitat} are substituted automatically.  
+The argument `parm' for \code{randomDensity} is a list with average density D and an optional subset of named values to override the defaults (p = 0.5, A = 0.5, directions = 4, minpatch = 1, plt = FALSE, seed = NULL). `rescale' is a further optional component of `parm'; if `rescale = TRUE' then the pixel-specific densities are adjusted upwards by the factor 1/A to maintain the same expected number of activity centres as if the nominal density applied throughout. Arguments `mask' and `drop' of \code{randomHabitat} are substituted automatically.  
 
 }
 
