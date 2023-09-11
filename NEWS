@@ -1,4 +1,4 @@
-Changes in version 4.6.2 (2023-08-23)
+Changes in version 4.6.2 (2023-09-04)
 
 New features or changed behaviour of old functions
     o   sim.popn() simulates log-gaussian Cox process (model2D = "rLGCP") using 
@@ -12,6 +12,7 @@ Other
         and igraph (randomHabitat)
     o   randomHabitat() loads igraph automatically if needed
     o   imports raster::flip
+    o   Fletcher.chat() returns NA instead of error when input NA
     
 Changes in version 4.6.1 (2023-07-10)
 
