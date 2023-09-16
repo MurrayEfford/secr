@@ -518,6 +518,7 @@ reduce.capthist <- function (object, newtraps = NULL, span = NULL,
         session(tempnew) <- session(object)
         attr(tempnew, 'n.mash') <- attr(object, 'n.mash')
         attr(tempnew, 'centres') <- attr(object, 'centres')
+        attr(tempnew, 'popn') <- attr(object, 'popn')    # 2023-09-16
         if (outputdetector == 'nonspatial') {
             # NULL   2021-03-31
         }
