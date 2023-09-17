@@ -29,6 +29,7 @@
 ## 2023-03-10 distancetotrap and nearesttrap moved to separate file
 ## 2023-03-10 setNumThreads moved to separate file
 ## 2023-05-21 4.6.0
+## 2023-09-17 im2mask converts spatstat im object
 ################################################################################
 
 # Global variables in namespace
@@ -2214,6 +2215,15 @@ snap_points <- function(x, y, max_dist = 1000) {
 # random truncated Poisson
 rtpois <- function(n, lambda) {
     qpois(runif(n, dpois(0, lambda), 1), lambda)
+}
+#-------------------------------------------------------------------------------
+
+im2mask <- function(im) {
+    # spatstat im object to mask
+    df <- as.data.frame(im)
+    names(df) <- c('x','y','Lambda')
+    df$Lambda <- df$Lambda * 1e4   # per hectare
+    read.mask(data = df, spacing = im$xstep)
 }
 #-------------------------------------------------------------------------------
 

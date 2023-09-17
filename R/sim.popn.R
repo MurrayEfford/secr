@@ -594,9 +594,10 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
         if (model2D %in% c('IHP')) {
             if (!inherits(core, 'mask'))
                 stop ("for model2D = IHP, 'core' should be a habitat mask")
+            # typo fixed 2023-09-17
             if (nsessions>1 && details$movemodel!='static' && 
                     ('settle' %in% names(covariates(core))) && 
-                    details$edgementhod %in% c('truncate', 'normalize')) 
+                    details$edgemethod %in% c('truncate', 'normalize')) 
             {
                 s <- covariates(core)$settle
                 if (any(is.na(s)) || min(s)<0 || max(s)>1) 
@@ -803,19 +804,24 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                         stop ("for model2D in (rLGCP, rThomas) D should be a scalar")
                     }
                     # spatstat window
-                    ow <- spatstat.geom::owin(xl, yl)
-                 
+                    eps <- details$spacing
+                    if (is.null(eps)) eps <- diff(xl)/64
+                    # initial xl == range(core$x) + buff
+                    # xl <- xl + eps/2 * c(-1,1)
+                    # yl <- yl + eps/2 * c(-1,1)
+                    ow <- spatstat.geom::owin(xl, yl)   
                     if (model2D == 'rLGCP') {
                         # D, var, scale
                         # mu for rLGCP is derived from D, var
                         mu <- log(D/1e4) - details$var/2    # mean density / m^2 on log scale
-                        
                         pts <- spatstat.random::rLGCP(
                             model = "exp",
                             mu    = mu,
                             var   = details$var,
                             scale = details$scale,
-                            win   = ow)
+                            win   = ow,
+                            saveLambda = TRUE,
+                            eps = eps)
                     }
                     else if (model2D == 'rThomas') {
                         # kappa for rThomas is D/mu
@@ -828,7 +834,9 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                     }
                     animals <- spatstat.geom::coords(pts)
                     animals <- as.data.frame(animals)
-                    attr(animals, "Lambda") <- attr(pts, "Lambda")
+                    if (model2D == 'rLGCP') {
+                        attr(animals, "Lambda") <- im2mask(attr(pts, "Lambda")) 
+                    }
                 }
                 else {
                     stop ("rLGCP and rThomas use the package spatstat")
