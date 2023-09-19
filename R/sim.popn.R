@@ -269,6 +269,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
         warning ('Ndist is coerced to "poisson" when model2D rLGCP, rThomas')
         Ndist <- 'poisson'
     }
+    lastnumber <<- number.from-1
     if (nsessions > 1) {
         discrete <- function(x) {
             fr <- x-trunc(x)
@@ -283,7 +284,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
             ## sim.popn (D[1], core, buffer, model2D, buffertype, poly,
             if (ms(core)) core <- core[[s]]
             sim.popn (D, core, buffer, model2D, buffertype, poly,
-                covariates, number.from, Ndist, nsessions = 1, details, seed,
+                covariates, number.from = lastnumber+1, Ndist, nsessions = 1, details, seed,
                 keep.mask, Nbuffer[1])
         }
         turnover <- function (oldpopn, t) {
@@ -398,6 +399,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                 -1)
             if (nrecruit<0) stop ("unrecognised recruitment model: ",turnoverpar$recrmodel)
             if (nrecruit>0) {
+                
                 recruits <- sim.popn(D = D, core = core, buffer = buffer,
                     model2D = model2D, buffertype = buffertype, poly = poly,
                     covariates = covariates, number.from = lastnumber + 1, 
@@ -512,7 +514,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
             else {
                 MSpopn[[1]] <- session.popn(1, D, Nbuffer, Ndist)
             }
-            lastnumber <- nrow(MSpopn[[1]])
+            lastnumber <<- lastnumber + nrow(MSpopn[[1]])
             # 2021-04-09
             if (age) {
                 if (is.null(covariates(MSpopn[[1]])))
