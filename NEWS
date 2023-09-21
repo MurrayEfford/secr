@@ -1,4 +1,4 @@
-Changes in version 4.6.2 (2023-09-21)
+Changes in version 4.6.2 (2023-09-22)
 
 New features or changed behaviour of old functions
     o   sim.popn() simulates log-gaussian Cox process (model2D = "rLGCP") using 
@@ -19,6 +19,7 @@ Other
     o   imports raster::flip
     o   Fletcher.chat() returns NA instead of error when input NA
     o   sim.popn() argument 'number.from' applied to multi-session data
+    o   secr.fit() distribution="binomial" warns when initial value of N less than number detected
     
 Changes in version 4.6.1 (2023-07-10)
 

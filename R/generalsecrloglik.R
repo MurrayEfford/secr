@@ -593,6 +593,13 @@ generalsecrloglikfn <- function (
           else {
               meanpdot <- ng / sum(1/pdot[ok])
           }
+          ## 2023-09-22
+          if (data$n.distrib == 1 && .localstuff$iter == 0 && nonzero>N) {
+              warning("distribution = 'binomial' ",
+                      "but number detected n (", nonzero, 
+                      ") exceeds initial value of N (", round(N,1), ")")
+          }
+              
           comp[3,g] <- if (is.na(meanpdot) || (meanpdot <= 0)) NA 
               else switch (data$n.distrib+1,
                                dpois(nonzero, N * meanpdot, log = TRUE),
@@ -707,8 +714,7 @@ generalsecrloglikfn <- function (
   #--------------------------------------------------------------------
   # (ii) typical likelihood evaluation
   else {
-      # loglik <- sum(mapply (sessionLL, data))
-    loglik <- sum(sapply (data, sessionLL))   ## session num in data 2021-07-07
+    loglik <- sum(sapply (data, sessionLL)) 
     .localstuff$iter <- .localstuff$iter + 1  
       if (details$trace) {
           fixedbeta <- details$fixedbeta

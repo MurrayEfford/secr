@@ -186,6 +186,12 @@ fastsecrloglikfn <- function (
             N <- sum(density[,1]) * getcellsize(data$mask)
             ## 2022-01-05 catch nc = 0
             meanpdot <- if (data$nc == 0) pdot else data$nc / sum(1/pdot)
+            ## 2023-09-22
+            if (data$n.distrib == 1 && .localstuff$iter == 0 && data$nc>N) {
+                warning("distribution = 'binomial' ",
+                        "but number detected n (", data$nc, 
+                        ") exceeds initial value of N (", round(N,1), ")")
+            }
             comp[3,1] <- switch (data$n.distrib+1,
                                  dpois(data$nc, N * meanpdot, log = TRUE),
                                  lnbinomial (data$nc, N, meanpdot),
