@@ -85,7 +85,8 @@ make.capthist <- function (captures, traps, fmt = c("trapID", "XY"), noccasions 
         captures[,3] <- as.integer(captures[,3])
         ## 2017-03-28
         ## sort by session, animal & occasion, retaining original order otherwise
-        captures <- captures[order(captures[,1], captures[,2], captures[,3]),]
+        ## by abs(occasion) from 2023-09-21
+        captures <- captures[order(captures[,1], captures[,2], abs(captures[,3])),]
         if (missing(traps)) traps <- NULL
         
         if (any(detector(traps) %in% .localstuff$exclusivedetectors)) {

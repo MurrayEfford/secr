@@ -1,4 +1,4 @@
-Changes in version 4.6.2 (2023-09-19)
+Changes in version 4.6.2 (2023-09-21)
 
 New features or changed behaviour of old functions
     o   sim.popn() simulates log-gaussian Cox process (model2D = "rLGCP") using 
@@ -8,6 +8,10 @@ New features or changed behaviour of old functions
     o   randomDensity() wrapper for randomHabitat() for use with sim.popn()
     o   reduce.capthist() now retains popn attribute
 
+Bugs fixed
+    o   make.capthist() could lose individual covariates of animals later 
+        lost on capture (negative occasion number)
+    
 Other
     o   suggests spatstat, spatstat.geom, spatstat.random (LGCP), 
         and igraph (randomHabitat)
