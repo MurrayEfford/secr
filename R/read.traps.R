@@ -6,6 +6,7 @@
 ## 2015-10-12 markocc
 ## 2020-08-26 allow usage and covariates with data and xls input
 ## 2022-04-06 fix renamepolyrows()
+## 2023-09-21 read.traps ... passes arguments not accepted by count.fields
 
 ## Read detector locations from text file in DENSITY format
 ############################################################################################
@@ -48,7 +49,9 @@ read.traps <- function (file = NULL, data = NULL, detector = 'multi', covnames =
         }
         xyi
     }
-  
+    
+    dots <- match.call(expand.dots = FALSE)$...
+    
     if (!all( detector %in% .localstuff$validdetectors ))
         stop ("invalid detector type")
     if (is.null(file) & is.null(data))
@@ -152,7 +155,9 @@ read.traps <- function (file = NULL, data = NULL, detector = 'multi', covnames =
             }
             else {
                 inputtype <- "txt"
-                nfld <- count.fields (file, ...)
+                countargs <- dots[names(dots) %in% names(formals(count.fields))]
+                countargs$file <- file
+                nfld <- do.call(count.fields, countargs)
                 if (min(nfld) < 3)
                     stop ("requires 3 fields (detectorID, x, y)")
                 if (min(nfld) == 3) colcl <- c('character',NA,NA)
