@@ -624,12 +624,9 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
             if( any(fterm)) {
                 if (is.null(details[['f']])) stop ("f function should be included in details")
                 fcovname <- dimnames(designD)[[2]][fterm][1] # first
-                # fcovname <- substring(fcovname,3,nchar(fcovname))
-                # fcovname <- substring(fcovname,1,nchar(fcovname)-1)
                 attr(designD, 'fcovname') <- fcovname
                 betaarg <- eval( formals( details[['f']] )[[2]])
-                
-                Dnames <- paste0('D', 1:length(eval(formals(details[['f']])[[2]])))
+                Dnames <- paste0('D', 1:length(betaarg))
             }
             #################################################
             else {
