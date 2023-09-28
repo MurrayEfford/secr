@@ -1444,7 +1444,9 @@ secr.lpredictor <- function (formula, newdata, indx, beta, field, beta.vcv=NULL,
     lpred <- matrix(ncol = 2, nrow = nrow(newdata), dimnames = list(NULL,c('estimate','se')))
 
     if (!is.null(f) && field == 'D') {
-       Yp <- f(newdata[,vars[1]], beta = beta[indx]) 
+        warning("predict.secr not ready for D as function -  do not use estimates")
+       nsess <- length(unique(newdata$session))
+       Yp <- f(newdata[,vars[1]], beta = beta[indx], dimD <- c(nrow(newdata)/nsess,1,nsess)) 
        mat <- as.matrix(newdata[,vars[1], drop = FALSE])
     }
     else {
