@@ -166,7 +166,7 @@ getD <- function (designD, beta, mask, parindx, link, fixed,
             f <- attr(designD, 'f')
             fcovname <- attr(designD, 'fcovname')
             if (is.function(f) && fcovname %in% dimnames(designD)[[2]]) {
-                D[,,] <- f(designD[,fcovname], beta)
+                D[,,] <- f(designD[,fcovname, drop = FALSE], beta, dim(D))
             }
             else {
                 D[,,] <- designD %*% beta  # linear predictor
