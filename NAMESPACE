@@ -374,6 +374,8 @@ export ("signalframe<-")
 export ("signal<-")
 export ("noise<-")
 
+export ("predictDlambda")
+
 ## assume these internal fns not needed outside
 # export (group.levels)
 # export (group.factor)

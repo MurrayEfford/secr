@@ -46,6 +46,10 @@ model fitting.
 values (1,2) and to switch on the R code browser (3). In ordinary use it should not be 
 changed from the default (0).
 
+\code{details$Dfn} is a function for reparameterizing density models; this is set internally when Dlambda = TRUE. Exotic variations may be specified directly by the user when Dlambda = FALSE. The defaults (Dfn = NULL, Dlambda = FALSE) leave the original density model unchanged. Note there is no connection to userDfn (except that the two are incompatible).
+
+\code{Dlambda} if TRUE causes reparameterization of density as the session-on-session finite rate of increase \eqn{lambda}. Details at (\href{https://www.otago.ac.nz/density/pdfs/secr-trend.pdf}{secr-trend.pdf}).
+
 \code{details$distribution} specifies the distribution of the number of
 individuals detected \eqn{n}; this may be conditional on the number in the
 masked area ("binomial") or unconditional ("poisson").
@@ -164,6 +168,9 @@ xylist. The default is `concurrent'.
 \code{details$usecov} selects the mask covariate to be used for
 normalization. NULL limits denominator for normalization to
 distinguishing habitat from non-habitat.
+
+\code{details$userDfn} is a user-provided function for modelling a density 
+surface. See \href{https://www.otago.ac.nz/density/pdfs/secr-densitysurfaces.pdf}{secr-densitysurfaces.pdf}
 
 \code{details$userdist} is either a function to compute non-Euclidean
 distances between detectors and mask points, or a pre-computed matrix of

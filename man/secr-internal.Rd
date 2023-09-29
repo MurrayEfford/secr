@@ -1,12 +1,13 @@
 \name{Internal}
 
 \alias{boundarytoSF}
+\alias{Dfn2}
 
 \title{Internal Functions}
 
 \description{ 
 
-Functions called internally by \pkg{secr} and not exported.
+Various functions called internally by \pkg{secr} and not exported.
 
 }
 
@@ -14,11 +15,18 @@ Functions called internally by \pkg{secr} and not exported.
 
 boundarytoSF (poly)
 
+Dfn2(designD, beta = NULL, ...)
+
 }
 
 \arguments{
 
   \item{poly}{data to define one or more polygons}
+
+  \item{designD}{dataframe of density design data (output from \code{\link{D.designdata}})}
+  \item{beta}{numeric vector of beta values (see Details for NULL)}
+  \item{...}{other arguments (not used)}
+
 
 }
 
@@ -41,20 +49,31 @@ boundarytoSF (poly)
   
   Matrix input defines a single polygon.
 
-  }
+  \code{Dfn2} is supplied automatically as 'details' argument Dfn in 
+  \code{\link{secr.fit}} when the switch Dlambda is set to TRUE for the 
+  multi-session trend reparameterization of density. \code{Dfn2} 
+  uses beta = NULL to return the required number of density coefficients 
+  (beta parameters) in the model.
+
+}
 
 \value{
 
 \code{boundarytoSF} -- Spatial object of \pkg{sf} class sfc, containing 
 a geometry set of type POLYGON or MULTIPOLYGON. NULL input results in NULL output.
 
+\code{Dfn2} -- Vector of density values on the link scale, suitable for the internal array (mask x groups x sessions).
+
 }
 
 \seealso{
 
-\code{\link{pointsInPolygon}}, \href{https://www.otago.ac.nz/density/pdfs/secr-spatialdata.pdf}{secr-spatialdata.pdf},
+\code{\link{pointsInPolygon}}, 
+\href{https://www.otago.ac.nz/density/pdfs/secr-spatialdata.pdf}{secr-spatialdata.pdf},
 
-\code{\link{chat.nk}}
+\code{\link{predictDlambda}},
+\href{https://www.otago.ac.nz/density/pdfs/secr-trend.pdf}{secr-trend.pdf},
+
 
 }
 

@@ -181,7 +181,8 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
         maxdistance = NULL,
         stackSize = "auto",   ## ignored on Windows
         fastproximity = TRUE,
-        f = NULL              ## optional function f(x)
+        Dfn = NULL,              ## optional density reparameterization for trend etc.
+        Dlambda = FALSE
     )
     if (!is.null(attr(capthist,'cutval'))) {
         defaultdetails$cutval <- attr(capthist,'cutval')
@@ -617,9 +618,15 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
             designD <- general.model.matrix(model$D, data = temp, gamsmth = smoothsetup$D, 
                                             contrasts = details$contrasts)
             attr(designD, 'dimD') <- attr(temp, 'dimD')
-            attr(designD, 'Dfn') <- details[['Dfn']]
-            if(!is.null(details[['Dfn']])) {
-                nDbeta <- details[['Dfn']](designD)
+            if (!is.null(details[['Dlambda']]) && details[['Dlambda']]) {
+                attr(designD, 'Dfn') <- Dfn2
+            }
+            else {
+                # may be NULL
+                attr(designD, 'Dfn') <- details[['Dfn']]
+            }
+            if(!is.null(attr(designD, 'Dfn'))) {
+                nDbeta <- attr(designD, 'Dfn')(designD)
                 Dnames <- paste0('D', 1:nDbeta)
             }
             else {
