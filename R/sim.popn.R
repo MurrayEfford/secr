@@ -269,7 +269,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
         warning ('Ndist is coerced to "poisson" when model2D rLGCP, rThomas')
         Ndist <- 'poisson'
     }
-    lastnumber <<- number.from-1
+    lastnumber <- number.from-1
     if (nsessions > 1) {
         discrete <- function(x) {
             fr <- x-trunc(x)
