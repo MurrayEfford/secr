@@ -612,23 +612,16 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
             ## otherwise, smoothsetup$D remains NULL
             envD <- attr(model$D, '.Environment')
             if (!is.null(envD)) {
-              assign('f', identity, envir = envD)
+              assign('Dfn', identity, envir = envD)
             }
             designD <- general.model.matrix(model$D, data = temp, gamsmth = smoothsetup$D, 
                                             contrasts = details$contrasts)
             attr(designD, 'dimD') <- attr(temp, 'dimD')
-            #################################################
-            ## 2021-12-09
-            attr(designD, 'f') <- details[['f']]
-            fterm <- grepl('f(', dimnames(designD)[[2]], fixed = TRUE)
-            if( any(fterm)) {
-                if (is.null(details[['f']])) stop ("f function should be included in details")
-                fcovname <- dimnames(designD)[[2]][fterm][1] # first
-                attr(designD, 'fcovname') <- fcovname
-                betaarg <- eval( formals( details[['f']] )[[2]])
-                Dnames <- paste0('D', 1:length(betaarg))
+            attr(designD, 'Dfn') <- details[['Dfn']]
+            if(!is.null(details[['Dfn']])) {
+                nDbeta <- details[['Dfn']](designD)
+                Dnames <- paste0('D', 1:nDbeta)
             }
-            #################################################
             else {
                 Dnames <- colnames(designD)
             }

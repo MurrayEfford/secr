@@ -161,12 +161,10 @@ getD <- function (designD, beta, mask, parindx, link, fixed,
             }
         }
         else {
-            ## 2021-12-09 f(x)
             beta <- beta[parindx[[parameter]]]
-            f <- attr(designD, 'f')
-            fcovname <- attr(designD, 'fcovname')
-            if (is.function(f) && fcovname %in% dimnames(designD)[[2]]) {
-                D[,,] <- f(designD[,fcovname, drop = FALSE], beta, dim(D))
+            Dfn <- attr(designD, 'Dfn')
+            if (is.function(Dfn)) {
+                    D[,,] <- Dfn(designD, beta)
             }
             else {
                 D[,,] <- designD %*% beta  # linear predictor
