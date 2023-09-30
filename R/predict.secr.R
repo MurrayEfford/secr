@@ -38,12 +38,16 @@ predict.secr <- function (object, newdata = NULL, realnames = NULL, type = c("re
 
     parindices <- object$parindx
     models <- object$model
-    
+
     ######################################
     ## 2021-12-09 pass function in case needed
-    if (!is.null(models$D)) {
+    if (is.null(models$D)) {
+        Dfn <- NULL
+    }
+    else {
       attr(models$D, '.Environment') <- environment()
-      assign('f', object$details[['f']], envir = attr(models$D, '.Environment'))
+      assign('Dfn', attr(object$designD, 'Dfn'), envir = attr(models$D, '.Environment'))
+      if (!is.null(Dfn)) warning ("model uses Dlambda parameterization; use predictDlambda for density and lambda estimates")
     }
     ######################################
     
@@ -101,11 +105,11 @@ predict.secr <- function (object, newdata = NULL, realnames = NULL, type = c("re
                 beta.vcv = beta.vcv, 
                 smoothsetup = smoothsetup[[x]],
                 contrasts = object$details$contrasts,
-                f = object$details[['f']]
+                Dfn = Dfn
             )
         }
     }
-    
+    realnames <- realnames[is.null(Dfn) | realnames != 'D']
     predict <- sapply (realnames, getfield, simplify = FALSE)
   
     z <- abs(qnorm(1-alpha/2))   ## beware confusion with hazard z!

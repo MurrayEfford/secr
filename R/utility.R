@@ -1427,7 +1427,7 @@ makerealparameters <- function (design, beta, parindx, link, fixed) {
 #-------------------------------------------------------------------------------
 
 secr.lpredictor <- function (formula, newdata, indx, beta, field, beta.vcv=NULL,
-    smoothsetup = NULL, contrasts = NULL, f = NULL) {
+    smoothsetup = NULL, contrasts = NULL, Dfn = NULL) {
     ## form linear predictor for a single 'real' parameter
     ## smoothsetup should be provided whenever newdata differs from
     ## data used to fit model and the model includes smooths from gam
@@ -1443,10 +1443,10 @@ secr.lpredictor <- function (formula, newdata, indx, beta, field, beta.vcv=NULL,
     newdata <- as.data.frame(newdata)
     lpred <- matrix(ncol = 2, nrow = nrow(newdata), dimnames = list(NULL,c('estimate','se')))
 
-    if (!is.null(f) && field == 'D') {
-        warning("predict.secr not ready for D as function -  do not use estimates")
+    if (!is.null(Dfn) && field == 'D') {
+        warning("secr.lpredictor is not ready for D as function -  do not use estimates")
        nsess <- length(unique(newdata$session))
-       Yp <- f(newdata[,vars[1]], beta = beta[indx], dimD <- c(nrow(newdata)/nsess,1,nsess)) 
+       Yp <- Dfn(newdata[,vars[1]], beta = beta[indx], dimD = c(nrow(newdata)/nsess,1,nsess)) 
        mat <- as.matrix(newdata[,vars[1], drop = FALSE])
     }
     else {
@@ -1490,7 +1490,7 @@ secr.lpredictor <- function (formula, newdata, indx, beta, field, beta.vcv=NULL,
     lpred[,1] <- Yp
     if (is.null(beta.vcv) || (any(is.na(beta[indx])))) return ( cbind(newdata,lpred) )
     else {
-        if (is.null(f) || field != 'D') {
+        if (is.null(Dfn) || field != 'D') {
             vcv <- beta.vcv[indx,indx, drop = FALSE]
             vcv[is.na(vcv)] <- 0
             nrw <- nrow(mat)
