@@ -24,7 +24,7 @@ predictDlambda(object, alpha = 0.05)
 
 \details{
   
-Usage is described in \href{https://www.otago.ac.nz/density/pdfs/secr-trend.pdf}{secr-trend.pdf}. Briefly, setting details argument 'Dlambda' causes the density model (D~xxx) to be interpreted as a session-specific trend model with parameters for the initial density (D1) and each subsequent session-on-session change in density \eqn{\lambda[t] = D[t+1]/D[t]}. 
+Usage is described in \href{https://www.otago.ac.nz/density/pdfs/secr-trend.pdf}{secr-trend.pdf}. Briefly, setting details argument 'Dlambda' in `\code{\link{secr.fit}} causes the density model (D~xxx) to be interpreted as a session-specific trend model with parameters for the initial density (D1) and each subsequent session-on-session change in density \eqn{\lambda[t] = D[t+1]/D[t]}. 
   
 }
 
