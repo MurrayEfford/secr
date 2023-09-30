@@ -618,7 +618,7 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
             designD <- general.model.matrix(model$D, data = temp, gamsmth = smoothsetup$D, 
                                             contrasts = details$contrasts)
             attr(designD, 'dimD') <- attr(temp, 'dimD')
-            if (!is.null(details[['Dlambda']]) && details[['Dlambda']]) {
+            if (MS && !is.null(details[['Dlambda']]) && details[['Dlambda']]) {
                 attr(designD, 'Dfn') <- Dfn2
             }
             else {
