@@ -490,8 +490,6 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
         }
         else {
             defaultmodel$pmix <- model$pmix   ## use as-is
-            # 2021-06-17
-            # badvar <- !(pmixvars %in% c('session','Session',sessioncov,'h2','h3'))
             badvar <- !(pmixvars %in% c('session','Session', names(sessioncov),'h2','h3'))
             if (any(badvar))
                 stop ("formula for pmix may not include ", pmixvars[badvar])
@@ -597,11 +595,8 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
         }
         else {
             memo ('Preparing density design matrix', details$trace)
-            ## 2021-06-17 tentative inclusion of session covariates 
-            ## if (!all (all.vars(model$D) %in%
-            ## c('session', 'Session','g')) & details$param %in% c(4,5)) {
-            if (!all (all.vars(model$D) %in%
-                    c('session', 'Session','g', names(sessioncov))) & details$param %in% c(4,5)) {
+            sessionDvars <- all.vars(model$D) %in% c('session','Session', 'g', names(sessioncov))
+            if (!all (sessionDvars) && details$param %in% c(4,5)) {
                 if (is.null(details$userdist))
                     stop ("only session and group models allowed for density when details$param = ",
                         details$param)
@@ -619,7 +614,11 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
                                             contrasts = details$contrasts)
             attr(designD, 'dimD') <- attr(temp, 'dimD')
             if (MS && !is.null(details[['Dlambda']]) && details[['Dlambda']]) {
-                attr(designD, 'Dfn') <- Dfn2
+                if (all(sessionDvars))
+                    attr(designD, 'Dfn') <- Dfn2
+                else {
+                    stop ("Dlambda does not allow spatial covariates of density in this version")
+                }
             }
             else {
                 # may be NULL
