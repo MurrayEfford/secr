@@ -94,7 +94,7 @@ collate.secrlist <- function (object, ..., realnames = NULL, betanames = NULL, n
                 field = x,
                 smoothsetup = object1$smoothsetup[[x]],
                 contrasts = object1$details$contrasts,
-                f = object1$details[['f']]
+                Dfn = attr(object1$designD, 'Dfn')
             )
         }
         if (any(unlist(nclusters(object1$capthist))>1))

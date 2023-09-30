@@ -145,7 +145,7 @@ model.average <- function (..., realnames = NULL, betanames = NULL,
                     beta.vcv = object1$beta.vcv, field = x,
                     smoothsetup = object1$smoothsetup[[x]], 
                     contrasts = object1$details$contrasts,
-                    f = object1$details[['f']]
+                    Dfn = attr(object1$designD, 'Dfn')
                 )
             }
             ## check added 2016-06-16, fixed 2016-11-08

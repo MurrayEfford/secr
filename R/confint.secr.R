@@ -35,7 +35,7 @@ confint.secr <- function (object, parm, level = 0.95, newdata = NULL,
                 indx = object$parindx[[parm]], beta = beta, field = parm,
                 smoothsetup = object$smoothsetup[[parm]], 
                 contrasts = object$details$contrasts,
-                f = object$details[['f']]
+                Dfn = attr(object$designD, 'Dfn')
             )[1,'estimate']
             untransform(temp, object$link[[parm]])
         }
