@@ -1,4 +1,3 @@
-###############################################################################
 ## package 'secr'
 ## secrloglik2.R
 ## likelihood evaluation functions
@@ -148,6 +147,7 @@ expectedmu <- function (cc, haztemp, gkhk, pi.density, Nm, PIA,
     for (x in 1:nmix) {
         hx <- if (any(binomNcode==-2)) matrix(haztemp$h[x,,], nrow = m) else -1 ## lookup sum_k (hazard)
         hi <- if (any(binomNcode==-2)) haztemp$hindex else -1                   ## index to hx
+        
         temp <- expectedmucpp(
             as.integer(nc),
             as.integer(cc),
@@ -637,6 +637,12 @@ generalsecrloglikfn <- function (
       sightingocc <- data$MRdata$markocc < 1
       if (any(sightingocc)) {
           Nm <- density * getcellsize(data$mask)
+          if (learnedresponse) {
+              stop ("learned response requires that all individuals are identified,",
+                    " and cannot be applied to sighting data")
+              # 2023-10-09 require gkhk was NOT recalculated for learned response naive animal 
+              # and hence still has cc x M x K values in gkhk$hk
+          }
           tmp <- expectedmu (nrow(Xrealparval), haztemp, gkhk, pi.density, Nm, PIA, 
                              data$CH, data$binomNcode, data$MRdata, data$grp, data$usge, pmixn, 
                              pID, pdot[1])
