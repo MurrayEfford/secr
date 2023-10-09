@@ -139,7 +139,6 @@
                         }
                         // pID not relevant for unmarked sightings
                     }
-                    
                 }
             }
         }

@@ -62,7 +62,6 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
         detailsname <- details; rm(details)
         details <- get(detailsname, pos=-1)
     }
-    
     if (!inherits(capthist, 'capthist'))
         stop ("requires 'capthist' object")
 
@@ -674,9 +673,8 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     names(parindx) <- names(np)[np>0]
     if (!D.modelled) parindx$D <- NULL
     if (!NE.modelled) parindx$noneuc <- NULL
-    
-    data <- prepareSessionData(capthist, mask, details$maskusage, design, design0, detectfn, 
-                               groups, fixed, hcov, details)
+    data <- prepareSessionData(capthist, mask, details$maskusage, design, 
+                    design0, detectfn, groups, fixed, hcov, details)
 
     ############################################
     # code for start vector shifted to separate function from 4.5.4
