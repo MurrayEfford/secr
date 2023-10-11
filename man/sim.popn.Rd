@@ -84,7 +84,7 @@ with \eqn{\lambda = DA/\mu}{ lambda = DA/mu }
 inside the buffered area
 }
 
-A special cluster option is selected if details$clone = "constant": then each parent is cloned exactly details$mu times (multiple offspring centres are generated at each parent location, with no displacement).
+A special cluster option is selected if details$clone = "constant": then each parent is cloned exactly details$mu times.
 
 Toroidal wrapping is a compromise. The result is more faithful to the
 Neyman-Scott distribution if the buffer is large enough that only a

@@ -34,6 +34,7 @@
 ## 2023-05-30 IHP rmultinom handles boundary N = 0
 ## 2023-08-19 model2D = "rLGCP"
 ## 2023-08-21 model2D = "rThomas"
+## 2023-10-10 details$clone == 'constant' only fixes n offspr, scale still applies
 ###############################################################################
 
 toroidal.wrap <- function (pop) {
@@ -743,7 +744,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                 animals <- data.frame (x = x * diff(xl)+xl[1],
                                        y = y * diff(yl)+yl[1])
             }
-            else if (model2D=='cluster') {
+            else if (model2D == 'cluster') {
                 ## Neyman-Scott distribution with wrapping
                 xrange <- diff(xl)
                 yrange <- diff(yl)
@@ -759,24 +760,24 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                     if (nparent==0)
                         warning ("zero clusters")
                     parent <-  sweep(matrix(runif(2*nparent), ncol = 2), 2, c(xrange,yrange), '*')
+                    # number of offspring for each parent
                     if (!is.null(details$clone) && details$clone == 'constant') {
-                        # clone parent locations with no displacement 2023-05-03
                         noffspr <- rep(details$mu, nparent)
-                        N <- sum(noffspr) 
-                        parentn <- rep(1:nparent, each = details$mu)
-                        offspr <- parent[parentn,,drop = FALSE]
                     }
                     else {
                         noffspr <- rpois(nparent, details$mu)
-                        N <- sum(noffspr) # nparent * details$mu
+                    }
+                    N <- sum(noffspr)
                         # for backward compatibility
-                        if (is.null(details$scale)) details$scale <- details$hsigma
-                        offspr <- matrix(rnorm(2*N), ncol = 2) * details$scale
+                    if (is.null(details$scale)) details$scale <- details$hsigma
+                    # scale = 0 to clone parent locations with no displacement 2023-10-10
+                    offspr <- matrix(rnorm(2*N), ncol = 2) * details$scale
+                    if (N>0) {
                         parentn <- rep(1:nparent, noffspr)
-                        # parentn <- rep(1:nparent, details$mu)
                         offspr <- offspr + parent[parentn,,drop = FALSE]
+                        # toroidal wrapping
                         while (any ((offspr[,1]<0) | (offspr[,1]>xrange) | (offspr[,2]<0) |
-                                (offspr[,2]>yrange))) {
+                                    (offspr[,2]>yrange))) {
                             offspr[,1] <- ifelse (offspr[,1]<0, offspr[,1]+xrange, offspr[,1])
                             offspr[,1] <- ifelse (offspr[,1]>xrange, offspr[,1]-xrange, offspr[,1])
                             offspr[,2] <- ifelse (offspr[,2]<0, offspr[,2]+yrange, offspr[,2])
