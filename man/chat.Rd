@@ -9,9 +9,8 @@
 \description{
 
 Activity centres may be clumped (overdispersed) relative to a Poisson distribution,
-the model used in \code{\link{secr.fit}} (Borchers and Efford 2008). This causes 
-the sampling variance of density estimates to be understated. The problem is 
-addressed with a variance inflation factor, essentially a measure of overdispersion.
+the model used in \code{\link{secr.fit}} (Borchers and Efford 2008). This can cause 
+the sampling variance of density estimates to be understated. One solution currently under investigation is to apply a variance inflation factor, a measure of overdispersion, based on the number of individuals detected at each detector (Bischof et al. 2020).
 
 Functions described here compute the observed (nk) or expected (Enk) number of individuals detected at each detector and use that to compute Fletcher's \eqn{\hat c} estimate of overdispersion 
 for use as a variance inflation factor. 
@@ -131,6 +130,10 @@ detection parameters with respect to occasion, detector or animal;
 this includes mixture models (e.g., g0~h2).
 
 Versions before 4.5.11 did not correctly compute expected counts for multi-catch detectors. 
+
+Furthermore, we doubt that the adjustment actually solves the problem of 
+overdispersion (Efford and Fletcher unpubl.).
+
 }
 
 \seealso{ 
@@ -143,6 +146,8 @@ Versions before 4.5.11 did not correctly compute expected counts for multi-catch
 }
   
 \references{
+
+Bischof, R., P. Dupont, C. Milleret, J. Chipperfield, and J. A. Royle. 2020. Consequences of ignoring group association in spatial capture--recapture analysis. \emph{Wildlife Biology} wlb.00649. DOI 10.2981/wlb.00649
 
 Cooch, E. and White, G. (eds) (2022) \emph{Program MARK: A Gentle Introduction}. 
   22nd edition. Available online at http://www.phidot.org/software/mark/docs/book/.
