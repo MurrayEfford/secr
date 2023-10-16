@@ -16,8 +16,14 @@ Dfn2 <- function (designD, beta = NULL, ...) {
 
 predictDlambda <- function (object, alpha = 0.05) {
     z <- abs(qnorm(1-alpha/2))   
-    Dpar <- grepl('D.', rownames(coef(object)))
-    beta <- coef(object)[Dpar, 'beta']
+
+    beta <- complete.beta(object)
+    beta.vcv <- complete.beta.vcv(object)
+    beta.vcv[is.na(beta.vcv)] <- 0
+    Dpar <- object$parindx[['D']]
+    beta <- beta[Dpar]
+    beta.vcv <- beta.vcv[Dpar,Dpar, drop = FALSE]
+    
     nsessions <- length(object$capthist)   
     dimD <- attr(object$designD, 'dimD')
     
@@ -27,8 +33,7 @@ predictDlambda <- function (object, alpha = 0.05) {
     mat <- cbind(rep(c(1,0), c(1, nrow(vars)-1)), vars)
     
     lp <- mat %*% beta
-    vcv <- object$beta.vcv[Dpar,Dpar, drop = FALSE]
-    prepost <- function(i) mat[i,, drop = FALSE] %*% vcv %*% t(mat[i,, drop = FALSE])
+    prepost <- function(i) mat[i,, drop = FALSE] %*% beta.vcv %*% t(mat[i,, drop = FALSE])
     selp <- sapply(1:nsessions, prepost)^0.5
     out <- data.frame(
         estimate = exp(lp),
