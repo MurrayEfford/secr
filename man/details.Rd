@@ -133,13 +133,13 @@ the detector type is `multi'. This parameterisation was discontinued in 2.10.0.
 (\eqn{esa(g_0, \sigma)}, \eqn{\sigma}) (Efford and Mowat 2014).
 
 \code{details$param = 3} selects parameterisation in terms of
-(\eqn{a_0(lambda0, \sigma)}, \eqn{\sigma}) (Efford and Mowat 2014). This
+(\eqn{a_0(\lambda_0, \sigma)}, \eqn{\sigma}) (Efford and Mowat 2014). This
 parameterization is used automatically if a0 appears in the model (e.g.,
 a0 ~ 1).
 
 \code{details$param = 4} selects parameterisation of sigma in terms of
 the coefficient sigmak and constant c (sigma = sigmak /
-  D^0.5 + c) (Efford et al. in prep). If c is not included explicitly in
+  D^0.5 + c) (Efford et al. 2016). If c is not included explicitly in
   the model (e.g., c ~ 1) then it is set to zero. This
 parameterization is used automatically if sigmak appears in the model (e.g.,
 sigmak ~ 1)
@@ -192,6 +192,10 @@ document \href{https://www.otago.ac.nz/density/pdfs/secr-noneuclidean.pdf}{secr-
 }
 
 \references{
+
+Efford, M. G., Dawson, D. K., Jhala, Y. V. and Qureshi, Q. (2016) 
+Density-dependent home-range size revealed by spatially explicit 
+capture--recapture. \emph{Ecography} \bold{39}, 676--688.
 
 Efford, M. G. and Mowat, G. (2014) Compensatory heterogeneity in
 capture--recapture data.\emph{Ecology} \bold{95}, 1341--1348.  

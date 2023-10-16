@@ -215,6 +215,7 @@ export (as.popn)
 export (setNumThreads)
 export (extractMoves)
 export (makeStart)
+export (kfn)
 
 # new generics
 export (reduce)

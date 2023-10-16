@@ -878,6 +878,7 @@ Here is an index of **secr** functions classified by use (some minor functions a
 |    `edist`    	| Euclidean distance |
 |   `Enk`       | expected individuals per detector | 
 | `gridCells` 	| grid cells around points (e.g. traps object) |
+|    `kfn`		| overlap index for halfnormal home range |
 |    `MMDM`		| mean maximum distance moved |
 |	`moves`		| distances between capture locations |
 |	`nearesttrap`	| from an arbitrary set of points |

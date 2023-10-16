@@ -1,4 +1,4 @@
-Changes in version 4.6.2 (2023-10-12)
+Changes in version 4.6.2 (2023-10-17)
 
 New features or changed behaviour of old functions
     o   sim.popn() simulates log-gaussian Cox process (model2D = "rLGCP") using 
@@ -8,6 +8,7 @@ New features or changed behaviour of old functions
     o   randomDensity() new wrapper for randomHabitat() for use with sim.popn()
     o   reduce.capthist() now retains popn attribute
     o   trend reparameterization of density (secr.fit details 'Dlambda')
+    o   kfn() new function for overlap index
 
 Bugs fixed
     o   make.capthist() could lose individual covariates of animals later 
