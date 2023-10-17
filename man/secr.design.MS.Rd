@@ -51,9 +51,8 @@ insertdim (x, dimx, dims)
 }
 \details{
 
-This is an internal \pkg{secr} function that you are unlikely ever to
-use. \dots may be used to pass \code{contrasts.arg} to
-\code{model.matrix}. 
+These are internal \pkg{secr} functions that you are unlikely ever to
+use. 
 
 Each real parameter is notionally different for each unique combination
 of session, individual, occasion, detector and latent class, i.e., for \eqn{R}
@@ -69,6 +68,8 @@ The \code{keep.dframe} option is provided for the rare occasions that a
 user may want to check the data frame that is an intermediate step in
 computing each design matrix with \code{\link{model.matrix}} (i.e. the
 data argument of \code{model.matrix}).
+
+\dots may be used to pass \code{contrasts.arg} to \code{model.matrix}. 
 
 }
 \value{
