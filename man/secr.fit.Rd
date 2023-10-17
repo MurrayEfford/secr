@@ -110,9 +110,9 @@ at a particular detector, on a particular occasion, when the detectors
 are of type `count', `polygon' or `transect':
 
 \itemize{
-\item{binomN > 1} {binomial with size binomN}
-\item{binomN = 1} {binomial with size determined by \link{usage}}
-\item{binomN = 0} {Poisson}
+\item{binomN > 1  --- binomial with size binomN}
+\item{binomN = 1  --- binomial with size determined by \link{usage}}
+\item{binomN = 0  --- Poisson}
 %\item{binomN < 0} {negative binomial with size abs(binomN) -- see 
 %  \code{\link[stats]{NegBinomial}}}
 }

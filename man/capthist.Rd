@@ -21,17 +21,19 @@ Deaths during the experiment are represented as negative values.
 
 Ancillary data are retained as attributes of a \code{capthist} object as follows:
 \itemize{
-\item{traps}{ -- object of class \code{traps} (required)}
-\item{session}{ -- session identifier (required)}
-\item{covariates}{ -- dataframe of individual covariates (optional)}
-\item{cutval}{ -- threshold of signal strength for detection (`signal' only)}
-\item{signalframe}{ -- signal strength values etc., one row per detection (`signal' only)}
-\item{detectedXY}{ -- dataframe of coordinates for location within
+
+\item{traps --- object of class \code{traps} (required)}
+\item{session --- session identifier (required)}
+\item{covariates --- dataframe of individual covariates (optional)}
+\item{cutval --- threshold of signal strength for detection (`signal' only)}
+\item{signalframe --- signal strength values etc., one row per detection (`signal' only)}
+\item{detectedXY --- dataframe of coordinates for location within
   polygon (`polygon'-like detectors only)}
-\item{xylist}{ -- coordinates of telemetered animals}
-\item{Tu}{ -- detectors x occasions matrix of sightings of unmarked animals}
-\item{Tm}{ -- detectors x occasions matrix of sightings of marked but unidentified animals }
-\item{Tn}{ -- detectors x occasions matrix of sightings with unknown mark status }
+\item{xylist --- coordinates of telemetered animals}
+\item{Tu --- detectors x occasions matrix of sightings of unmarked animals}
+\item{Tm --- detectors x occasions matrix of sightings of marked but unidentified animals }
+\item{Tn --- detectors x occasions matrix of sightings with unknown mark status }
+
 }
 
 \code{read.capthist} is adequate for most data input. Alternatively, the parts of a 
