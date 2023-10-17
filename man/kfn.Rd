@@ -82,9 +82,7 @@ capture--recapture. \emph{Ecography} \bold{39}, 676--688.
 kfn(secrdemo.0)
 
 ## compare
-\donttest{
-fitk <- secr.fit(captdata, model = sigmak~1, buffer = 100, trace = FALSE)
-predict(fitk)
-}
+## fitk <- secr.fit(captdata, model = sigmak~1, buffer = 100, trace = FALSE)
+## predict(fitk)
 
 }
