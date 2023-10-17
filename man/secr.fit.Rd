@@ -1,6 +1,5 @@
 \name{secr.fit}
 \alias{secr.fit}
-\alias{binomN}
 
 \title{ Spatially Explicit Capture--Recapture }
 
