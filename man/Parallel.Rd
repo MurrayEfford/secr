@@ -42,7 +42,6 @@ through the package \pkg{\link{parallel}}. This mechanism is still available in 
 
 \tabular{llll}{
   Function \tab Unit \tab Benefit \tab Notes \cr
-  \code{\link{ip.secr}} \tab replicate \tab large \tab  \cr
   \code{\link{par.secr.fit}} \tab model \tab none \tab  \cr
   \code{\link{par.derived}} \tab fitted model \tab none \tab  \cr
   \code{\link{par.region.N}} \tab fitted model \tab none \tab  \cr
