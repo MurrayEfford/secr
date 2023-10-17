@@ -42,7 +42,7 @@ For NULL seed input, the saved RNGstate may be used to reset .Random.seed (see E
 
 \section{Use of random numbers in \pkg{secr}}{
 
-Many functions in \pkg{secr} call on random numbers, sometimes in unexpected places. For example \code{\link{autoini}} selects a random sample to thin points and speed computation. In most functions there is no provision for direct control of the random number state: users won't usually care, and if they do then \code{set.seed} may be called for the particular \R session. Exceptions are \code{\link{ip.secr}} and \code{\link{par.secr.fit}}; both allow control of the seed, but do not save it.
+Many functions in \pkg{secr} call on random numbers, sometimes in unexpected places. For example \code{\link{autoini}} selects a random sample to thin points and speed computation. In most functions there is no provision for direct control of the random number state: users won't usually care, and if they do then \code{set.seed} may be called for the particular \R session. 
 
 However, control of the RNG seed is required for reproducible data generation in simulation functions. These functions typically have a `seed' argument that is used internally in a call to \code{set.seed}. Handling of seeds in the simulation functions of \pkg{secr} largely follows \code{stats::simulate} as described in the preceding section.
 
@@ -58,13 +58,13 @@ Function \tab Default \tab Saved attribute \tab Note \cr
 \code{\link{simulate.secr}} \tab NULL \tab seed or RNGstate \tab S3 method called by \code{sim.secr}\cr
 }
 
-Setting \code{seed = NULL} in any of these functions has the effect of continuing the existing random number stream; it is not the same as calling \code{set.seed(NULL)}. Two functions at present do not follow this model: \code{\link{ip.secr}} and \code{\link{par.secr.fit}}.
+Setting \code{seed = NULL} in any of these functions has the effect of continuing the existing random number stream; it is not the same as calling \code{set.seed(NULL)}. \code{\link{par.secr.fit}} does not follow this model.
 
 }
 
 \section{Parallel processing}{
 
-Two models are used for parallel processing in \pkg{secr}, corresponding to multi-threading with package \pkg{RcppParallel} (e.g. \code{\link{secr.fit}}) and parallel cores in package \pkg{parallel} (e.g. \code{\link{ip.secr}}).
+Two models are used for parallel processing in \pkg{secr}, corresponding to multi-threading with package \pkg{RcppParallel} (e.g. \code{\link{secr.fit}}) and parallel cores in package \pkg{parallel} (e.g. \code{\link{chat.nk}}).
 
 In the \pkg{parallel} model the L'Ecuyer pseudorandom generator is used to provide a separate random number stream for each core (see \code{\link{clusterSetRNGStream}}).
 
@@ -78,6 +78,7 @@ Random number streams in separate \pkg{RcppParallel} threads are (probably) not 
 
 \seealso{
 
+  \code{\link{Parallel}},
   \code{\link{set.seed}}, 
   \code{\link{simulate}}, 
   \code{\link{sim.capthist}}, 
