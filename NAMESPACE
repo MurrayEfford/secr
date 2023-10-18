@@ -186,7 +186,6 @@ export (unRMarkInput)
 export (detectfnplot)
 export (attenuationplot)
 export (counts)
-export (model.average)
 export (collate)
 export (ellipse.secr)
 export (ellipse.bvn)
@@ -216,6 +215,10 @@ export (setNumThreads)
 export (extractMoves)
 export (makeStart)
 export (kfn)
+
+# defunct, still exported
+export (model.average)
+export (ip.secr)
 
 # new generics
 export (reduce)
