@@ -44,6 +44,9 @@ write.SPACECAP()
 
 \details{
 
+Some of these have stubs which report that they are defunct, but most have been 
+removed completely (apart from being documented here). 
+
 \code{model.average} is replaced by a method for `secr' and `secrlist' objects of the generic \code{\link{modelAverage}}. The internal code is essentially the same for \code{model.average} and \code{modelAverage.secrlist}. The generic avoids a name conflict with RMark and is also used in \pkg{openCR}.
 
 \code{ip.secr} and \code{pfn} have been superceded by \code{ipsecr.fit} and 
