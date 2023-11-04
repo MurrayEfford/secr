@@ -43,7 +43,7 @@ adjustVarD(object, chatmin = 1, alpha = 0.05, chat = NULL)
 }
 
 \arguments{
-\item{capthist}{secr \code{capthist} object}
+  \item{capthist}{secr \code{capthist} object}
   \item{D}{numeric density, either scalar or vector of length nrow(mask)}
   \item{mask}{single-session habitat mask}
   \item{traps}{ \code{traps} object }
@@ -60,10 +60,10 @@ adjustVarD(object, chatmin = 1, alpha = 0.05, chat = NULL)
   \item{nsim}{integer number of c-hat values to simulate (optional) }
   \item{...}{other arguments passed to \code{\link{Fletcher.chat}} (verbose, type)}
 
-\item{chatmin}{minimum value of Fletcher's \eqn{\hat c}}
+  \item{chatmin}{minimum value of Fletcher's \eqn{\hat c}}
 
-\item{alpha}{alpha level for confidence intervals }
-\item{chat}{numeric chat (optional)}
+  \item{alpha}{alpha level for confidence intervals }
+  \item{chat}{numeric chat (optional)}
 }
 
 \details{
