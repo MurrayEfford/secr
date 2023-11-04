@@ -833,12 +833,16 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                             kappa = kappa,
                             scale = details$scale,
                             mu    = details$mu,
-                            win   = ow)
+                            win   = ow,
+                            saveparents = TRUE) # 2023-11-04
                     }
                     animals <- spatstat.geom::coords(pts)
                     animals <- as.data.frame(animals)
                     if (model2D == 'rLGCP') {
                         attr(animals, "Lambda") <- im2mask(attr(pts, "Lambda")) 
+                    }
+                    if (model2D == 'rThomas') {
+                        attr(animals, "parents") <- as.data.frame(attr(pts, "parents"))
                     }
                 }
                 else {
