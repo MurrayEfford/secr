@@ -35,6 +35,7 @@
 ## 2023-08-19 model2D = "rLGCP"
 ## 2023-08-21 model2D = "rThomas"
 ## 2023-10-10 details$clone == 'constant' only fixes n offspr, scale still applies
+## 2023-11-04 save parents rThomas
 ###############################################################################
 
 toroidal.wrap <- function (pop) {
@@ -633,12 +634,11 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
             
         }
         else {
-            ## 2014-12-29, 2015-01-11
             # population in arena +/- buffer from traps
+            # 2023-11-06 buffer should equal half spacing if (inherits(core, 'mask'))
             buff <- c(-buffer,+buffer)
             xl <- range(core$x) + buff
             yl <- range(core$y) + buff
-
             area <- diff(xl) * diff(yl) * 0.0001  # ha not sq metres
 
             bufferpoly <- switch(buffertype,
@@ -806,39 +806,39 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                     if (!is.numeric(D) || length(D)>1) {
                         stop ("for model2D in (rLGCP, rThomas) D should be a scalar")
                     }
+                    if (is.null(details$saveLambda)) details$saveLambda <- TRUE
                     # spatstat window
-                    eps <- details$spacing
-                    if (is.null(eps)) eps <- diff(xl)/64
-                    # initial xl == range(core$x) + buff
-                    # xl <- xl + eps/2 * c(-1,1)
-                    # yl <- yl + eps/2 * c(-1,1)
-                    ow <- spatstat.geom::owin(xl, yl)   
+                    ow <- spatstat.geom::owin(xl, yl)  
+                    if (is.null(details$eps)) details$eps <- diff(xl)/64
                     if (model2D == 'rLGCP') {
                         # D, var, scale
                         # mu for rLGCP is derived from D, var
                         mu <- log(D/1e4) - details$var/2    # mean density / m^2 on log scale
                         pts <- spatstat.random::rLGCP(
-                            model = "exp",
-                            mu    = mu,
-                            var   = details$var,
-                            scale = details$scale,
-                            win   = ow,
-                            saveLambda = TRUE,
-                            eps = eps)
+                            model      = "exp",
+                            mu         = mu,
+                            var        = details$var,
+                            scale      = details$scale,
+                            win        = ow,
+                            saveLambda = details$saveLambda,
+                            eps        = details$eps)
                     }
                     else if (model2D == 'rThomas') {
                         # kappa for rThomas is D/mu
                         kappa <- D/1e4/details$mu   # mean density / m^2
                         pts <- spatstat.random::rThomas(
-                            kappa = kappa,
-                            scale = details$scale,
-                            mu    = details$mu,
-                            win   = ow,
-                            saveparents = TRUE) # 2023-11-04
+                            kappa       = kappa,
+                            scale       = details$scale,
+                            mu          = details$mu,
+                            win         = ow,
+                            nonempty    = FALSE, 
+                            saveparents = TRUE,
+                            saveLambda  = details$saveLambda,
+                            eps         = details$eps)    # 2023-11-07
                     }
                     animals <- spatstat.geom::coords(pts)
                     animals <- as.data.frame(animals)
-                    if (model2D == 'rLGCP') {
+                    if (details$saveLambda) {
                         attr(animals, "Lambda") <- im2mask(attr(pts, "Lambda")) 
                     }
                     if (model2D == 'rThomas') {
