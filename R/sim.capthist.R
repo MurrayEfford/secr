@@ -1,6 +1,7 @@
 ## package 'secr'
 ## sim.capthist.R
 ## simulate capture histories
+## 2023-11-05 update availability
 ###############################################################################
 
 expands <- function (x, s, default = 1) {
@@ -64,7 +65,7 @@ sim.capthist <- function (
 ## retrieve values for detections in isk order.
 
 {
-    poplist <- inherits(popn,'popn') & inherits(popn,'list')
+    poplist <- inherits(popn,'popn') && inherits(popn,'list')
 
     # moved here 2020-12-06
     if (is.character(detectfn)) {
@@ -75,7 +76,7 @@ sim.capthist <- function (
     ## multi-session loop
     if (poplist | (nsessions > 1)) {
         
-        if (poplist & (nsessions>1) & (length(popn) != nsessions))
+        if (poplist && (nsessions>1) && (length(popn) != nsessions))
             stop ("incompatible use of popn list and nsessions>1")
 
         nsessions <- ifelse (poplist, length(popn), nsessions)
@@ -113,25 +114,25 @@ sim.capthist <- function (
         #####################################################################
         ## availability preliminaries
         if (poplist) {
-            if (any(p.available != 1))
+            if (any(p.available != 1) && length(unique(sapply(popn, nrow))) != 1) {
                 warning ("incomplete availability not implemented ",
-                         "for population lists")
+                         "for population lists with varying population size")
+            }
             if(renumber)
                 warning ("typically use renumber = FALSE for multiple sessions")
         }
-        else {
-            if (!(length(p.available) %in% 1:2))
-                stop ("p.available must be vector of 1 or 2 probabilities")
+        if (!(length(p.available) %in% 1:2))
+            stop ("p.available must be vector of 1 or 2 probabilities")
+        if (all(p.available == 1)) {
+            availability <- 'complete'
+        }
+        else if (length(p.available) == 1) {
+            ## random temporary emigration
             availability <- 'random'
-            if (length(p.available) == 1)
-                ## random temporary emigration
-                available <- runif(nrow(popn)) < p.available
-            else {
-                ## Markovian temporary emigration
-                availability <- 'Markov'
-                equilibrium.p <- (p.available[2] / (1-p.available[1]+p.available[2]))
-                available <- runif(nrow(popn)) < equilibrium.p
-            }
+        }
+        else {
+            ## Markovian temporary emigration
+            availability <- 'Markov'
         }
         #####################################################################
         ## session-specific detection 2015-04-01; extended to HPX 2021-03-25
@@ -150,22 +151,40 @@ sim.capthist <- function (
         for (t in 1:nsessions) {
             ## if (R > 1)  ## modified 2015-10-29
 
-            if (poplist)
+            if (poplist) 
                 temppop <- popn[[t]]
-            else {
-                temppop <- subset(popn, available)
+            else
+                temppop <- popn
+
+            if (t == 1) {
+                if (availability == 'complete') {
+                    available <- rep(TRUE,nrow(temppop))
+                }
+                else if (availability == 'random') {
+                    available <- runif(nrow(temppop)) < p.available
+                }
+                else {
+                    ## Markovian temporary emigration
+                    equilibrium.p <- (p.available[2] / (1-p.available[1]+p.available[2]))
+                    available <- runif(nrow(temppop)) < equilibrium.p
+                }
+            }
+            
+            if (availability != 'complete') {
                 ##-------------------------------------------------------------
                 ## update availability in preparation for next session
                 if (availability == 'random') {
-                    available <- runif(nrow(popn)) < p.available
+                    available <- runif(nrow(temppop)) < p.available
                 }
                 else {
                     p.vect <- ifelse(available, p.available[1], p.available[2])
-                    available <- runif(nrow(popn)) < p.vect
+                    available <- runif(nrow(temppop)) < p.vect
                 }
                 #--------------------------------------------------------------
             }
 
+            temppop <- subset(temppop, available)
+            
             ## select session-specific traps if necessary
             trps <- if (ms(traps)) traps[[t]] else traps
 
