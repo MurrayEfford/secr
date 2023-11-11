@@ -152,9 +152,9 @@ From \pkg{secr} 4.6.2, \code{sim.popn} provides an interface to two simulation f
 
 If \code{model2D = "rLGCP"} then a log-gaussian Cox process is simulated within the buffered area. Function \code{rLGCP} in \pkg{spatstat} calls functions from \pkg{RandomFields} (Schlather et al. 2015; see Notes). Certain options are fixed: the correlation function is RMexp from RandomFields, and there is no provision for covariate effects. Clipping to a polygon (poly) and fixed-N (Ndist = "fixed") are not supported. The algorithm first constructs the log spatial intensity as a realisation of a Gaussian random field; one realisation of an IHP with that intensity is then simulated. 
 
-The parameters for \code{model2D = "rLGCP"} are the scalar density (D) and the variance and spatial scale of the random field (passed as details arguments `var' and `scale'). The variance is on the log scale; the mean on the log scale is computed internally as mu = log(D) - var/2. var = 0 results in a random uniform (Poisson) distribution. The discretized intensity function is saved as the attribute "Lambda", a habitat mask with covariate "Lambda" that may be used to construct further IHP realisations (see Examples). 
+The parameters for \code{model2D = "rLGCP"} are the scalar density (D) and the variance and spatial scale of the random field (passed as details arguments `var' and `scale'). The variance is on the log scale; the mean on the log scale is computed internally as mu = log(D) - var/2. var = 0 results in a random uniform (Poisson) distribution. When details$saveLambda = TRUE, the discretized intensity function is saved as the attribute "Lambda", a habitat mask with covariate "Lambda" that may be used to construct further IHP realisations (see Examples). 
 
-If \code{model2D = "rThomas"} then a Thomas process is simulated. This is a special case of the Neyman-Scott process in which each parent gives rise to a Poisson number of offspring (see Notes). The expected number of offspring per parent and the spatial scatter about each parent are specified by the details arguments `mu' and `scale'. Argument `kappa' of \code{rThomas} (density of parent process) is computed as D/mu/1e4. Other arguments remain at their defaults, including `expand' (4 * scale). A dataframe of parent locations is saved in attribute `parents'.
+If \code{model2D = "rThomas"} then a Thomas process is simulated. This is a special case of the Neyman-Scott process in which each parent gives rise to a Poisson number of offspring (see Notes). The expected number of offspring per parent and the spatial scatter about each parent are specified by the details arguments `mu' and `scale'. Argument `kappa' of \code{rThomas} (density of parent process) is computed as D/mu/1e4. Other arguments remain at their defaults, including `expand' (4 * scale). A dataframe of parent locations is saved in attribute `parents'. The intensity surface for each realisation is saved in attribute 'Lambda' when details$saveLambda = TRUE.
 
 If \code{poly} is specified, points outside \code{poly} are
 dropped. \code{poly} may be one of the types descrbed in 
@@ -314,8 +314,8 @@ if (requireNamespace("spatstat") && requireNamespace("RandomFields")) {
     msk <- make.mask(traps(captdata))
     # details argument 'spacing' ensures core matches Lambda below
     pop <- sim.popn(D = 20, core = msk, buffer = 0, 
-        model2D = "rLGCP", details = list(var=1, scale = 30, 
-        spacing = spacing(msk)), seed = 1234)
+        model2D = "rLGCP", details = list(var=1, scale = 30, saveLambda = TRUE), 
+        seed = 1234)
     plot(pop)
     plot(traps(captdata), add = TRUE)
 

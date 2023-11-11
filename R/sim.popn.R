@@ -36,6 +36,7 @@
 ## 2023-08-21 model2D = "rThomas"
 ## 2023-10-10 details$clone == 'constant' only fixes n offspr, scale still applies
 ## 2023-11-04 save parents rThomas
+## 2023-11-08 pre-check details$eps
 ###############################################################################
 
 toroidal.wrap <- function (pop) {
@@ -238,13 +239,13 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
     "cluster", "IHP", "coastal", "hills", "linear", "even", "rLGCP", "rThomas"), 
     buffertype = c("rect", "concave", "convex"), poly = NULL,
     covariates = list(sex = c(M = 0.5,F = 0.5)), number.from = 1, Ndist
-    = c('poisson','fixed','specified'), nsessions = 1, details = NULL,
-    seed = NULL, keep.mask = model2D %in% c('IHP','linear'), Nbuffer = NULL,
+    = c("poisson","fixed","specified"), nsessions = 1, details = NULL,
+    seed = NULL, keep.mask = model2D %in% c("IHP","linear"), Nbuffer = NULL,
     age = FALSE,
     ...)  {
     inside <- function(pop) {
-        if (model2D != 'IHP') {
-            bb <- attr(pop, 'boundingbox')
+        if (model2D != "IHP") {
+            bb <- attr(pop, "boundingbox")
             xmin <- min(bb$x)
             xmax <- max(bb$x)
             ymin <- min(bb$y)
@@ -256,15 +257,15 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
             pointsInPolygon(pop, core)
         }
     }
-    
+   
     if (missing(D)) D <- NULL
     model2D <- match.arg(model2D)
     Ndist <- match.arg(Ndist)
     buffertype <- match.arg(buffertype)
-    if (buffertype %in% c('convex','concave') & (model2D != 'poisson'))
+    if (buffertype %in% c("convex","concave") & (model2D != "poisson"))
         stop ("buffertype incompatible with model2D")
-    if (model2D == 'even' && Ndist != 'fixed') {
-        warning ('Ndist is coerced to "fixed" when model2D even')
+    if (model2D == "even" && Ndist != "fixed") {
+        warning ('Ndist is coerced to fixed when model2D even')
         Ndist <- 'fixed'
     }
     if (model2D %in% c("rLGCP", "rThomas") && Ndist == 'fixed') {
@@ -550,7 +551,6 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
             on.exit(assign(".Random.seed", R.seed, envir = .GlobalEnv))
         }
         ##########################
-
         # 2022-06-06 simplify
         # getnm <- function (scaleattribute = 'area', scale = 1, D) {
         getnm <- function (cellsize, D) {
@@ -594,20 +594,34 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
         ## 2016-03-08
         ## allow core to be a named object
         if (is.character(core)) core <- get(core)
-            
-        if (model2D %in% c('IHP')) {
-            if (!inherits(core, 'mask'))
-                stop ("for model2D = IHP, 'core' should be a habitat mask")
+        
+        ## pre-check details$eps
+        if (!is.null(details$saveLambda) && details$saveLambda && 
+            model2D %in% c("rLGCP", "rThomas","cluster")) {
+            if (is.null(details$eps)) {
+                if (inherits(core, "mask"))
+                    details$eps <- spacing(core)
+                else 
+                    details$eps <- diff(xl)/64
+            }
+            else if (inherits(core, "mask") && details$eps != spacing(core)) {
+                warning ("requested eps for Lambda differs from core mask")
+            }
+        }
+        
+        if (model2D %in% c("IHP")) {
+            if (!inherits(core, "mask"))
+                stop ("for model2D = IHP, core should be a habitat mask")
             # typo fixed 2023-09-17
-            if (nsessions>1 && details$movemodel!='static' && 
-                    ('settle' %in% names(covariates(core))) && 
-                    details$edgemethod %in% c('truncate', 'normalize')) 
+            if (nsessions>1 && details$movemodel!="static" && 
+                    ("settle" %in% names(covariates(core))) && 
+                    details$edgemethod %in% c("truncate", "normalize")) 
             {
                 s <- covariates(core)$settle
                 if (any(is.na(s)) || min(s)<0 || max(s)>1) 
-                    stop('settle covariate should be in range 0-1 with none missing')
+                    stop("settle covariate should be in range 0-1 with none missing")
             }
-            cellsize <- attr(core, 'area')
+            cellsize <- attr(core, "area")
             
             ## 2022-11-24 function D
             if (is.function(D)) {
@@ -616,16 +630,16 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
             }
 
             nm <- getnm(cellsize, unlist(D))
-            jitter <- matrix ((runif(2*sum(nm))-0.5) * attr(core,'spacing'), ncol = 2)
+            jitter <- matrix ((runif(2*sum(nm))-0.5) * attr(core,"spacing"), ncol = 2)
             animals <- core[rep(1:nrow(core), nm),] + jitter
             animals <- as.data.frame(animals)
             xl <- range(animals[,1])
             yl <- range(animals[,2])
         }
-        else  if (model2D == 'linear') {
-            if (!inherits(core, 'linearmask'))
-                stop ("for model2D = linear, 'core' should be a linear mask")
-            cellsize <- attr(core, 'spacing') * 0.001
+        else  if (model2D == "linear") {
+            if (!inherits(core, "linearmask"))
+                stop ("for model2D = linear, core should be a linear mask")
+            cellsize <- attr(core, "spacing") * 0.001
             nm <- getnm(cellsize, D)
             animals <- core[rep(1:nrow(core), nm),] * 1  ## * 1 to shed attributes...
             animals <- as.data.frame(animals)
@@ -635,7 +649,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
         }
         else {
             # population in arena +/- buffer from traps
-            # 2023-11-06 buffer should equal half spacing if (inherits(core, 'mask'))
+            # 2023-11-06 buffer should equal half spacing if (inherits(core, "mask"))
             buff <- c(-buffer,+buffer)
             xl <- range(core$x) + buff
             yl <- range(core$y) + buff
@@ -653,7 +667,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                                   convex = polyarea (bufferpoly),
                                   concave = sum(sapply(bufferpoly, polyarea)))
             
-            if ((buffertype == 'concave') & (is.null(Nbuffer)))
+            if ((buffertype == "concave") & (is.null(Nbuffer)))
                 warning("automatic Nbuffer unreliable with concave buffer")
 
             ## If target number (Nbuffer) not specified, get from density x area
@@ -676,15 +690,15 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                 N <- Nbuffer
             }
 
-            if (model2D == 'poisson') {
+            if (model2D == "poisson") {
                 animals <- data.frame (
                     x = runif(N)*diff(xl)+xl[1],
                     y = runif(N)*diff(yl)+yl[1])
 
                 ## 2014-12-29, 2015-01-11, 2015-01-13 allow buffering / poly
-                if (buffertype %in% c('convex','concave')) {
+                if (buffertype %in% c("convex","concave")) {
 
-#                     if (Ndist == 'fixed') {
+#                     if (Ndist == "fixed") {
                         maxtries <- 10
                         tries <- 1
                         animals <- switch(buffertype,
@@ -711,7 +725,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
 #                     }
                 }
             }
-            else if (model2D == 'coastal') {
+            else if (model2D == "coastal") {
                 if (is.null(details$Beta))
                     details$Beta <- c(1,1.5,5,1)
                 a1 <- details$Beta[1]
@@ -760,6 +774,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                     if (nparent==0)
                         warning ("zero clusters")
                     parent <-  sweep(matrix(runif(2*nparent), ncol = 2), 2, c(xrange,yrange), '*')
+                    parent <-  sweep(parent, 2, c(xl[1],yl[1]), '+')
                     # number of offspring for each parent
                     if (!is.null(details$clone) && details$clone == 'constant') {
                         noffspr <- rep(details$mu, nparent)
@@ -768,7 +783,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                         noffspr <- rpois(nparent, details$mu)
                     }
                     N <- sum(noffspr)
-                        # for backward compatibility
+                    # for backward compatibility
                     if (is.null(details$scale)) details$scale <- details$hsigma
                     # scale = 0 to clone parent locations with no displacement 2023-10-10
                     offspr <- matrix(rnorm(2*N), ncol = 2) * details$scale
@@ -776,16 +791,40 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                         parentn <- rep(1:nparent, noffspr)
                         offspr <- offspr + parent[parentn,,drop = FALSE]
                         # toroidal wrapping
-                        while (any ((offspr[,1]<0) | (offspr[,1]>xrange) | (offspr[,2]<0) |
-                                    (offspr[,2]>yrange))) {
-                            offspr[,1] <- ifelse (offspr[,1]<0, offspr[,1]+xrange, offspr[,1])
-                            offspr[,1] <- ifelse (offspr[,1]>xrange, offspr[,1]-xrange, offspr[,1])
-                            offspr[,2] <- ifelse (offspr[,2]<0, offspr[,2]+yrange, offspr[,2])
-                            offspr[,2] <- ifelse (offspr[,2]>yrange, offspr[,2]-yrange, offspr[,2])
+                        while (any ((offspr[,1]<xl[1]) | (offspr[,1]>xl[2]) | (offspr[,2]<yl[1]) |
+                                    (offspr[,2]>yl[2]))) {
+                            offspr[,1] <- ifelse (offspr[,1]<xl[1], offspr[,1]+xrange, offspr[,1])
+                            offspr[,1] <- ifelse (offspr[,1]>xl[2], offspr[,1]-xrange, offspr[,1])
+                            offspr[,2] <- ifelse (offspr[,2]<yl[1], offspr[,2]+yrange, offspr[,2])
+                            offspr[,2] <- ifelse (offspr[,2]>yl[2], offspr[,2]-yrange, offspr[,2])
                         }
                     }
                 }
                 animals <- as.data.frame(sweep(offspr,2,c(xl[1],yl[1]),'+'))
+                if (is.null(details$saveLambda)) details$saveLambda <- FALSE
+                if (details$saveLambda) {
+                    lmask <- make.mask (
+                        nx      = diff(xl)/details$eps, 
+                        ny      = diff(yl)/details$eps,
+                        buffer  = 0,
+                        spacing = details$eps, 
+                        type    = 'rectangular')
+                    lmask <- shift(lmask, c(xl[1],yl[1]))
+                    d <- edist(parent, lmask)
+                    if (details$scale > details$eps/16) {
+                        k <- exp(-d^2/2/details$scale^2)
+                        knorm <- apply(k,1,sum)
+                        # normalise kernel values dividing by per-parent sum
+                        k <- sweep(k, MARGIN = 1, FUN = '/', STATS = knorm)
+                    }
+                    else {
+                        k <- t(apply(d, 1, function(x) x == min(x)))
+                    }
+                    # sum over parents
+                    covariates(lmask)$Lambda <- details$mu * apply(k,2,sum) / attr(lmask,'area')
+                    attr(animals, 'Lambda') <- lmask
+                }
+                attr(animals, 'parents') <- parent
             }
             else if (model2D == 'even') {
                 ## 'even' distribution from Efford 2004 and Density
@@ -806,10 +845,9 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                     if (!is.numeric(D) || length(D)>1) {
                         stop ("for model2D in (rLGCP, rThomas) D should be a scalar")
                     }
-                    if (is.null(details$saveLambda)) details$saveLambda <- TRUE
+                    if (is.null(details$saveLambda)) details$saveLambda <- FALSE
                     # spatstat window
                     ow <- spatstat.geom::owin(xl, yl)  
-                    if (is.null(details$eps)) details$eps <- diff(xl)/64
                     if (model2D == 'rLGCP') {
                         # D, var, scale
                         # mu for rLGCP is derived from D, var
@@ -821,25 +859,29 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                             scale      = details$scale,
                             win        = ow,
                             saveLambda = details$saveLambda,
-                            eps        = details$eps)
+                            eps        = details$eps,
+                            rule.eps   = 'shrink.frame')
                     }
                     else if (model2D == 'rThomas') {
                         # kappa for rThomas is D/mu
-                        kappa <- D/1e4/details$mu   # mean density / m^2
+                        kappa <- D/1e4/details$mu   # parent mean density / m^2
                         pts <- spatstat.random::rThomas(
                             kappa       = kappa,
                             scale       = details$scale,
                             mu          = details$mu,
                             win         = ow,
-                            nonempty    = FALSE, 
+                            nonempty    = FALSE,         # include parents with no offspring
                             saveparents = TRUE,
                             saveLambda  = details$saveLambda,
-                            eps         = details$eps)    # 2023-11-07
+                            eps         = details$eps,       # spacing of Lambda mask
+                            rule.eps    = 'shrink.frame')    # 2023-11-07
                     }
                     animals <- spatstat.geom::coords(pts)
                     animals <- as.data.frame(animals)
                     if (details$saveLambda) {
                         attr(animals, "Lambda") <- im2mask(attr(pts, "Lambda")) 
+                        # 2023-11-08 testing
+                        # if (nrow(attr(animals, "Lambda"))!=3600) browser()
                     }
                     if (model2D == 'rThomas') {
                         attr(animals, "parents") <- as.data.frame(attr(pts, "parents"))
@@ -884,12 +926,12 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
             }
             ##-------------------------
         }
-        attr(animals, 'seed') <- RNGstate   ## save random seed
-        attr(animals, 'Ndist') <- Ndist
-        attr(animals, 'Nbuffer') <- Nbuffer
-        attr(animals, 'D') <- D   # bulky if mask
-        attr(animals, 'model2D') <- model2D
-        attr(animals, 'buffertype') <- buffertype
+        attr(animals, 'seed')        <- RNGstate   ## save random seed
+        attr(animals, 'Ndist')       <- Ndist
+        attr(animals, 'Nbuffer')     <- Nbuffer
+        attr(animals, 'D')           <- D   # bulky if mask
+        attr(animals, 'model2D')     <- model2D
+        attr(animals, 'buffertype')  <- buffertype
         attr(animals, 'boundingbox') <- expand.grid (x=xl,y=yl)[c(1,3,4,2),]
         animals
     }
