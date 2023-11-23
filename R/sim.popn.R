@@ -825,6 +825,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                     attr(animals, 'Lambda') <- lmask
                 }
                 attr(animals, 'parents') <- parent
+                attr(animals, 'parentid') <- parentn
             }
             else if (model2D == 'even') {
                 ## 'even' distribution from Efford 2004 and Density
@@ -880,11 +881,10 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                     animals <- as.data.frame(animals)
                     if (details$saveLambda) {
                         attr(animals, "Lambda") <- im2mask(attr(pts, "Lambda")) 
-                        # 2023-11-08 testing
-                        # if (nrow(attr(animals, "Lambda"))!=3600) browser()
                     }
                     if (model2D == 'rThomas') {
                         attr(animals, "parents") <- as.data.frame(attr(pts, "parents"))
+                        attr(animals, "parentid") <- attr(pts, "parentid")
                     }
                 }
                 else {
