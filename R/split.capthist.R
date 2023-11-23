@@ -2,60 +2,7 @@
 ## package 'secr'
 ## split.capthist.R
 ## last changed 2009 06 11 2009 07 10 2009 10 05 2012 07 26 2012 09 04 2015-10-11
-## 2021-04-24
-############################################################################################
-
-old.split.capthist <- function (x, f, drop = FALSE, prefix='S', bytrap = FALSE,
-    byoccasion = FALSE, ...) {
-    if (!inherits(x, 'capthist'))
-        stop ("argument to 'split.capthist' should have class 'capthist'")
-    if (inherits(x, 'list'))
-        stop ("split not suitable for multi-session 'capthist'")
-    options(warn=-1)
-    
-    f <- as.factor(f)  # retains unused levels
-    if (any(!is.na(as.numeric(levels(f))))) {
-        ## leadingzero added 2012-09-04
-        #   f <- factor(paste (prefix,leadingzero(f),sep=''))
-        levels(f) <- paste (prefix,leadingzero(levels(f)),sep='')
-    }
-    options(warn=0)
-    
-    if (bytrap) {
-        ## 2015-10-11
-        ## if (length(f)!= nrow(traps(x)))
-        if (length(f)!= ndetector(traps(x)))
-            stop ("length of f should match number of detectors")
-    }
-    else if (byoccasion) {
-        if (length(f)!=ncol(x))
-            stop ("length of f should match number of columns in capthist")
-    }
-    else {
-        if (length(f)!=nrow(x))
-            stop ("length of f should match number of rows in capthist")
-    }
-    if (bytrap & byoccasion)
-        stop("specify only one of bytrap and byoccasion")
-    
-    out <- list()
-    for (i in levels(f)) {
-        if (bytrap) {
-            temp <- subset (x, traps = f == i, ...)
-        }
-        else if (byoccasion) {
-            temp <- subset (x, occasions = f == i, ...)
-        }
-        else {
-            temp <- subset (x, subset = f == i, ...)
-        }
-        session(temp) <- i
-        if (!drop | (nrow(temp)>0))
-            out[[i]] <- temp
-    }
-    class (out) <- c('capthist', 'list')
-    out
-}
+## 2021-04-24, 2023-11-23
 ############################################################################################
 
 split.capthist <- function (x, f, drop = FALSE, prefix='S', bytrap = FALSE,
@@ -87,15 +34,13 @@ split.capthist <- function (x, f, drop = FALSE, prefix='S', bytrap = FALSE,
         }
     }
     else {
-        options(warn=-1)
+        oldopt <- options(warn=-1)
         
         f <- as.factor(f)  # retains unused levels
         if (any(!is.na(as.numeric(levels(f))))) {
-            ## leadingzero added 2012-09-04
-            #   f <- factor(paste (prefix,leadingzero(f),sep=''))
             levels(f) <- paste (prefix,leadingzero(levels(f)),sep='')
         }
-        options(warn=0)
+        options(oldopt)
         
         if (bytrap) {
             ## 2015-10-11

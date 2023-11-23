@@ -24,7 +24,7 @@ writeGPS <- function (xy, o = "garmin", F = "usb:", proj = '+proj=nzmg')  {
     latlon <- data.frame(latlon)[,c(2,1)] ## need lat first
     latlon$label <- rownames(xy)
     tempf <- tempfile('waypts')
-    old <- options(digits=12)  ## ensure plenty of digits
+    oldopt <- options(digits=12)  ## ensure plenty of digits
     write.table(latlon, quote = FALSE, file = tempf,
         col.names = FALSE, row.names = FALSE, sep = ',')
 
@@ -39,7 +39,7 @@ writeGPS <- function (xy, o = "garmin", F = "usb:", proj = '+proj=nzmg')  {
         gpsdata <- system(cmd, intern = TRUE)
 
     file.remove(tempf)
-    options(old)
+    options(oldopt)
     invisible()
 
 }

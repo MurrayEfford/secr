@@ -13,7 +13,7 @@ split.traps <- function (x, f, drop = FALSE, prefix='S', byoccasion = FALSE, ...
       stop ("'split.traps' is not suitable for multi-session traps")
   }
 
-  options(warn=-1)
+  oldopt <- options(warn=-1)
   f <- factor(f)
 
   ## if (any(!is.na(as.numeric(levels(f))))) {
@@ -27,7 +27,7 @@ split.traps <- function (x, f, drop = FALSE, prefix='S', byoccasion = FALSE, ...
   else {
       sp <- levels(polyID(x))
   }
-  options(warn=0)
+  options(oldopt)
 
   if (byoccasion) {
       usg <- usage(x)

@@ -218,7 +218,7 @@ mask.check <- function (object, buffers = NULL, spacings = NULL, poly = NULL,
                 ## quote passes name... avoids bulky call
                 newcall <- replace(newcall, 'mask', list(quote(msk)))
                 
-                if (tracelevel<2) old <- options(warn=-1)
+                if (tracelevel<2) oldopt <- options(warn=-1)
                 if (LLonly) {
                     mask.check.output[i,j] <- do.call(secr.fit, newcall)
                 }
@@ -237,7 +237,7 @@ mask.check <- function (object, buffers = NULL, spacings = NULL, poly = NULL,
                                                              ['D', c('estimate','SE.estimate')])
                     }
                 }
-                options(old)
+                options(oldopt)
                 if (tracelevel>0)
                     cat('Completed buffer', buffers[i], 'spacing',
                         spacings[j], date(), '\n')
