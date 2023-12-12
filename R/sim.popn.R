@@ -775,6 +775,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                         warning ("zero clusters")
                     parent <-  sweep(matrix(runif(2*nparent), ncol = 2), 2, c(xrange,yrange), '*')
                     parent <-  sweep(parent, 2, c(xl[1],yl[1]), '+')
+                    dimnames(parent)[[2]] <- c('x','y')
                     # number of offspring for each parent
                     if (!is.null(details$clone) && details$clone == 'constant') {
                         noffspr <- rep(details$mu, nparent)
@@ -800,7 +801,8 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                         }
                     }
                 }
-                animals <- as.data.frame(sweep(offspr,2,c(xl[1],yl[1]),'+'))
+                #animals <- as.data.frame(sweep(offspr,2,c(xl[1],yl[1]),'+'))
+                animals <- as.data.frame(offspr)
                 if (is.null(details$saveLambda)) details$saveLambda <- FALSE
                 if (details$saveLambda) {
                     lmask <- make.mask (
@@ -824,7 +826,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                     covariates(lmask)$Lambda <- details$mu * apply(k,2,sum) / attr(lmask,'area')
                     attr(animals, 'Lambda') <- lmask
                 }
-                attr(animals, 'parents') <- parent
+                attr(animals, 'parents') <- as.data.frame(parent)
                 attr(animals, 'parentid') <- parentn
             }
             else if (model2D == 'even') {
