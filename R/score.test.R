@@ -66,8 +66,9 @@ prepare <- function (secr, newmodel) {
     if (D.modelled) betanames <- c(paste('D', colnames(D.designmatrix), sep='.'), betanames)
     if (NE.modelled) betanames <- c(betanames, paste('noneuc', colnames(NE.designmatrix), sep='.'))
     betanames <- sub('..(Intercept))','',betanames)
-    
-    if (detector(traps(capthist)) %in% .localstuff$simpledetectors)
+    # if (detector(traps(capthist)) %in% .localstuff$simpledetectors)
+    # 2023-12-12
+    if (all(unlist(detector(traps(capthist))) %in% .localstuff$simpledetectors))
         savedlogmultinomial <- logmultinom(capthist, group.factor(capthist, groups))
     else
         savedlogmultinomial <- 0
@@ -97,7 +98,6 @@ prepare <- function (secr, newmodel) {
 
 score.test <- function (secr, ..., betaindex = NULL, trace = FALSE, ncores = NULL,
                         .relStep = 0.001, minAbsPar = 0.1) {
-
     if (!inherits(secr, 'secr'))
         stop ("only for 'secr' objects")
     models <- list(...)
@@ -140,7 +140,6 @@ score.test <- function (secr, ..., betaindex = NULL, trace = FALSE, ncores = NUL
 
         #########################################################
         # construct essential parts of new secr model
-
         newsecr <- prepare (secr, model)
         newsecr$details <- replace (secr$details, 'trace', trace)  ## override
         newsecr$details$ncores <- setNumThreads(ncores)  ## 2021-10-17
