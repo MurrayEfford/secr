@@ -111,7 +111,7 @@ print.summary.traps <- function (x, terse = FALSE, ...) {
         cat ('y-range           ', x$yrange, 'm \n')
     }
     if (!is.null(x$rangeusage)) {
-        cat ('\n Usage range by occasion\n')
+        cat ('\nUsage range by occasion\n')
         print(x$rangeusage, ...)
     }
     if (!is.null(x$markocc)) {
