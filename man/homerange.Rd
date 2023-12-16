@@ -112,7 +112,9 @@ The \code{userdist} option is included for exotic non-Euclidean cases
 non-Euclidean distances.
 
 If \code{capthist} comprises standalone telemetry data (all detector 'telemetry') 
-then calculations are performed on the telemetry coordinates.
+then calculations are performed on the telemetry coordinates. If \code{capthist} 
+combines telemetry data and conventional detections (`multi', `proximity' etc.) 
+then only the conventional data are summarised.
 
 Movements are reliably reported by \code{moves} only if there is a maximum of one detection per animal per occasion. The sequence of detections within any occasion is not known; where these occur the sequence used by \code{moves} is arbitrary (sequence follows detector index).
 
