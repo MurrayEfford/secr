@@ -146,7 +146,7 @@ fxi.contour <- function (
 
 fxi.mode <- function (object, i = 1, sessnum = 1, start = NULL, ncores = NULL, ...) {
   if (length(i)>1) stop ("fxi.mode takes single i")
-  if (ms(object))
+  if (secr::ms(object))
     session.capthist <- object$capthist[[sessnum]]
   else
     session.capthist <- object$capthist
