@@ -145,6 +145,7 @@ miscparm \tab starting values for extra parameters fitted via userdist function 
 newdetector \tab detector type to override detector(traps(capthist)) \cr
 nsim \tab number of simulations to compute overdispersion \cr
 param \tab optional parameterisation code\cr
+relativeD \tab optional relative density conditional on \eqn{n} \cr
 savecall \tab optionally suppress saving of call\cr
 telemetrytype \tab treat telemetry data as independent, dependent or concurrent\cr
 normalize \tab rescale detection to individual range use \cr

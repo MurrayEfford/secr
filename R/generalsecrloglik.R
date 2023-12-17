@@ -573,14 +573,15 @@ generalsecrloglikfn <- function (
       
       #----------------------------------------------------------------------
       ## Adjust for undetected animals unless data includes all-zero histories
-      ## (the case for allsighting data when knownmarks = TRUE).
-      if (!data$MRdata$sightmodel==5 && !all(data$dettype==13)) {
+      ## (the case for allsighting data when knownmarks = TRUE)
+      ## or density relative.
+      if (!data$MRdata$sightmodel==5 && !all(data$dettype==13) && details$relativeD != 1) {
           comp[2,g] <- if (any(is.na(pdot)) || any(pdot<=0)) NA else -sum(log(pdot[ok]))
       }
       
       #----------------------------------------------------------------------
       
-      if (!CL && !data$MRdata$allsighting) {
+      if (!CL && !data$MRdata$allsighting && !details$relativeD) {
           ng <- sum(ok)
           if (any(data$dettype==13))
               nonzero <- sum(apply(data$CH[,data$dettype!=13,,drop=FALSE] != 0,1,sum)[ok]>0)
@@ -700,7 +701,7 @@ generalsecrloglikfn <- function (
   D.modelled <- !CL & is.null(fixed$D)
   if (!CL ) {
       D <- getD (designD, beta, sessmask, parindx, link, fixed,
-               grplevels, sessionlevels, parameter = 'D')
+               grplevels, sessionlevels, parameter = 'D', details$relativeD)
   }
   #--------------------------------------------------------------------
   # Non-Euclidean distance parameter

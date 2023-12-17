@@ -147,6 +147,10 @@ sigmak ~ 1)
 \code{details$param = 5} combines parameterisations (3) and (4) (first
 compute sigma from D, then compute lambda0 from sigma).
 
+\code{details$relativeD} fits a density model conditional on \eqn{n} that describes
+relative density instead of absolute density. This describes the distribution of 
+tagged animals.
+
 \code{details$savecall} determines whether the full call to \code{secr.fit} is 
 saved in the output object. The default is TRUE except when called by 
 \code{par.secr.fit} as names in the call are then evaluated, causing the 
