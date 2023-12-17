@@ -1,6 +1,6 @@
 ## package 'secr' 4.5
 ## makeStart.R
-## 2022-04-02
+## 2022-04-02, 2023-12-17
 
 makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link, 
     details = NULL, fixed = NULL, CL = FALSE, anypoly = FALSE, anytrans = FALSE, 
@@ -11,13 +11,19 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
     ############################################
 
     if (inherits(start, c('ipsecr', 'secr'))) {
+        
         oldbeta <- coef(start)$beta
-        if (!is.null(details) && details$nsim > 0)
+        fb <- start$details$fixedbeta
+        if (is.null(fb)) fb <- rep(NA, length(oldbeta))
+        names(fb)[is.na(fb)] <- start$betanames
+        oldbeta <- fullbeta(oldbeta, fb) # matches start$parindx
+        if (!is.null(details) && !is.null(details$nsim) && details$nsim > 0) {
             start <- oldbeta    ## chat simulations
+        }
         else {
-            names(oldbeta) <- start$betanames
             oldnam <- start$betanames
             start <- mapbeta(start$parindx, parindx, oldbeta, NULL)
+            
             if (!is.null(details$miscparm)) {
                 nb <- length(start)
                 start <- c(start, details$miscparm)
@@ -25,6 +31,7 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
                 start[oldnam] <- oldbeta[oldnam]
             }
         }
+        if (!is.null(details$fixedbeta)) start <- start[is.na(details$fixedbeta)]
         return(start)
     }
     
