@@ -444,7 +444,7 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE)
             nmash <- attr(object$capthist, 'n.mash')
         }
 
-        ## function reparameterize is in secrloglik.R
+        ## function reparameterize is in reparameterize.R
         Xrealparval0 <- reparameterize (realparval0, object$detectfn, object$details,
                                         session.mask, session.traps, Dtemp, s)
         Xrealparval1 <- reparameterize (realparval1, object$detectfn, object$details,
