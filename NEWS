@@ -1,4 +1,4 @@
-Changes in version 4.6.5 (2023-12-17)
+Changes in version 4.6.5 (2023-12-20)
 
 New features or changed behaviour of old functions
     o   sim.popn() saves 'parents' and 'Lambda' attributes from rThomas
@@ -7,6 +7,11 @@ New features or changed behaviour of old functions
 Bugs fixed
     o   score.test() failed with condition length>1
     o   makeStart() failed with details$fixedbeta
+
+Other
+    o   undocumented feature: details = list(externalpdot = 'pd') where 'pd'
+        is the name of a mask covariate to substitute for internally computed 
+        p.(x|theta)
 
 Changes in version 4.6.4 (2023-10-18)
 
