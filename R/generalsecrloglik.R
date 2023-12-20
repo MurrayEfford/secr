@@ -528,10 +528,15 @@ generalsecrloglikfn <- function (
                 haztemp <- gethazard (data$m, data$binomNcode, nrow(Xrealparval0), gkhk$hk, PIA0, data$usge)
             }
         }
-        pdot <- integralprw1poly (detectfn, Xrealparval0, haztemp, gkhk$hk, gkhk$H, pi.density, PIA0, 
-                                  data$CH0, data$binomNcode, data$grp, data$usge, data$mask,
-                                  pmixn, data$maskusage, details$grain, details$ncores, details$minprob, 
-          debug = details$debug>3)
+        if (!is.null(details$externalpdot)) {
+            pdot <- rep(sum(data$externalpdot * pi.density), nc1)
+        }
+        else {
+            pdot <- integralprw1poly (detectfn, Xrealparval0, haztemp, gkhk$hk, 
+                gkhk$H, pi.density, PIA0, data$CH0, data$binomNcode, data$grp, 
+                data$usge, data$mask, pmixn, data$maskusage, details$grain, 
+                details$ncores, details$minprob, debug = details$debug>3)
+        }
     }
     ## point types
     else {
@@ -558,9 +563,14 @@ generalsecrloglikfn <- function (
             }
             
         }
-        pdot <- integralprw1 (nrow(Xrealparval0), haztemp, gkhk, pi.density, PIA0, 
-                              data$CH0, data$binomNcode, data$MRdata, data$grp, data$usge, pmixn, 
-                            pID, details$grain, details$ncores)
+        if (!is.null(details$externalpdot)) {
+            pdot <- rep(sum(data$externalpdot * pi.density), nc1)
+        }
+        else {
+            pdot <- integralprw1 (nrow(Xrealparval0), haztemp, gkhk, 
+                pi.density, PIA0, data$CH0, data$binomNcode, data$MRdata, 
+                data$grp, data$usge, pmixn, pID, details$grain, details$ncores)
+        }
     }
     
     ngroup <- max(length(levels(data$grp)),1)

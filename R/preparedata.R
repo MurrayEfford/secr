@@ -356,6 +356,17 @@ prepareSessionData <- function (capthist, mask, maskusage,
                 stop ('specified maskusage should be n x m matrix of logical values')
             maskusage[] <- as.logical(maskusage)
         }
+        
+        if (!is.null(details$externalpdot)) {
+            if (!(details$externalpdot %in% names(covariates(mask)))) 
+                stop ("externalpdot '", details$externalpdot, "' not found in mask covariates")
+            externalpdot <- covariates(mask)[, details$externalpdot]
+            message("using external pdot")
+        }
+        else {
+            externalpdot <- NULL
+        }
+        
         ## Groups
         grp  <- group.factor (capthist, groups)
         if (any(is.na(grp))) {
@@ -398,6 +409,7 @@ prepareSessionData <- function (capthist, mask, maskusage,
             binomNcode = binomNcode,
             usge = usge,
             mask = mask,
+            externalpdot = externalpdot,
             distmat2 = distmat2,
             knownclass = knownclass,
             n.distrib = n.distrib,

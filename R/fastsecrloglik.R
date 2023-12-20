@@ -173,9 +173,14 @@ fastsecrloglikfn <- function (
         prw <- allhistfast (Xrealparval, gkhk, pi.density, PIA, 
           data$CH, data$usge, pmixn, data$maskusage, 
           details$grain, details$ncores, details$binomN, design$individual)
-        pdot <- integralprw1fast (Xrealparval, gkhk, pi.density, PIA, 
-          data$CH0, data$usge, pmixn, details$grain, details$ncores, 
-          details$binomN, design$individual)
+        if (!is.null(details$externalpdot)) {
+            pdot <- rep(sum(data$externalpdot * pi.density), data$nc)
+        }
+        else {
+            pdot <- integralprw1fast (Xrealparval, gkhk, pi.density, PIA, 
+                  data$CH0, data$usge, pmixn, details$grain, details$ncores, 
+                  details$binomN, design$individual)
+        }
         if (details$debug>2) browser()
         
         comp <- matrix(0, nrow = 6, ncol = 1)
