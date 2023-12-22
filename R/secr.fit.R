@@ -7,6 +7,7 @@
 ## 2021-04-25 4.4.0
 ## 2021-06-22 global change fixedpar to fixed for consistency
 ## 2023-12-16 relativeD
+## 2023-12-22 no separate verify for multi-session masks (allows sharefactorLevels warning)
 ###############################################################################
 
 secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
@@ -246,12 +247,7 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
             stop ("'verify' found errors in 'capthist' argument")
         
         if (!is.null(mask)) {
-            if (MS & ms(mask)) {
-                ## list of masks
-                test <- lapply(mask, verify, report = 1)
-                notOK <- any(unlist(test))
-            }
-            else notOK <- verify(mask, report = 1)$errors
+            notOK <- verify(mask, report = 1)$errors
             if (notOK)
                 stop ("'verify' found errors in 'mask' argument")
         }
