@@ -48,8 +48,8 @@ int i4 (int i, int j, int k, int l, int ii, int jj, int kk);
 //------------------------------------------------------
 // detectfn.cpp 
 //------------------------------------------------------
-typedef double (*fnptr)(const Rcpp::NumericVector, const double);
-typedef double (*fnptrC)(const std::vector<double>, const double);
+typedef double (*fnptr)(const Rcpp::NumericVector&, const double);
+typedef double (*fnptrC)(const std::vector<double>&, const double);
 fnptr getzfnr (int fn);
 fnptrC getgfns (int fn);
 fnptrC getzfnrC (int fn);
