@@ -64,41 +64,41 @@ int par3 (int fn) {
 }
 
 //--------------------------------------------------------------------
-double zhnr (const NumericVector param, const double r) {
+double zhnr (const NumericVector& param, const double r) {
     return(-log(1-param[0] * exp(- r * r / 2 / param[1] / param[1])));
 }
 //--------------------------------------------------------------------
-double zhrr (const NumericVector param, const double r) {
+double zhrr (const NumericVector& param, const double r) {
     return(-log(1-param[0] * (1 - exp(- pow(r / param[1], -param[2])))));
 }
 //--------------------------------------------------------------------
-double zexr (const NumericVector param, const double r) {
+double zexr (const NumericVector& param, const double r) {
     return (-log(1-param[0] * exp(-r / param[1])));
 }
 //--------------------------------------------------------------------
-double zhncr (const NumericVector param, const double r) {
+double zhncr (const NumericVector& param, const double r) {
     double temp;
     temp = param[0] * exp(- r * r  / 2 / param[1] / param[1]);
     if (round(param[2]) > 1) temp = 1 - pow(1 - temp, param[2]);
     return (-log(1-temp));
 }
 //--------------------------------------------------------------------
-double zunr (const NumericVector param, const double r) {
+double zunr (const NumericVector& param, const double r) {
     if (r<param[1]) return (-log(1-param[0]));
     else return (0);
 }
 //--------------------------------------------------------------------
-double zhfr (const NumericVector param, const double r) {
+double zhfr (const NumericVector& param, const double r) {
     if (r<param[2]) return (param[0]);
     else return (-log(1-param[0] * exp(-(r-param[2]) / param[1])));
 }
 //--------------------------------------------------------------------
-double zanr (const NumericVector param, const double r) {
+double zanr (const NumericVector& param, const double r) {
     return (-log(1-param[0] * exp(-(r-param[2])*(r-param[2]) / 2 /
 				  param[1] / param[1])));
 }
 //--------------------------------------------------------------------
-double zclnr (const NumericVector param, const double r) {
+double zclnr (const NumericVector& param, const double r) {
     double g0, sigma, z, CV2, meanlog, sdlog;
     g0 = param[0];
     sigma = param[1];
@@ -108,30 +108,30 @@ double zclnr (const NumericVector param, const double r) {
     sdlog = std::sqrt(log(1 + CV2));
     // return (-log(1-g0 * R::plnorm(r,meanlog,sdlog,0,0)));   // upper
     boost::math::lognormal_distribution<> ln(meanlog, sdlog);
-    return (-log(1-g0 * boost::math::cdf(complement(ln, r)))); 
+    return (-log(1-g0 * boost::math::cdf(complement(ln, r))));
 }
 //--------------------------------------------------------------------
-double zcgr (const NumericVector param, const double r) {
+double zcgr (const NumericVector& param, const double r) {
     // return (-log(1-param[0] * R::pgamma(r,param[2],param[1]/param[2],0,0))); // upper
     boost::math::gamma_distribution<> gam(param[2],param[1]/param[2]);
     return (-log(1-param[0] * boost::math::cdf(complement(gam,r)))); 
 }
 //--------------------------------------------------------------------
 
-// binary signal strength - (beta0-c)/sdS, beta1/sdS 
-double zsigbinr  (const NumericVector param, const double r) {
+// binary signal strength - (beta0-c)/sdS, beta1/sdS
+double zsigbinr (const NumericVector& param, const double r) {
     double gam, b0, b1;
     b0 = param[0];
     b1 = param[1];
     gam = -(b0 + b1 * r);
     // return (-log(1-R::pnorm(gam,0,1,0,0)));    // upper 
     boost::math::normal_distribution<> n;
-    return (-log(1-boost::math::cdf(complement(n,gam))));    // upper 
+    return (-log(1-boost::math::cdf(complement(n,gam))));    // upper
 }
 //--------------------------------------------------------------------
 
-// signal strength - beta0, beta1, sdS 
-double zsigr (const NumericVector param, const double r) {
+// signal strength - beta0, beta1, sdS
+double zsigr (const NumericVector& param, const double r) {
     double mu, gam;
     double beta0, beta1, sdS, cut;
     beta0 = param[0];
@@ -147,7 +147,7 @@ double zsigr (const NumericVector param, const double r) {
 //--------------------------------------------------------------------
 
 // signal strength with spherical spreading - beta0, beta1, sdS 
-double zsigsphr (const NumericVector param, const double r) {
+double zsigsphr (const NumericVector& param, const double r) {
     double mu, gam;
     double beta0, beta1, sdS, cut;
     beta0 = param[0];
@@ -163,80 +163,80 @@ double zsigsphr (const NumericVector param, const double r) {
 //--------------------------------------------------------------------
 
 // hazard halfnormal 
-double zhhnr (const NumericVector param, const double r) {
+double zhhnr (const NumericVector& param, const double r) {
     return(param[0] * exp(- r * r / 2 / param[1] / param[1]));
 }
 //--------------------------------------------------------------------
 
 // hazard hazard rate 
-double zhhrr (const NumericVector param, const double r) {
+double zhhrr (const NumericVector& param, const double r) {
     return(param[0] * ( 1 - exp(- pow(r / param[1], -param[2]))));
 }
 //--------------------------------------------------------------------
 
 // hazard exponential 
-double zhexr (const NumericVector param, const double r) {
+double zhexr (const NumericVector& param, const double r) {
     return (param[0] * exp(-r / param[1]));
 }
 //--------------------------------------------------------------------
 
 // hazard annular normal 
-double zhanr (const NumericVector param, const double r) {
+double zhanr (const NumericVector& param, const double r) {
     return (param[0] * exp(-(r-param[2])*(r-param[2]) / 2 /
 				   param[1] / param[1]));
 }
 //--------------------------------------------------------------------
 
 // hazard cumulative gamma 
-double zhcgr (const NumericVector param, const double r) {
+double zhcgr (const NumericVector& param, const double r) {
     return ((1 - exp( - param[0] * exp(-r / param[1]))));
 }
 
 // hazard variable power 
-double zhvpr (const NumericVector param, const double r) {
+double zhvpr (const NumericVector& param, const double r) {
     return (param[0] * exp( - pow(r / param[1], param[2]))) ;
 }
 //--------------------------------------------------------------------
 
 // hazard pixelar 
-double zhpxr (const NumericVector param, const double r) {
+double zhpxr (const NumericVector& param, const double r) {
     if (r<param[1]) return (1-exp(-param[0]));
     else return (0);
 }
 //--------------------------------------------------------------------
 
 // hazard halfnormal 
-double zhhnrC (const std::vector<double> param, const double r) {
+double zhhnrC (const std::vector<double>& param, const double r) {
     return(param[0] * exp(- r * r / 2 / param[1] / param[1]));
 }
 //--------------------------------------------------------------------
 
 // hazard hazard rate 
-double zhhrrC (const std::vector<double> param, const double r) {
+double zhhrrC (const std::vector<double>& param, const double r) {
     return(param[0] * ( 1 - exp(- pow(r / param[1], -param[2]))));
 }
 //--------------------------------------------------------------------
 
 // hazard exponential 
-double zhexrC (const std::vector<double> param, const double r) {
+double zhexrC (const std::vector<double>& param, const double r) {
     return (param[0] * exp(-r / param[1]));
 }
 //--------------------------------------------------------------------
 
 // hazard annular normal 
-double zhanrC (const std::vector<double> param, const double r) {
+double zhanrC (const std::vector<double>& param, const double r) {
     return (param[0] * exp(-(r-param[2])*(r-param[2]) / 2 /
             param[1] / param[1]));
 }
 //--------------------------------------------------------------------
 
 // hazard cumulative gamma 
-double zhcgrC (const std::vector<double> param, const double r) {
+double zhcgrC (const std::vector<double>& param, const double r) {
     return ((1 - exp( - param[0] * exp(-r / param[1]))));
 }
 
 // hazard variable power 
-double zhvprC (const std::vector<double> param, const double r) {
+double zhvprC (const std::vector<double>& param, const double r) {
     return (param[0] * exp( - pow(r / param[1], param[2]))) ;
 }
 
@@ -304,41 +304,41 @@ double mufnL (
 //====================================================================
 
 
-double ghns (const std::vector<double> param, const double r) {
+double ghns (const std::vector<double>& param, const double r) {
     return(param[0] * exp(- r * r / 2 / param[1] / param[1]));
 }
 //--------------------------------------------------------------------
-double ghrs (const std::vector<double> param, const double r) {
+double ghrs (const std::vector<double>& param, const double r) {
     return(param[0] * (1 - exp(- pow(r / param[1], -param[2]))));
 }
 //--------------------------------------------------------------------
-double gexs (const std::vector<double> param, const double r) {
+double gexs (const std::vector<double>& param, const double r) {
     return (param[0] * exp(-r / param[1]));
 }
 //--------------------------------------------------------------------
-double ghncs (const std::vector<double> param, const double r) {
+double ghncs (const std::vector<double>& param, const double r) {
     double temp;
     temp = param[0] * exp(- r * r  / 2 / param[1] / param[1]);
     if (round(param[2]) > 1) temp = 1 - pow(1 - temp, param[2]);
     return (temp);
 }
 //--------------------------------------------------------------------
-double guns (const std::vector<double> param, const double r) {
+double guns (const std::vector<double>& param, const double r) {
     if (r<param[1]) return (param[0]);
     else return (0);
 }
 //--------------------------------------------------------------------
-double ghfs (const std::vector<double> param, const double r) {
+double ghfs (const std::vector<double>& param, const double r) {
     if (r<param[2]) return (param[0]);
     else return (param[0] * exp(-(r-param[2]) / param[1]));
 }
 //--------------------------------------------------------------------
-double gans (const std::vector<double> param, const double r) {
+double gans (const std::vector<double>& param, const double r) {
     return (param[0] * exp(-(r-param[2])*(r-param[2]) / 2 /
             param[1] / param[1]));
 }
 //--------------------------------------------------------------------
-double gclns (const std::vector<double> param, const double r) {
+double gclns (const std::vector<double>& param, const double r) {
     double g0, sigma, z, CV2, meanlog, sdlog;
     g0 = param[0];
     sigma = param[1];
@@ -351,7 +351,7 @@ double gclns (const std::vector<double> param, const double r) {
     return (g0 * boost::math::cdf(complement(ln,r)));    // upper     
 }
 //--------------------------------------------------------------------
-double gcgs (const std::vector<double> param, const double r) {
+double gcgs (const std::vector<double>& param, const double r) {
     // return param[0] * R::pgamma(r,param[2],param[1]/param[2],0,0);
     boost::math::gamma_distribution<> gam(param[2],param[1]/param[2]);
     return (param[0] * boost::math::cdf(complement(gam,r)));
@@ -360,7 +360,7 @@ double gcgs (const std::vector<double> param, const double r) {
 //--------------------------------------------------------------------
 
 // binary signal strength - (beta0-c)/sdS, beta1/sdS 
-double gsigbins  (const std::vector<double> param, const double r) {
+double gsigbins  (const std::vector<double>& param, const double r) {
     double gam, b0, b1;
     b0 = param[0];
     b1 = param[1];
@@ -372,7 +372,7 @@ double gsigbins  (const std::vector<double> param, const double r) {
 //--------------------------------------------------------------------
 
 // signal strength - beta0, beta1, sdS 
-double gsigs (const std::vector<double> param, const double r) {
+double gsigs (const std::vector<double>& param, const double r) {
     double mu, gam;
     double beta0, beta1, sdS, cut;
     beta0 = param[0];
@@ -388,7 +388,7 @@ double gsigs (const std::vector<double> param, const double r) {
 //--------------------------------------------------------------------
 
 // signal strength with spherical spreading - beta0, beta1, sdS 
-double gsigsphs (const std::vector<double> param, const double r) {
+double gsigsphs (const std::vector<double>& param, const double r) {
     double mu, gam;
     double beta0, beta1, sdS, cut;
     beta0 = param[0];
@@ -404,44 +404,44 @@ double gsigsphs (const std::vector<double> param, const double r) {
 //--------------------------------------------------------------------
 
 // hazard halfnormal 
-double ghhns (const std::vector<double> param, const double r) {
+double ghhns (const std::vector<double>& param, const double r) {
     // Rprintf("%6.3f %6.3f %6.3f \n", r, param[0], param[1]); 
     return(1 - exp( - param[0] * exp(- r * r / 2 / param[1] / param[1])));
 }
 //--------------------------------------------------------------------
 
 // hazard hazard rate 
-double ghhrs (const std::vector<double> param, const double r) {
+double ghhrs (const std::vector<double>& param, const double r) {
     return(1 - exp( - param[0] * ( 1 - exp(- pow(r / param[1], -param[2])))));
 }
 //--------------------------------------------------------------------
 
 // hazard exponential 
-double ghexs (const std::vector<double> param, const double r) {
+double ghexs (const std::vector<double>& param, const double r) {
     return (1 - exp( - param[0] * exp(-r / param[1])));
 }
 //--------------------------------------------------------------------
 
 // hazard annular normal 
-double ghans (const std::vector<double> param, const double r) {
+double ghans (const std::vector<double>& param, const double r) {
     return (1 - exp( - param[0] * exp(-(r-param[2])*(r-param[2]) / 2 /
             param[1] / param[1])));
 }
 //--------------------------------------------------------------------
 
 // hazard cumulative gamma 
-double ghcgs (const std::vector<double> param, const double r) {
+double ghcgs (const std::vector<double>& param, const double r) {
     return (1 - exp( - (1 - exp( - param[0] * exp(-r / param[1])))));
 }
 //--------------------------------------------------------------------
 
 // hazard variable power 
-double ghvps (const std::vector<double> param, const double r) {
+double ghvps (const std::vector<double>& param, const double r) {
     return(1 - exp( - param[0] * exp(- pow(r / param[1], param[2]))));
 }
 
 // hazard pixelar   
-double ghpxs (const std::vector<double> param, const double r) {
+double ghpxs (const std::vector<double>& param, const double r) {
     if (r<param[1]) return (1-exp(-param[0]));
     else return (0);
 }
