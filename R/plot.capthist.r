@@ -34,8 +34,8 @@ plot.capthist <- function(x,
     ## recursive if list of capthist
     if (ms(x)) {
         if ((prod(par()$mfrow) < length(x)) & !add)
-            warning("screen layout does not allow for all sessions and some plots may be lost;",
-                    " set par mfrow")
+            warning("screen layout does not allow for all sessions and ",
+                    "some plots may be lost; set par mfrow", call. = FALSE)
         sapply (x, plot.capthist,
                 rad = rad, hidetraps = hidetraps, tracks = tracks,
                 title = title, subtitle = subtitle, add = add, varycol = varycol, icolours =
@@ -95,7 +95,7 @@ plot.capthist <- function(x,
             if ( detectr[1] %in% c('proximity', 'count', 'polygonX',
                 'transectX', 'signal', 'signalnoise', 'polygon',
                 'transect', 'unmarked', 'presence') ) {
-                warning ("labels not implemented for this detector type")
+                warning ("labels not implemented for this detector type", call. = FALSE)
             }
             else {
                 xn <- apply(abs(x[n,,,drop=FALSE]),2,sum)
@@ -242,12 +242,12 @@ plot.capthist <- function(x,
         detectr <- expanddet(x)
         ## if (is.null(rownames(x))) { 2020-09-09
         if (is.null(rownames(x)) && nrow(x)>0) {
-                warning ("capthist has no rownames; using 1:nrow")
+                warning ("capthist has no rownames; using 1:nrow", call. = FALSE)
             rownames(x) <- 1:nrow(x)
         }
         if (all(detectr == 'telemetry')) {
             type <- 'telemetry'
-            # warning("assuming type = 'telemetry' as all data from telemetry")
+            # warning("assuming type = 'telemetry' as all data from telemetry", call. = FALSE)
         }
         if (type =='telemetry')
             nocc <- sum(detectr == 'telemetry')
@@ -282,7 +282,7 @@ plot.capthist <- function(x,
         }
 
         if (nrow(x) == 0) {
-            warning("no detections in capthist object")
+            warning("no detections in capthist object", call. = FALSE)
             type <- 'null'
         }
 
@@ -329,7 +329,7 @@ plot.capthist <- function(x,
                 occ <- split(occ[OK], ID[OK])
                 if (tracks & any(unlist(sapply(occ, duplicated))))
                     warning("track for repeat detections on same occasion",
-                            " joins points in arbitrary sequence")
+                            " joins points in arbitrary sequence", call. = FALSE)
                 mapply(plotproxcapt, lxy, occ, 1:length(lxy), telemetered(x))
             }
 

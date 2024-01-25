@@ -175,7 +175,8 @@ valid.detectpar <- function (detectpar, detectfn) {
 valid.model <- function(model, CL, detectfn, hcov, userdist, sessioncovnames) {
     ## 2014-08-25
     if (any(sapply(model, badsmooths)))
-        warning("smooth term may be unsuitable for secr: does not specify k or fx where required")
+        warning ("smooth term may be unsuitable for secr: ",
+                 "does not specify k or fx where required")
 }
 
 #-------------------------------------------------------------------------------
@@ -284,7 +285,8 @@ valid.userdist <- function (userdist, detector, xy1, xy2, mask, sessnum) {
             stop ("invalid distance matrix dim = ", dim(result)[1], ',', dim(result)[2])
         baddist <- (!is.finite(result)) | (result<0) | is.na(result)
         if (any(baddist)) {
-            warning ("replacing infinite, negative and NA userdist values with 1e10")
+            warning ("replacing infinite, negative and NA userdist values with 1e10", 
+                     call. = FALSE)
             result[baddist] <- 1e10
         }
     }
@@ -314,7 +316,7 @@ new.param <- function (details, model, CL) {
         }
     }
     if (newparam  != details$param)
-        warning ("Using parameterization details$param = ", newparam)
+        warning ("Using parameterization details$param = ", newparam, call. = FALSE)
     newparam
 }
 
@@ -544,7 +546,7 @@ get.nmix <- function (model, capthist, hcov) {
         if (length(lev) < 2)
             stop ("hcov covariate not found or has fewer than 2 levels")
         if (length(lev) > 2)
-            warning ("hcov covariate has more than 2 levels; using only first two")
+            warning ("hcov covariate has more than 2 levels; using only first two", call. = FALSE)
         nmix <- 2
     }
     nmix
@@ -980,7 +982,7 @@ h.levels <- function (capthist, hcov, nmix) {
         }
         hcov <- covariates(capthist)[,hcov]
         if (!is.factor(hcov)) {
-            warning("hcov was coerced to a factor")
+            warning ("hcov was coerced to a factor", call. = FALSE)
             hcov <- factor(hcov)
         }
         levels(hcov)[1:nmix]
@@ -1454,7 +1456,7 @@ secr.lpredictor <- function (formula, newdata, indx, beta, field, beta.vcv=NULL,
         mat <- general.model.matrix(formula, data = newdata, gamsmth = smoothsetup, 
             contrasts = contrasts)
         if (nrow(mat) < nrow(newdata))
-            warning ("missing values in predictors?")
+            warning ("missing values in predictors?", call. = FALSE)
         
         nmix <- 1
         if (field=='pmix') {
@@ -1799,7 +1801,8 @@ check3D <- function (object) {
     }
     else {
         if (is.matrix(object)) {
-            warning("secr >= 3.0 requires 3-D capthist; using updateCH() to convert")
+            warning("secr >= 3.0 requires 3-D capthist; ",
+                    "using updateCH() to convert", call. = FALSE)
             updateCH(object)
         }
         else {

@@ -146,8 +146,8 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
             detectfn <- valid.detectfn(detectfn)
     }
     #################################################
-    if (anysingle) warning ("multi-catch likelihood used for single-catch traps")
-    if (anycapped) warning ("capped likelihood is an approximation")
+    if (anysingle) warning ("multi-catch likelihood used for single-catch traps", call. = FALSE)
+    if (anycapped) warning ("capped likelihood is an approximation", call. = FALSE)
     
     #################################################
     ## Use input 'details' to override various defaults
@@ -263,7 +263,7 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
         if (is.null(buffer)) {
             buffer <- 100
             if (!allpresence)
-                warning ("using default buffer width 100 m")
+                warning ("using default buffer width 100 m", call. = FALSE)
         }
         makemaskCH <- function (CH, ...) {
             tr <- traps(CH)
@@ -364,7 +364,7 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
         model$D <- NULL
         if (details$relativeD) {
             details$relativeD <- FALSE
-            warning("relativeD is ignored when CL = TRUE")
+            warning ("relativeD is ignored when CL = TRUE", call. = FALSE)
         }
     }
     if (all(detectortype %in% c('telemetry'))) {

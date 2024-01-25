@@ -335,7 +335,7 @@ bufferbiascheck <- function (output, buffer, biasLimit) {
                                         noccasions = ncol(capthist[[i]]),
                                         binomN = output$details$binomN) )
                 if (inherits(biastemp, 'try-error'))
-                    warning('could not perform bias check')
+                    warning('could not perform bias check', call. = FALSE)
                 else
                     bias[i] <- biastemp$RB.D
             }
@@ -351,7 +351,7 @@ bufferbiascheck <- function (output, buffer, biasLimit) {
                                 noccasions = ncol(capthist),
                                 binomN = output$details$binomN) )
             if (inherits(bias, 'try-error')) {
-                warning('could not perform bias check')
+                warning('could not perform bias check', call. = FALSE)
                 bias <- 0  ## suppresses second message
             }
             else
@@ -359,6 +359,6 @@ bufferbiascheck <- function (output, buffer, biasLimit) {
         }
         if (any(bias > biasLimit))
             warning ("predicted relative bias exceeds ", biasLimit, " with ",
-                     "buffer = ", buffer)
+                     "buffer = ", buffer, call. = FALSE)
     }
 }

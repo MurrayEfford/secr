@@ -59,7 +59,7 @@ modelAverage.secr <- function (object, ..., realnames = NULL, betanames = NULL,
         c('Wald', 'MATA'), chat = NULL) 
 {
      if (length(list(...)) > 0) {
-         warning ("... argument ignored in 'modelAverage.secrlist'")
+         warning ("... argument ignored in 'modelAverage.secrlist'", call. = FALSE)
      }
      
     #########
@@ -83,7 +83,7 @@ modelAverage.secr <- function (object, ..., realnames = NULL, betanames = NULL,
     if ( any (!sapply(object, function (x) inherits(x, 'secr'))) )
         stop ("require fitted 'secr' objects")
     if ( length(object) < 2 )
-        warning ("only one model")
+        warning ("only one model", call. = FALSE)
     if (!is.list(object) | !inherits(object[[1]], 'secr'))
         stop ("object must be secr or list of secr")
 

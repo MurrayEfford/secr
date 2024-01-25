@@ -62,7 +62,7 @@ make.mask <- function (traps, buffer = 100, spacing = NULL, nx = 64, ny = 64,
   else {
     dots <- match.call(expand.dots = FALSE)$...
     if ((length(dots)==0) & (type == 'pdot'))
-      warning ("no detection parameters supplied; using defaults")
+      warning ("no detection parameters supplied; using defaults", call. = FALSE)
     
     if (inherits(traps, 'capthist'))
       stop("argument should be a traps object or equivalent, not capthist")
@@ -192,7 +192,7 @@ make.mask <- function (traps, buffer = 100, spacing = NULL, nx = 64, ny = 64,
           edge(mask[,2],yl[1]) |
           edge(mask[,2],yl[2]))
         warning ("'pdot' mask may have been truncated; ",
-          "possibly increase buffer")
+          "possibly increase buffer", call. = FALSE)
     }
     
     if ((!is.null(poly)) & (type != 'polybuffer' )) {
@@ -201,14 +201,14 @@ make.mask <- function (traps, buffer = 100, spacing = NULL, nx = 64, ny = 64,
         mask <- mask[inpoly,]
         if (check.poly) {
           if (any (!pointsInPolygon(traps, poly)))
-            warning ("some traps are not inside habitat polygon(s)")
+            warning ("some traps are not inside habitat polygon(s)", call. = FALSE)
         }
       }
       else {
         mask <- mask[!inpoly,]
         if (check.poly)
           if (any (pointsInPolygon(traps, poly)))
-            warning ("some traps are inside non-habitat polygon(s)")
+            warning ("some traps are inside non-habitat polygon(s)", call. = FALSE)
       }
       if (keep.poly) {
         attr(mask, 'polygon') <- poly   # save
@@ -221,7 +221,7 @@ make.mask <- function (traps, buffer = 100, spacing = NULL, nx = 64, ny = 64,
       yl <- range(mask$y) + spacing/2 * c(-1,1)
     }
     else {
-      warning("no points in mask")
+      warning("no points in mask", call. = FALSE)
       xl <- c(-Inf,Inf)
       yl <- c(-Inf,Inf)
     }

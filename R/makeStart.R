@@ -109,7 +109,8 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
                 
                 if (any(is.na(unlist(start3)))) {
                     warning ("'secr.fit' failed because initial values not found",
-                        " (data sparse?); specify transformed values in 'start'")
+                        " (data sparse?); specify transformed values in 'start'", 
+                        call. = FALSE)
                     return (NULL)
                 }
                 if (unmash & !CL) {
@@ -122,7 +123,7 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
                 memo(paste('Initial values ', paste(nms, collapse=', ')),
                     details$trace)
             }
-            else warning ("using default starting values")
+            else warning ("using default starting values", call. = FALSE)
         }
         #--------------------------------------------------------------
         # assemble start vector

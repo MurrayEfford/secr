@@ -101,7 +101,8 @@ make.capthist <- function (captures, traps, fmt = c("trapID", "XY"), noccasions 
                 OK <- (!occasiondetector %in% .localstuff$exclusivedetectors) |
                     !repeated
                 if (sum(OK) != nrow(captures))
-                    warning("dropping repeat detections within occasions at exclusive detectors (traps)")
+                    warning("dropping repeat detections within occasions at ",
+                            "exclusive detectors (traps)", call. = FALSE)
                 captures <- captures[OK, ]
             }
         }
@@ -134,7 +135,7 @@ make.capthist <- function (captures, traps, fmt = c("trapID", "XY"), noccasions 
                         captures <- captures[captTrap>0,]  ## first! 2010-11-17
                         captTrap <- captTrap[captTrap>0]
                         warning ("detections with coordinates outside ",
-                                 "polygon(s) were dropped")
+                                 "polygon(s) were dropped", call. = FALSE)
                     }
                 }
                 else if (all(detector(traps) %in% c('transect','transectX'))) {

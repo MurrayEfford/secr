@@ -211,7 +211,7 @@ Mh2.est <- function (fi) {
         covar <- try(solve(fit$hessian))
         if (inherits(covar, "try-error")) {
             warning ("could not invert Hessian to compute ",
-                     "variance-covariance matrix")
+                     "variance-covariance matrix", call. = FALSE)
             covar <- matrix(rep(NA,16), ncol = 4)  # failed
         }
         senhat <-  exp(fit$estimate[1]) * sqrt(exp(covar[1,1]^2)-1)
@@ -252,7 +252,7 @@ Mhbeta.est <- function (fi, maxN = 1e7) {
         covar <- try(solve(fit$hessian))
         if (inherits(covar, "try-error")) {
             warning ("could not invert Hessian to compute ",
-                     "variance-covariance matrix")
+                     "variance-covariance matrix", call. = FALSE)
             covar <- matrix(rep(NA,16), ncol = 4)  # failed
         }
         senhat <-  exp(fit$estimate[1]) * sqrt(exp(covar[1,1]^2)-1)
@@ -360,7 +360,7 @@ jackknife.est <- function (fi, full = F) {
                  N <- nj[1]
                  varN <- NA
                  Pi <- NA
-                 warning ("data illconditioned for jackknife")
+                 warning ("data illconditioned for jackknife", call. = FALSE)
              }
              else {
                  k1 <- occ5 - 1

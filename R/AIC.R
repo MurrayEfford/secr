@@ -51,7 +51,7 @@ AIC.secr <- function (object, ..., sort = TRUE, k = 2, dmax = 10,
     allargs <- secrlist(object, allargs)
     names(allargs) <- modelnames
     if (!all(AICcompatible(allargs))) {
-        warning ("models not compatible for AIC")
+        warning ("models not compatible for AIC", call. = FALSE)
     }
     AIC(allargs, sort=sort, k=k, dmax=dmax, criterion=criterion, chat=chat)
 }
@@ -62,7 +62,7 @@ AIC.secrlist <- function (object, ..., sort = TRUE, k = 2, dmax = 10,
                           criterion = c('AICc','AIC'), chat = NULL) {
     
     if (k != 2)
-        warning ("k != 2 and AIC.secr output may be mis-labelled")
+        warning ("k != 2 and AIC.secr output may be mis-labelled", call. = FALSE)
     
     if (length(list(...)) > 0)
         warning ("... argument ignored in 'AIC.secrlist'")

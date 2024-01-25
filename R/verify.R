@@ -200,7 +200,8 @@ verify.traps <- function (object, report = 2, ...) {
         stop ("mixture of NULL and non-NULL trap covariates in different sessions")
       trapcovariatelevelsOK <- checkcovariatelevels(covariates(object))
       if (!trapcovariatelevelsOK & report>0) {
-        warning ('Levels of factor trap covariate(s) differ between sessions - use shareFactorLevels()')
+        warning ('Levels of factor trap covariate(s) differ between sessions - ",
+                 "use shareFactorLevels()', call. = FALSE)
       }
     }
     
@@ -403,7 +404,8 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
         stop ("mixture of NULL and non-NULL individual covariates in different sessions")
       covariatelevelsOK <- checkcovariatelevels(covariates(object))
       if (!covariatelevelsOK & report>0) {
-        warning ('Levels of factor covariate(s) differ between sessions - use shareFactorLevels()')
+        warning ('Levels of factor covariate(s) differ between sessions - ",
+                 "use shareFactorLevels()', call. = FALSE)
       }
     }
     if ((report == 2) & !anyerrors)
@@ -975,7 +977,8 @@ verify.mask <- function (object, report = 2, ...) {
     if (!all(sapply(covariates(object), is.null))) {
       covariatelevelsOK <- checkcovariatelevels(covariates(object))
       if (!covariatelevelsOK & report>0) {
-        warning ('Levels of factor mask covariate(s) differ between sessions - use shareFactorLevels()')
+        warning ('Levels of factor mask covariate(s) differ between sessions - ",
+                 "use shareFactorLevels()', call. = FALSE)
       }
     }
     if ((report == 2) & !anyerrors)
