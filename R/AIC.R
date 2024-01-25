@@ -65,7 +65,7 @@ AIC.secrlist <- function (object, ..., sort = TRUE, k = 2, dmax = 10,
         warning ("k != 2 and AIC.secr output may be mis-labelled", call. = FALSE)
     
     if (length(list(...)) > 0)
-        warning ("... argument ignored in 'AIC.secrlist'")
+        warning ("... argument ignored in 'AIC.secrlist'", call. = FALSE)
     
     if (length(object) > 1) {
         ## check added 2013-10-14
