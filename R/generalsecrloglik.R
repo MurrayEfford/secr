@@ -29,7 +29,7 @@
 #--------------------------------------------------------------------------------
 allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, 
                            CH, binomNcode, MRdata, grp, usge, pmixn, pID, maskusage,
-                           telemhr = 0, telemstart = 0, telemscale = 0,
+                           telemhr = 0, telemstart = 0,
                            grain, ncores, R = FALSE, debug = FALSE) {
   nc <- nrow(CH)
   ## 2022-01-04
@@ -39,7 +39,7 @@ allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA,
   nmix <- nrow(pmixn)
   ngroup <- length(unique(grp))
   sump <- numeric(nc)
-  
+  if (debug) browser()
   for (x in 1:nmix) {
       hx <- if (any(binomNcode==-2)) matrix(haztemp$h[x,,], nrow = m) else -1 ## lookup sum_k (hazard)
       hi <- if (any(binomNcode==-2)) haztemp$hindex else -1                   ## index to hx
@@ -47,6 +47,10 @@ allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA,
           if (!exists('simplehistoriesR')) 
               stop ("R code simplehistoriesR not available; source prwisimple.R")  
           else {
+              if (length(telemstart)>1) {
+                  nt <- length(telemhr)/cc/m
+                  telemhr <- array(telemhr, dim = c(cc,m,nt))
+              } 
               temp <- do.call('simplehistoriesR', 
                               list (
                                   x, m, nc, cc,
@@ -57,7 +61,9 @@ allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA,
                                   array(gkhk$hk, dim=c(cc,k,m)),
                                   pi.density,
                                   PIA, usge, hx, hi,
-                                  maskusage))
+                                  maskusage,
+                                  telemstart, 
+                                  telemhr))
           }
       } 
       else {
@@ -465,7 +471,6 @@ generalsecrloglikfn <- function (
     else {
         telemhr <- 0
         telemstart <- 0
-        telemscale <- 0
     }
     #######################################################################
     ## option to estimate sighting overdispersion by simulation and exit */
@@ -494,8 +499,9 @@ generalsecrloglikfn <- function (
             prw <- allhistsimple (nrow(Xrealparval), haztemp, gkhk, pi.density, PIA, 
                                   data$CH, data$binomNcode, data$MRdata, data$grp, data$usge, pmixn, 
                                   pID, data$maskusage, 
-                                  telemhr, telemstart, telemscale,
-                                  details$grain, details$ncores, details$R)
+                                  telemhr, telemstart, 
+                                  details$grain, details$ncores, details$R, 
+                                  debug = details$debug>=2)
         }
         else if (all(data$dettype == 5)) {
             prw <- allhistsignal (detectfn, details$grain, details$ncores, data$binomNcode, data$CH, data$signal$signal,

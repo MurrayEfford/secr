@@ -27,9 +27,9 @@ NumericVector gethr(
     zfnr = getzfnr(fn);                                          
     for (c=0; c<cc; c++) {
         gsb(1) = gsbval(c,1);
-        // normalising coefficient 1/c
+        // normalising coefficient 1/c, c = 2.pi.sigma^2
         if ((fn==14) || (fn==16))
-            gsb(0) = telemscale/(2 * M_PI * gsb[1] * gsb[1]);
+            gsb(0) = telemscale / (2 * M_PI * gsb[1] * gsb[1]);
         else
             Rcpp::stop ("telemetry only coded for HHN and HEX");
         for (m=0; m<mm; m++) {
@@ -134,7 +134,7 @@ struct simplehistories : public Worker {
 
     void fnucpp (const int n, const int s, int &cumcount, std::vector<double> &pm) {
         
-        // Probability density of telemetry locations for each animal n if it belongs to
+        // Probability density of telemetry locations for animal n if it belongs to
         // latent class x and is centred at m. It is assumed that telemetry data correspond
         // to the last detector (nk)
         // 
@@ -157,7 +157,8 @@ struct simplehistories : public Worker {
             w3 = i3(n, s, kk-1, nc, ss);
             count = w[w3];  // number of telemetry fixes 
             if (count>0) {
-                c = PIA[w3] - 1;                if (c<0) {
+                c = PIA[w3] - 1;                
+                if (c<0) {
                     Rcpp::stop ("telemetry usage zero on telemetry occasion");
                 }
                 for (i=cumcount; i<(cumcount+count); i++) {
