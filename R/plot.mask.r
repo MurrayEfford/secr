@@ -239,7 +239,7 @@ plot.mask <- function(x, border = 20, add = FALSE, covariate = NULL,
         ncolour <- length(levels(covfactor))
         if (length(col) < ncolour) {
             if (length(col) > 1)
-                warning ("too few colours; using terrain.colors(", ncolour, ")")
+                warning ("too few colours; using terrain.colors(", ncolour, ")", call. = FALSE)
             col <- terrain.colors(ncolour)   
         }
         cols <- col[as.numeric(covfactor)]
