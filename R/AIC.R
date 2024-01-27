@@ -113,7 +113,7 @@ AICcompatible.secrlist <- function(object, ...) {
     }
     stopifnot(inherits(allargs, "secrlist"))
     if (length(allargs)==1) {
-        dataOK <- groupsOK <- CLOK <- hcovOK <- binomNOK <- relativeD <- TRUE   
+        dataOK <- groupsOK <- CLOK <- hcovOK <- binomNOK <- relativeDOK <- TRUE   
     }
     else {
         identicalNF <- function(a,b) {
