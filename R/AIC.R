@@ -113,16 +113,24 @@ AICcompatible.secrlist <- function(object, ...) {
     }
     stopifnot(inherits(allargs, "secrlist"))
     if (length(allargs)==1) {
-        dataOK <- groupsOK <- CLOK <- hcovOK <- binomNOK <- TRUE   
+        dataOK <- groupsOK <- CLOK <- hcovOK <- binomNOK <- relativeD <- TRUE   
     }
     else {
+        identicalNF <- function(a,b) {
+            # NULL as FALSE for logical
+            if (is.logical(a) && !a) a <- NULL
+            if (is.logical(b) && !b) b <- NULL
+            identical(a,b)
+        }
         dataOK <- sapply(allargs[-1], function(x) identical(x$capthist, allargs[[1]]$capthist))
         groupsOK <- sapply(allargs[-1], function(x) identical(x$groups, allargs[[1]]$groups))
         CLOK <- sapply(allargs[-1], function(x) identical(x$CL, allargs[[1]]$CL))
         hcovOK <- sapply(allargs[-1], function(x) identical(x$hcov, allargs[[1]]$hcov))
         binomNOK <- sapply(allargs[-1], function(x) identical(x$details$binomN, allargs[[1]]$details$binomN))
+        relativeDOK <- sapply(allargs[-1], function(x) identicalNF(x$details$relativeD, allargs[[1]]$details$relativeD))
     }
-    c(data=all(dataOK),  CL=all(CLOK), groups=all(groupsOK),hcov=all(hcovOK), binomN =all(binomNOK) ) 
+    c(data = all(dataOK),  CL = all(CLOK), groups = all(groupsOK), hcov = all(hcovOK), 
+      binomN = all(binomNOK), relativeD = all(relativeDOK) ) 
 }
 ############################################################################################
 

@@ -1,8 +1,9 @@
-Changes in version 4.6.5 (2023-12-22)
+Changes in version 4.6.5 (2024-01-28)
 
 New features or changed behaviour of old functions
     o   sim.popn() saves 'parents' and 'Lambda' attributes from rThomas
     o   relative density option 'relativeD'
+    o   AICcompatible() checks for 'relativeD'
 
 Bugs fixed
     o   score.test() failed with condition length>1
