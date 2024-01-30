@@ -368,9 +368,9 @@ generalsecrloglikfn <- function (
     ## allow for scaling of detection
     Dtemp <- if (D.modelled) mean(D[,1,sessnum]) else NA
     Xrealparval <- reparameterize (realparval, detectfn, details,
-                                   data$mask, data$traps, Dtemp, s)
+                                   data$mask, data$traps, Dtemp, data$s)   # was s! 2024-01-29
     Xrealparval0 <- reparameterize (realparval0, detectfn, details,
-                                    data$mask, data$traps, Dtemp, s)
+                                    data$mask, data$traps, Dtemp, data$s)
     if (details$debug>2) browser()
 
     ## check valid parameter values
