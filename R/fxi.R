@@ -369,7 +369,7 @@ fxi.secr <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL) {
   ## allow for scaling of detection
   Dtemp <- if (D.modelled) mean(D) else NA
   Xrealparval <- reparameterize (realparval, object$detectfn, object$details,
-                                 data$mask, data$traps, Dtemp, s)
+                                 data$mask, data$traps, Dtemp, data$s)
   PIA <- object$design$PIA[sessnum, ok, 1:data$s, 1:data$K, ,drop=FALSE]
   PIA0 <- object$design0$PIA[sessnum, ok, 1:data$s, 1:data$K, ,drop=FALSE]
   pmix <- getpmix (data$knownclass[ok], PIA, Xrealparval)  ## membership prob by animal
@@ -404,7 +404,7 @@ fxi.secr <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL) {
     nX <- nrow(X)
     gkhkX <- makegk (data$dettype, object$detectfn, data$traps, X, object$details, 
         sessnum, NE, D, miscparm, Xrealparval, grain, ncores)
-    haztempX <- gethazard (nX, data$binomNcode, nrow(realparval), gkhkX$hk, PIA, data$usge)
+    haztempX <- gethazard (nX, data$binomNcode, nrow(Xrealparval), gkhkX$hk, PIA, data$usge)
     
     if (data$dettype[1] %in% c(0,1,2,5,8,13)) {
         ## point detectors
@@ -413,9 +413,10 @@ fxi.secr <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL) {
     }
     else {
         ## polygon-like detectors
+        maskusage <- maskboolean(object$capthist, X, object$details$maxdistance)  # 2024-01-30
         prmatX <- allhistpolygonfxi (object$detectfn, Xrealparval, haztempX, gkhkX$hk, gkhkX$H, piX, PIA, 
                              CH, xy, data$binomNcode, grp, data$usge, X,
-                             pmix, data$maskusage, object$details$grain, object$details$minprob)
+                             pmix, maskusage, object$details$grain, ncores, object$details$minprob)
     }
     out <- sweep(prmatX, MARGIN=1, STATS=pisum, FUN="/")
   }
