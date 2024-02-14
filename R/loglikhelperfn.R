@@ -96,13 +96,6 @@ getuserdist <- function (traps, mask, userdist, sessnum, noneuc, density, miscpa
     if (is.null(userdist)) {
         getdistmat2(traps, mask, NULL, HPX)
     }
-    # 
-    # if (any(detector(traps) %in% .localstuff$polydetectors)) {
-    #     matrix(0, nrow = nrow(traps), ncol = m)
-    # }
-    # else if (is.null(userdist)) {
-    #     edist2cpp(as.matrix(traps), as.matrix(mask))
-    # }
     else {
         userdistnames <- getuserdistnames(userdist)
         m <- nrow(mask)
