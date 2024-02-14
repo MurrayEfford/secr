@@ -1,4 +1,4 @@
-Changes in version 4.6.5 (2024-01-31)
+Changes in version 4.6.5 (2024-02-15)
 
 New features or changed behaviour of old functions
     o   sim.popn() saves 'parents' and 'Lambda' attributes from rThomas
@@ -9,7 +9,8 @@ Bugs fixed
     o   score.test() failed with condition length>1
     o   makeStart() failed with details$fixedbeta
     o   obscure reparameterizations param = 2,6 failed
-    o   fxi.secr() failed for polygon data
+    o   fxi.secr() did not allow polygon data
+    o   static userdist not working
 
 Other
     o   secr.fit() warns if factor levels inconsistent for covariates of 
