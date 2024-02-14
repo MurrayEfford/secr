@@ -145,7 +145,7 @@ valid.detectfn <- function (detectfn, valid = c(0:3,5:19, 20)) {
         stop ("requires 'detectfn'")
     if (is.character(detectfn))
         detectfn <- detectionfunctionnumber(detectfn)
-    if (!(detectfn %in% valid))
+    if (any(!(detectfn %in% valid)))    # allow vector of detectfn 2024-02-12
         stop ("invalid detection function")
     detectfn
 }
