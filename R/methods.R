@@ -2187,11 +2187,15 @@ trim.secrlist <- function (object, drop = c('call', 'mask', 'designD', 'designNE
 }
 ############################################################################################
 
-## 2012-11-14, 2017-10-27, 2017-12-13, 2022-04-17
-secrlist <- function(...) {
+## 2012-11-14, 2017-10-27, 2017-12-13, 2022-04-17, 2024-02-15
+secrlist <- function(..., names = NULL) {
     dots <- match.call(expand.dots = FALSE)$...
     allargs <- list(...)
     if (length(allargs)==1 & inherits(allargs[[1]], 'secrlist')) {
+        if (!is.null(names)) {
+            if (length(allargs[[1]]) != length(names)) stop (length(allargs[[1]]), " names required", call. = FALSE)
+            names(allargs[[1]]) <- names
+        }
         return (allargs[[1]])
     }
     else {
@@ -2202,9 +2206,13 @@ secrlist <- function(...) {
 
         allargs <- lapply(allargs, function(x) if (inherits(x, c('secr','ipsecr'))) list(x) else x)
         temp <- do.call(c, allargs)
-        ## added 2013-06-06
-        if (is.null(names(temp)))
+        if (!is.null(names)) {
+            if (length(temp) != length(names)) stop (length(temp), " names required", call. = FALSE)
+            names(temp) <- names
+        }
+        else if (is.null(names(temp))) {
             names(temp) <- paste("secr", 1:length(temp), sep="")
+        }
         if (!all(sapply(temp, function(x) inherits(x, c('secr','ipsecr')))))
             stop ("objects must be of class 'secr' or 'secrlist'")
         class(temp) <- 'secrlist'

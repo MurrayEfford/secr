@@ -4,6 +4,7 @@ New features or changed behaviour of old functions
     o   sim.popn() saves 'parents' and 'Lambda' attributes from rThomas
     o   relative density option 'relativeD'
     o   AICcompatible() checks for 'relativeD'
+    o   secrlist acquires argument 'names'
 
 Bugs fixed
     o   score.test() failed with condition length>1

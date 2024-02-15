@@ -20,7 +20,7 @@ are included.
 \method{AIC}{secr}(object, ..., sort = TRUE, k = 2, dmax = 10, criterion = c("AICc","AIC"), chat = NULL)
 \method{AIC}{secrlist}(object, ..., sort = TRUE, k = 2, dmax = 10, criterion = c("AICc","AIC"), chat = NULL)
 \method{logLik}{secr}(object, ...)
-secrlist(...)
+secrlist(..., names = NULL)
 \method{[}{secrlist}(x, i)
 }
 
@@ -34,6 +34,7 @@ secrlist(...)
   \item{criterion}{ character, criterion to use for model comparison and
   weights}
   \item{chat}{numeric optional variance inflation factor for quasi-AIC}
+  \item{names}{character vector of names (optional)}
   \item{x}{secrlist}
   \item{i}{indices}
 }
@@ -74,7 +75,7 @@ The argument \code{k} is included for consistency with the generic method \code{
 
 \code{secrlist} forms a list of fitted models (an object of class
 `secrlist') from the fitted models in \dots.  Arguments may include
-secrlists. If secr components are named the model names will be retained
+secrlists. If secr components are named the model names will be retained unless `names' is specified.
 (see Examples).
 
 If chat (\eqn{\hat c}) is provided then quasi-AIC values are computed (\pkg{secr} >= 4.6.0):
