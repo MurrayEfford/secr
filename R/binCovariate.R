@@ -4,7 +4,7 @@
 ## 2024-02-17
 ##############################################################################
 
-bin <- function(x) {
+bin <- function(x, width) {
     width * (trunc(x / width)) + width/2
 }
 
@@ -24,7 +24,7 @@ binCovariate <- function (object, covname, width) {
             stop ("covariate is not numeric")
         if (newname %in% names(covariates(object)))
             stop ("covariate ", newname, " already exists")
-        covariates(object)[,newname] <- bin(covariates(object)[,covname])
+        covariates(object)[,newname] <- bin(covariates(object)[,covname], width)
         object
     }
 }
