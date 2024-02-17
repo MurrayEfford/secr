@@ -1268,14 +1268,14 @@ flip.default <- function (object, lr = FALSE, tb = FALSE, ...) {
 'traps<-' <- function (object, value) {
     if (!is(value,'traps'))
         stop ("'traps' object required for replacement")
-    ## MODIFIED 2010 04 27
+    ## MODIFIED 2010-04-27 2024-02-17
     if (ms(object)) {
         nsess <- length(object)
         temp <- vector(mode='list', nsess)
         if (nsess != length(value))
             stop ("replacement value has wrong length")
         for (i in 1:nsess) temp[[i]] <- `traps<-`(object[[i]], value[[i]])
-        class(temp) <- c('traps', 'list')
+        class(temp) <- class(object)   # capthist
         temp
     }
     else {
