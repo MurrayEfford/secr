@@ -15,9 +15,6 @@ Follow the usual procedure for installing from CRAN archive (see menu
 item Packages | Install package(s)... in Windows). You also need to get
 the package \pkg{abind} from CRAN.
 
-Other required packages (\pkg{MASS}, \pkg{nlme}, \pkg{stats}) should be
-available as part of your \R installation.
-
 Like other contributed packages, \bold{secr} needs to be loaded before
 each use e.g.,\code{library(secr)}.
 
@@ -26,7 +23,7 @@ You can learn about changes in the current version with
 
 }
 
-\section{ How can I get help?}{
+\section{How can I get help?}{
 
 There are three general ways of displaying documentation from within \R.
 Firstly, you can bring up help pages for particular functions from the
@@ -89,17 +86,18 @@ minprob), whereas Density has no explicit limit.
 
 \section{ How can I speed up model fitting and model selection?}{
 
-  There are many ways - see \link{Speed tips} and 
+There are many ways - see \link{Speed tips} and 
   \href{https://www.otago.ac.nz/density/pdfs/secr-troubleshooting.pdf}{secr-troubleshooting.pdf}.
+
+Keep the number of mask points to a minimum and avoid detection covariates with many levels.
 
 }
 
 \section{ Does secr use multiple cores?}{
   
-  Some computations can be run in parallel on multiple processors (most
-  desktops these days have multiple cores). Likelihood calculations in 
-  \code{secr.fit} assign capture histories to multiple parallel threads 
-  whenever possible. 
+  Some computations can be run in parallel on multiple processors (most desktops these days have multiple cores). Likelihood calculations in \code{secr.fit} assign capture histories to multiple parallel threads whenever possible. 
+  
+  The number of threads (cores) is controlled by an environment variable set by \code{\link{setNumThreads}} or the 'ncores' argument of some functions. 
   
 }
 
@@ -109,8 +107,9 @@ minprob), whereas Density has no explicit limit.
   Yes. See ?timevaryingcov. However, a more direct way to control for
   varying effort is provided - see the `\link{usage}' atribute, which
   now allows a continuous measure of effort
-  (\href{https://www.otago.ac.nz/density/pdfs/secr-varyingeffort.pdf}{secr-varyingeffort.pdf}). A tip: covariate models fit
-  more quickly when the covariate takes only a few different values.
+  (\href{https://www.otago.ac.nz/density/pdfs/secr-varyingeffort.pdf}{secr-varyingeffort.pdf}). 
+  
+  A tip: covariate models for detection fit more quickly when the covariate takes only a few different values. Use \code{\link{binCovariate}} to bin values.
   
   }
 
