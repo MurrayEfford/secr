@@ -1,10 +1,11 @@
-Changes in version 4.6.5 (2024-02-15)
+Changes in version 4.6.5 (2024-02-18)
 
 New features or changed behaviour of old functions
     o   sim.popn() saves 'parents' and 'Lambda' attributes from rThomas
     o   relative density option 'relativeD'
     o   AICcompatible() checks for 'relativeD'
     o   secrlist acquires argument 'names'
+    o   binCovariate() new function
 
 Bugs fixed
     o   score.test() failed with condition length>1
@@ -19,6 +20,7 @@ Other
     o   undocumented feature: details = list(externalpdot = 'pd') where 'pd'
         is the name of a mask covariate to substitute for internally computed 
         p.(x|theta)
+    o   traps<- replacement function works for multi-session capthist
 
 Changes in version 4.6.4 (2023-10-18)
 
