@@ -7,5 +7,6 @@ ONEWS
 src\*.o
 revdep
 extraR
+extraman
 README.md
 ^\.github$

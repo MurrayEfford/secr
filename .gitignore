@@ -7,5 +7,6 @@ src/*.so
 src/*.dll
 cran-comments.txt
 extraR/*.*
+extraman/*.*
 knownbugs.txt
 secr.Rproj
