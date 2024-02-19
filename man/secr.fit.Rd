@@ -188,7 +188,7 @@ If \code{buffer} is used rather than \code{mask}, and \code{biasLimit}
     negative or NA, or when the detector type is "polygon", "transect",
     "polygonX" or "transectX".
 
-Function \code{\link{par.secr.fit}} is a way to fit several models at once.
+Function \code{\link{list.secr.fit}} is a way to fit several models at once.
 
 }
 
@@ -334,7 +334,7 @@ setting \code{verify = FALSE}. This is now done by setting
   \code{\link{derived}},
   \code{\link{hcov}},
   \code{\link{mask}},
-  \code{\link{par.secr.fit}},
+  \code{\link{list.secr.fit}},
   \code{\link{predict.secr}},
   \code{\link{print.secr}},
   \code{\link{region.N}},
