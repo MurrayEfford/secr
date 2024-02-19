@@ -11,33 +11,25 @@
 
 \usage{
 
-list.secr.fit (arglist, trace = FALSE, prefix = "", seed = NULL, save.intermediate = FALSE)
+list.secr.fit (..., constant = list(), names = NULL) 
 
 }
 
 \arguments{
   
-  \item{arglist}{list of argument lists for \code{secr.fit} or a character
-    vector naming such lists}
+  \item{\dots}{varying arguments of \code{secr.fit}}
   
-  \item{seed}{integer pseudorandom number seed}
-
-  \item{trace}{logical; if TRUE intermediate output may be logged}
+  \item{constant}{list of named arguments held constant}
   
-  \item{prefix}{character prefix for names of output}
+  \item{names}{character names of output}
   
-  \item{save.intermediate}{logical; if TRUE then each fit is saved to an external file}
-
 }
 
 \details{
 
-Names are created by prefixing \code{prefix} to the names of \code{argslist}. If \code{trace} is TRUE then the total
-execution time and finish time are displayed.
+The \dots argument may be one or several vectors of the same length that refers to a different named argument of \code{\link{secr.fit}}. \code{secr.fit} is called with the constant arguments plus the first value in each vector, then the second value, etc. The logic follows \code{\link{mapply}}.
 
-  \code{trace} overrides any settings in \code{arglist}.
-  
-  \code{save.intermediate} causes each fit to be saved to a file with extension .RData.
+Each of the \dots arguments may also be a named argument with a single value, although the compound values should be wrapped in list(), passed by name (in quotes), or placed in the 'constant' list to avoid misinterpretation. For example, the capthist argument of \code{secr.fit} should be be wrapped in list() or " " if it is placed outside 'constant'.
 
 }
 
@@ -50,7 +42,7 @@ An \code{\link{secrlist}} of model fits (see \code{\link{secr.fit}}).
 \seealso{
   \code{\link{secr.fit}},
   \code{\link{AIC.secr}},
-  \code{\link{predict.secr}},
+  \code{\link{predict.secr}}
 }
 
 \note{
@@ -63,9 +55,12 @@ This function replaces the previous function \code{par.secr.fit}: since the intr
 
 \dontrun{
 
-fit0 <- list(capthist = 'captdata', model = g0~1) 
-fitb <- list(capthist = 'captdata', model = g0~b)
-fits <- list.secr.fit (c('fit0','fitb'))
+# fit two detection models
+fits <- list.secr.fit (model = c(g0~1, g0~b), constant = list(captdata, trace = FALSE))
+AIC(fits)
+
+# alternatively,
+fits <- list.secr.fit ('captdata', model = c(g0~1, g0~b), trace = FALSE)
 AIC(fits)
 
 # replacing par.derived and par.region.N:
