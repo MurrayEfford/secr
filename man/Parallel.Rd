@@ -38,14 +38,8 @@ Other functions may use multithreading indirectly through a call to one of these
 NOTE: The mechanism for setting the number of threads changed between versions 4.1.0 and 4.2.0. The default number of cores is now capped at 2 to meet CRAN requirements. Setting \code{ncores = NULL} previously specified one less than the maximum number of cores.
 
 Earlier versions of \pkg{secr} made more limited use of multiple cores (CPUs)
-through the package \pkg{\link{parallel}}. This mechanism is still available in the functions listed here, but the speed gains are often small or even negative. Set \code{ncores > 1} in the function call to use multiple cores.
+through the package \pkg{\link{parallel}}. The functions \code{\link{par.secr.fit}}, \code{\link{par.derived}}, and   \code{\link{par.region.N}} are now deprecated because they were too slow. \code{\link{list.secr.fit}} replaces \code{par.secr.fit}
 
-\tabular{llll}{
-  Function \tab Unit \tab Benefit \tab Notes \cr
-  \code{\link{par.secr.fit}} \tab model \tab none \tab  \cr
-  \code{\link{par.derived}} \tab fitted model \tab none \tab  \cr
-  \code{\link{par.region.N}} \tab fitted model \tab none \tab  \cr
-}
 `Unit' refers to the unit of work sent to each worker process. As a guide, a `large' benefit means >60\% reduction in process time with
   4 CPUs.
 

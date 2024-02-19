@@ -58,7 +58,7 @@ Function \tab Default \tab Saved attribute \tab Note \cr
 \code{\link{simulate.secr}} \tab NULL \tab seed or RNGstate \tab S3 method called by \code{sim.secr}\cr
 }
 
-Setting \code{seed = NULL} in any of these functions has the effect of continuing the existing random number stream; it is not the same as calling \code{set.seed(NULL)}. \code{\link{par.secr.fit}} does not follow this model.
+Setting \code{seed = NULL} in any of these functions has the effect of continuing the existing random number stream; it is not the same as calling \code{set.seed(NULL)}. 
 
 }
 

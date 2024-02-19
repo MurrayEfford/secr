@@ -8,8 +8,12 @@
 par.secr.fit <- function (arglist, ncores = 1, seed = NULL, 
                           trace = TRUE, logfile = "logfile.txt", prefix = "fit.", 
                           LB = FALSE, save.intermediate = FALSE) {
-    ptm  <- proc.time()
+    
+    .Deprecated("list.secr.fit", package="secr", "par.secr.fit deprecated owing to inefficiency of parallel processing; use list.secr.fit",
+                old = as.character(sys.call(sys.parent()))[1L])
 
+    ptm  <- proc.time()
+    
     ## 'inherits' causes R to search in enclosing frames
     if (is.character(arglist))
         arglist <- mget(arglist, inherits = TRUE)
@@ -20,7 +24,7 @@ par.secr.fit <- function (arglist, ncores = 1, seed = NULL,
     ## ensure args named
     if (is.null(names(arglist)))
         names(arglist) <- paste0("arg", 1:length(arglist))
-
+    
     ## check for capthist, mask, dframe mentioned by name
     ## objects are exported to the worker processes as required
     getnames <- function(obj = 'capthist') {
@@ -29,7 +33,7 @@ par.secr.fit <- function (arglist, ncores = 1, seed = NULL,
     }
     data <- c(getnames('capthist'), getnames('mask'),getnames('dframe'),getnames('details'))
     data <- data[nchar(data)>0]
-
+    
     ## default details savecall to FALSE across all components of arglist
     arglist <- lapply(arglist, function (x) {
         if (is.null(x$details))
@@ -48,7 +52,7 @@ par.secr.fit <- function (arglist, ncores = 1, seed = NULL,
         if (save.intermediate){
             assign(fitname, fit)
             save(list = fitname, file = paste0(fitname, ".RData"))
-            }
+        }
         fit
     }
     
@@ -59,7 +63,7 @@ par.secr.fit <- function (arglist, ncores = 1, seed = NULL,
     
     if (ncores > 1) {
         clust <- makeCluster(ncores, methods = FALSE, useXDR = .Platform$endian=='big', 
-            outfile = logfile)
+                             outfile = logfile)
         clusterSetRNGStream(clust, seed)
         clusterExport(clust, c(data, 'secr.fit'), environment())
         
@@ -74,7 +78,7 @@ par.secr.fit <- function (arglist, ncores = 1, seed = NULL,
             output <- clusterApply(clust, arglist, run.fit)
         
         ###################################################
-
+        
         stopCluster(clust)
     }
     else {
@@ -85,18 +89,20 @@ par.secr.fit <- function (arglist, ncores = 1, seed = NULL,
     
     ## changed from memo() 2016-06-04
     message(paste('Completed in ', round((proc.time() - ptm)[3]/60,3), ' minutes at ',
-        format(Sys.time(), "%H:%M:%S %d %b %Y"), sep=''))
-
+                  format(Sys.time(), "%H:%M:%S %d %b %Y"), sep=''))
+    
     if (inherits(output[[1]], 'secr')) 
         output <- secrlist(output)
-
+    
     ## apply standard naming convention
     names(output) <- paste0(prefix, names(arglist))
-
+    
     output
 }
 
 par.derived <- function (secrlist, ncores = 1, ...) {
+    .Deprecated("lapply(secrlist, derived)", package="secr", "par.derived deprecated owing to inefficiency of parallel processing; use lapply(secrlist, derived)",
+                old = as.character(sys.call(sys.parent()))[1L])
 
     if (!inherits(secrlist, 'secrlist'))
         stop("requires secrlist input")
@@ -113,6 +119,8 @@ par.derived <- function (secrlist, ncores = 1, ...) {
 }
 
 par.region.N <- function (secrlist, ncores = 1, ...) {
+    .Deprecated("lapply(secrlist, region.N)", package=NULL, "par.region.N deprecated owing to inefficiency of parallel processing; use lapply(secrlist, region.N)",
+                old = as.character(sys.call(sys.parent()))[1L])
 
     if (!inherits(secrlist, 'secrlist'))
         stop("requires secrlist input")
@@ -128,4 +136,5 @@ par.region.N <- function (secrlist, ncores = 1, ...) {
     output
 }
 
+################################################################################
 

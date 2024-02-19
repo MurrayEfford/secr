@@ -87,9 +87,6 @@ grids) then try the function \code{\link{mash}}.
   
   Most computers these days have multiple processors and these will be used by \pkg{secr} if the user sets \code{ncores} greater than one in \code{secr.fit}, \code{sim.secr} and some other functions. If \code{ncores = NULL} then the existing value from the environment variable RCPP_PARALLEL_NUM_THREADS is used (see \code{\link{setNumThreads}}).
 
-  Functions \code{\link{par.secr.fit}}, \code{\link{par.derived}}, and
-\code{\link{par.secr.fit}} are an alternative way to take advantage of multiple cores when fitting several models.
-  
 }
 
 \section{ Avoid covariates with many levels }{

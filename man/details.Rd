@@ -153,7 +153,7 @@ tagged animals.
 
 \code{details$savecall} determines whether the full call to \code{secr.fit} is 
 saved in the output object. The default is TRUE except when called by 
-\code{par.secr.fit} as names in the call are then evaluated, causing the 
+\code{list.secr.fit} as names in the call are then evaluated, causing the 
 output to become unwieldy.
 
 \code{details$splitmarked} determines whether the home range centre of marked 
