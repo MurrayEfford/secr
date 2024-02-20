@@ -11,7 +11,7 @@
 
 \usage{
 
-list.secr.fit (..., constant = list(), names = NULL) 
+list.secr.fit (..., constant = list(), prefix = "fit", names = NULL) 
 
 }
 
@@ -20,6 +20,8 @@ list.secr.fit (..., constant = list(), names = NULL)
   \item{\dots}{varying arguments of \code{secr.fit}}
   
   \item{constant}{list of named arguments held constant}
+  
+  \item{prefix}{character prefix for automatic names}
   
   \item{names}{character names of output}
   
@@ -30,6 +32,8 @@ list.secr.fit (..., constant = list(), names = NULL)
 The \dots argument may be one or several vectors of the same length that refers to a different named argument of \code{\link{secr.fit}}. \code{secr.fit} is called with the constant arguments plus the first value in each vector, then the second value, etc. The logic follows \code{\link{mapply}}.
 
 Each of the \dots arguments may also be a named argument with a single value, although the compound values should be wrapped in list(), passed by name (in quotes), or placed in the 'constant' list to avoid misinterpretation. For example, the capthist argument of \code{secr.fit} should be be wrapped in list() or " " if it is placed outside 'constant'.
+
+'prefix' is used only if 'names' is not supplied.
 
 }
 

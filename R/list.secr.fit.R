@@ -5,10 +5,10 @@
 ################################################################################
 
 ## keeping it simple
-list.secr.fit <- function (..., constant = list(), names = NULL) {
+list.secr.fit <- function (..., constant = list(), prefix = "fit", names = NULL) {
     fits <- mapply(secr.fit, ..., MoreArgs = constant, SIMPLIFY = FALSE)
     nfits <- length(fits)
-    defaultnames <- paste0('fit', 1:nfits)
+    defaultnames <- paste0(prefix, 1:nfits)
     if (is.null(names)) names <- defaultnames
     else if (length(names) != nfits) {
         warning ("number of names does not equal number of fits")
