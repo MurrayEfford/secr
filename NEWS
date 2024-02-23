@@ -1,7 +1,13 @@
-Changes in version 4.6.6 (2024-02-19)
+Changes in version 4.6.6 (2024-02-24)
 
 New features or changed behaviour of old functions
-    o   none
+    o   list.secr.fit() replaces par.secr.fit()
+
+Bugs fixed
+    o   detection models failed with polygon and transect detectors
+
+Other
+    o   par.secr.fit(), par.derived() and par.region.N() deprecated
 
 Changes in version 4.6.5 (2024-02-18)
 
