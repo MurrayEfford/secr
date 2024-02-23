@@ -154,6 +154,12 @@ fitted parameter vector. Alternatives are NULL or \code{object$start}.
 
 }
 
+\section{Warning}{
+
+\code{sim.secr} does not work for mark--resight models.
+
+}
+
 \examples{
 
 \dontrun{

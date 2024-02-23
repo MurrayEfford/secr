@@ -183,6 +183,12 @@ University of Otago, Dunedin, New Zealand
 
 }
 
+\section{Warning}{
+
+\code{write.capthist} does not work for mark--resight data.
+
+}
+
 \examples{
 
 ## export ovenbird capture histories

@@ -48,6 +48,12 @@ If a positive \code{length.out} is specified, \code{by} will be computed as
 \code{\link{transectlength}}, \code{\link{discretize}}
 }
 
+\section{Warning}{
+
+\code{snip} does not work for mark--resight data.
+
+}
+
 \examples{
 
 x <- seq(0, 4*pi, length = 41)

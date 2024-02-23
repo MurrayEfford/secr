@@ -88,7 +88,19 @@ selected.
 
 }
 
-\seealso{ \code{\link{capthist}}, \code{\link{rbind.capthist}}, \code{\link{reduce.capthist}} }
+\seealso{ 
+
+\code{\link{capthist}}, 
+\code{\link{rbind.capthist}}, 
+\code{\link{reduce.capthist}} 
+
+}
+
+\section{Warning}{
+
+\code{split.capthist} does not work for mark--resight data.
+
+}
 
 \examples{
 

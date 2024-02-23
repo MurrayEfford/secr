@@ -54,7 +54,18 @@ session.
 
 }
 
-\seealso{ \code{\link{traps}}, \code{\link{rbind.traps}} }
+\seealso{ 
+
+\code{\link{traps}}, 
+\code{\link{rbind.traps}} 
+
+}
+
+\section{Warning}{
+
+\code{split.traps} does not work for mark--resight data.
+
+}
 
 \examples{
 ## odd-numbered traps only, using modulo operator
