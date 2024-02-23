@@ -96,51 +96,6 @@ allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA,
 }
 #--------------------------------------------------------------------------------
 
-integralprw1 <- function (cc0, haztemp, gkhk, pi.density, PIA0, 
-  CH0, binomNcode, MRdata, grp, usge, pmixn, pID, grain, ncores) {
-    nc <- dim(PIA0)[2]    ## animals
-    nr <- nrow(CH0)       ## unique naive animals (1 or nc)
-    m <- nrow(pi.density)
-    nmix <- nrow(pmixn)
-    if (length(grp)<=1) grp <- rep(1,nc)
-    ngroup <- max(length(unique(grp)),1)
-    sump <- numeric(nc)
-    for (x in 1:nmix) {
-        hx <- if (any(binomNcode==-2)) matrix(haztemp$h[x,,], nrow = m) else -1 ## sum_k (hazard)
-        hi <- if (any(binomNcode==-2)) haztemp$hindex else -1                   ## index to hx
-        temp <- simplehistoriescpp(
-          as.integer(m),
-          as.integer(nr),
-          as.integer(cc0),
-          as.integer(grain),
-          as.integer(ncores),
-          as.integer(binomNcode),
-          as.integer(MRdata$markocc),
-          as.integer(rep(-1,nr)),                 # MRdata$firstocc  # never marked
-          as.double (pID[,x]),
-          as.integer(CH0),    
-          as.integer(grp)-1L,              # group  
-          as.double (gkhk$gk),        # precomputed probability 
-          as.double (gkhk$hk),        # precomputed hazard
-          as.matrix (pi.density),
-          as.integer(PIA0[1,1:nr,,,x]),
-          as.matrix (usge),
-          as.matrix (hx),                
-          as.matrix (hi),      
-          as.matrix (matrix(TRUE, nrow = nr, ncol = m)),
-          as.double (0),   # no telemetry
-          as.integer(0)    # no telemetry
-        )  
-        if (nr == 1) temp$prwi <- rep(temp$prwi, nc)
-        for (g in 1:ngroup) {
-            ok <- as.integer(grp) == g
-            sump[ok] <- sump[ok] + pmixn[x,ok] * (1-temp$prwi[ok])
-        }
-    }
-    sump
-}
-#--------------------------------------------------------------------------------
-
 expectedmu <- function (cc, haztemp, gkhk, pi.density, Nm, PIA, 
                           CH, binomNcode, MRdata, grp, usge, pmixn, pID, a0,
                           debug = FALSE) {
@@ -257,6 +212,51 @@ allhistpolygon <- function (detectfn, realparval, haztemp, hk, H, pi.density, PI
 }
 #--------------------------------------------------------------------------------
 
+integralprw1 <- function (cc0, haztemp, gkhk, pi.density, PIA0, 
+                          CH0, binomNcode, MRdata, grp, usge, pmixn, pID, grain, ncores) {
+    nc <- dim(PIA0)[2]    ## animals
+    nr <- nrow(CH0)       ## unique naive animals (1 or nc)
+    m <- nrow(pi.density)
+    nmix <- nrow(pmixn)
+    if (length(grp)<=1) grp <- rep(1,nc)
+    ngroup <- max(length(unique(grp)),1)
+    sump <- numeric(nc)
+    for (x in 1:nmix) {
+        hx <- if (any(binomNcode==-2)) matrix(haztemp$h[x,,], nrow = m) else -1 ## sum_k (hazard)
+        hi <- if (any(binomNcode==-2)) haztemp$hindex else -1                   ## index to hx
+        temp <- simplehistoriescpp(
+            as.integer(m),
+            as.integer(nr),
+            as.integer(cc0),
+            as.integer(grain),
+            as.integer(ncores),
+            as.integer(binomNcode),
+            as.integer(MRdata$markocc),
+            as.integer(rep(-1,nr)),                 # MRdata$firstocc  # never marked
+            as.double (pID[,x]),
+            as.integer(CH0),    
+            as.integer(grp)-1L,              # group  
+            as.double (gkhk$gk),        # precomputed probability 
+            as.double (gkhk$hk),        # precomputed hazard
+            as.matrix (pi.density),
+            as.integer(PIA0[1,1:nr,,,x]),
+            as.matrix (usge),
+            as.matrix (hx),                
+            as.matrix (hi),      
+            as.matrix (matrix(TRUE, nrow = nr, ncol = m)),
+            as.double (0),   # no telemetry
+            as.integer(0)    # no telemetry
+        )  
+        if (nr == 1) temp$prwi <- rep(temp$prwi, nc)
+        for (g in 1:ngroup) {
+            ok <- as.integer(grp) == g
+            sump[ok] <- sump[ok] + pmixn[x,ok] * (1-temp$prwi[ok])
+        }
+    }
+    sump
+}
+#--------------------------------------------------------------------------------
+
 integralprw1poly <- function (detectfn, realparval0, haztemp, hk, H, pi.density, PIA0, 
                               CH0, binomNcode, grp, usge, mask, pmixn, maskusage,
                               grain, ncores, minprob, debug = FALSE) {
@@ -272,8 +272,6 @@ integralprw1poly <- function (detectfn, realparval0, haztemp, hk, H, pi.density,
   for (x in 1:nmix) {
       hx <- if (any(binomNcode==-2)) matrix(haztemp$h[x,,], nrow = m) else -1 ## sum_k (hazard)
       hi <- if (any(binomNcode==-2)) haztemp$hindex else -1                   ## index to hx
-    for (g in 1:ngroup) {
-      ok <- as.integer(grp) == g
       temp <- polygonhistoriescpp(
         as.integer(nr),
         as.integer(detectfn[1]),
@@ -284,7 +282,7 @@ integralprw1poly <- function (detectfn, realparval0, haztemp, hk, H, pi.density,
         as.integer(CH0),   
         as.matrix(0L),  # empty for null history
         as.vector(0L),  # empty for null history
-        as.integer(g)-1L,
+        as.integer(grp)-1L,
         as.double(hk),
         as.double(H),
         as.matrix(realparval0),
@@ -299,8 +297,10 @@ integralprw1poly <- function (detectfn, realparval0, haztemp, hk, H, pi.density,
         as.integer(debug)
       )
       if (nr == 1) temp <- rep(temp, nc)
-      sump[ok] <- sump[ok] + pmixn[x,ok] * (1-temp[ok])
-    }
+      for (g in 1:ngroup) {
+          ok <- as.integer(grp) == g
+          sump[ok] <- sump[ok] + pmixn[x,ok] * (1-temp[ok])
+      }
   }
   sump
 }
@@ -345,7 +345,6 @@ generalsecrloglikfn <- function (
     ## unmodelled beta parameters, if needed
     miscparm <- getmiscparm(details$miscparm, detectfn, beta, parindx, details$cutval)
     #---------------------------------------------------
-    
     density <- getmaskpar(!CL, D, data$m, sessnum, details$unmash, 
                           attr(data$capthist, 'n.mash'))
     if (CL) {
