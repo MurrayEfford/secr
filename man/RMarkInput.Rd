@@ -36,7 +36,7 @@ unRMarkInput(df, covariates = TRUE)
   To convert a multi-session object first collapse the sessions with
   \code{\link{join}}.
 
-  If \code{covariates} is TRUE the all columns of individual covariates
+  If \code{covariates} is TRUE then all columns of individual covariates
   in the input are appended as columns in the output. If
   \code{covariates} is a character-valued vector then only the specified
   covariates will be appended.
