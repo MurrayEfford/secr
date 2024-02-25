@@ -37,6 +37,7 @@
 ## 2023-10-10 details$clone == 'constant' only fixes n offspr, scale still applies
 ## 2023-11-04 save parents rThomas
 ## 2023-11-08 pre-check details$eps
+## 2024-02-25 assign lastnumber in .local environment
 ###############################################################################
 
 toroidal.wrap <- function (pop) {
@@ -272,7 +273,8 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
         warning ('Ndist is coerced to "poisson" when model2D rLGCP, rThomas')
         Ndist <- 'poisson'
     }
-    lastnumber <- number.from-1
+    .local <- new.env()
+    .local$lastnumber <- number.from-1
     if (nsessions > 1) {
         discrete <- function(x) {
             fr <- x-trunc(x)
@@ -287,7 +289,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
             ## sim.popn (D[1], core, buffer, model2D, buffertype, poly,
             if (ms(core)) core <- core[[s]]
             sim.popn (D, core, buffer, model2D, buffertype, poly,
-                covariates, number.from = lastnumber+1, Ndist, nsessions = 1, details, seed,
+                covariates, number.from = .local$lastnumber+1, Ndist, nsessions = 1, details, seed,
                 keep.mask, Nbuffer[1])
         }
         turnover <- function (oldpopn, t) {
@@ -354,9 +356,9 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                                 nonempopn <- subset(newpopn, !emigrant)
                                 immpopn <- subset(oldposition, emigrant)
                                 nimm <- nrow(immpopn)
-                                rownames(immpopn) <- lastnumber + (1:nimm)
+                                rownames(immpopn) <- .local$lastnumber + (1:nimm)
                                 newpopn <- rbind(nonempopn, immpopn, renumber = FALSE)
-                                lastnumber <<- lastnumber + nimm
+                                .local$lastnumber <- .local$lastnumber + nimm
                             }
                         }
                         else if (turnoverpar$edgemethod == "stop") {
@@ -405,7 +407,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                 
                 recruits <- sim.popn(D = D, core = core, buffer = buffer,
                     model2D = model2D, buffertype = buffertype, poly = poly,
-                    covariates = covariates, number.from = lastnumber + 1, 
+                    covariates = covariates, number.from = .local$lastnumber + 1, 
                     Ndist = 'specified', Nbuffer = nrecruit,
                     nsessions = 1, details = details)
                 # 2021-04-09
@@ -417,7 +419,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                         covariates(recruits)$age <- rep(0, nrow(recruits))
                     }
                 }
-                lastnumber <<- lastnumber + nrecruit
+                .local$lastnumber <- .local$lastnumber + nrecruit
                 newpopn <- rbind(newpopn, recruits, renumber = FALSE)
             }
             class(newpopn) <- class(MSpopn[[1]])
@@ -517,7 +519,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
             else {
                 MSpopn[[1]] <- session.popn(1, D, Nbuffer, Ndist)
             }
-            lastnumber <<- lastnumber + nrow(MSpopn[[1]])
+            .local$lastnumber <- .local$lastnumber + nrow(MSpopn[[1]])
             # 2021-04-09
             if (age) {
                 if (is.null(covariates(MSpopn[[1]])))
