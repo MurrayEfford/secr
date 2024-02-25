@@ -209,8 +209,8 @@ struct polygonhistories : public Worker {
                           if (mbool(n,m)) {
                               gi  = i3(c,k,m,cc,nk);
                               pskval = pski(binomN[s], count, Tski, hk[gi], 1.0);
-                              if (debug>0) Rprintf("n %d k %d, count %d m %d  Tski %g gi %d hk[gi] %g pski %g \n", 
-                                  n, k, count, m, Tski, gi, hk[gi], pskval);
+                              if (debug>0) Rprintf("n %d k %d, m %d  Tski %g gi %d hk[gi] %g pski %g \n", 
+                                  n, k, m, Tski, gi, hk[gi], pskval);
                               pm[m] *= pskval;
                               // for each detection, pdf(xy) | detected 
                               if ((pm[m] > minp) && (count>0)) {       // avoid underflow
