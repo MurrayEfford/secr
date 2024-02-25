@@ -4,7 +4,7 @@
 
 ## 2017-03-25 RMarkInput fixed for 3D capthist only
 ## 2018-01-22 transferred from join.R
-
+## 2024-02-25 unRMarkInput accepts non-numeric '.' for missing
 #############################################################################
 
 RMarkInput <- function (object, grouped = FALSE, covariates = TRUE) {
@@ -91,13 +91,17 @@ unRMarkInput <- function(df, covariates = TRUE) {
     freq <- rep(1:nrow(df), freq)
     alive <- alive[freq]
     ch <- df$ch[freq]
-    CH <- matrix(as.numeric(unlist(sapply(ch, strsplit, ''))), byrow = TRUE, ncol = nocc)
+    w <- suppressWarnings(as.numeric(unlist(sapply(ch, strsplit, ''))))
+    CH <- matrix(w, byrow = TRUE, ncol = nocc)
     # allow deads
-    last <- function(x) which.max(cumsum(x))
+    last <- function(x) {
+        x[is.na(x)] <- 0
+        which.max(cumsum(x))
+    }
     CH[cbind(1:nrow(CH), apply(CH,1,last))] <- alive
     CH <- array(CH, dim=c(dim(CH),1))   # for version 3
     class(CH) <- 'capthist'
-    
+    if (any (is.na(CH))) warning("missing values set to NA")
     # transfer covariates if present
     if (ncol(df)>2) {
         if (is.logical(covariates)) {

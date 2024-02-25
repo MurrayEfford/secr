@@ -1,10 +1,12 @@
-Changes in version 4.6.6 (2024-02-24)
+Changes in version 4.6.6 (2024-02-25)
 
 New features or changed behaviour of old functions
     o   list.secr.fit() replaces par.secr.fit()
+    o   unRMarkInput() accepts '.' for missing
 
 Bugs fixed
     o   detection models failed with polygon and transect detectors
+    o   sim.popn() row numbering glitch (open population)
 
 Other
     o   par.secr.fit(), par.derived() and par.region.N() deprecated
