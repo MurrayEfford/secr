@@ -48,7 +48,7 @@ the variables in the model (see `vars' component of \code{object}).  If
 Default \code{newdata} are for a naive animal on the first occasion;
 numeric covariates are set to zero and factor covariates to their base
 (first) level. From secr 3.1.4 the argument `all.levels' may be passed 
-to \code{newdata}; if TRUE then the default newdata includes 
+to \code{\link{makeNewData}}; if TRUE then the default newdata includes 
 all factor levels.
 
 \code{realnames} may be used to select a subset of parameters.
@@ -115,8 +115,9 @@ Lebreton, J.-D., Burnham, K. P., Clobert, J. and Anderson, D. R. (1992) Modeling
 \seealso{ 
 
 \code{\link{secr.fit}}, 
-\code{\link{predictDsurface}} 
-\code{\link{adjustVarD}}
+\code{\link{predictDsurface}},  
+\code{\link{adjustVarD}}, 
+\code{\link{makeNewData}}
 
 }
 
