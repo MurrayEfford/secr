@@ -10,11 +10,11 @@ write.DA <- function (capthist, buffer, nzeros = 200, units = 1) {
         lapply(capthist, write.DA, buffer = buffer, nzeros = nzeros, units = units)
     }
     else {
-        if (!(detector(traps(capthist)) %in% c('polygon','polygonX')))
+        if (!all(detector(traps(capthist)) %in% c('polygon','polygonX')))
             stop ("data should be capthist with polygon detector type")
         if (!inherits(capthist, 'capthist'))
             stop ("requires 'capthist' object")
-        if (!((detector(traps(capthist)) == 'polygonX') | (max(abs(capthist))==1)))
+        if (all(detector(traps(capthist)) == 'polygonX') && (max(abs(capthist))>1))
             stop ("requires binary data")
         warning ("assuming polygon is a rectangle aligned to x-y axes")
         trp <- traps(capthist)
