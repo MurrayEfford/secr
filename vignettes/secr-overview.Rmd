@@ -130,7 +130,7 @@ text(-450, 0.18,'b.', cex=1.3)
   the density of this distribution. (b) Alternative detection functions. 
   The halfnormal is defined by $g(d) = g_0\exp\left(\frac{-d^2}{2\sigma^2}\right)$ 
   and the exponential by $g(d) = g_0\exp\left(-\frac{d}{\sigma}\right)$. 
-  See ?detectfn for more (also the list in [Appendix 1](#appendix1)).
+  See ?detectfn for more.
 
 ## Detector types
 
@@ -210,14 +210,10 @@ There is limited support in **secr** for the analysis of locational data from te
 
 # Origins and outline of the package **secr**
 
-The program DENSITY (Efford et al. 2004, Efford 2012) provides a
-graphical interface to SECR methods that has been accepted by many
-biologists. However, DENSITY has significant drawbacks: it requires
-the Windows operating system, its algorithms are not always transparent or
-well-documented, it fits only homogeneous Poisson models, and it omits
-recent advances in SECR.
+The program DENSITY (Efford et al. 2004, Efford 2012) provides a graphical interface to SECR methods that was used by many
+biologists. However, DENSITY has significant drawbacks: it requires the Windows operating system, its algorithms are not always transparent or well-documented, it fits only homogeneous Poisson models, and it omits recent advances in SECR.
 
-The R package **secr** was written to address these weaknesses and allow for further development. It implements almost all the methods described by Borchers and Efford (2008), Efford et al. (2009), Efford (2011), Efford and Fewster (2013), Efford et al. (2013) and Efford and Mowat (2014). **secr** 4.6 uses external C++ code via package **Rcpp** for computationally intensive operations (Eddelbuettel and Francois 2011); Multi-threading on multiple CPUs with **RcppParallel** (Allaire et al. 2021) gives major speed gains. [Appendix 1](#appendix1) compares the features of DENSITY and **secr**. The most important functions of **secr** are listed in [Appendix 2](#appendix2).
+The R package **secr** was written to address these weaknesses and allow for further development. It implements almost all the methods described by Borchers and Efford (2008), Efford et al. (2009), Efford (2011), Efford and Fewster (2013), Efford et al. (2013) and Efford and Mowat (2014). **secr** 4.6 uses external C++ code via package **Rcpp** for computationally intensive operations (Eddelbuettel and Francois 2011); Multi-threading on multiple CPUs with **RcppParallel** (Allaire et al. 2021) gives major speed gains. The most important functions of **secr** are listed in [Appendix 1](#appendix1).
 
 # How **secr** works
 
@@ -253,7 +249,7 @@ To perform an SECR analysis you explicitly or implicitly construct each of these
 - The function `read.capthist` forms a 'traps' object from the detector layout data and saves it as an attribute, along with capture data read from another file, in a 'capthist' object. 
 - By default, a habitat mask is generated automatically by `secr.fit` using a specified buffer around the detectors (traps). The function `make.mask` gives greater control over this step.
 - Any of the objects input to `secr.fit` (traps, capthist, mask) may include a dataframe of covariates  saved as an attribute. Covariate names may be used in model formulae; the `covariates` method is used to extract or replace covariates. Use `addCovariates` for covariates from spatial data sources (e.g., shapefile or 'sf' object)
-- Fitted secr models may be manipulated with the methods shown on the right and others listed in [Appendix 3](#appendix3). 
+- Fitted secr models may be manipulated with the methods shown on the right and others listed in [Appendix 2](#appendix2). 
 
 [^2]:Text in this font refers to R objects that are documented in online help for the **secr** package, or in base R.
 
@@ -271,7 +267,7 @@ manipulation. Typing the name at the R prompt invokes
 dataframe of estimates from the `predict` method for
 `secr` objects. Functions are provided for further computations
 on `secr` objects (e.g., AIC model selection, model averaging, profile-likelihood confidence
-intervals, and likelihood-ratio tests). Many of these are listed in [Appendix 3](#appendix3).
+intervals, and likelihood-ratio tests). Many of these are listed in [Appendix 2](#appendix2).
 
 One system of units is used throughout **secr**. Distances are in
 metres and areas are in hectares (ha). The unit of density for 2-dimensional habitat is animals per hectare. 1 ha = 10000 m^2^ = 0.01 km^2^. To convert density to animals per
@@ -534,7 +530,7 @@ On processors with multiple cores it is possible to speed up computation by usin
 
 Earlier versions of **secr** relied on parallel processing with the **parallel** package (invoked when the argument ncores was set greater than 1). The benefits of that form of parallel processing were variable (considerable with simulations in `sim.secr`, but otherwise unimpressive). 
 
-The functions `par.secr.fit`, `par.region.N` and `par.derived` allowed models to be fitted or analysed in parallel, one per core. The greater speed of `secr.fit` in **secr** 4.6 makes `par.secr.fit` redundant. All three functions now appear to run faster with ncores=1 than with ncores>1. They are retained because it is sometimes useful to process several models at once.
+The functions `par.secr.fit`, `par.region.N` and `par.derived` allowed models to be fitted or analysed in parallel, one per core. The greater speed of `secr.fit` in **secr** 4.6 makes `par.secr.fit` redundant. All three functions now appear to run faster with ncores=1 than with ncores>1. They are deprecated and will be removed later in 2024. `list.secr.fit` replaces `par.secr.fit`.
 
 ## Regression splines
 
@@ -624,100 +620,7 @@ Stanley, T. R. and Burnham, K. P. (1999) A closure test for time-specific captur
 
 \pagebreak
 
-
-# Appendix 1. Software feature comparisons {#appendix1}
-
-&#8226; full implementation
-
-&#9702; incomplete or inferior implementation.
-
-|                   Feature                   | DENSITY 5.0 | **secr** 4.6 |
-|---------------------------------------------|-------------|---------------|
-| **General**                                 | | | |
-| Graphical interface                         | &#8226; | &#9702; |
-| Inverse prediction (IP SECR)                | &#8226; | &#8226; |
-| Maximum likelihood estimation (ML SECR)     | &#8226; | &#8226; |
-| Non-spatial closed-population estimators    | &#8226; | &#8226; |
-| Simulation of spatial sampling              | &#8226; | &#8226; |
-| Build detector arrays                       | &#8226; | &#8226; |
-| Control of random number generator          | &#9702; | &#8226; |
-| Closure tests                               | &#9702; | &#8226; |
-| Import or export DENSITY text files         | &#8226; | &#8226; |
-| Convert BUGS data                           |         | &#9702; |
-| GIS polygons as habitat mask                | &#8226; | &#8226; |
-| Clustered detector layouts                  |         | &#8226; |
-| Mash data from clustered layouts            |         | &#8226; |
-| Upload coordinates to GPS (uses GPSBabel)   |         | &#8226; |
-| Multi-threaded C++ for fast model fitting   |         | &#8226; |
-| **ML secr** | | | |
-| Density models (inhomogeneous 2-D Poisson)  |         | &#8226; |
-| Regional population size (region.N)         |         | &#8226; |
-| Varying effort (detector usage)             | &#9702; | &#8226; |
-| Fixed parameters                            | &#9702; | &#8226; |
-| Parametric bootstrap                        | &#9702; | &#8226; |
-| Between-session models                      | &#8226; | &#8226; |
-| Profile likelihood confidence intervals     | &#8226; | &#8226; |
-| Mixture models for individual heterogeneity | &#8226; | &#8226; |
-| Confidence ellipses                         | &#8226; | &#8226; |
-| Formula-based model notation                |         | &#8226; |
-| Plot density models                         |         | &#8226; |
-| Groups (e.g. males & females)	              |         | &#8226; |
-| Score tests for model selection             |         | &#8226; |
-| Model averaging                             |         | &#8226; |
-| Plot likelihood surface                     |         | &#8226; |
-| Empirical variance from replicate units     |         | &#8226; |
-| Mask diagnostics                            | &#9702; | &#8226; |
-| Suggested buffer width                      |         | &#8226; |
-| Contours of detection probability           | &#8226; | &#8226; |
-| Compute pdf for individual's range centre   | &#8226; | &#8226; |
-| Time-varying detector covariates            |         | &#8226; |
-| Hybrid mixture models (hcov)                |         | &#8226; |
-| Compensation (a0 parameterization)          |         | &#8226; |
-| Density-dependent sigma (sigmak parameterization) |         | &#8226; |
-| Variance-only mode (method = 'none')        |         | &#8226; |
-| Combined telemetry-detection models         |         | &#8226; |
-| Regression splines                          |         | &#8226; |
-| Non-Euclidean distance                      |         | &#8226; |
-| Mark--resight                               |         | &#8226; |
-| **Detector types** | | | |
-| Single-catch trap^a^                         | &#9702; | &#9702; |
-| Multi-catch trap                            | &#8226; | &#8226; |
-| Proximity                                   | &#8226; | &#8226; |
-| Signal strength (acoustic)                  |         | &#8226; |
-| Count                                       |         | &#8226; |
-| Capped                                      |         | &#9702; |
-| Polygon                                     |         | &#8226; |
-| Transect                                    |         | &#8226; |
-| Polygon (exclusive)                         |         | &#8226; |
-| Transect (exclusive)                        |         | &#8226; |
-| Telemetry                                   |         | &#8226; |
-| **Detection functions**  | | | |
-| Halfnormal                                  | &#8226; | &#8226; |
-| Hazard rate^b^                              | &#8226; | &#8226; |
-| Exponential                                 | &#8226; | &#8226; |
-| Compound halfnormal                         |         | &#8226; |
-| Uniform^a^                                  | &#9702; | &#9702; |
-| w-exponential                               |         | &#8226; |
-| Annular halfnormal                          |         | &#8226; |
-| Binary signal strength                      |         | &#8226; |
-| Signal strength                             |         | &#8226; |
-| Signal strength spherical                   |         | &#8226; |
-| Cumulative lognormal^b^                     |         | &#8226; |
-| Cumulative gamma                            |         | &#8226; |
-| Hazard halfnormal                           |         | &#8226; |
-| Hazard hazard rate^b^                       |         | &#8226; |
-| Hazard exponential                          |         | &#8226; |
-| Hazard annular halfnormal                   |         | &#8226; |
-| Hazard cumulative gamma                     |         | &#8226; |
-| Hazard variable power                       |         | &#8226; |
-
-a. Not fitted by ML secr
-
-b. Not recommended because of heavy tail
-
-\pagebreak
-
-# Appendix 2. Core functions of **secr** {#appendix2}
+# Appendix 1. Core functions of **secr** {#appendix1}
 
 These are the core functions of **secr** 4.6 -- the ones that you are most likely to use. S3 methods are marked with an asterisk.
 
@@ -739,7 +642,7 @@ These are the core functions of **secr** 4.6 -- the ones that you are most likel
 
 \pagebreak
 
-# Appendix 3. Classified index to **secr** functions {#appendix3}
+# Appendix 2. Classified index to **secr** functions {#appendix2}
 
 Here is an index of **secr** functions classified by use (some minor functions are omitted). S3 methods are marked with an asterisk.
 
@@ -815,7 +718,7 @@ Here is an index of **secr** functions classified by use (some minor functions a
 | `trap`	        | detector |
 | `xy`      	| detection coordinates (polygon and transect detectors)|
 |  <a name="fit"></a>  **Fit SECR model(s)** | |
-| `par.secr.fit`  | parallel secr.fit() (several models, using multiple cores) |
+| `list.secr.fit`  | fit several models and return secrlist object |
 | `secr.fit`	| maximum likelihood fit; result is a fitted `secr` object | 
 | <a name="operate"></a> **Operate on fitted model(s)** | |
 |   `adjustVarD` | apply c-hat to density SE and confidence intervals |
@@ -837,8 +740,6 @@ Here is an index of **secr** functions classified by use (some minor functions a
 | `logLik`*	| log-likelihood of fitted model |
 |	`LR.test`	| likelihood-ratio test of two models |
 |	`modelAverage`*	| combine estimates using AIC or AICc weights |
-| `par.derived`    | parallel derived() |
-| `par.region.N`   | parallel region.N() |
 |	`plot`*		| plot detection functions with confidence bands |
 |	`predict`*	| 'real' parameters for arbitrary levels of predictor variables |
 |	`predictDsurface`* | evaluate density surface at each point of a mask |
@@ -893,7 +794,7 @@ Here is an index of **secr** functions classified by use (some minor functions a
 
 \pagebreak
 
-# Appendix 4. Datasets {#appendix4}
+# Appendix 3. Datasets {#appendix3}
 
 See each help page for details e.g., ?deermouse. Code for model fitting is in Appendix 2 of [secr-version4.pdf][].
 
