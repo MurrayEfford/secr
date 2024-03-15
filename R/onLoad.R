@@ -1,7 +1,7 @@
 ###############################################################################
 ## package 'secr'
 ## onLoad.R
-## 2020-02-21, 2021-03-13, 2021-04-13, 2021-05-11, 2021-05-17
+## 2020-02-21, 2021-03-13, 2021-04-13, 2021-05-11, 2021-05-17, 2024-03-02
 ###############################################################################
 
 .onLoad <- function (libname, pkgname) {
@@ -13,6 +13,11 @@
     else {
         RcppParallel::setThreadOptions(2)
     }
+    
+    ## 2024-03-02
+    ## avoid BLAS default as not needed and may trigger valgrind problem
+    ## see R-package-devel 2024-03-01
+    options(matprod = "internal")
     
     ## TESTING ONLY 2021-05-17
     ## RcppParallel::setThreadOptions(7)
