@@ -900,15 +900,22 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
         names(animals) <- c('x','y')
         attr(animals,'covariates') <- NULL
         if (!is.null(covariates)) {
-            tempcov <- list()
-            for (i in 1:length(covariates)) {
-               covi <- sample (names(covariates[[i]]), replace = T, size= nrow(animals),
-                               prob=covariates[[i]])
-               temptxt <- paste ('tempcov$', names(covariates[i]), '<- covi',
-                               sep = '')
-               eval(parse(text=temptxt))
+            if (is.function(covariates)) {
+                # understanding covariates () as the argument, not the secr fn
+                tempcov <- as.data.frame(covariates(animals))
+                attr(animals,'covariates') <- tempcov
             }
-            attr(animals,'covariates') <- as.data.frame(tempcov)
+            else {
+                tempcov <- list()
+                for (i in 1:length(covariates)) {
+                    covi <- sample (names(covariates[[i]]), replace = T, size= nrow(animals),
+                                    prob=covariates[[i]])
+                    temptxt <- paste ('tempcov$', names(covariates[i]), '<- covi',
+                                      sep = '')
+                    eval(parse(text=temptxt))
+                }
+                attr(animals,'covariates') <- as.data.frame(tempcov)
+            }
         }
         if (nrow(animals) > 0)   ## condition added 2011-03-27
             row.names (animals) <- number.from : (nrow(animals)+number.from-1)
