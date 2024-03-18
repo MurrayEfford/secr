@@ -345,7 +345,7 @@ sim.capthist <- function (
         
         if (detectfn %in% c(12,13))  defaults <- list(beta0 = 90, beta1=-0.2,
             sdS = 2, cutval = 10, muN = 40, sdN = 2, sdM = 0, tx = 'identity')
-        else defaults <- c(defaults, list(truncate = 1e+10, recapfactor = 1.0))
+        else defaults <- c(defaults, list(truncate = 1e+10, recapfactor = 1.0, bk = FALSE))
 
         if (is.null(detectpar$individual)) {
             detectpar$individual <- FALSE
@@ -500,7 +500,8 @@ sim.capthist <- function (
             as.matrix(usge),                    # 6
             as.integer(detectfn),               # 7 
             as.double(truncate^2),              # 8
-            as.integer(detectpar$binomN)        # 9 
+            as.integer(detectpar$binomN),       # 9 
+            as.logical(detectpar$bk)            # 10
             )
         }
         ## 'count' includes presence
@@ -513,11 +514,9 @@ sim.capthist <- function (
             || detectfn==20) {
             
             w <- array(0, dim=c(N, noccasions, K), dimnames = list(rownames(popn), 1:noccasions, 1:K))
-            
             if (length(unique(detector(traps)))==1 && detectpar$individual) {
                 ## Individual detectpar code added 2024-03-15
                 sm <- all(dettype %in% c(-1,0))    # single, multi
-                K1 <- if (sm) 1 else K
                 dmat2 <- trappingargs[[5]]   # traps x animals
                 # one individual at a time...
                 for (i in 1:N) {
@@ -550,16 +549,29 @@ sim.capthist <- function (
                     }
                 }
             }
+            else if (all(dettype %in% c(-1,0))) {
+                # only for single- and multi-catch
+                temp <- do.call(simfunctionname[1], trappingargs[-1])
+                stopiferror(temp$resultcode, simfunctionname[1])
+                # if any animals caught...
+                if (temp$n > 0) {
+                    # maximum 1 capture/animal/occasion
+                    occ <- rep(1:noccasions, N)[temp$value>0]
+                    trp <- temp$value[temp$value>0]
+                    id <- rep(1:N, each = noccasions)[temp$value>0]
+                    w[cbind(id, occ, trp)] <- 1
+                }
+            }
             else {
                 
                 ## 2017-12-02
                 ## external tracking of previous captures is needed to allow single-occasion calls to trappingxxx
                 ## functions; I hope this also works with multi-occasion calls (currently disabled)
-                lastcapt <- rep(0, N)
+                lastcapt <- rep(0, N)  # NOT USED 2024-03-18
                 for(s in 1:noccasions)   ## about 25% slower with one occasion at a time
                 {
                     sm <- dettype[s] %in% c(-1,0)    # single, multi
-                    K1 <- if (sm) 1 else K
+                    # K1 <- if (sm) 1 else K  unused?
                     trappingargs[[1]] <- simfunctionname[s]
                     trappingargs[[2]] <- as.double(df0[s,])
                     trappingargs[[3]] <- as.double(dfs[s,])

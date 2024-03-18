@@ -121,24 +121,24 @@ simdetectsignalcpp <- function(detect, nmix, fn, cut, gsb0val, PIA0, pmix, known
     .Call('_secr_simdetectsignalcpp', PACKAGE = 'secr', detect, nmix, fn, cut, gsb0val, PIA0, pmix, knownclass, animals, traps, dist2, Tsk, miscparm)
 }
 
-trappingsingle <- function(g0, sigma, z, dist2, Tsk, fn, w2, binomN) {
-    .Call('_secr_trappingsingle', PACKAGE = 'secr', g0, sigma, z, dist2, Tsk, fn, w2, binomN)
+trappingsingle <- function(g0, sigma, z, dist2, Tsk, fn, w2, binomN, bk) {
+    .Call('_secr_trappingsingle', PACKAGE = 'secr', g0, sigma, z, dist2, Tsk, fn, w2, binomN, bk)
 }
 
-trappingmulti <- function(g0, sigma, z, dist2, Tsk, fn, w2, binomN) {
-    .Call('_secr_trappingmulti', PACKAGE = 'secr', g0, sigma, z, dist2, Tsk, fn, w2, binomN)
+trappingmulti <- function(g0, sigma, z, dist2, Tsk, fn, w2, binomN, bk) {
+    .Call('_secr_trappingmulti', PACKAGE = 'secr', g0, sigma, z, dist2, Tsk, fn, w2, binomN, bk)
 }
 
-trappingcapped <- function(g0, sigma, z, dist2, Tsk, fn, w2, binomN) {
-    .Call('_secr_trappingcapped', PACKAGE = 'secr', g0, sigma, z, dist2, Tsk, fn, w2, binomN)
+trappingcapped <- function(g0, sigma, z, dist2, Tsk, fn, w2, binomN, bk) {
+    .Call('_secr_trappingcapped', PACKAGE = 'secr', g0, sigma, z, dist2, Tsk, fn, w2, binomN, bk)
 }
 
-trappingproximity <- function(g0, sigma, z, dist2, Tsk, fn, w2, binomN) {
-    .Call('_secr_trappingproximity', PACKAGE = 'secr', g0, sigma, z, dist2, Tsk, fn, w2, binomN)
+trappingproximity <- function(g0, sigma, z, dist2, Tsk, fn, w2, binomN, bk) {
+    .Call('_secr_trappingproximity', PACKAGE = 'secr', g0, sigma, z, dist2, Tsk, fn, w2, binomN, bk)
 }
 
-trappingcount <- function(g0, sigma, z, dist2, Tsk, fn, w2, binomN) {
-    .Call('_secr_trappingcount', PACKAGE = 'secr', g0, sigma, z, dist2, Tsk, fn, w2, binomN)
+trappingcount <- function(g0, sigma, z, dist2, Tsk, fn, w2, binomN, bk) {
+    .Call('_secr_trappingcount', PACKAGE = 'secr', g0, sigma, z, dist2, Tsk, fn, w2, binomN, bk)
 }
 
 trappingpolygon <- function(lambda, sigma, z, npoly, kk, animals, traps, Tsk, fn, w2, binomN, maxperpoly) {

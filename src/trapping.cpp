@@ -29,9 +29,10 @@ List trappingsingle (
     const NumericVector &z,         // Parameter : detection shape (hazard) 
     const NumericMatrix &dist2,     // distances squared (optional: -1 if unused) 
     const NumericMatrix &Tsk,       // ss x kk array of 0/1 usage codes or effort 
-    const int    fn,               // code 0 = halfnormal, 1 = hazard, 2 = exponential, 3 uniform 
-    const double w2,               // truncation radius 
-    const IntegerVector &binomN     // not used 
+    const int    fn,                // code 0 = halfnormal, 1 = hazard, 2 = exponential, 3 uniform 
+    const double w2,                // truncation radius 
+    const IntegerVector &binomN,    // not used 
+    const bool bk
 ) 
 {
 
@@ -55,6 +56,7 @@ List trappingsingle (
   
   //struct  trap_animal *tran;
   std::vector<trap_animal> tran(N*kk);
+  IntegerMatrix at(N,kk);
   double event_time;
   int anum = 0;
   int tnum = 0;
@@ -84,7 +86,12 @@ List trappingsingle (
       for (k=0; k<kk; k++) {                  // traps 
         Tski = Tsk(k,s);
         if (fabs(Tski) > 1e-10) {         
-          gi = (lastcapt[i]>0) * ss * kk + k * ss + s;
+            if (bk) {
+                gi = at(i,k) * ss * kk + k * ss + s;
+            }
+            else {
+                gi = (lastcapt[i]>0) * ss * kk + k * ss + s;
+            }
           si = (lastcapt[i]>0) * ss + s;
           gsb[0] = g0[gi];
           gsb[1] = sigma[si];
@@ -124,6 +131,7 @@ List trappingsingle (
         intrap[anum]   = tnum+1;       // trap = k+1 
         nanimals--;
         ntraps--;
+        at(anum,tnum) = 1;
       }
     }
     for (i=0; i<N; i++)
@@ -156,7 +164,8 @@ List trappingmulti (
     const NumericMatrix &Tsk,       // ss x kk array of 0/1 usage codes or effort 
     const int    fn,        // code 0 = halfnormal, 1 = hazard, 2 = exponential, 3 uniform 
     const double w2,        // truncation radius 
-    const IntegerVector &binomN  // not used 
+    const IntegerVector &binomN,  // not used 
+    const bool bk
 )
   
 {
@@ -172,6 +181,7 @@ List trappingmulti (
   NumericMatrix h(N, kk);
   NumericVector hsum(N);
   NumericVector cump(kk+1);
+  IntegerMatrix at(N,kk);
   std::vector<double> gsb(3);
   std::vector<double> miscparm(4);
   
@@ -189,7 +199,12 @@ List trappingmulti (
       hsum(i) = 0;
       for (k=0; k<kk; k++)
       {
-        gi = (lastcapt[i]>0) * ss * kk + k * ss + s;
+        if (bk) {
+          gi = at(i,k) * ss * kk + k * ss + s;
+        }
+        else {
+          gi = (lastcapt[i]>0) * ss * kk + k * ss + s;
+        }
         si = (lastcapt[i]>0) * ss + s;
         gsb[0] = g0[gi];
         gsb[1] = sigma[si];
@@ -222,6 +237,7 @@ List trappingmulti (
         while ((runif > cump(k)) && (k<kk)) k++;  // pick a trap 
         // Rprintf("k %6d\n", k);        
         lastcapt[i] = s+1;
+        at(i,k-1) = 1;
         value[ss * (caught[i]-1) + s] = k;
         
       }
@@ -245,7 +261,8 @@ List trappingcapped (
         const NumericMatrix &Tsk,       // ss x kk array of 0/1 usage codes or effort 
         const int    fn,                // code 0 = halfnormal, 1 = hazard, 2 = exponential, 3 uniform 
         const double w2,                // truncation radius 
-        const IntegerVector &binomN     // not used 
+        const IntegerVector &binomN,    // not used 
+        const bool bk
 )
     
 {
@@ -327,7 +344,8 @@ List trappingproximity (
     const NumericMatrix &Tsk,       // ss x kk array of 0/1 usage codes or effort 
     const int    fn,            // code 0 = halfnormal, 1 = hazard, 2 = exponential, 3 uniform 
     const double w2,            // truncation radius 
-    const IntegerVector &binomN  // 0 poisson, 1 Bernoulli, or number of trials for 'count' detector modelled with binomial 
+    const IntegerVector &binomN,  // 0 poisson, 1 Bernoulli, or number of trials for 'count' detector modelled with binomial 
+    const bool bk
 )
 {
   double theta;
@@ -393,7 +411,8 @@ List trappingcount (
     const NumericMatrix &Tsk,       // ss x kk array of 0/1 usage codes or effort 
     const int    fn,        // code 0 = halfnormal, 1 = hazard, 2 = exponential, 3 uniform 
     const double w2,        // truncation radius 
-    const IntegerVector &binomN  // 0 poisson, 1 Bernoulli, or number of trials for 'count' detector modelled with binomial 
+    const IntegerVector &binomN,  // 0 poisson, 1 Bernoulli, or number of trials for 'count' detector modelled with binomial 
+    const bool bk
 )
   
 {
