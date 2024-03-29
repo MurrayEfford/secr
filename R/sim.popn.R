@@ -900,9 +900,12 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
         names(animals) <- c('x','y')
         attr(animals,'covariates') <- NULL
         if (!is.null(covariates)) {
-            if (is.function(covariates)) {
+            if (is.function(covariates) || is.character(covariates)) {
+              if (is.character(covariates)) {
+                covariates <- get(covariates, envir = sys.frame())
+              }
                 # understanding covariates () as the argument, not the secr fn
-                tempcov <- as.data.frame(covariates(animals))
+                tempcov <- as.data.frame(covariates(animals, ...))
                 attr(animals,'covariates') <- tempcov
             }
             else {
