@@ -30,6 +30,7 @@
 ## 2023-03-10 setNumThreads moved to separate file
 ## 2023-05-21 4.6.0
 ## 2023-09-17 im2mask converts spatstat im object
+## 2024-03-19 rlnormCV
 ################################################################################
 
 # Global variables in namespace
@@ -2219,6 +2220,14 @@ snap_points <- function(x, y, max_dist = 1000) {
 # random truncated Poisson
 rtpois <- function(n, lambda) {
     qpois(runif(n, dpois(0, lambda), 1), lambda)
+}
+#-------------------------------------------------------------------------------
+
+rlnormCV <- function(n, mean, cv) {
+  # n simulated values from log-normal distribution with mean = mean and CV = cv
+  sdlog <- log(cv^2 + 1)^0.5
+  meanlog <- log(mean) - sdlog^2/2
+  rlnorm(n, meanlog = meanlog, sdlog = sdlog)
 }
 #-------------------------------------------------------------------------------
 
