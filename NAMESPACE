@@ -407,6 +407,7 @@ export (pmixProfileLL)
 export (updateCH)
 export (shareFactorLevels)
 export (RSE)
+export (rlnormCV)
 
 S3method(print, traps)
 S3method(plot, traps)
