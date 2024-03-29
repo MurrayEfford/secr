@@ -4,6 +4,7 @@
 \alias{masklength}
 \alias{edist}
 \alias{nedist}
+\alias{rlnormCV}
 
 \title{Utility Functions}
 
