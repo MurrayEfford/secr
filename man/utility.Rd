@@ -20,7 +20,7 @@ maskarea(mask, sessnum = 1)
 masklength(mask, sessnum = 1)
 edist(xy1, xy2)
 nedist(xy1, xy2, mask, inf = Inf, ...)
-rlnormCV(n, mean, CV)
+rlnormCV(n, mean, cv)
 }
 
 \arguments{ 
@@ -33,7 +33,7 @@ rlnormCV(n, mean, CV)
   \item{\dots}{other arguments for \code{\link[gdistance]{transition}}}
   \item{n}{number of observations}
   \item{mean}{mean on natural scale}
-  \item{CV}{coefficient of variation on natural scale}
+  \item{cv}{coefficient of variation on natural scale}
 }
 
 \details{
