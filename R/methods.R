@@ -248,7 +248,7 @@ polyID <- function (object)    {
         }
         else
         if (inherits(object,'capthist')) {
-            stop ("use trap() to extract polyID from 'capthist' object")
+            stop ("use polyID(traps(object)) to extract polyID from 'capthist' object")
         }
         else stop ("polyID requires 'traps' object")
     }
@@ -1335,7 +1335,7 @@ rotate.traps <- function (object, degrees, centrexy=NULL, ...)
     if (!is.null(timevaryingcov(object)))
         timevaryingcov(traps2) <- timevaryingcov(object)
     if (!is.null(polyID(object)))   ## includes transectID
-        polyID(traps2)    <- polyID(object)
+        polyID(traps2)    <- attr(object, 'polyID')  # polyID(object)
   }
   else traps2 <- object
   traps2
