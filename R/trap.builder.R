@@ -91,15 +91,15 @@ trap.builder <- function (n = 10, cluster, region = NULL, frame =
 
     position <- function (i, cluster) {
         newtraps <- secr::shift(cluster, origins[i,])
-        if (!is.null(rotation)) {
-            if (rotation<0)
-                rotation <- runif(1) * 360
-            newtraps <- secr::rotate(newtraps, rotation, apply(newtraps,2,mean))
-        }
         i <- .local$clusteri
         .local$clusteri <- .local$clusteri + 1    ## global update!
         clusterID(newtraps) <- factor(rep(i,nrow(newtraps)), levels=i)
         clustertrap(newtraps) <- as.numeric(polyID(newtraps))
+        if (!is.null(rotation)) {
+          if (rotation<0)
+            rotation <- runif(1) * 360
+          newtraps <- secr::rotate(newtraps, rotation, apply(newtraps,2,mean))
+        }
         newtraps
     }
 

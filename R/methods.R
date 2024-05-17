@@ -1319,7 +1319,6 @@ rotate.traps <- function (object, degrees, centrexy=NULL, ...)
     y2 <- - x * sin(theta) + y * cos(theta) + centrexy[2]
     c(x2,y2)
   }
-
   if (abs(degrees)>0 && nrow(object)>0) {
     if (is.null(centrexy)) centrexy <- c(mean(object$x), mean(object$y))
     theta <- 2*pi*degrees/360 # convert to radians
@@ -1335,7 +1334,10 @@ rotate.traps <- function (object, degrees, centrexy=NULL, ...)
     if (!is.null(timevaryingcov(object)))
         timevaryingcov(traps2) <- timevaryingcov(object)
     if (!is.null(polyID(object)))   ## includes transectID
-        polyID(traps2)    <- attr(object, 'polyID')  # polyID(object)
+      polyID(traps2)    <- attr(object, 'polyID')  # polyID(object)
+    
+    clusterID(traps2)    <- clusterID(object)
+    clustertrap(traps2)  <- clustertrap(object)
   }
   else traps2 <- object
   traps2
