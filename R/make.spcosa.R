@@ -11,24 +11,4 @@ make.spcosa <- function (n, cluster, poly, rotate = 0, keep.mask = FALSE, ...) {
     cosa
 }
 
-source('d:/density communication/secrbook/figures/setup.R')
-polyexample1 <- read.traps(file = 'data/polygonexample.txt', detector = 'polygon')
-grid <- make.grid(5,2, spacing = 10, detector = 'proximity')
 
-set.seed(1234)
-test <- make.spcosa (5, grid, polyexample1, keep.mask = T, rotate = 0)
-set.seed(1234)
-test1 <- make.spcosa (5, grid, polyexample1, keep.mask = T, rotate = -1)
-
-par(mfrow=c(1,2))
-
-plot(attr(test,'mask'), cov='stratum', col=qual8, legend = FALSE)
-plot(test,add=T)
-plot(attr(test1,'mask'), cov='stratum', col=qual8, legend = FALSE)
-plot(test1,add=T)
-
-polyID(test)
-clusterID(test)
-clustertrap(test)
-
-nrow(test)
