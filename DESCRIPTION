@@ -49,6 +49,7 @@ Suggests:
     spatstat (>= 3.0-2),
     spatstat.geom,
     spatstat.random,
+    spcosa,
     spsurvey (>= 5.3.0),
     testthat
 LinkingTo: 
