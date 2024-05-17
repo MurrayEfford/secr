@@ -246,7 +246,7 @@ read.traps <- function (file = NULL, data = NULL, detector = 'multi', covnames =
                 if (nocc>0) {
                     if (all(detector %in% .localstuff$polydetectors)) {
                         
-                        stop("usage input not available for polygon detectors in 4.5")
+                        stop("usage input not available for polygon detectors; add later")
                         used <- used[tempindex]
                         nocc <- max(nchar(used))   ## recompute
                         
