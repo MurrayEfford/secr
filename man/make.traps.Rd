@@ -162,14 +162,14 @@ plot (temptrap, border = 10, label = TRUE, gridl = FALSE)
 plot(make.circle(n = 20, spacing = 30), label = TRUE, offset = 9)
 summary(make.circle(n = 20, spacing = 30))
 
-
 ## jitter locations randomly within grid square
 ## and plot over `mask'
-temptrap <- make.grid(nx = 7, ny = 7, spacing = 30)
-tempmask <- make.mask(temptrap, buffer = 15, nx = 7, ny = 7)
-temptrap[,] <- temptrap[,] + 30 * (runif(7*7*2) - 0.5)
-plot(tempmask, dots = FALSE, mesh = 'white')
-plot(temptrap, add = TRUE)
+# see also ?gridCells
+
+tr0 <- tr <- make.grid(nx = 7, ny = 7, spacing = 30)
+tr[] <- jitter(unlist(tr), amount = spacing(tr)/2)
+plot(as.mask(tr0), dots = FALSE, mesh = 'white')
+plot(tr, add = TRUE)
 
 }
 

@@ -25,6 +25,8 @@ gridCells(x, cellsize = spacing(x), crs = NA)
 
 The argument x will often be a traps or mask object with spacing attribute. Otherwise \code{cellsize} must be provided.
 
+See \code{\link{make.grid}} for jittered locations within grid cells.
+
 }
 
 \value{

@@ -187,6 +187,8 @@ tempgrid <- trap.builder (n = 10, method = "SRS",
 
 ## one detector in each 100-m grid cell -
 ## a form of stratified simple random sample
+## see also Examples in ?make.grid
+
 origins <- expand.grid(x = seq(0, 900, 100),
     y = seq(0, 1100, 100))
 XY <- origins + runif(10 * 12 * 2) * 100
