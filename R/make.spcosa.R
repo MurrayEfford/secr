@@ -1,6 +1,7 @@
 # 2024-05-18
 
-make.spcosa <- function (n, cluster, region, rotate = 0, randomize = FALSE, maxtries = 100, keep.mask = FALSE, ...) {
+make.spcosa <- function (n, cluster, region, rotation = 0, randomize = FALSE, 
+                         maxtries = 100, keep.mask = FALSE, ...) {
   allinside <- function (xy, subregion) {
     xy <- st_as_sf(data.frame(xy), coords=1:2)
     st_crs(xy) <- st_crs(subregion)
@@ -23,7 +24,7 @@ make.spcosa <- function (n, cluster, region, rotate = 0, randomize = FALSE, maxt
       OK <- FALSE
       for (i in 1:maxtries) {
         tmp <- trap.builder(cluster = cluster, frame = msk[sample.int(nm,1),], 
-                            method = "all", region = subregion, rotation = rotate, 
+                            method = "all", region = subregion, rotation = rotation, 
                             edgemethod = 'allowoverlap')
         OK <- allinside(tmp, subregion)
         if (OK) break
@@ -37,7 +38,7 @@ make.spcosa <- function (n, cluster, region, rotate = 0, randomize = FALSE, maxt
   }
   else {
     cent <- sp::coordinates(spcosa::getCentroid(aa))
-    cosa <- trap.builder(cluster = cluster, frame = cent, method = 'all', rotation = rotate)
+    cosa <- trap.builder(cluster = cluster, frame = cent, method = 'all', rotation = rotation)
   }
   if (keep.mask) attr(cosa, 'mask') <- msk
   cosa

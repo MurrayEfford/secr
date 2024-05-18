@@ -11,7 +11,7 @@ A spatial coverage design places one cluster of detectors in each compact subreg
 
 \usage{
 
-make.spcosa(n, cluster, region, rotate = 0, randomize = FALSE, maxtries = 100, 
+make.spcosa(n, cluster, region, rotation = 0, randomize = FALSE, maxtries = 100, 
     keep.mask = FALSE, ...)
 
 }
@@ -20,7 +20,7 @@ make.spcosa(n, cluster, region, rotate = 0, randomize = FALSE, maxtries = 100,
   \item{n}{integer number of subregions}
   \item{cluster}{traps object defining a cluster of detectors}
   \item{region}{boundary of region of interest}
-  \item{rotate}{numeric angular rotation of each cluster (negative for random)}
+  \item{rotation}{numeric angular rotation of each cluster (negative for random)}
   \item{randomize}{logical; if TRUE then cluster is located at random within subregion}
   \item{maxtries}{integer maximum attempts to find random location}
   \item{keep.mask}{logical; if TRUE then a habitat mask with covariate `stratum'}
@@ -36,6 +36,9 @@ The \dots argument determines the coarseness of the discretization used to defin
 By default  (randomize = FALSE) clusters are centred at subregion centroids. Otherwise (randomize = TRUE) clusters are centred in a randomly selected cell of each subregion, subject to the constraint that all detectors fall within the subregion. An error results if no cluster meeting the constraint is found in `maxtries' attempts.
 
 Slightly different partitions of `poly' are generated depending on the value of the random seed, so for consistency this should be first set with \code{set.seed}.
+
+The argument `rotation' is applied separately to each cluster, as in \code{\link{trap.builder}} and unlike the argument `rotate' of \code{\link{make.systematic}}.
+
 
 }
 
@@ -56,6 +59,7 @@ coverage sampling and random sampling from compact geographical strata by k-mean
 \seealso{
 
 \code{\link{make.mask}},  
+\code{\link{trap.builder}},  
 \code{\link{boundarytoSF}},  
 \link{traps}
 
