@@ -69,7 +69,8 @@ subgrid <- make.grid(3,3, spacing = 80)
 set.seed(123)
 
 # nx and keep.mask refer to the discretized region of interest
-tr <- make.spcosa(n = 5, subgrid, poly, nx = 32, randomize = T, keep.mask = TRUE)
+tr <- make.spcosa(n = 5, subgrid, poly, nx = 32, randomize = TRUE, 
+          keep.mask = TRUE)
 
 plot(attr(tr,'mask'), dots = FALSE, cov = 'stratum', legend = FALSE)
 plot(tr, add = TRUE)
