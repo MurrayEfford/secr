@@ -360,7 +360,6 @@ reduce.capthist <- function (object, newtraps = NULL, span = NULL,
             if ((ncol(object) %% by) > 0)
                 warning ("number of occasions is not a multiple of 'by'")
         }
-
         if (!is.null(traps(object))) {
             ntrap <- ndetector(traps(object))  ## npoly if 'polygon' or 'transect'
             inputdetector <- detector(traps(object))
@@ -446,8 +445,9 @@ reduce.capthist <- function (object, newtraps = NULL, span = NULL,
             occ = occasion(object, sortorder = 'ksn'),
             ID = animalID(object, names = FALSE, sortorder = 'ksn'),
             alive = alive(object, sortorder = 'ksn'))
-        if (reducetraps)
+        if (reducetraps) {
             df$trap <- newtrapID[df$trap]
+        }
         if (any(outputdetector %in% c(polygons, transects))) {
             df$x <- xy(object)[,1]
             df$y <- xy(object)[,2]
