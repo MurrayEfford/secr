@@ -11,7 +11,8 @@ A spatial coverage design places one cluster of detectors in each compact subreg
 
 \usage{
 
-make.spcosa(n, cluster, region, rotate = 0, randomize = FALSE, maxtries = 100, keep.mask = FALSE, ...)
+make.spcosa(n, cluster, region, rotate = 0, randomize = FALSE, maxtries = 100, 
+    keep.mask = FALSE, ...)
 
 }
 
