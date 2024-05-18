@@ -1333,11 +1333,11 @@ rotate.traps <- function (object, degrees, centrexy=NULL, ...)
         covariates(traps2) <- covariates(object)
     if (!is.null(timevaryingcov(object)))
         timevaryingcov(traps2) <- timevaryingcov(object)
-    if (!is.null(polyID(object)))   ## includes transectID
-      polyID(traps2)    <- attr(object, 'polyID')  # polyID(object)
-    
-    clusterID(traps2)    <- clusterID(object)
-    clustertrap(traps2)  <- clustertrap(object)
+
+    if (!is.null(attr(object,'polyID')))
+      polyID(traps2)    <- polyID(object)   
+    clusterID(traps2)   <- clusterID(object)
+    clustertrap(traps2) <- clustertrap(object)
   }
   else traps2 <- object
   traps2
