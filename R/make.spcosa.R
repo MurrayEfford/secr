@@ -11,7 +11,7 @@ make.spcosa <- function (n, cluster, region, rotate = 0, randomize = FALSE, maxt
     stop ("package 'spcosa' is required for make.spcosa")
   }
   
-  msk <- make.mask(type = 'polygon', buffer = 0, poly = region, keep.poly = FALSE, ...)
+  msk <- make.mask(type = 'polygon', buffer = 0, poly = region, ...)
   pix <- sp::SpatialPixels(sp::SpatialPoints(as.matrix(msk)))
   aa <- spcosa::stratify(pix, n, equal = TRUE)  ## SLOW
   covariates(msk)$stratum <- aa@stratumId + 1
