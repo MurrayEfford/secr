@@ -1,6 +1,5 @@
 \name{traps.info}
 \alias{searcharea}
-% \alias{searcharea<-}
 \alias{polyID}
 \alias{polyID<-}
 \alias{transectID}
@@ -42,9 +41,11 @@ lengths of the component transects in metres. This value is read-only.
 }
 
 \value{
-\code{polyID} - a factor with one level per polygon.
+
+\code{polyID} - a factor with one level per polygon. If the object does not have a polyID attribute then a factor with one level for each detector.
 \code{searcharea} - numeric value of polygon areas, in hectares.
 \code{transectlength} - numeric value of transect lengths, in metres.
+
 }
 
 \seealso{ 
