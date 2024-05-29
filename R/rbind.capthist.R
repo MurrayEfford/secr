@@ -301,7 +301,55 @@ rbind.capthist <- function (..., renumber = TRUE, pool = NULL, verify = TRUE)
 }
 ###############################################################################
 
+append.capthist <- function (..., synchronous = TRUE)
+{
+  dots <- match.call(expand.dots = FALSE)$...
+  allargs <- list(...)
+  names(allargs) <- lapply(dots, as.character)
+  if (length(dots)==1) object <- allargs[[1]]
+  else object <- allargs
+  dims <- sapply(object, dim)
+  dimsum <- apply(dims,1,sum)
+  if (synchronous) dimsum[2] <- max(dims[2,])
+  ch <- array(0, dim=dimsum)
+  class (ch) <- 'capthist'
+  traplist <- lapply(object,traps)
+  startn <- starts <- startk <- 1
+  for (i in 1:length(object)) {
+    n <- dims[1,i]
+    s <- dims[2,i]
+    k <- dims[3,i]
+    ch[startn:(startn+n-1), starts:(starts+s-1), startk:(startk+k-1)] <- object[[i]][]
+    covariates(traplist[[i]])$sub <- factor(rep(i, k), levels=1:length(object))
+    if (!is.null(usage(traplist[[i]]))) {
+      if (synchronous) {
+        # fill extra occasions as needed
+        usage(traplist[[i]]) <- cbind(usage(traplist[[i]], 
+            matrix(0, nrow=k, ncol = dimsum[2] - dims[2,i])))
+      }
+      else {
+        # construct usage matrix for all occasions
+        tmp <- matrix(0, nrow = k, ncol = dimsum[2])
+        tmp[,starts:(starts+s-1)] <- usage(traplist[[i]])
+        usage(traplist[[i]]) <- tmp
+      }
+    }
+    startn <- startn + n
+    startk <- startk + k
+    if (!synchronous) starts <- starts + s
+    
+  }
+  cov <- do.call(rbind, lapply(object, covariates))
+  if (nrow(cov) > 0)
+    covariates(ch) <- cov
+  traps(ch) <- do.call(rbind, traplist)
+  row.names(ch) <- 1:nrow(ch)
+  ch
+}
+###############################################################################
+
 ## UNFINISHED
+
 
 merge.capthist <- function (..., renumber = TRUE, remove.dupl.traps = FALSE,
                             concurrent = TRUE, verify = TRUE, tol = 1)

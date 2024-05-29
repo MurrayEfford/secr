@@ -1,6 +1,7 @@
 \name{rbind.capthist}
 \alias{rbind.capthist}
 \alias{MS.capthist}
+\alias{append.capthist}
 
 \title{ Combine capthist Objects }
 
@@ -13,6 +14,7 @@
 \usage{
 
   MS.capthist(...)
+  append.capthist(..., synchronous = TRUE)
   
   \method{rbind}{capthist}(..., renumber = TRUE, pool = NULL, verify = TRUE)
 
@@ -21,6 +23,7 @@
 \arguments{
   \item{\dots}{ one or more \code{capthist} objects or lists of
       \code{capthist} objects }
+  \item{synchronous}{logical; if TRUE occasions are assumed to coincide}
   \item{renumber}{ logical, if TRUE assigns new composite individual ID }
   \item{pool}{ list of vectors of session indices or names }
   \item{verify}{ logical, if TRUE the output is checked with \code{\link{verify}} }
@@ -35,6 +38,9 @@
   may be given explicitly (see Examples); if any name is duplicated, all
   will be replaced with sequential integers. The \dots argument may include
   lists of single-session capthist objects.
+  
+  \code{append.capthist} constructs a single-session capthist assuming the inputs 
+  are independent capthist objects. Individuals and detectors are renumbered. Occasions are assumed to be synchronous by default. This is an alternative to rbind when the detector array varies.
   
   The \code{rbind} method for capthist objects is used to pool capture data 
   from more than one
@@ -79,6 +85,8 @@ Although \code{MS.capthist} looks like an S3 method, it isn't. The full function
 For \code{MS.capthist}, a multi-session object of class `capthist' with
 number of sessions equal to the number of sessions in the objects in
 \dots.
+
+For \code{append.capthist}, a single-session of class `capthist'. When `synchronous' the dimensions are (\eqn{\sum n_i, \mbox{max}~ S_i, \sum K_i}) where (\eqn{n_i, S_i, K_i}) are the numbers of individuals, occasions and detectors in the i-th input. Otherwise the dimensions are (\eqn{\sum n_i, \sum S_i, \sum K_i}). An index to the original component is saved in the traps covariate `sub'.
 
 For \code{rbind.capthist}, either an object of class `capthist' with one 
 session formed by pooling the sessions in the input objects, or a 
