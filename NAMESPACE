@@ -218,6 +218,7 @@ export (setNumThreads)
 export (extractMoves)
 export (makeStart)
 export (kfn)
+export (append.capthist)
 
 # defunct, still exported
 export (model.average)
