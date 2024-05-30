@@ -512,7 +512,6 @@ sim.capthist <- function (
         
         if ((all(detector(traps) %in% c('single','multi','proximity','count', 'capped')))
             || detectfn==20) {
-            
             w <- array(0, dim=c(N, noccasions, K), dimnames = list(rownames(popn), 1:noccasions, 1:K))
             if (length(unique(detector(traps)))==1 && detectpar$individual) {
                 ## Individual detectpar code added 2024-03-15
@@ -559,6 +558,7 @@ sim.capthist <- function (
                     occ <- rep(1:noccasions, N)[temp$value>0]
                     trp <- temp$value[temp$value>0]
                     id <- rep(1:N, each = noccasions)[temp$value>0]
+                    id <- which(temp$caught>0)[id]  ## restore original id 2024-05-29
                     w[cbind(id, occ, trp)] <- 1
                 }
             }

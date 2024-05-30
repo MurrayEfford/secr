@@ -1,4 +1,4 @@
-Changes in version 4.6.7 (2024-05-21)
+Changes in version 4.6.7 (2024-05-29)
 
 New features or changed behaviour of old functions
     o  sim.popn() the covariates argument may specify a function to 
@@ -11,6 +11,7 @@ New features or changed behaviour of old functions
 
 Bugs fixed
     o   rotate.traps added spurious polyID
+    o   sim.capthist() with single,multi detectors did not respect 'renumber = FALSE'
 
 Other
     o   onLoad defaults to options()matprod = "internal"
