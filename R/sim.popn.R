@@ -601,10 +601,13 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
         if (!is.null(details$saveLambda) && details$saveLambda && 
             model2D %in% c("rLGCP", "rThomas","cluster")) {
             if (is.null(details$eps)) {
-                if (inherits(core, "mask"))
+                if (inherits(core, "mask")) {
                     details$eps <- spacing(core)
-                else 
-                    details$eps <- diff(xl)/64
+                }
+                else {
+                    dx <- diff(range(core$x)) + 2 * buffer
+                    details$eps <- dx/64
+                }
             }
             else if (inherits(core, "mask") && details$eps != spacing(core)) {
                 warning ("requested eps for Lambda differs from core mask")
