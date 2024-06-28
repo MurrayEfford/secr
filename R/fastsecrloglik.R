@@ -192,7 +192,8 @@ fastsecrloglikfn <- function (
         #----------------------------------------------------------------------
         
         ## 2022-01-05 catch nc = 0
-        if (!data$nc<=0 && details$relativeD != 1) {
+        # if (!data$nc<=0 && !details$relativeD) {  ## 2024-06-26
+        if (!data$nc<=0) {
             comp[2,1] <- if (any(is.na(pdot)) || any(pdot<=0)) NA else -sum(log(pdot)) 
         }
         
