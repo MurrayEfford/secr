@@ -18,7 +18,7 @@ gridCells(x, cellsize = spacing(x), crs = NA)
 \arguments{
   \item{x}{matrix or dataframe with x- and y-coordinates}
   \item{cellsize}{length of gridcell side}
-  \item{crs}{crs description suitable for \code{\link{st_crs}} }
+  \item{crs}{crs description suitable for \code{\link[sf]{st_crs}} }
 }
 
 \details{

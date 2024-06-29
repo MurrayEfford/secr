@@ -48,7 +48,7 @@ Allaire, J. J., Francois, R., Ushey, K., Vandenbrouck, G., Geelnard, M. and Inte
 \seealso{
 
 \link{Parallel},
-\code{\link{setThreadOptions}}
+\code{\link[RcppParallel]{setThreadOptions}}
 \code{\link{Sys.getenv}}
 
 }

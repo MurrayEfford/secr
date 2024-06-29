@@ -10,7 +10,7 @@ Upload a set of point locations as waypoints to a GPS unit connected
 by USB or via a serial port. Intended primarily for detector locations
 in a traps object. Uses the GPSBabel package which must have been
 installed. Coordinates are first inverse-projected to latitude and
-longitude using function \code{\link{st_transform}} from \pkg{sf}.
+longitude using function \code{\link[sf]{st_transform}} from \pkg{sf}.
 
 }
 \usage{

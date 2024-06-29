@@ -2,6 +2,9 @@ Changes in version 4.6.9 (2024-06-29)
 
 New features or changed behaviour of old functions
     o  none
+
+Other
+    o  added package anchor in Rd files when linking to sf and RcppParallel functions, to satisfy CRAN
     
 Changes in version 4.6.8 (2024-06-28)
 
