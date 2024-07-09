@@ -8,6 +8,7 @@
 ## 2021-06-22 global change fixedpar to fixed for consistency
 ## 2023-12-16 relativeD
 ## 2023-12-22 no separate verify for multi-session masks (allows sharefactorLevels warning)
+## 2024-07-03 fastproximity losses warning
 ###############################################################################
 
 secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
@@ -245,7 +246,6 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
         test <- verify(capthist, report = 1)
         if (test$errors)
             stop ("'verify' found errors in 'capthist' argument")
-        
         if (!is.null(mask)) {
             notOK <- verify(mask, report = 1)$errors
             if (notOK)
@@ -393,11 +393,9 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     ## 2019-09-01 fast proximity option
     details$fastproximity <- !is.null(details$fastproximity) &&
         details$fastproximity  && 
-        ## all(detectortype %in% c('proximity', 'count', 'capped')) && 
         all(detectortype %in% c('proximity', 'count')) && 
         !learnedresponse && !timevarying && !anysighting &&
         is.null(groups)
-    
     if (details$fastproximity) {
       if (any(unlist(detector(traps(capthist))) == 'count') && 
           (is.null(details$binomN) || any(details$binomN == 0)))
@@ -408,6 +406,10 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
       ## do it here so that design etc. use reduced capthist
       ## 2022-01-04 added verify = FALSE, dropunused = FALSE
       ## 2022-01-23 enforce all-ones usage if ignoreusage
+      ## 2024-07-03 warning if losses ignored
+      if (any(unlist(capthist)<0)) {
+          warning("fastproximity ignores losses; consider using details = list(fastproximity = FALSE)")
+      }
       if (details$ignoreusage) {
         capthist <- uniformusage(capthist)
       }
