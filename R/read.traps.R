@@ -43,13 +43,13 @@ read.traps <- function (file = NULL, data = NULL, detector = 'multi', covnames =
     # count.fields(file, sep = "", quote = "\"'", skip = 0, blank.lines.skip = TRUE,
     #     comment.char = "#")
     closepoly <- function (xyi) {    ## close polygon
-        if ((tail(xyi$x,1) != xyi$x[1]) | (tail(xyi$y,1) != xyi$y[1])) {
+        if ((tail(xyi$x,1) != xyi$x[1]) || (tail(xyi$y,1) != xyi$y[1])) {
             newrow <- xyi[1,,drop=F]
             xyi <- rbind(xyi,newrow)
         }
         xyi
     }
-    
+
     dots <- match.call(expand.dots = FALSE)$...
     
     if (!all( detector %in% .localstuff$validdetectors ))
@@ -170,7 +170,8 @@ read.traps <- function (file = NULL, data = NULL, detector = 'multi', covnames =
                     tempID <- levels(factor(temp$polyID))
                     tempindex <- match (tempID, as.character(temp$polyID))
                     temp1 <- split (temp[, 1:3, drop=FALSE], temp$polyID)
-                    temp1 <- abind(lapply(temp1, closepoly), along=1, force.array=F)
+                    closed <- lapply(temp1, closepoly)
+                    temp1 <- abind(closed, along=1, force.array=FALSE)
                     
                     traps <- temp1[, c('x','y'),drop=FALSE]
                     class(traps)    <- c('traps', 'data.frame')
@@ -203,7 +204,8 @@ read.traps <- function (file = NULL, data = NULL, detector = 'multi', covnames =
             ## close polygons; tempindex used later to match covariates & usage
             if ('polyID' %in% names(data)) {
                 temp <- split (data[,c('x','y','polyID'),drop=FALSE], data$polyID)
-                data <- as.data.frame(abind(lapply(temp, closepoly), along = 1),
+                closed <- lapply(temp, closepoly)
+                data <- as.data.frame(abind(closed, along = 1),
                     force.array = FALSE)
             }
             else {
