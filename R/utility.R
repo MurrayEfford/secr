@@ -1759,7 +1759,7 @@ addzerodf <- function (df, oldCH, sess) {
 
 ## including pre-marked animals never sighted
 ## cov is optional dataframe of covariates
-addzeroCH <- function (CH, nzero, cov = NULL) {
+addzeroCH <- function (CH, nzero, cov = NULL, prefix = 'Z') {
     if (nzero == 0)
         return(CH)
     else {
@@ -1767,7 +1767,7 @@ addzeroCH <- function (CH, nzero, cov = NULL) {
         chdim <- dim(CH)
         chdim[1] <- nzero
         extra <- array(0, dim=chdim)
-        dimnames(extra) <- c(list(paste('Z', 1:nzero, sep='')), dimnames(CH)[2:3])
+        dimnames(extra) <- c(list(paste(prefix, 1:nzero, sep='')), dimnames(CH)[2:3])
         CH2 <- abind(CH, extra, along = 1)
         class(CH2) <- 'capthist'
         traps(CH2) <- traps(CH)
