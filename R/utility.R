@@ -31,6 +31,7 @@
 ## 2023-05-21 4.6.0
 ## 2023-09-17 im2mask converts spatstat im object
 ## 2024-03-19 rlnormCV
+## 2024-07-31 addzeroCH tweaked to allow zero-row covariate df + drop = FALSE
 ################################################################################
 
 # Global variables in namespace
@@ -1771,12 +1772,12 @@ addzeroCH <- function (CH, nzero, cov = NULL) {
         class(CH2) <- 'capthist'
         traps(CH2) <- traps(CH)
         xy(CH2) <- xy(CH)  ## order is not affected by adding zero histories
-        if (!is.null(covariates(CH)) & (nrow(CH)>0)) {
+        if (!is.null(covariates(CH)) && nrow(covariates(CH))>0 && (nrow(CH)>0)) {
             if (is.null(cov)) {
-                cov <- covariates(CH)[rep(1,nzero),]
+                cov <- covariates(CH)[rep(1,nzero),,drop = FALSE]
                 cov[,] <- NA   ## covariates are unknown
             }
-            covariates(CH2) <- rbind(covariates(CH), cov[1:nzero,])
+            covariates(CH2) <- rbind(covariates(CH), cov[1:nzero,,drop = FALSE])
         }
         ## ... and other essential attributes?
         CH2
