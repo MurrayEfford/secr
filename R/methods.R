@@ -13,6 +13,8 @@
 ## 2023-04-14 trim.secrlist
 ## 2023-05-30 shift.mask updates boundingbox; explicitly call secr::shift 
 ## 2023-08-19 as.popn()  ppp > popn
+## 2024-07-29 print.secrdata, print.secrlist moved from sim.secr.R
+
 ###############################################################################
 
 # Generic methods for extracting attributes etc
@@ -2254,6 +2256,20 @@ coef.secr <- function (object, alpha=0.05, ...) {
 
 coef.secrlist <- function (object, alpha=0.05, ...) {
     lapply(object, coef, alpha = alpha, ...)
+}
+############################################################################################
+
+print.secrdata <- function(x,...) {
+    ## suggestion of Rolf Turner 19 Jan 2009 for printing without attributes
+    attributes(x) <- NULL
+    print(x)
+}
+############################################################################################
+
+print.secrlist <- function(x,...) {
+    ## suggestion of Rolf Turner 19 Jan 2009 for printing without attributes
+    attributes(x) <- NULL
+    print(x)
 }
 ############################################################################################
 
