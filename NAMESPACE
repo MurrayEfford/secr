@@ -1,4 +1,4 @@
-# 2023-05-22, 2024-02-17
+# 2023-05-22, 2024-02-17, 2024-07-31
 
 import (parallel)
 import (RcppNumerical)
@@ -22,7 +22,7 @@ importFrom (stats, AIC, approx, approxfun, as.formula, chisq.test, coef,
 importFrom (tools, file_ext)
 importFrom (utils, count.fields, flush.console, getS3method, head,
     object.size, packageDescription, packageVersion, read.csv,
-    read.table, tail, write.table)   
+    read.table, setTxtProgressBar, tail, txtProgressBar, write.table)   
 
 # Other packages
 
@@ -31,7 +31,8 @@ importFrom (abind,
 
 importFrom (MASS, 
     ginv, 
-    eqscplot)
+    eqscplot,
+    mvrnorm)
 
 importFrom (mgcv, 
     gam, 
