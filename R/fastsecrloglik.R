@@ -116,7 +116,7 @@ fastsecrloglikfn <- function (
         ## allow for scaling of detection
         Dtemp <- if (D.modelled) mean(D[,1,sessnum]) else NA
         Xrealparval <- reparameterize (realparval, detectfn, details,
-                                       data$mask, data$traps, Dtemp, s)
+                                       data$mask, data$traps, Dtemp, 1) # 1 was s! 2024-07-30
         ## check valid parameter values
         if (!all(is.finite(Xrealparval))) {
             cat ('beta vector :', beta, '\n')
