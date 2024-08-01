@@ -26,7 +26,8 @@ sim.secr(object, nsim = 1, extractfn = function(x) c(deviance =
     data = NULL, tracelevel = 1, hessian = c("none", "auto", "fdHess"),
     start = object$fit$par, ncores = NULL, ...)
 
-sim.detect(object, popnlist, maxperpoly = 100, renumber = TRUE, expected = FALSE)
+sim.detect(object, popnlist, maxperpoly = 100, renumber = TRUE, 
+    expected = FALSE, dropzeroCH = TRUE)
 
 }
 
@@ -48,6 +49,7 @@ sim.detect(object, popnlist, maxperpoly = 100, renumber = TRUE, expected = FALSE
   \item{popnlist}{list of popn objects}
   \item{renumber}{logical; if TRUE then output animals are renumbered }
   \item{expected}{logical; if TRUE then the array of expected counts is saved as an attribute}
+  \item{dropzeroCH}{logical; if TRUE then all-zero capture histories are dropped}
 }
 
 \details{
