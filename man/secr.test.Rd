@@ -19,7 +19,7 @@
 \usage{
 
 secr.test(object, nsim = 99, statfn, fit = FALSE, seed =
-NULL, ncores = NULL, tracelevel = 1)
+NULL, ncores = NULL, tracelevel = 1, ...)
 
 }
 
@@ -40,6 +40,8 @@ NULL, ncores = NULL, tracelevel = 1)
   \item{ncores}{integer number of threads for parallel processing}
   
   \item{tracelevel}{ see \code{\link{sim.secr}} }
+  
+  \item{\dots}{other arguments passed to statfn, if needed}
   
 }
 

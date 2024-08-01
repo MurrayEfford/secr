@@ -4,7 +4,7 @@
 ## changed 2014-08-07, 2014-09-07
 ## 2017-07-26 tweaked seed = seed to seed = NULL in sim.secr
 ## 2017-07-27 saved seed attribute from simulate, rather than just input value
-
+## 2024-07-24 keep = 'mask'
 ############################################################################################
 
 ## Monte Carlo goodness of fit tests
@@ -20,10 +20,10 @@
 ############################################################################################
 
 secr.test <- function (object, nsim = 99, statfn, fit = FALSE, seed = NULL,
-                       ncores = NULL, tracelevel = 1) {
+                       ncores = NULL, tracelevel = 1, ...) {
     summarise <- function (CH.or.secr, sims1) {
-        observed <- statfn(CH.or.secr)
-        simulated <- sapply(sims1, statfn)
+        observed <- statfn(CH.or.secr, ...)
+        simulated <- sapply(sims1, statfn, ...)
         nstat <- length(observed)
         rown <- names(observed)
         if (is.null(rown)) {
@@ -45,7 +45,7 @@ secr.test <- function (object, nsim = 99, statfn, fit = FALSE, seed = NULL,
             statfn <- function(object) c(devdf = deviance(object) / df.residual(object))
         fitted <- sim.secr(object, nsim = nsim, extractfn = trim, seed = NULL,
                            data = sims, start = object$fit$par, ncores = ncores,
-                           tracelevel = tracelevel)
+                           tracelevel = tracelevel, keep = 'mask')
         out <- summarise(object, fitted)
     }
     else {
