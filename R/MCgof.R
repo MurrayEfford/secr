@@ -8,7 +8,7 @@
 ################################################################################
 
 MCgof <- function (object, nsim = 1, statfn = NULL, testfn = NULL,
-                   seed = NULL, ncores = NULL, verbose = FALSE, quiet = FALSE)
+                   seed = NULL, ncores = NULL, quiet = FALSE)
 
 {
     #---------------------------------------------------------------------------
@@ -28,14 +28,23 @@ MCgof <- function (object, nsim = 1, statfn = NULL, testfn = NULL,
         obspop <- mask[m,] + runif(length(m)*2, -sp/2, +sp/2)  # jitter within cells
         class (obspop) <- c('popn', 'data.frame')
         attr(obspop, 'boundingbox') <- attr(mask, 'boundingbox')
+        rownames(obspop) <- names(fxi.list)
         
-        # generate locations of unobserved animals
-        D <- covariates(fx.total(object))$D.nc
-        unobspop <- sim.popn (D = D, core = mask, model2D = 'IHP', 
+        # density of unobserved AC
+        # this code is also in fx.total
+        D <- predictDsurface(object)
+        D <- covariates(D)$D.0
+        detectpar <- detectpar(object)  # simple only... consider byclass = TRUE
+        pd <- pdot(X = mask, traps = traps(CH), detectfn = object$detectfn,
+                   detectpar = detectpar, noccasions = ncol(CH), ncores = ncores)
+        
+        # sample locations of unobserved AC
+        unobspop <- sim.popn (D = D * (1 - pd), core = mask, model2D = 'IHP', 
                               Ndist = 'fixed', covariates = NULL)
+        rownames(unobspop) <- paste0('N', rownames(unobspop))
         
         # combine observed, unobserved
-        popn <- rbind(obspop, unobspop)
+        popn <- rbind(obspop, unobspop, renumber = FALSE)
         Nobs <- nrow(obspop)
         Nunobs <- nrow(unobspop)  # varies because D varies
         covariates(popn) <- data.frame(obs = rep(c(TRUE,FALSE), c(Nobs, Nunobs)))
@@ -43,16 +52,18 @@ MCgof <- function (object, nsim = 1, statfn = NULL, testfn = NULL,
         ## add individual covariates that may be needed by sim.detect
         if (!is.null(object$hcov)) {
             ## for unobs, sample with replacement from original hcov field
-            oldhcov <- covariates(object$capthist)[,object$hcov]
+            oldhcov <- covariates(CH)[,object$hcov]
             covariates(popn)[[object$hcov]] <- 
                 sample(oldhcov, size = nrow(popn), replace = TRUE)
             ## then overwrite obs hcov
             covariates(popn)[1:Nobs,object$hcov] <- covariates(obspop)[,object$hcov]
         }
         
-        simCH <- sim.detect(object, popnlist = list(popn), expected = TRUE, dropzero = FALSE)
+        # using sim.detect revised 2024-08-02
+        simCH <- sim.detect(object, popnlist = list(popn), expected = TRUE, 
+                            dropzeroCH = FALSE, renumber = FALSE)
         expCH <- attr(simCH, 'expected')
-        
+
         Tsim <- statfn(simCH)
         Texp <- statfn(expCH)
         
@@ -70,7 +81,7 @@ MCgof <- function (object, nsim = 1, statfn = NULL, testfn = NULL,
             list(
                 yik = apply(abs(capthist), c(1,3), sum),
                 yi = apply(abs(capthist), 1, sum),
-                yk = apply(abs(capthist),3, sum)
+                yk = apply(abs(capthist), 3, sum)
             )
         }
     }
@@ -127,6 +138,8 @@ MCgof <- function (object, nsim = 1, statfn = NULL, testfn = NULL,
     
     ptm  <- proc.time()
     
+    CH <- object$capthist
+    
     ## optional parallel processing - often slower
     
     if (is.null(ncores)) ncores <- setNumThreads()
@@ -137,7 +150,7 @@ MCgof <- function (object, nsim = 1, statfn = NULL, testfn = NULL,
         clustertype <- if (.Platform$OS.type == "unix") "FORK" else "PSOCK"
         clust <- makeCluster(ncores, type = clustertype)
         if (clustertype == "PSOCK") {
-            clusterExport(clust, c("object", "statfn"), environment())
+            clusterExport(clust, c("object", "CH", "statfn"), environment())
         }
         clusterSetRNGStream(clust, seed)
         on.exit(stopCluster(clust))
@@ -150,11 +163,10 @@ MCgof <- function (object, nsim = 1, statfn = NULL, testfn = NULL,
 
     ft <- function (capti, stat) {
         N <- nrow(capti$popn)  # varies for each replicate because D varies
-        paddedCH <- addzeroCH(object$capthist, N - nrow(object$capthist))
+        n <- nrow(CH)
+        # addzeroCH is internal secr function
+        paddedCH <- addzeroCH(CH, N - n, prefix = 'N')
         Tobs <- statfn(paddedCH)
-        
-        # BUT does sim.detect deliver in matching order?
-        
         obs <- testfn(Tobs[[stat]],       capti$Texp[[stat]])
         sim <- testfn(capti$Tsim[[stat]], capti$Texp[[stat]])
         c(Tobs = obs, Tsim = sim, simGTobs = sim>obs)
@@ -163,46 +175,50 @@ MCgof <- function (object, nsim = 1, statfn = NULL, testfn = NULL,
     tests <- c('yik','yi','yk')
     all <- lapply(tests, function(x) sapply (capt, ft, stat = x))
     names(all) <- tests
+
+    out <- list(
+        statfn   = statfn,
+        testfn   = testfn,
+        all      = all,
+        nsim     = nsim,
+        means    = sapply(all, apply, 1, mean), 
+        proctime = (proc.time() - ptm)[3])
+    class(out) <- 'MCgof'
     
     if (!quiet) {
         close(pb)
-        message ("completed in ", round((proc.time() - ptm)[3],3), " seconds")
+        message ("MCgof completed in ", round((proc.time() - ptm)[3],3), " seconds")
+        print(summary(out))
     }
     
-    if (verbose) {
-        out <- list(
-            statfn   = statfn,
-            testfn   = testfn,
-            all      = all,
-            nsim     = nsim,
-            means    = sapply(all, apply, 1, mean), 
-            proctime = (proc.time() - ptm)[3])
-        class(out) <- 'MCgof'
-        out
-    }
-    else {
-        sapply(all, apply, 1, mean)
-    }
+    invisible(out)
+    
 }
 ################################################################################
 
 plot.MCgof <- function(x, overlay = NULL, ...) {
     main <- c('individual-detector','individual', 'detector')
-    onestat <- function (xy, pnum) {
-        lim <- range(xy[1:2,]) * c(0.8,1.2)
+    onestat <- function (xy, ynum) {
+        lim <- range(xy[1:2,])
+        lim <- lim + c(-1, +1) * diff(lim)/7
         MASS::eqscplot(xy['Tsim',], xy['Tobs',], 
                        xlab = 'simulated', ylab = 'observed',
                        xlim = lim, ylim = lim)
         
         abline(0,1, col = 'red')
-        mtext(side=3, paste(main[pnum], " p =", round(mean(xy[3,]),3)))
-        # optional overlay of points from another MCgof
-        if (!is.null(overlay) && inherits(overlay, 'MCgof')) {
-            points(overlay[[pnum+1]], ...)
-        }
-        
+        mtext(side=3, paste(main[ynum], " p =", round(mean(xy[3,]),3)))
+     
+        # optional overlay of points from another MCgof or from scrgof
+        if (!is.null(overlay)) {
+            if (inherits(overlay, 'MCgof')) {
+                xy <- overlay$all[[ynum]]
+                points(xy['Tsim',], xy['Tobs',], ...)
+            }
+            else if (names(overlay)[1] == 'scrgof_pval') {
+                points(overlay[[ynum+1]], ...)
+            }
+        }        
     }
-    if (!inherits(x, 'MCgof')) stop ("requires verbose output")
     par(pty = 's', mfrow = c(2,2))
     mapply(onestat, x$all, 1:3)
     invisible()
@@ -210,12 +226,12 @@ plot.MCgof <- function(x, overlay = NULL, ...) {
 ################################################################################
 
 summary.MCgof <- function(object, ...) {
-    temp <- object[c('nsim', 'means')]
+    temp <- object[c('nsim', 'means','proctime')]
     class(temp) <- 'summary.MCgof'
     temp
 }
 
 print.summary.MCgof <- function (x, ...) {
-    cat ('nsim =', x$nsim, '\n')
+    cat (paste0('nsim = ', x$nsim, ', proctime = ', round(x$proctime, 2), ' seconds\n'))
     print(x$means)
 }
