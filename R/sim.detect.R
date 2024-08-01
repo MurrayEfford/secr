@@ -1,8 +1,9 @@
-################################################################################
 ## package 'secr'
 ## sim.detect.R
 ## 2024-07-29 split from sim.secr.R and editted
 ## 2024-07-30 expected
+## 2024-07-31 dropzeroCH
+## 2024-08-02 using revised output order from Rcpp functions (i,s,k)
 ################################################################################
 
 ## utility function used only in sim.detect
@@ -27,7 +28,7 @@ getpmixall <- function(PIA, realparval)
 ################################################################################
 
 sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE, 
-                        expected = FALSE, dropzero = TRUE)
+                        expected = FALSE, dropzeroCH = TRUE)
     ## popnlist is always a list of popn objects, one per session
 {
     ## we use fake CH to extract parameter value dependent on prev capt
@@ -324,9 +325,6 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
             }
         }
         
-        # debug
-        # message('sessnum  ', sessnum, ' NR ', NR, ' sum gkhk0$gk ', sum(gkhk0$gk))
-        
         expectedarray <- NA
         
         if (all(dettype %in% c(-1,0,1,2,8))) {
@@ -369,8 +367,7 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
                     as.integer (Markov),     ## learned vs transient behavioural response 0 learned 1 Markov
                     as.integer (binomN)      ## number of trials for 'count' detector modelled with binomial
                 )
-                expectedarray <- array(expectedarray, dim = c(s, K, NR))
-                expectedarray <- aperm(expectedarray, c(3,1,2))
+                expectedarray <- array(expectedarray, dim = c(NR, s, K))
             }
         }
         else if (all(dettype %in% c(3,4,6,7))) {
@@ -420,10 +417,9 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
         if (temp$resultcode != 0) {
             stop ("simulated detection failed, code ", temp$resultcode)
         }
-        
-        w <- array(temp$value, dim=c(s, K, NR), dimnames = list(1:s,NULL,NULL))
-        w <- aperm(w, c(3,1,2))
-        included <- if (dropzero) apply(w,1,sum)>0 else rep(TRUE, nrow(w))
+
+        w <- array(temp$value, dim=c(NR, s, K), dimnames = list(NULL,1:s,NULL))
+        included <- if (dropzeroCH) apply(w,1,sum)>0 else rep(TRUE, nrow(w))
         w <- w[included,,, drop = FALSE] 
 
         class(w)   <- 'capthist'    # NOT data.frame
@@ -462,6 +458,7 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
         }
         else
             attr(w, 'detectedXY') <- NULL
+        ##---------------------
         
         if (renumber && (temp$n>0)) {
             rownames(w) <- 1:nrow(w)
@@ -472,7 +469,9 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
         output[[sessnum]] <- w
         
         if (expected) {
-            attr(output[[sessnum]], 'expected') <- expectedarray[included,,,drop = FALSE]
+            exparray <- expectedarray[included,,,drop = FALSE]
+            rownames(exparray) <- rownames(w)
+            attr(output[[sessnum]], 'expected') <- exparray
         }
         
     } ## end of session loop

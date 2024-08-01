@@ -6,6 +6,9 @@
 using namespace Rcpp;
 //==============================================================================
 
+// 2024-08-02 changed output order of 'value' to i,s,k
+//            not clear whether this requires new sortkey for poly, signal
+
 NumericVector getpar (
         const int i, 
         const int s, 
@@ -266,7 +269,7 @@ List simdetectpointcpp (
                         nc++;
                         caught[i] = nc;                    // nc-th animal to be captured 
                     }
-                    value[i3(s, intrap[i]-1, caught[i]-1, ss, kk)] = 1;  
+                    value[i3(i, s, intrap[i]-1, N, ss)] = 1;  
                 }
             }
         }
@@ -309,7 +312,7 @@ List simdetectpointcpp (
                     k = 0;
                     // while ((runif > cump[k]) && (k<kk)) k++;   // bug fix 2019-10-04
                     while ((runif > cump[k+1]) && (k<kk)) k++;
-                    value[i3(s, k, caught[i]-1, ss, kk)] = 1;  
+                    value[i3(i, s, k, N, ss)] = 1;  
                 }
             }
         }
@@ -352,7 +355,7 @@ List simdetectpointcpp (
                                         nc++;
                                         caught[i] = nc;
                                     }
-                                    value[i3(s, k, caught[i]-1, ss, kk)] = count;
+                                    value[i3(i, s, k, N, ss)] = count;
                                 }
                             }
                         }
@@ -368,7 +371,7 @@ List simdetectpointcpp (
                     if (Markov) 
                         caughtbefore[i] = 0;
                     for (k=0; k<kk; k++)
-                        caughtbefore[i] = R::imax2 (value[i3(s, k, i, ss, kk)], caughtbefore[i]);
+                        caughtbefore[i] = R::imax2 (value[i3(i, s, k, N, ss)], caughtbefore[i]);
                 }
             }
             else if (btype == 2) {
@@ -376,9 +379,9 @@ List simdetectpointcpp (
                     for (k=0; k<kk; k++) {
                         ik = k * (N-1) + i;
                         if (Markov) 
-                            caughtbefore[ik] = value[i3(s, k, i, ss, kk)];
+                            caughtbefore[ik] = value[i3(i, s, k, N, ss)];
                         else 
-                            caughtbefore[ik] = R::imax2 (value[i3(s, k, i, ss, kk)], 
+                            caughtbefore[ik] = R::imax2 (value[i3(i, s, k, N, ss)], 
                                                          caughtbefore[ik]);
                     }
                 }
@@ -388,7 +391,7 @@ List simdetectpointcpp (
                     if (Markov) 
                         caughtbefore[k] = 0;
                     for (i=0; i<N; i++) 
-                        caughtbefore[k] = R::imax2 (value[i3(s, k, i, ss, kk)], caughtbefore[k]);
+                        caughtbefore[k] = R::imax2 (value[i3(i, s, k, N, ss)], caughtbefore[k]);
                 }
             }
         }
@@ -596,7 +599,7 @@ List simdetectpolycpp (
                                     caught[i] = nc;
                                 }
                                 nd++;
-                                value[i3(s, k, caught[i]-1, ss, nk)] = 1;  
+                                value[i3(i, s, k, N, ss)] = 1;  
                                 work[(nd-1)*2] = xy[0];
                                 work[(nd-1)*2+1] = xy[1];
                                 sortkey[nd-1] = (double) (s * N + caught[i]);
@@ -693,7 +696,7 @@ List simdetectpolycpp (
                             if (nd >= maxdet) {
                                 return(nullresult);  // error
                             }
-                            value[i3(s, k, caught[i]-1, ss, nk)] = 1;  
+                            value[i3(i, s, k, N, ss)] = 1;  
                             work[(nd-1)*2] = xyp.x;
                             work[(nd-1)*2+1] = xyp.y;
                             sortkey[nd-1] = (double) (s * N + caught[i]);
@@ -737,7 +740,7 @@ List simdetectpolycpp (
                                 if (nd > maxdet) {
                                     return(nullresult);  // error
                                 }
-                                value[i3(s, k, caught[i]-1, ss, nk)]++;
+                                value[i3(i, s, k, N, ss)]++;
                                 work[(nd-1)*2] = xy[0];
                                 work[(nd-1)*2+1] = xy[1];
                                 sortkey[nd-1] = (double) (k * N * ss + s * N + caught[i]);
@@ -812,7 +815,7 @@ List simdetectpolycpp (
                             if (nd >= maxdet) {
                                 return(nullresult);  // error
                             }
-                            value[i3(s,k,caught[i]-1, ss,nk)]++;
+                            value[i3(i,s,k, N, ss)]++;
                             work[(nd-1)*2] = xyp.x;
                             work[(nd-1)*2+1] = xyp.y;
                             sortkey[nd-1] = (double) (k * N * ss + s * N + caught[i]);
@@ -829,7 +832,7 @@ List simdetectpolycpp (
                     if (Markov) 
                         caughtbefore[i] = 0;
                     for (k=0; k<nk; k++)
-                        caughtbefore[i] = R::imax2 (value[i3(s, k, i, ss, nk)], caughtbefore[i]);
+                        caughtbefore[i] = R::imax2 (value[i3(i, s, k, N, ss)], caughtbefore[i]);
                 }
             }
             else if (btype == 2) {
@@ -837,9 +840,9 @@ List simdetectpolycpp (
                     for (k=0; k<nk; k++) {
                         ik = k * (N-1) + i;
                         if (Markov) 
-                            caughtbefore[ik] = value[i3(s, k, i, ss, nk)];
+                            caughtbefore[ik] = value[i3(i, s, k, N, ss)];
                         else 
-                            caughtbefore[ik] = R::imax2 (value[i3(s, k, i, ss, nk)], 
+                            caughtbefore[ik] = R::imax2 (value[i3(i, s, k, N, ss)], 
                                                          caughtbefore[ik]);
                     }
                 }
@@ -849,7 +852,7 @@ List simdetectpolycpp (
                     if (Markov) 
                         caughtbefore[k] = 0;
                     for (i=0; i<N; i++) 
-                        caughtbefore[k] = R::imax2 (value[i3(s, k, i, ss, nk)], 
+                        caughtbefore[k] = R::imax2 (value[i3(i, s, k, N, ss)], 
                                                     caughtbefore[k]);
                 }
             }
@@ -996,7 +999,7 @@ List simdetectsignalcpp (
                                 caught[i] = nc;
                             }
                             nd++;
-                            value[i3(s, k, caught[i]-1, ss, nk)] = 1;
+                            value[i3(i, s, k, N, ss)] = 1;
                             work[nd-1] = signalvalue;
                             sortkey[nd-1] = (double) (k * N * ss + s * N + caught[i]);
                         }
@@ -1009,7 +1012,7 @@ List simdetectsignalcpp (
                                 caught[i] = nc;
                             }
                             nd++;
-                            value[i3(s,k,caught[i]-1,ss,nk)] = 1;
+                            value[i3(i,s,k, N,ss)] = 1;
                             work[nd-1] = signalvalue;
                             noise[nd-1] = noisevalue;
                             sortkey[nd-1] = (double) (k * N * ss + s * N + caught[i]);
@@ -1133,6 +1136,8 @@ NumericVector expdetectpointcpp (
     //  2  count  proximity detectors
     //            binomN 0 Poisson, 1 Bernoulli, >1 binomial
     
+    // 2024-08-02 output order of expdetectpointcpp switched to i,s,k
+    
     int    kk = Tsk.nrow();            // number of detectors 
     int    ss = Tsk.ncol();            // number of occasions
     
@@ -1150,8 +1155,7 @@ NumericVector expdetectpointcpp (
     
     // return values
     NumericVector value (N*ss*kk);         // return value array
-    NumericVector nullresult (N*ss*kk);    // return value array
-    
+
     //========================================================
     // 'multi-catch only' declarations 
     std::vector<double> h(N * kk);        // multi-catch only 
@@ -1159,10 +1163,6 @@ NumericVector expdetectpointcpp (
     
     //========================================================
     // MAIN LINE 
-    
-    if ((detect < -1) || (detect > 2)) {
-        return(nullresult);
-    }
     
     if (btype>0) {
         Rcpp::stop("expdetectpointcpp not ready for learned responses");
@@ -1210,7 +1210,7 @@ NumericVector expdetectpointcpp (
                 // probability newly detected on this occasion:
                 ps = (1-pbefore) * (1 - exp(-hsum[i]));   
                 for (k=0; k<kk; k++) {
-                    value[i3(s, k, i, ss, kk)] = ps * h[k * N + i]/hsum[i];
+                    value[i3(i, s, k, N, ss)] = ps * h[k * N + i]/hsum[i];
                 }
             }
         }
@@ -1239,14 +1239,14 @@ NumericVector expdetectpointcpp (
                         if (c >= 0) {    // ignore unused detectors 
                             if (btype>0) {
                                 // sum, weighted by probability of previous capture
-                                value[i3(s, k, i, ss, kk)] = 
+                                value[i3(i, s, k, N, ss)] = 
                                     pbefore       * Ey(gk[i3(c, k, i, cc, kk)],    binomN[s], detect, Tski) +
                                     (1 - pbefore) * Ey(gk0[i3(c0, k, i, cc0, kk)], binomN[s], detect, Tski);
                                 // probability newly detected on this occasion:
                                 ps = (1-pbefore) * adjustp(gk0[i3(c0, k, i, cc0, kk)], binomN[s], detect, Tski);
                             }
                             else {
-                                value[i3(s, k, i, ss, kk)] = Ey(gk[i3(c, k, i, cc, kk)], binomN[s], detect, Tski);
+                                value[i3(i, s, k, N, ss)] = Ey(gk[i3(c, k, i, cc, kk)], binomN[s], detect, Tski);
                             }
                         }
                     }
