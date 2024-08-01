@@ -8,6 +8,7 @@
 ###############################################################################
 
 nk <- function(capthist) {
+    # individuals at each detector
     if (ms(capthist)) {
         lapply(capthist, nk)
     }
@@ -102,4 +103,3 @@ Enk <- function (D, mask, traps, detectfn = 0,
     }
 }
 ############################################################################################
-
