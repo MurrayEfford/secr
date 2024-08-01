@@ -1037,3 +1037,228 @@ List simdetectsignalcpp (
 }
 //==============================================================================
 
+// expected number of detections
+// returns numeric vector with elements of N, ss, kk array of 
+// expected detections
+
+// experimental code 2024-07-30
+
+// unfinished:
+//   learned responses
+
+double Ey (
+        const double p,     // gk[i3(c, k, i, cc, kk)] etc.
+        const int binomN, 
+        const int detect, 
+        const double Tski
+)
+{
+    if (p < -0.1) { 
+        return(0.0);
+    }  
+    if (p > 0) {
+        if (detect == 1) {   // binary proximity 
+            if (fabs(Tski-1) > 1e-10)   // adjust for usage only if needed
+                return(1 - pow(1-p, Tski));
+            else
+                return(p);
+        }
+        else if (detect == 2) {       // count proximity 
+            if (binomN == 0)                // Poisson
+                return(-log(1-p) * Tski);
+            else if (binomN == 1)
+                return(Tski*p);             // binomial, size = Tsk
+            else
+                return(binomN * p * Tski);  // binomial, size = binomN
+        }
+    }
+    return(0);
+}
+//==============================================================================
+
+double adjustp (
+        const double p,     // gk[i3(c, k, i, cc, kk)] etc.
+        const int binomN, 
+        const int detect, 
+        const double Tski
+)
+{
+    if (p < -0.1) { 
+        return(0.0);
+    }  
+    if (p>0) {
+        if (detect == 1) {   // binary proximity 
+            if (fabs(Tski-1) > 1e-10)   // adjust for usage only if needed
+                return(1 - pow(1-p, Tski));
+            else
+                return(p);
+        }
+        else if (detect == 2) {       // count proximity 
+            if (binomN == 0)                // Poisson
+                return(-log(1-p) * Tski);
+            else if (binomN == 1)
+                return(1 - pow(1-p, Tski));          // binomial, size = Tsk
+            else
+                return(1 - pow(1-p, binomN * Tski));  // binomial, size = binomN
+        }
+    }
+    return(0);
+}
+//==============================================================================
+
+// [[Rcpp::export]]
+NumericVector expdetectpointcpp (
+        const int           &detect,     // detector -1 single, 0 multi, 1 proximity, 2 count,... 
+        const int           &N, 
+        const int           &cc0,
+        const int           &cc,
+        const NumericVector &gk0, 
+        const NumericVector &gk, 
+        const NumericVector &hk0, 
+        const NumericVector &hk, 
+        const IntegerVector &PIA0,       // lookup which g0/sigma/b combination to use for given g, S, K [naive animal] 
+        const IntegerVector &PIA1,       // lookup which g0/sigma/b combination to use for given n, S, K  [caught before] 
+        const int           &nmix,       // number of classes 
+        const IntegerVector &knownclass, // known membership of 'latent' classes 
+        const NumericVector &pmix,       // membership probabilities
+        const NumericMatrix &Tsk,        // ss x kk array of 0/1 usage codes or effort 
+        const int           &btype,      // code for behavioural response  0 none etc. 
+        const int           &Markov,     // learned vs transient behavioural response 0 learned 1 Markov 
+        const IntegerVector &binomN      // number of trials for 'count' detector modelled with binomial 
+)
+{
+    //  detect may take values -
+    //  0  multi-catch traps
+    //  1  binary proximity detectors
+    //  2  count  proximity detectors
+    //            binomN 0 Poisson, 1 Bernoulli, >1 binomial
+    
+    int    kk = Tsk.nrow();            // number of detectors 
+    int    ss = Tsk.ncol();            // number of occasions
+    
+    double p,ps;
+    int    i,k,s;
+    int    ik;
+    int    wxi   = 0;
+    int    c     = 0;
+    int    c0    = 0;
+    double Tski  = 1.0;  
+    double pbefore = 0.0;
+    
+    std::vector<int> caughtbefore(N * kk, 0);
+    std::vector<int> x(N, 0);          // mixture class of animal i 
+    
+    // return values
+    NumericVector value (N*ss*kk);         // return value array
+    NumericVector nullresult (N*ss*kk);    // return value array
+    
+    //========================================================
+    // 'multi-catch only' declarations 
+    std::vector<double> h(N * kk);        // multi-catch only 
+    std::vector<double> hsum(N);          // multi-catch only 
+    
+    //========================================================
+    // MAIN LINE 
+    
+    if ((detect < -1) || (detect > 2)) {
+        return(nullresult);
+    }
+    
+    if (btype>0) {
+        Rcpp::stop("expdetectpointcpp not ready for learned responses");
+    }
+    
+    //----------------------------------------------------------------------------
+    // mixture models 
+    if (nmix>1) {
+        if (nmix>2)
+            Rcpp::stop("nmix>2 not implemented");
+        for (i=0; i<N; i++) {
+            if (knownclass[i] > 1) 
+                x[i] = knownclass[i] - 2;          // knownclass=2 maps to x=0 etc. 
+            else
+                x[i] = rdiscrete(nmix, pmix) - 1;  // assigned at random - a STOPGAP
+        }
+    }
+    
+    // ------------------------------------------------------------------------- 
+    // MAIN LOOP 
+    
+    // -------------------------------------------------------------------------- 
+    // multi-catch trap; max one site per animal per occasion 
+    if (detect == 0) {
+        for (i=0; i<N; i++) {
+            ps = 0.0;
+            pbefore = 0.0;
+            for (s=0; s<ss; s++) {
+                hsum[i] = 0;
+                pbefore += ps;  // general learned response for starters
+                for (k=0; k<kk; k++) {
+                    Tski = Tsk(k,s);
+                    if (fabs(Tski) > 1e-10) {
+                        wxi =  i4(i, s, k, x[i], N, ss, kk);
+                        c0 = PIA0[wxi] - 1;
+                        c  = PIA1[wxi] - 1;
+                        if (c >= 0) {    // ignore unused detectors 
+                            h[k * N + i] = 
+                                pbefore       * Tski * hk[i3(c, k, i, cc, kk)] +
+                                (1 - pbefore) * Tski * hk0[i3(c0, k, i, cc0, kk)];
+                            hsum[i] += h[k * N + i];
+                        }
+                    }
+                }
+                // probability newly detected on this occasion:
+                ps = (1-pbefore) * (1 - exp(-hsum[i]));   
+                for (k=0; k<kk; k++) {
+                    value[i3(s, k, i, ss, kk)] = ps * h[k * N + i]/hsum[i];
+                }
+            }
+        }
+    }
+    // -------------------------------------------------------------------------------- 
+    // the 'proximity' group of detectors 1:2 - proximity, count
+    
+    // binomN = 0 — Poisson
+    // binomN = 1 — binomial with size determined by usage = Tsk
+    // binomN > 1 — binomial with size binomN
+    
+    else if ((detect == 1) || (detect == 2)) {
+        for (i=0; i<N; i++) {
+            ps = 0.0;
+            pbefore = 0.0;
+            for (s=0; s<ss; s++) {
+                // general learned response for starters;
+                // later depends on btype && Markov
+                pbefore += ps; 
+                for (k=0; k<kk; k++) {
+                    Tski = Tsk(k,s);
+                    if (fabs(Tski) > 1e-10) {
+                        wxi =  i4(i, s, k, x[i], N, ss, kk);
+                        c0 = PIA0[wxi] - 1;
+                        c  = PIA1[wxi] - 1;
+                        if (c >= 0) {    // ignore unused detectors 
+                            if (btype>0) {
+                                // sum, weighted by probability of previous capture
+                                value[i3(s, k, i, ss, kk)] = 
+                                    pbefore       * Ey(gk[i3(c, k, i, cc, kk)],    binomN[s], detect, Tski) +
+                                    (1 - pbefore) * Ey(gk0[i3(c0, k, i, cc0, kk)], binomN[s], detect, Tski);
+                                // probability newly detected on this occasion:
+                                ps = (1-pbefore) * adjustp(gk0[i3(c0, k, i, cc0, kk)], binomN[s], detect, Tski);
+                            }
+                            else {
+                                value[i3(s, k, i, ss, kk)] = Ey(gk[i3(c, k, i, cc, kk)], binomN[s], detect, Tski);
+                            }
+                        }
+                    }
+                }  // loop over k
+            }      // loop over s
+        }          // loop over i
+    }
+    else {
+        Rcpp::stop ("unrecognised or unsupported detector in expdetectpointcpp");
+    }
+    
+    return (value);
+
+}
+//==============================================================================
