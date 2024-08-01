@@ -56,8 +56,8 @@ use.
 
 Each real parameter is notionally different for each unique combination
 of session, individual, occasion, detector and latent class, i.e., for \eqn{R}
-sessions, \eqn{n} individuals, \eqn{S} occasions and \eqn{K} detectors
-there are \emph{potentially} \eqn{R \times n \times S \times K}{R x n x
+sessions, \eqn{n} individuals, \eqn{S} occasions, \eqn{K} detectors and \eqn{M} latent classes 
+there are \emph{potentially} \eqn{R \times n \times S \times K \times M}{R x n x
 S x K x M} different values. Actual models always predict a \emph{much} reduced set
 of distinct values, and the number of rows in the design matrix is
 reduced correspondingly; a parameter index array allows these to
