@@ -24,9 +24,9 @@ simulated data.
 sim.secr(object, nsim = 1, extractfn = function(x) c(deviance =
     deviance(x), df = df.residual(x)), seed = NULL, maxperpoly = 100,
     data = NULL, tracelevel = 1, hessian = c("none", "auto", "fdHess"),
-    start = object$fit$par, ncores = NULL)
+    start = object$fit$par, ncores = NULL, ...)
 
-sim.detect(object, popnlist, maxperpoly = 100, renumber = TRUE)
+sim.detect(object, popnlist, maxperpoly = 100, renumber = TRUE, expected = FALSE)
 
 }
 
@@ -37,15 +37,17 @@ sim.detect(object, popnlist, maxperpoly = 100, renumber = TRUE)
   \item{maxperpoly}{ integer maximum number of detections of an individual
   in one polygon or transect on any occasion }
   \item{chat}{real value for overdispersion parameter}
+  
   \item{ncores}{integer number of threads used by \code{secr.fit}}
   \item{extractfn}{function to extract output values from fitted model}
   \item{data}{optional list of simulated data saved from previous call to \code{simulate.secr}}
   \item{tracelevel}{integer for level of detail in reporting (0,1,2)}
   \item{hessian}{character or logical controlling the computation of the Hessian matrix}
   \item{start}{vector of starting `beta' values for \code{secr.fit}}
-  \item{...}{other arguments (not used)}
+  \item{...}{other arguments (not used by simulate, passed to `extractfn' by sim.secr)}
   \item{popnlist}{list of popn objects}
-  \item{renumber}{logical; if TRUE then }
+  \item{renumber}{logical; if TRUE then output animals are renumbered }
+  \item{expected}{logical; if TRUE then the array of expected counts is saved as an attribute}
 }
 
 \details{
