@@ -1,7 +1,13 @@
-Changes in version 4.6.10 (2024-06-30)
+Changes in version 4.6.10 (2024-08-01)
 
 New features or changed behaviour of old functions
-    o  none
+    o  sim.detect() optionally computes expected counts
+
+Other
+    o  list.secr.fit() recovers when some fits fail
+    o  added dots argument to secr.test(), passed to statfn
+    o  added dots argument to sim.secr(), passed to extractfn
+    o  secr.test() fit = TRUE trim keeps mask
 
 Changes in version 4.6.9 (2024-06-29)
 
