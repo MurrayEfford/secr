@@ -170,7 +170,7 @@ MCgof <- function (object, nsim = 100, statfn = NULL, testfn = NULL,
         Tobs <- statfn(paddedCH)
         obs <- testfn(Tobs[[stat]],       capti$Texp[[stat]])
         sim <- testfn(capti$Tsim[[stat]], capti$Texp[[stat]])
-        c(Tobs = obs, Tsim = sim, simGTobs = sim>obs)
+        c(Tobs = obs, Tsim = sim, p = sim>obs)  
     }
     
     tests <- c('yik','yi','yk')
