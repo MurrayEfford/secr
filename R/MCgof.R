@@ -7,8 +7,8 @@
 # Murray Efford and Ran Yu Choo
 ################################################################################
 
-MCgof <- function (object, nsim = 1, statfn = NULL, testfn = NULL,
-                   seed = NULL, ncores = NULL, quiet = FALSE)
+MCgof <- function (object, nsim = 100, statfn = NULL, testfn = NULL,
+                   seed = NULL, ncores = 1, quiet = FALSE)
 
 {
     #---------------------------------------------------------------------------
@@ -69,7 +69,7 @@ MCgof <- function (object, nsim = 1, statfn = NULL, testfn = NULL,
         Tsim <- statfn(simCH)
         Texp <- statfn(expCH)
         
-        if (!quiet) setTxtProgressBar(pb, i)
+        if (!quiet && ncores == 1) setTxtProgressBar(pb, i)
             
         list(Tsim = Tsim, Texp = Texp, par = object$fit$par, popn = popn)
         
@@ -145,8 +145,7 @@ MCgof <- function (object, nsim = 1, statfn = NULL, testfn = NULL,
     ## optional parallel processing - often slower
     
     if (is.null(ncores)) ncores <- setNumThreads()
-    if (ncores>1) quiet <- TRUE
-    if (!quiet) pb <- txtProgressBar(0, nsim, style = 3)
+    if (!quiet && ncores == 1) pb <- txtProgressBar(0, nsim, style = 3)
 
     if (ncores > 1) {
         clustertype <- if (.Platform$OS.type == "unix") "FORK" else "PSOCK"
@@ -188,7 +187,7 @@ MCgof <- function (object, nsim = 1, statfn = NULL, testfn = NULL,
     class(out) <- 'MCgof'
     
     if (!quiet) {
-        close(pb)
+        if (ncores==1) close(pb)
         message ("MCgof completed in ", round((proc.time() - ptm)[3],3), " seconds")
         print(summary(out))
     }
