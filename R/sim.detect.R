@@ -4,6 +4,7 @@
 ## 2024-07-30 expected
 ## 2024-07-31 dropzeroCH
 ## 2024-08-02 using revised output order from Rcpp functions (i,s,k)
+## 2024-08-21 edited for style
 ################################################################################
 
 ## utility function used only in sim.detect
@@ -33,21 +34,21 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
 {
     ## we use fake CH to extract parameter value dependent on prev capt
     ## BUT this is slow and clunky...
-    dummycapthist<- function (capthist, pop, fillvalue=1) {
+    dummycapthist<- function (capthist, pop, fillvalue = 1) {
         if (ms(capthist)) {
             output <- list()
             for (i in 1:nsession)
-                output[[i]] <- dummycapthist (capthist[[i]],
-                                              pop = pop[i], fillvalue = fillvalue)
+                output[[i]] <- dummycapthist (capthist[[i]], pop = pop[i], 
+                                              fillvalue = fillvalue)
             class(output)   <- c('capthist', 'list')
-            session(output) <- session(capthist)   ## 2010 03 10
+            session(output) <- session(capthist)   
             output
         }
         else {
             newdim <- dim(capthist)
             newdim[1] <- nrow(pop[[1]])
             output <- array(fillvalue, dim = newdim)
-            ## CAPTURE ON LAST OCCASION
+            ## CAPTURE ON LAST OCCASION REGARDLESS OF FILLVALUE
             ## trick to keep array valid without misleading
             output[,,newdim[3]] <- 1
             class(output) <- 'capthist'
@@ -59,12 +60,18 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
     }
     ## --------------------------------------------------------------------
     ## Exclusions
-    ## see also below dettype %in% c(-1,0,1,2,5,6,7)
+    
     if (!is.null(object$groups) && (object$details$param>1))
         stop("simulation does not extend to groups when param>1")
     
-    if ('telemetry' %in% unlist(detector(traps(object$capthist))))
-        stop("telemetry models are not supported in simulate.secr")
+    detectors <- unique(unlist(detector(traps(object$capthist))))
+    supported <- c('single', 'multi', 'proximity', 'count', 'polygonX',
+                   'transectX', 'signal', 'polygon','transect')
+    unsupported <- detectors[!detectors %in% supported]
+    if (length(unsupported) > 0) {
+        unsupported <- paste(unsupported, collapse = ', ')
+        stop("detector type ', unsupported, ' is not supported in sim.detect")
+    }
     
     ## --------------------------------------------------------------------
     ## process behavioural responses
@@ -84,7 +91,7 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
     N <- sapply(popnlist, nrow)
     nocc <- if(ms(object)) sapply(object$capthist, ncol) else ncol(object$capthist)
     ndet <- if(ms(object)) sapply(traps(object$capthist), nrow) else nrow(traps(object$capthist))
-    sessionlevels <- session(object$capthist)   ## was names(capthist) 2009 08 15
+    sessionlevels <- session(object$capthist)   
     nsession <- length(sessionlevels)
     sessmask <- object$mask
     if (!ms(sessmask)) sessmask <- list(sessmask)  ## always a list
@@ -95,11 +102,12 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
     ncores <- setNumThreads()
     grain <- if (ncores==1) 0 else 1
     
-    ##------------------------------------------
+    ##------------------------------------------------------------------
     ## detection parameters for each session, animal, occasion, detector
     ## realparval is lookup table of values,
     ## design$PIA is index to lookup
     
+    ##----------------------------------------
     ## real parameter values for naive animals
     
     ## using existing design to save time in secr.design.MS...
@@ -110,7 +118,7 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
         dummyCH <- NULL
     }
     else {
-        dummyCH <- dummycapthist(object$capthist, popnlist, fillvalue = 1)
+        dummyCH <- dummycapthist(object$capthist, popnlist)
         design0 <- secr.design.MS (
             dummyCH, 
             object$model, 
@@ -119,10 +127,10 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
             object$groups, 
             object$hcov, 
             object$dframe, 
-            naive = TRUE, 
-            CL = object$CL,
+            naive       = TRUE, 
+            CL          = object$CL,
             ignoreusage = object$details$ignoreusage, 
-            contrasts = object$details$contrasts)
+            contrasts   = object$details$contrasts)
     }
     
     ## uniform over individuals
@@ -145,14 +153,15 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
     realparval0 <- makerealparameters (design0, beta, object$parindx, object$link,
                                        object$fixed)
     
+    ##----------------------------------------
     ## real parameter  values for 'caughtbefore'  animals or detectors
     ## -- this  definition of  design1 differs  from that in secr.fit()
-    ## where  parameter  values  are  approppriate to  the  particular
+    ## where  parameter  values  are  appropriate to  the  particular
     ## (realised) detection histories
     
     if (btype > 0) {
-        if (is.null(dummyCH))
-            dummyCH <- dummycapthist(object$capthist, popnlist, fillvalue = 1)
+        if (is.null(dummyCH)) 
+            dummyCH <- dummycapthist(object$capthist, popnlist)
         design1 <- secr.design.MS (
             dummyCH, 
             object$model, 
@@ -160,10 +169,11 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
             object$sessioncov,
             object$groups, 
             object$hcov, 
-            object$dframe, 
+            object$dframe,
+            naive       = FALSE,
+            CL          = object$CL, 
             ignoreusage = object$details$ignoreusage, 
-            contrasts = object$details$contrasts, 
-            CL = object$CL)
+            contrasts   = object$details$contrasts)
         realparval1 <- makerealparameters (
             design1, 
             beta, 
@@ -237,13 +247,7 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
         ##------------------------------------------
         
         dettype <- detectorcode(session.traps, MLonly = FALSE, noccasions = nocc[sessnum])
-        if (! all(dettype %in% c(-1,0,1,2,3,4,5,6,7)))
-            stop ("detector type ",
-                  paste(detector(session.traps)),
-                  " not implemented")
-        
         binomN <- expandbinomN(object$details$binomN, dettype)
-        
         if (all(detector(session.traps) %in% .localstuff$polydetectors)) {
             k <- c(table(polyID(session.traps)),0)
             K <- length(k)-1
@@ -418,7 +422,7 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
             stop ("simulated detection failed, code ", temp$resultcode)
         }
 
-        w <- array(temp$value, dim=c(NR, s, K), dimnames = list(NULL,1:s,NULL))
+        w <- array(temp$value, dim = c(NR, s, K), dimnames = list(NULL,1:s,NULL))
         included <- if (dropzeroCH) apply(w,1,sum)>0 else rep(TRUE, nrow(w))
         w <- w[included,,, drop = FALSE] 
 
