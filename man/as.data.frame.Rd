@@ -1,9 +1,11 @@
 \name{as.data.frame}
 \alias{as.data.frame}
+\alias{as.array}
 \alias{as.data.frame.capthist}
+\alias{as.array.capthist}
 \alias{as.data.frame.traps}
 
-\title{ Coerce capthist to Data Frame }
+\title{ Coerce capthist to Data Frame or Array }
 
 \description{
 
@@ -17,6 +19,8 @@
                                     fmt = c("trapID", "XY"), ...)
 \method{as.data.frame}{traps}(x, row.names = NULL, optional = FALSE, usage = FALSE, 
                               covariates = FALSE, ...)
+\method{as.array}{capthist}(x, ...)
+
 }
 
 \arguments{
@@ -49,6 +53,8 @@ strength (detector `signal') are appended to the right.
 For traps objects --
 
 The core columns are (x, y). Usage columns are named u1, u2, ..., uS where S is the number of occasions.
+
+The \code{as.array} method for capthist objects returns an object with the same dimensions and dimnames but different class, or a list of such objects in the case of multisession input.
 
 }
 
