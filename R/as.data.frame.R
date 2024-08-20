@@ -3,6 +3,7 @@
 ## as.data.frame.R 
 ## 2017-10-25 changed 
 ## 2021-05-19 sortorder ksn for polygon detectors etc.
+## 2024-08-20 as.array.capthist added
 ############################################################################################
 
 as.data.frame.capthist <- function (x, row.names = NULL, optional = FALSE, covariates = FALSE, 
@@ -144,6 +145,18 @@ as.data.frame.traps <- function (x, row.names = NULL, optional = FALSE, usage = 
             }
         }
         temp
+    }
+}
+###############################################################################
+
+as.array.capthist <- function(x, ...) {
+    if (ms(x)) {
+        out <- lapply(x, as.array)
+        names(out) <- names(x)
+        out
+    }
+    else {
+        array(x, dim = dim(x), dimnames = dimnames(x))
     }
 }
 ###############################################################################

@@ -283,6 +283,7 @@ S3method(clone, popn)
 S3method(clone, capthist)
 S3method(as.data.frame, capthist)
 S3method(as.data.frame, traps)
+S3method(as.array, capthist)
 
 S3method(derived, secr)
 S3method(derived, secrlist)
