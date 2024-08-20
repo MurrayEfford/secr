@@ -95,7 +95,6 @@ int bswitch (
 }
 //==============================================================================
 
-
 // [[Rcpp::export]]
 List simdetectpointcpp (
         const int           &detect,      // detector -1 single, 0 multi, 1 proximity, 2 count,... 
@@ -134,6 +133,7 @@ List simdetectpointcpp (
     double runif;
     int    wxi = 0;
     int    c = 0;
+    int    c0 = 0;
     double Tski = 1.0;  
     bool   before;
     
@@ -216,15 +216,13 @@ List simdetectpointcpp (
                     if (fabs(Tski) > 1e-10) {
                         before = bswitch (btype, N, i, k, caughtbefore);
                         wxi =  i4(i, s, k, x[i], N, ss, kk);
-                        if (before)
-                            c = PIA1[wxi] - 1;
-                        else 
-                            c = PIA0[wxi] - 1;
+                        c = PIA1[wxi] - 1;
+                        c0 = PIA0[wxi] - 1;
                         if (c >= 0) {    // ignore unused detectors 
                             if (before)
                                 lambda = hk[i3(c, k, i, cc, kk)];
                             else
-                                lambda = hk0[i3(c, k, i, cc0, kk)];
+                                lambda = hk0[i3(c0, k, i, cc0, kk)];
                             lambda = lambda * Tski;
                             event_time = randomtimel(lambda);
                             if (event_time <= 1) {
@@ -284,15 +282,13 @@ List simdetectpointcpp (
                     if (fabs(Tski) > 1e-10) {
                         before = bswitch (btype, N, i, k, caughtbefore);
                         wxi =  i4(i, s, k, x[i], N, ss, kk);
-                        if (before)
-                            c = PIA1[wxi] - 1;
-                        else 
-                            c = PIA0[wxi] - 1;
+                        c = PIA1[wxi] - 1;
+                        c0 = PIA0[wxi] - 1;
                         if (c >= 0) {    // ignore unused detectors 
                             if (before)
                                 h[k * N + i] = Tski * hk[i3(c, k, i, cc, kk)];
                             else
-                                h[k * N + i] = Tski * hk0[i3(c, k, i, cc0, kk)];
+                                h[k * N + i] = Tski * hk0[i3(c0, k, i, cc0, kk)];
                             hsum[i] += h[k * N + i];
                         }
                     }
@@ -326,15 +322,13 @@ List simdetectpointcpp (
                     if (fabs(Tski) > 1e-10) {
                         before = bswitch (btype, N, i, k, caughtbefore);
                         wxi =  i4(i, s, k, x[i], N, ss, kk);
-                        if (before)
-                            c = PIA1[wxi] - 1;
-                        else 
-                            c = PIA0[wxi] - 1;
+                        c = PIA1[wxi] - 1;
+                        c0 = PIA0[wxi] - 1;
                         if (c >= 0) {    // ignore unused detectors 
                             if (before)
                                 p = gk[i3(c, k, i, cc, kk)];
                             else
-                                p = gk0[i3(c, k, i, cc0, kk)];
+                                p = gk0[i3(c0, k, i, cc0, kk)];
                             if (p < -0.1) { 
                                 return(nullresult);
                             }  
@@ -1079,6 +1073,7 @@ double Ey (
 }
 //==============================================================================
 
+// adjust probability for effort
 double adjustp (
         const double p,     // gk[i3(c, k, i, cc, kk)] etc.
         const int binomN, 
@@ -1108,6 +1103,62 @@ double adjustp (
     return(0);
 }
 //==============================================================================
+
+std::vector<double> pbupdate (
+        const int btype, 
+        const int Markov, 
+        const int kk, 
+        std::vector<double> pcaught,
+        std::vector<double> pcb)
+{
+    double pc;
+    int k;
+    if (btype == 0)
+        return(pcb);
+    else if (btype == 1) {
+        pc = 1.0;
+        for (k=0; k<kk; k++)
+            pc *= 1-pcaught[k];
+        pc = 1-pc;
+        if (Markov)
+            pcb[0] = pc;
+        else
+            pcb[0] = pcb[0] + (1-pcb[0]) * pc;
+    }
+    else if (btype == 2) {
+        if (Markov)
+            pcb[k] = pcaught[k];
+        else
+            pcb[k] = pcb[k] + (1-pcb[k]) * pcaught[k];
+    }
+    else if (btype == 3) 
+        Rcpp::stop("trap learned response not yet programmed here");
+    else 
+        Rcpp::stop("unrecognised btype in simsecr");
+    return(pcb);
+}
+//==============================================================================
+
+double pbstatus (
+        const int btype, 
+        const int k, 
+        const std::vector<double> &pcb)
+{
+    if (btype == 0)
+        return(0);
+    else if (btype == 1) 
+        return(pcb[0]);
+    else if (btype == 2) 
+        return(pcb[k]);
+    else if (btype == 3) 
+        return(pcb[k]);
+    else 
+        Rcpp::stop("unrecognised btype in simsecr");
+    return(0);
+}
+
+//==============================================================================
+
 
 // [[Rcpp::export]]
 NumericVector expdetectpointcpp (
@@ -1141,32 +1192,37 @@ NumericVector expdetectpointcpp (
     int    kk = Tsk.nrow();            // number of detectors 
     int    ss = Tsk.ncol();            // number of occasions
     
-    double p,ps;
-    int    i,k,s;
-    int    ik;
-    int    wxi   = 0;
-    int    c     = 0;
-    int    c0    = 0;
-    double Tski  = 1.0;  
-    double pbefore = 0.0;
+    double p, ps, p0, p1;
+    int    i,ik,k,s,x;
+    int    wxi     = 0;
+    int    c       = 0;
+    int    c0      = 0;
+    double Tski    = 1.0;  
     
-    std::vector<int> caughtbefore(N * kk, 0);
-    std::vector<int> x(N, 0);          // mixture class of animal i 
+    NumericMatrix mix (N, nmix);          // initially zero
+    
+    // status of behavioural response
+    // pcb = probability caught before
+    std::vector<double> pcb(kk);          // specific to occasion and latent class
+    std::vector<double> pcaught(kk);      // specific to occasion and latent class
     
     // return values
-    NumericVector value (N*ss*kk);         // return value array
+    NumericVector value (N*ss*kk);        // return value array
 
     //========================================================
     // 'multi-catch only' declarations 
-    std::vector<double> h(N * kk);        // multi-catch only 
-    std::vector<double> hsum(N);          // multi-catch only 
+    // occasion-specific, for each anmal
+    std::vector<double> h0(N * kk);        // traps-specific hazard
+    std::vector<double> hsum0(N);          // total hazard
+    std::vector<double> h1(N * kk);        // traps-specific hazard
+    std::vector<double> hsum1(N);          // total hazard
     
     //========================================================
     // MAIN LINE 
     
-    if (btype>0) {
-        Rcpp::stop("expdetectpointcpp not ready for learned responses");
-    }
+    // if (btype>0) {
+    //     Rcpp::stop("expdetectpointcpp not ready for learned responses");
+    // }
     
     //----------------------------------------------------------------------------
     // mixture models 
@@ -1174,11 +1230,17 @@ NumericVector expdetectpointcpp (
         if (nmix>2)
             Rcpp::stop("nmix>2 not implemented");
         for (i=0; i<N; i++) {
-            if (knownclass[i] > 1) 
-                x[i] = knownclass[i] - 2;          // knownclass=2 maps to x=0 etc. 
-            else
-                x[i] = rdiscrete(nmix, pmix) - 1;  // assigned at random - a STOPGAP
+            if (knownclass[i] > 1) {
+                mix(i, knownclass[i] - 2) = 1;          // knownclass=2 maps to x=0 etc. 
+            }
+            else {
+                mix(i,0) = pmix[0];
+                mix(i,1) = pmix[1];
+            }
         }
+    }
+    else {
+        std::fill(mix.begin(), mix.end(), 1);
     }
     
     // ------------------------------------------------------------------------- 
@@ -1188,29 +1250,45 @@ NumericVector expdetectpointcpp (
     // multi-catch trap; max one site per animal per occasion 
     if (detect == 0) {
         for (i=0; i<N; i++) {
-            ps = 0.0;
-            pbefore = 0.0;
+            std::fill(pcb.begin(), pcb.end(), 0);
             for (s=0; s<ss; s++) {
-                hsum[i] = 0;
-                pbefore += ps;  // general learned response for starters
-                for (k=0; k<kk; k++) {
-                    Tski = Tsk(k,s);
-                    if (fabs(Tski) > 1e-10) {
-                        wxi =  i4(i, s, k, x[i], N, ss, kk);
-                        c0 = PIA0[wxi] - 1;
-                        c  = PIA1[wxi] - 1;
-                        if (c >= 0) {    // ignore unused detectors 
-                            h[k * N + i] = 
-                                pbefore       * Tski * hk[i3(c, k, i, cc, kk)] +
-                                (1 - pbefore) * Tski * hk0[i3(c0, k, i, cc0, kk)];
-                            hsum[i] += h[k * N + i];
+                for (x=0; x<nmix; x++) {
+                    hsum0[i] = 0;
+                    hsum1[i] = 0;
+                    for (k=0; k<kk; k++) {
+                        Tski = Tsk(k,s);
+                        if (fabs(Tski) > 1e-10) {
+                            wxi =  i4(i, s, k, x, N, ss, kk);
+                            c0 = PIA0[wxi] - 1;
+                            c  = PIA1[wxi] - 1;
+                            if (c >= 0) {    // ignore unused detectors 
+                                h0[k * N + i] = Tski * hk0[i3(c0, k, i, cc0, kk)];
+                                hsum0[i] += h0[k * N + i];
+                                if (btype>0) {
+                                    // concern: should this instead be a
+                                    // weighted sum of probabilities?
+                                    h1[k * N + i] = Tski * hk[i3(c, k, i, cc, kk)];
+                                    hsum1[i] += h1[k * N + i];
+                                }
+                            }
                         }
                     }
-                }
-                // probability newly detected on this occasion:
-                ps = (1-pbefore) * (1 - exp(-hsum[i]));   
-                for (k=0; k<kk; k++) {
-                    value[i3(i, s, k, N, ss)] = ps * h[k * N + i]/hsum[i];
+                    
+                    for (k=0; k<kk; k++) {
+                        if (btype==0) {
+                            value[i3(i, s, k, N, ss)] += mix(i, x) * h0[k * N + i]/hsum0[i];
+                        }
+                        else {
+                            ps = pbstatus(btype, k, pcb);
+                            p = (1-ps) * (1-exp(-hsum0[i])) * h0[k * N + i]/hsum0[i] + 
+                                ps     * (1-exp(-hsum1[i])) * h1[k * N + i]/hsum1[i];
+                            value[i3(i, s, k, N, ss)] += mix(i, x) * p;
+                            // probability caught at k on this occasion
+                            // given in class x
+                            pcaught[k] = p;
+                        }
+                    }
+                    pcb = pbupdate(btype, Markov, kk, pcaught, pcb);
                 }
             }
         }
@@ -1224,41 +1302,49 @@ NumericVector expdetectpointcpp (
     
     else if ((detect == 1) || (detect == 2)) {
         for (i=0; i<N; i++) {
-            ps = 0.0;
-            pbefore = 0.0;
+            std::fill(pcb.begin(), pcb.end(), 0);
             for (s=0; s<ss; s++) {
-                // general learned response for starters;
-                // later depends on btype && Markov
-                pbefore += ps; 
-                for (k=0; k<kk; k++) {
-                    Tski = Tsk(k,s);
-                    if (fabs(Tski) > 1e-10) {
-                        wxi =  i4(i, s, k, x[i], N, ss, kk);
-                        c0 = PIA0[wxi] - 1;
-                        c  = PIA1[wxi] - 1;
-                        if (c >= 0) {    // ignore unused detectors 
-                            if (btype>0) {
-                                // sum, weighted by probability of previous capture
-                                value[i3(i, s, k, N, ss)] = 
-                                    pbefore       * Ey(gk[i3(c, k, i, cc, kk)],    binomN[s], detect, Tski) +
-                                    (1 - pbefore) * Ey(gk0[i3(c0, k, i, cc0, kk)], binomN[s], detect, Tski);
-                                // probability newly detected on this occasion:
-                                ps = (1-pbefore) * adjustp(gk0[i3(c0, k, i, cc0, kk)], binomN[s], detect, Tski);
-                            }
-                            else {
-                                value[i3(i, s, k, N, ss)] = Ey(gk[i3(c, k, i, cc, kk)], binomN[s], detect, Tski);
+                for (x=0; x<nmix; x++) {
+                    for (k=0; k<kk; k++) {
+                        Tski = Tsk(k,s);
+                        if (fabs(Tski) > 1e-10) {
+                            wxi =  i4(i, s, k, x, N, ss, kk);
+                            c0 = PIA0[wxi] - 1;
+                            c  = PIA1[wxi] - 1;
+                            if (c >= 0) {    // ignore unused detectors 
+                                p0 = gk0[i3(c0, k, i, cc0, kk)];
+                                p1 = gk[i3(c, k, i, cc, kk)];
+                                if (btype>0) {
+                                    ps = pbstatus(btype, k, pcb);
+                                    // sum, weighted by probability of previous capture
+                                    value[i3(i, s, k, N, ss)] += mix(i,x) * 
+                                        ((1 - ps) * Ey(p0, binomN[s], detect, Tski) +
+                                          ps      * Ey(p1, binomN[s], detect, Tski));
+                                    // probability detected at k on this occasion
+                                    // given in class x
+                                    pcaught[k] = (1-ps) * adjustp(p0, binomN[s], detect, Tski) +
+                                                  ps    * adjustp(p1, binomN[s], detect, Tski);
+                                }
+                                else {
+                                    // naive probability OK for all
+                                    value[i3(i, s, k, N, ss)] += Ey(p0, binomN[s], 
+                                             detect, Tski) * mix(i,x);
+                                }
                             }
                         }
+                    }  // loop over k
+                    if (btype>0) {
+                        pcb = pbupdate(btype, Markov, kk, pcaught, pcb);
                     }
-                }  // loop over k
-            }      // loop over s
-        }          // loop over i
+                }      // loop over x
+            }          // loop over s
+        }              // loop over i
     }
     else {
         Rcpp::stop ("unrecognised or unsupported detector in expdetectpointcpp");
     }
     
     return (value);
-
+    
 }
 //==============================================================================
