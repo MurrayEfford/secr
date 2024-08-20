@@ -1,7 +1,7 @@
 ############################################################################################
 ## package 'secr'
 ## deviance.R
-## last changed 2009 09 04; 2011-11-10 N replaces D
+## last changed 2009 09 04; 2011-11-10 N replaces D; 2024-08-20 fixed N, edited df.residual
 ############################################################################################
 
 deviance.secr <- function (object, ...) {
@@ -9,7 +9,7 @@ deviance.secr <- function (object, ...) {
     ## object - an secr object, including capthist
 
     session.deviance <- function (capthist, grp, N) {
-        capthist <- matrix(capthist, nrow = nrow(capthist))
+        capthist <- matrix(capthist, nrow = nrow(capthist))  # dim (n, SxK)
         groupeddata <- split.data.frame(capthist, grp)
         ngrp <- length(groupeddata)
         count <- function(x) table(make.lookup(x)$index)
@@ -29,17 +29,11 @@ deviance.secr <- function (object, ...) {
     grps <- group.factor(object$capthist, object$groups)
 
     if (!object$CL & (object$details$distribution=='binomial')) {
-        ## replace D with N 2011-11-10
-        N <- object$N
-        if(is.null(N)) {
-            if (is.null(object$D))
-                stop ("neither of components 'D','N' found - is fitted model ",
-                  "from a very old version of 'secr'?")
-            N <- t(apply(object$D, 2:3, sum, drop = FALSE))
-        }
+        # 2024-08-20 fix code for N broken since 2011!
+        N <- region.N(object)['E.N', 'estimate']
     }
 
-    if (inherits (object$capthist, 'list')) {
+    if (ms(object)) {
         nsession <- length(object$capthist)
         LLsat.allsess <- sum(sapply(1:nsession, function(r) session.deviance(
             object$capthist[[r]], grps[[r]], N[r,])))
@@ -52,15 +46,14 @@ deviance.secr <- function (object, ...) {
 
 }
 
-
 df.residual.secr <- function (object, ...) {
-    ## object - an secr object, including capthist
-
+    ## object - an secr object
     np <- length(object$fit$par)
-    ndistinct <- function (capthist) { class(capthist) <- 'array'; nrow(unique(capthist)) }
-
-    if (inherits (object$capthist, 'list')) {
-        sum.ndistinct <- sum(unlist(lapply(object$capthist, ndistinct)))
+    ndistinct <- function (capthist) { 
+        nrow(unique(as.array(capthist)))
+    }
+    if (ms(object)) {
+        sum.ndistinct <- sum(sapply(object$capthist, ndistinct))
     }
     else {
         sum.ndistinct <- ndistinct(object$capthist)
