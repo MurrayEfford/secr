@@ -1126,10 +1126,12 @@ std::vector<double> pbupdate (
             pcb[0] = pcb[0] + (1-pcb[0]) * pc;
     }
     else if (btype == 2) {
-        if (Markov)
-            pcb[k] = pcaught[k];
-        else
-            pcb[k] = pcb[k] + (1-pcb[k]) * pcaught[k];
+        for (k=0; k<kk; k++) {
+            if (Markov)
+                pcb[k] = pcaught[k];
+            else
+                pcb[k] = pcb[k] + (1-pcb[k]) * pcaught[k];
+        }
     }
     else if (btype == 3) 
         Rcpp::stop("trap learned response not yet programmed here");
