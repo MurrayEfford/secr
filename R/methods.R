@@ -2277,6 +2277,7 @@ detectpar.default <- function(object, ...) {
     stop ("only for secr models")
 }
 ## byclass option 2013-11-09
+## pmix 2024-08-05
 detectpar.secr <- function(object, ..., byclass = FALSE) {
     extractpar <- function (temp) {
         if (!is.data.frame(temp))   ## assume list
@@ -2313,6 +2314,7 @@ detectpar.secr <- function(object, ..., byclass = FALSE) {
                 else if (object$detectfn %in% 14:19) 'lambda0'
                 else stop ('invalid combination of param %in% c(3,5) and detectfn')
             }
+            if (object$details$nmix > 1) pnames <- c(pnames, 'pmix')
             temp <- temp[pnames]
             if ((object$detectfn > 9) & (object$detectfn <14))
                 temp <- c(temp, list(cutval = object$details$cutval))
