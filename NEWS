@@ -1,4 +1,4 @@
-Changes in version 4.6.10 (2024-08-02)
+Changes in version 4.6.10 (2024-08-21)
 
 New features or changed behaviour of old functions
     o  sim.detect() optionally computes expected counts or retains null histories
@@ -9,6 +9,11 @@ Other
     o  added dots argument to sim.secr(), passed to extractfn
     o  secr.test() fit = TRUE trim keeps mask
     o  internal changes to sim.detect() may change output order
+    o  include pmix in output of detectpar() from mixture models
+    o  as.array method for capthist objects
+
+Bugs fixed
+    o   code for deviance of binomial model failed (broken for years)
 
 Changes in version 4.6.9 (2024-06-29)
 
