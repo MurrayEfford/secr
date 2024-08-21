@@ -1038,11 +1038,6 @@ List simdetectsignalcpp (
 // returns numeric vector with elements of N, ss, kk array of 
 // expected detections
 
-// experimental code 2024-07-30
-
-// unfinished:
-//   learned responses
-
 double Ey (
         const double p,     // gk[i3(c, k, i, cc, kk)] etc.
         const int binomN, 
@@ -1189,8 +1184,6 @@ NumericVector expdetectpointcpp (
     //  2  count  proximity detectors
     //            binomN 0 Poisson, 1 Bernoulli, >1 binomial
     
-    // 2024-08-02 output order of expdetectpointcpp switched to i,s,k
-    
     int    kk = Tsk.nrow();            // number of detectors 
     int    ss = Tsk.ncol();            // number of occasions
     
@@ -1222,11 +1215,7 @@ NumericVector expdetectpointcpp (
     //========================================================
     // MAIN LINE 
     
-    // if (btype>0) {
-    //     Rcpp::stop("expdetectpointcpp not ready for learned responses");
-    // }
-    
-    //----------------------------------------------------------------------------
+    //--------------------------------------------------------
     // mixture models 
     if (nmix>1) {
         if (nmix>2)
@@ -1248,7 +1237,7 @@ NumericVector expdetectpointcpp (
     // ------------------------------------------------------------------------- 
     // MAIN LOOP 
     
-    // -------------------------------------------------------------------------- 
+    // ------------------------------------------------------------------------- 
     // multi-catch trap; max one site per animal per occasion 
     if (detect == 0) {
         for (i=0; i<N; i++) {
