@@ -150,7 +150,7 @@ overdispersion (Efford and Fletcher unpubl.).
 Bischof, R., P. Dupont, C. Milleret, J. Chipperfield, and J. A. Royle. 2020. Consequences of ignoring group association in spatial capture--recapture analysis. \emph{Wildlife Biology} wlb.00649. DOI 10.2981/wlb.00649
 
 Cooch, E. and White, G. (eds) (2022) \emph{Program MARK: A Gentle Introduction}. 
-  22nd edition. Available online at http://www.phidot.org/software/mark/docs/book/.
+  22nd edition. Most recent edition available online at www.phidot.org/software/mark/docs/book/.
 
 Fletcher, D. (2012) Estimating overdispersion when fitting a generalized linear model to sparse data.
 \emph{Biometrika} \bold{99}, 230--237.

@@ -78,8 +78,8 @@ unRMarkInput(df, covariates = TRUE)
 
   Laake, J. and Rexstad E. (2008) Appendix C. RMark - an alternative
 approach to building linear models in MARK. In: Cooch, E. and White,
-G. (eds) Program MARK: A Gentle Introduction. 6th edition. Available at
-\url{http://www.phidot.org/software/mark/docs/book/}.
+G. (eds) Program MARK: A Gentle Introduction. 6th edition. Most recent edition 
+available at www.phidot.org/software/mark/docs/book/.
 
 }
 

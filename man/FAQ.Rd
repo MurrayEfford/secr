@@ -45,7 +45,7 @@ Tip: to search all secr help pages open the pdf version of the manual in
 Acrobat Reader (\href{https://www.otago.ac.nz/density/pdfs/secr-manual.pdf}{secr-manual.pdf}; see also ?secr) and use
 <ctrl> F.
 
-There is a support forum at \url{http://www.phidot.org/forum/} under
+There is a support forum at www.phidot.org/forum under
 `DENSITY|secr' and another at \href{https://groups.google.com/forum/#!forum/secrgroup}{secrgroup}. See below for
 more \R tips. Some specific problems with \code{secr.fit} are covered in
 \link{Troubleshooting}.

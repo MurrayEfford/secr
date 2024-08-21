@@ -307,7 +307,7 @@ Other documentation, in the form of pdf vignettes built with **knitr**,  will be
 | [secr-telemetry.pdf] | analysing combined telemetry and capture--recapture data|
 | [secr-varyingeffort.pdf] | variable effort (usage) in SECR models |
 
-The web page https://www.otago.ac.nz/density/ should be checked for news of bug fixes and new releases. New versions will be posted on [CRAN], but there may be a delay of a few days. Help may be sought at [phidot]; see also the FAQ there for DENSITY and **secr**. Another forum intended for both software issues and wider discussion is [secrgroup]. For information on changes in each version, type at the R prompt:
+The web page https://www.otago.ac.nz/density/ should be checked for news of bug fixes and new releases. New versions will be posted on [CRAN], but there may be a delay of a few days. Help may be sought on the Density | secr forum at www.phidot.org; see also the FAQ there for DENSITY and **secr**. Another forum intended for both software issues and wider discussion is [secrgroup]. For information on changes in each version, type at the R prompt:
 
 ```{r, eval=FALSE} 
 news (package = "secr") 
@@ -565,7 +565,7 @@ Borchers, D. L. and Kidney, D. (2014) Flexible density surface estimation for sp
 
 Chandler, R. B. and Royle, J. A. (2013) Spatially explicit models for inference about density in unmarked or partially marked populations. *Annals of Applied Statistics* **7**, 936--954.
 
-Cooch, E. and White, G. (eds) (2014) *Program MARK: A Gentle Introduction*. 13th edition. Available online at http://www.phidot.org/software/mark/docs/book/.
+Cooch, E. and White, G. (eds) (2014) *Program MARK: A Gentle Introduction*. 13th edition. Most recent edition available online at www.phidot.org/software/mark/docs/book/.
 
 Distiller, G. and Borchers, D. L. (2015) A spatially explicit capture--recapture estimator for single-catch traps. *Ecology and Evolution* **5**, 5075--5087.
 
@@ -598,7 +598,8 @@ Efford, M. G. and Schofield, M. R. (2020) A spatial open-population capture--rec
 Huggins, R. M. (1989) On the statistical analysis of capture experiments.  *Biometrika* **76**, 133--140.
 
 Laake, J. and Rexstad E. (2014) Appendix C. RMark - an alternative approach to building linear models in MARK. In: Cooch, E. and White, G. (eds) *Program MARK: A Gentle
-    Introduction*. 13th edition. http://www.phidot.org/software/mark/docs/book/.
+    Introduction*. 13th edition. most recent edition available at
+    www.phidot.org/software/mark/docs/book/.
 
 Lebreton, J.-D., Burnham, K. P., Clobert, J., and Anderson, D. R. (1992) Modeling survival and testing biological hypotheses using marked animals: a unified approach with case studies. *Ecological Monographs* **62**, 67--118.
 
@@ -865,6 +866,5 @@ Stoat *Mustela erminea* hair tube DNA data from Matakitaki Valley, South Island,
 
 [secr-version4.pdf]: https://www.otago.ac.nz/density/pdfs/secr-version4.pdf
 
-[phidot]: http://www.phidot.org/forum/
 [secrgroup]: <https://groups.google.com/forum/#!forum/secrgroup>
 [CRAN]: https://cran.r-project.org/package=secr
