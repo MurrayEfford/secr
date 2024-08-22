@@ -25,7 +25,7 @@ deermouse.WSG
 
 Two datasets of V. H. Reid were described by Otis et al. (1978) and
 distributed with their CAPTURE software (now available from
-\url{https://www.mbr-pwrc.usgs.gov/software.html}). They have been used in
+\url{https://eesc.usgs.gov/mbr/software/capture.shtml}). They have been used in
 several other papers on closed population methods (e.g., Huggins 1991,
 Stanley and Richards 2005). This description is based on pages 32 and
 87--93 of Otis et al. (1978).
