@@ -1,8 +1,8 @@
 # MCgof methods
 
-plot.MCgof <- function(x, overlay = NULL, ...) {
-    main <- c('individual-detector','individual', 'detector')
-    onestat <- function (xy, ynum) {
+plot.MCgof <- function(x, counts = 'all', overlay = NULL, ...) {
+    onestat <- function (count) {
+        xy <- x$all[[count]]    # dimensions c(Tsim, Tobs, p), 1:nreplicates)
         lim <- range(xy[1:2,])
         lim <- lim + c(-1, +1) * diff(lim)/7
         MASS::eqscplot(xy['Tsim',], xy['Tobs',], 
@@ -10,21 +10,23 @@ plot.MCgof <- function(x, overlay = NULL, ...) {
                        xlim = lim, ylim = lim)
         
         abline(0,1, col = 'red')
-        mtext(side=3, paste(main[ynum], " p =", round(mean(xy[3,]),3)))
+        mtext(side=3, paste(main[count], " p =", round(mean(xy[3,]),3)))
         
         # optional overlay of points from another MCgof or from scrgof
         if (!is.null(overlay)) {
             if (inherits(overlay, 'MCgof')) {
-                xy <- overlay$all[[ynum]]
+                xy <- overlay$all[[count]]
                 points(xy['Tsim',], xy['Tobs',], ...)
             }
             else if (names(overlay)[1] == 'scrgof_pval') {
-                points(overlay[[ynum+1]], ...)
+                scrgofnames <- c(yik = 'gof_ik', yi = 'gof_i', yk = 'gof_j')
+                points(overlay[[scrgofnames[count]]], ...)
             }
         }        
     }
-    par(pty = 's', mfrow = c(2,2))
-    mapply(onestat, x$all, 1:3)
+    main <- c(yik = 'individual-detector', yi = 'individual', yk = 'detector')
+    if (tolower(counts) == 'all') counts <- names(x$all)
+    junk <- lapply(counts, onestat)
     invisible()
 }
 ################################################################################
