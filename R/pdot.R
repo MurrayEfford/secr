@@ -29,6 +29,8 @@
 ## 2019-12-28 multithreaded
 ## 2021-05-19 cv: pmax protects against negative argument to sqrt     
 ## 2022-11-19 esa.plot in separate file
+## 2024-09-07 pdot accepts vector or matrix detectpar for g0/lambda0 and sigma 
+##            replicated to fill matrix of dimensions ntraps x noccasions (traps are rows)
 ###############################################################################
 
 ## pdot is used in --
@@ -42,6 +44,7 @@
 ## reparameterize.esa
 ## [bias.D  disabled]
 ## pdot.contour
+## MCgof
 
 ## * has ncores argument
 
@@ -63,11 +66,7 @@ pdot <- function (X, traps, detectfn = 0, detectpar = list(g0 = 0.2, sigma = 25,
 
     truncate <- ifelse(is.null(detectpar$truncate), 1e+10, detectpar$truncate)
 
-    detectpars <- unlist(detectpar[parnames(detectfn)])
-    if ((detectfn>9) & (detectfn<14))  detectpars <- c(detectpars, detectpar$cutval)
-    if (length(detectpars)<3) detectpars <- c(detectpars,0)
-    miscparm <- numeric(4);   ## dummy
-
+    ntraps <- ndetector(traps)
     if (!is.null(usage(traps))) {
         usge <- usage(traps)
         if (is.null(noccasions)) {
@@ -84,8 +83,32 @@ pdot <- function (X, traps, detectfn = 0, detectpar = list(g0 = 0.2, sigma = 25,
     else {
         if (is.null(noccasions))
             stop("must specify noccasions when traps does not have usage attribute")
-        usge <- matrix(1, ndetector(traps), noccasions)
+        usge <- matrix(1, ntraps, noccasions)
     }
+
+    detectpars <- detectpar[parnames(detectfn)]
+    gl0 <- detectpars[[1]]   ## g0 or lambda0
+    sig <- detectpars[[2]]   ## sigma
+    if (length(detectpars)>2) z <- detectpars[[3]] 
+        
+    
+    otherdetpar <- unlist(detectpar[3:4])  # assume scalar 
+    ## g0/lambda0 or sigma is a matrix
+    nonscalardetpar <- (is.matrix(gl0) || is.matrix(sig))
+    gl0 <- matrix(gl0, nrow = ntraps, ncol = noccasions)
+    sig <- matrix(sig, nrow = ntraps, ncol = noccasions)
+    
+    if ((detectfn>9) & (detectfn<14))  {
+        otherdetpar <- c(otherdetpar, detectpar$cutval)
+    }
+    else {
+        
+    }
+    if (length(detectpars)<1) otherdetpar <- c(otherdetpar,0)
+    
+    miscparm <- numeric(4);   ## dummy
+    
+    
     dettype <- detectorcode(traps, noccasions = noccasions)
     binomN <- getbinomN (binomN, detector(traps))
     markocc <- markocc(traps)
@@ -122,8 +145,8 @@ pdot <- function (X, traps, detectfn = 0, detectpar = list(g0 = 0.2, sigma = 25,
         1 - exp(-temp)   ## probability detected at least once, given total hazard
     }
     else {
-      ## distmat2 <- getdistmat2 (traps, X, userdist)
-      distmat2 <- getuserdist (traps, X, userdist, sessnum = NA, NULL, NULL, miscparm, detectfn == 20)
+      distmat2 <- getuserdist (traps, X, userdist, sessnum = NA, NULL, NULL, 
+                               miscparm, detectfn == 20)
       #-------------------------------------------------------------
       pdotpointcpp(
         as.matrix(X),
@@ -133,7 +156,9 @@ pdot <- function (X, traps, detectfn = 0, detectpar = list(g0 = 0.2, sigma = 25,
         as.matrix(usge),
         as.integer(markocc),
         as.integer(detectfn),
-        as.double(detectpars),
+        as.matrix(gl0),             # new
+        as.matrix(sig),             # new
+        as.double(otherdetpar),     # new    
         as.double(miscparm),
         as.double(truncate^2),
         as.integer(expandbinomN(binomN, dettype)),
