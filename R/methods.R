@@ -2278,26 +2278,51 @@ detectpar.default <- function(object, ...) {
 }
 ## byclass option 2013-11-09
 ## pmix 2024-08-05
-detectpar.secr <- function(object, ..., byclass = FALSE) {
-    extractpar <- function (temp) {
+## bytrap option 2024-09-07
+
+detectpar.secr <- function(object, ..., byclass = FALSE, bytrap = FALSE) {
+    extractpar <- function (temp, ntrap, initial = TRUE) {
+        ## for one session
         if (!is.data.frame(temp))   ## assume list
         {
-            if (byclass)
-                lapply(temp, extractpar)
-            else
-                extractpar(temp[[1]])
+            if (byclass || bytrap) {
+                if (initial && nclass>1 && bytrap) {
+                    temp <- unlist(temp, recursive = FALSE)
+                }
+                out <- lapply(temp, extractpar, FALSE)
+                
+                if (bytrap) {
+                    maketrapdf <- function(out) {
+                        out <- matrix(unlist(out), nrow = ntrap, byrow = TRUE,
+                                      dimnames = list(NULL, pnames))
+                        as.data.frame(out)
+                    }
+                    if (nclass>1) {
+                        ## one df for each class
+                        clss <- rep(1:nclass, length.out=length(out))
+                        out <- lapply(split(out, clss), maketrapdf)
+                        if (byclass) out else out[[1]]
+                    }
+                    else {
+                        maketrapdf(out)
+                    }
+                }
+                else {
+                    out
+                }
+            }
+            else {
+                extractpar(temp[[1]], ntrap = NA, initial = FALSE)
+            }
         }
         else {
-            if (!is.data.frame(temp) |
-                (nrow(temp) > length(object$link)))
+            if (!is.data.frame(temp) || (nrow(temp) > length(object$link)))
                 stop ("unexpected input to detectpar()")
-
-            temp <- temp[, 'estimate', drop = F]
+            
+            temp <- temp[, 'estimate', drop = FALSE]
             temp <- split(temp[,1], rownames(temp))
             temp <- c(temp, object$fixed)
-            pnames <- parnames(object$detectfn)
-            if (object$details$param == 2)
-                pnames[1] <- 'esa'
+            
             if (object$details$param %in% c(4,5)) {
                 Dindex <- match ('D', names(temp))
                 sigmakindex <- match ('sigmak', names(temp))
@@ -2314,23 +2339,69 @@ detectpar.secr <- function(object, ..., byclass = FALSE) {
                 else if (object$detectfn %in% 14:19) 'lambda0'
                 else stop ('invalid combination of param %in% c(3,5) and detectfn')
             }
-            if (object$details$nmix > 1) pnames <- c(pnames, 'pmix')
+            
             temp <- temp[pnames]
+            
+            # acoustic cutval argument not estimated, but add to vector
             if ((object$detectfn > 9) & (object$detectfn <14))
                 temp <- c(temp, list(cutval = object$details$cutval))
+            
             temp
         }
     }
     if (!inherits(object,'secr'))
         stop ("requires 'secr' object")
-    temppred <- predict (object, ...)
+    pnames <- parnames(object$detectfn)
+    nclass <- object$details$nmix
+    if (object$details$param == 2) pnames[1] <- 'esa'
+    if (nclass > 1) pnames <- c(pnames, 'pmix')
+
+    tr <- traps(object$capthist)
+    if (!ms(tr)) tr <- list(tr)   # force to list
+
+    if (bytrap) {
+        arglist <- list(...)
+        if ('newdata' %in% names(arglist)) 
+            newdat <- arglist$newdata
+        else 
+            newdat <- makeNewData (object, all.levels = TRUE)
+        sessions <- levels(newdat$session)
+        nsessions <- length(sessions)
+        temppred <- vector('list', nsessions)
+        names(temppred) <- sessions
+        if (nsessions==1) {
+            names(tr) <- sessions[1]
+        }
+        trapcovnames <- names(newdat)[names(newdat) %in% 
+                                      names(covariates(tr[[1]]))]
+        onepred <- function(trapno, session) {
+            newdatS <- newdat[newdat$session == session, , drop = FALSE]
+            if (length(trapcovnames)>0) {
+                newdatS[,trapcovnames] <-
+                    covariates(tr[[session]])[trapno,trapcovnames]    
+            }
+            predict (object, newdata = newdatS)
+        }
+        for (sess in sessions) {
+            ntrap <- ndetector(tr[[sess]])
+            temppred[[sess]] <- lapply(1:ntrap, onepred, session = sess)
+        }
+        temppred <- unlist(temppred, recursive = FALSE)
+        names(temppred) <- apply(expand.grid(sessions, 1:ntrap),1,paste, collapse=',')
+    }
+    else{
+        temppred <- predict (object, ...)
+    }
+    ntrap <-sapply(tr, ndetector)
     if (ms(object)) {
-        temp <- lapply(temppred, extractpar)
-        names(temp) <- session(object$capthist)
+        sess <- sapply(strsplit(names(temppred), ','), '[', 1)
+        temppred <- split(temppred, sess)
+        temp <- mapply(extractpar, temppred, ntrap = ntrap, 
+                       SIMPLIFY = FALSE)
         temp
     }
     else {
-        extractpar(temppred)
+        extractpar(temppred, ntrap = ntrap)
     }
 }
 
