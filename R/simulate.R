@@ -19,6 +19,78 @@ disinteraction <- function (capthist, groups, sep='.') {
 
 ################################################################################
 
+sim.onepopn <- function (object, Darray, chat = 1) {
+    ngrp <- dim(Darray)[2]
+    nsession <- dim(Darray)[3]
+    sesspopn <- list()
+    for (sessnum in 1:nsession) {
+        if (nsession==1) mask <- object$mask
+        else mask <- object$mask[[sessnum]]
+        popn <- list()
+        for (g in 1:ngrp) {
+            if (inherits(mask, 'linearmask')) {
+                density <- Darray[,g,sessnum]        ## vector
+                mod2D <- 'linear'                    ## linear Poisson or IHP
+            }
+            else {
+                if (object$model$D == ~1) {
+                    density <- Darray[1,g,sessnum]   ## scalar
+                    mod2D <- 'poisson'               ## homogeneous
+                }
+                else {
+                    density <- Darray[,g,sessnum]    ## vector
+                    mod2D <- 'IHP'                   ## inhomogeneous
+                }
+            }
+            if (chat > 1)
+                density <- density / chat
+            ND <- switch (object$details$distribution,
+                          binomial = 'fixed',
+                          poisson = 'poisson',
+                          'poisson')
+            ##-------------------------------------------------------------------
+            ## sim.popn arguments omitted:
+            ## buffer          redundant when mask specified
+            ## buffertype      ditto
+            ## poly            ditto
+            ## covariates      ignored for now...
+            ## number.from = 1 fine
+            ## nsession = 1    fine here within session loop as long
+            ##                 as there is no turnover model
+            ## details = NULL  not relevant (turnover and special model2D only)
+            ## seed = NULL     default mechanism -- needs attention 2014-09-07
+            popn[[g]] <- sim.popn (D = density, core = mask, model2D = mod2D, Ndist = ND)
+            
+            ## ------------------------------------------------------------------
+            ## Add any needed covariates, first generating a clean dataframe
+            if (is.null(object$groups) && is.null(object$hcov))
+                covariates(popn[[g]]) <- NULL
+            else
+                covariates(popn[[g]]) <- data.frame(row.names = row.names(popn[[g]]))
+            
+            ## ---groups---
+            if (!is.null(object$groups)) {
+                grpcov <- as.data.frame(object$di[rep(g, nrow(popn[[g]])),]) ## 2014-08-08
+                names(grpcov) <- object$groups
+                covariates(popn[[g]]) <- cbind(covariates(popn[[g]]),grpcov)
+            }
+            ## ---hcov---
+            ## sample with replacement from original hcov field 2014-08-08
+            if (!is.null(object$hcov)) {
+                if (ms(object))
+                    oldhcov <- covariates(object$capthist[[sessnum]])[,object$hcov]
+                else
+                    oldhcov <- covariates(object$capthist)[,object$hcov]
+                covariates(popn[[g]])[object$hcov] <-
+                    sample(oldhcov, size = nrow(popn[[g]]), replace = TRUE)
+            }
+            ## ------------------------------------------------------------------
+        }
+        sesspopn[[sessnum]] <- do.call(rbind, popn)   ## combine groups in one popn object
+    }
+    sesspopn   # list
+}
+
 simulate.secr <- function (object, nsim = 1, seed = NULL, maxperpoly = 100, chat = 1,
                            ...)
     ## if CL, condition on n? what about distribution of covariates over n?
@@ -45,12 +117,10 @@ simulate.secr <- function (object, nsim = 1, seed = NULL, maxperpoly = 100, chat
     Darray <- getDensityArray (predictDsurface(object))
     
     ## setup
-    
-    ngrp <- dim(Darray)[2]
-    nsession <- dim(Darray)[3]
     if (!is.null(object$groups)) {
         ## individual covariates for foundation of g
-        di <- disinteraction (object$capthist, object$groups)
+        ## pass with object 2024-09-09
+        object$di <- disinteraction (object$capthist, object$groups)
     }
     
     sesscapt <- vector('list', nsim)
@@ -71,77 +141,12 @@ simulate.secr <- function (object, nsim = 1, seed = NULL, maxperpoly = 100, chat
     ##################
     
     ## loop over replicates
-    runone <- function(r) {
-        ## argument r is unused dummy
-        sesspopn <- list()
-        for (sessnum in 1:nsession) {
-            if (nsession==1) mask <- object$mask
-            else mask <- object$mask[[sessnum]]
-            popn <- list()
-            for (g in 1:ngrp) {
-                if (inherits(mask, 'linearmask')) {
-                    density <- Darray[,g,sessnum]        ## vector
-                    mod2D <- 'linear'                    ## linear Poisson or IHP
-                }
-                else {
-                    if (object$model$D == ~1) {
-                        density <- Darray[1,g,sessnum]   ## scalar
-                        mod2D <- 'poisson'               ## homogeneous
-                    }
-                    else {
-                        density <- Darray[,g,sessnum]    ## vector
-                        mod2D <- 'IHP'                   ## inhomogeneous
-                    }
-                }
-                if (chat > 1)
-                    density <- density / chat
-                ND <- switch (object$details$distribution,
-                              binomial = 'fixed',
-                              poisson = 'poisson',
-                              'poisson')
-                ##-------------------------------------------------------------------
-                ## sim.popn arguments omitted:
-                ## buffer          redundant when mask specified
-                ## buffertype      ditto
-                ## poly            ditto
-                ## covariates      ignored for now...
-                ## number.from = 1 fine
-                ## nsession = 1    fine here within session loop as long
-                ##                 as there is no turnover model
-                ## details = NULL  not relevant (turnover and special model2D only)
-                ## seed = NULL     default mechanism -- needs attention 2014-09-07
-                popn[[g]] <- sim.popn (D = density, core = mask, model2D = mod2D, Ndist = ND)
-                
-                ## ------------------------------------------------------------------
-                ## Add any needed covariates, first generating a clean dataframe
-                if (is.null(object$groups) && is.null(object$hcov))
-                    covariates(popn[[g]]) <- NULL
-                else
-                    covariates(popn[[g]]) <- data.frame(row.names = row.names(popn[[g]]))
-                
-                ## ---groups---
-                if (!is.null(object$groups)) {
-                    grpcov <- as.data.frame(di[rep(g, nrow(popn[[g]])),]) ## 2014-08-08
-                    names(grpcov) <- object$groups
-                    covariates(popn[[g]]) <- cbind(covariates(popn[[g]]),grpcov)
-                }
-                ## ---hcov---
-                ## sample with replacement from original hcov field 2014-08-08
-                if (!is.null(object$hcov)) {
-                    if (ms(object))
-                        oldhcov <- covariates(object$capthist[[sessnum]])[,object$hcov]
-                    else
-                        oldhcov <- covariates(object$capthist)[,object$hcov]
-                    covariates(popn[[g]])[object$hcov] <-
-                        sample(oldhcov, size = nrow(popn[[g]]), replace = TRUE)
-                }
-                ## ------------------------------------------------------------------
-            }
-            sesspopn[[sessnum]] <- do.call(rbind, popn)   ## combine groups in one popn object
-        }
+    runone <- function() {
+        sesspopn <- sim.onepopn(object, Darray, chat)
         sim.detect(object, sesspopn, maxperpoly)
     }
-    sesscapt <- lapply(1:nsim, runone)
+    sesscapt <- replicate(nsim, runone(), simplify = FALSE)
+    
     ## experimental
     if (chat>1) sesscapt <- lapply(sesscapt, replicate, chat)
     
