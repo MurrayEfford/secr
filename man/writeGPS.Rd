@@ -36,8 +36,6 @@ Mapsource database format.
 \code{F} may be "usb:" or "com4:" etc. for upload via USB or serial
 ports, or the name of a file to create.
 
-% 2020-04-05 https://www.nceas.ucsb.edu/scicomp/recipes/projections not working
-
 The \code{proj} argument may be complex. For further information see the
 Examples and the vignette 
 \href{https://www.otago.ac.nz/density/pdfs/secr-spatialdata.pdf}{secr-spatialdata.pdf}.
@@ -63,12 +61,12 @@ No value is returned. The effect is to upload waypoints to an attached
 
 \note{
   
-  GPSBabel is available free from
-\url{https://www.gpsbabel.org/}. Remember to add it to the Path. On
+GPSBabel is available free online. % from \url{https://www.gpsbabel.org/} not 2024-09-10.
+Remember to add it to the path. On
 Windows this means following something like Settings > Control panel >
 System > Advanced settings > Environment variables > (select Path) Edit
 and adding ";C:/Program Files (x86)/gpsbabel" to the end (without the
-quotes). Or ";C:/Program Files/gpsbabel" on 32-bit systems.
+quotes). 
   
 }
 
