@@ -3,6 +3,7 @@
 ## fxi.R
 ## 2019-08-17 fxi.secr uses C++ call
 ## 2022-02-13 'sp' now in suggests
+## 2024-09-09 allhistfxi NaN from cpp set to zero
 ###############################################################################
 
 fxi2SPDF <- function (x, ID, levels) {
@@ -229,6 +230,8 @@ allhistfxi <- function (m, realparval, haztemp, gkhk, pi.density, PIA, usge,
           as.matrix(usge),
           as.matrix (hx),                
           as.matrix (hi))
+        ## 2024-09-09 purge uncomputed values for robustness
+        temp[is.na(temp)] <- 0
         sump <- sump + sweep(temp, MARGIN=1, STATS = pmixn[x,], FUN = "*")
     }
     sump
@@ -364,7 +367,7 @@ fxi.secr <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL) {
   #             levels(data$grp[[1]]), sessionlevels, parameter = 'noneuc')
   # 
   NE <- NULL
-  
+ 
   #---------------------------------------------------
   ## allow for scaling of detection
   Dtemp <- if (D.modelled) mean(D) else NA
