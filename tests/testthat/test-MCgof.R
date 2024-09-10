@@ -1,4 +1,4 @@
-# test MCgof
+# test MCgof, summary.MCgof
 
 library(secr)
 
