@@ -1772,7 +1772,9 @@ addzeroCH <- function (CH, nzero, cov = NULL, prefix = 'Z') {
         class(CH2) <- 'capthist'
         traps(CH2) <- traps(CH)
         xy(CH2) <- xy(CH)  ## order is not affected by adding zero histories
-        if (!is.null(covariates(CH)) && nrow(covariates(CH))>0 && (nrow(CH)>0)) {
+        # added ncol>0 check 2024-09-04
+        if (!is.null(covariates(CH)) && nrow(covariates(CH))>0 && 
+            ncol(covariates(CH))>0 && (nrow(CH)>0)) {
             if (is.null(cov)) {
                 cov <- covariates(CH)[rep(1,nzero),,drop = FALSE]
                 cov[,] <- NA   ## covariates are unknown
