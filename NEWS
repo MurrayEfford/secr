@@ -1,7 +1,14 @@
-Changes in version 4.6.11 (2024-08-23)
+Changes in version 4.6.11 (2024-09-10)
 
 New features or changed behaviour of old functions
-    o  none
+    o  detectpar() optionally returns values for each detector
+    o  pdot() accepts detector- and occasion-specific detection parameters
+    o  MCgof() goodness-of-fit after Choo et al. (2024) DOI: 10.1111/2041-210X.14386
+    o  blackbearCH new dataset of J. Laufenberg, F. van Manen and J. Clark.
+
+Other
+    o  internal addzeroCH() ignores covariate dataframe with zero columns
+    o  improved robustness of fxi.secr by setting occasional NaN to zero
 
 Changes in version 4.6.10 (2024-08-21)
 
