@@ -7,6 +7,7 @@
 ## 2024-09-03 new args usefxi, useMVN
 ## 2024-09-03 call sim.onepopn from simulate.R if !usefxi
 ## 2024-09-09 various edits
+## 2024-09-11 use mvtnorm instead of MASS
 
 # Murray Efford and Yan Ru Choo
 ################################################################################
@@ -130,10 +131,16 @@ MCgof <- function (object, nsim = 100, statfn = NULL, testfn = NULL,
             # -----------------------------------------------
             # randomize parameter values from MVN
             if (useMVN) {
-                object$fit$par <- MASS::mvrnorm(
+                # MASS::mvrnorm not consistent between platforms
+                # possibly due to dependence LAPACK/BLAS
+                # object$fit$par <- MASS::mvrnorm(
+                #     n     = 1,
+                #     mu    = object$fit$par,
+                #     Sigma = object$beta.vcv)
+                object$fit$par <- mvtnorm::rmvnorm(
                     n     = 1,
-                    mu    = object$fit$par, 
-                    Sigma = object$beta.vcv)
+                    mean  = object$fit$par, 
+                    sigma = object$beta.vcv)[1,]
             }
             # -----------------------------------------------
             # draw randomized AC
@@ -144,7 +151,7 @@ MCgof <- function (object, nsim = 100, statfn = NULL, testfn = NULL,
                 Darray <- getDensityArray (predictDsurface(object))
                 popn <- sim.onepopn(object, Darray)[[1]]
             }
-            
+
             # -----------------------------------------------
             # simulate detections for these parameters and AC
             simCH <- sim.detect(
@@ -232,7 +239,7 @@ MCgof <- function (object, nsim = 100, statfn = NULL, testfn = NULL,
             RNGstate <- get(".Random.seed", envir = .GlobalEnv)
         else {
             R.seed <- get(".Random.seed", envir = .GlobalEnv)
-            set.seed(seed)
+            set.seed(seed, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rounding")
             RNGstate <- structure(seed, kind = as.list(RNGkind()))
             on.exit(assign(".Random.seed", R.seed, envir = .GlobalEnv))
         }
@@ -279,6 +286,7 @@ MCgof <- function (object, nsim = 100, statfn = NULL, testfn = NULL,
         # ----------------------------------------------------------
         # wrap up
         out <- list(
+            object   = object,
             nsim     = nsim,
             statfn   = statfn,
             testfn   = testfn,
@@ -292,7 +300,7 @@ MCgof <- function (object, nsim = 100, statfn = NULL, testfn = NULL,
                      round((proc.time() - ptm)[3],3), " seconds")
             print(summary(out))
         }
-        
+        attr(out, 'seed') <- RNGstate      ## save random seed
         invisible(out)
     }    
 }

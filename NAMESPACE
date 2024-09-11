@@ -31,8 +31,11 @@ importFrom (abind,
 
 importFrom (MASS, 
     ginv, 
-    eqscplot,
-    mvrnorm)
+    eqscplot)
+## ,mvrnorm)  not consistent between platforms
+
+importFrom (mvtnorm, 
+    rmvnorm) 
 
 importFrom (mgcv, 
     gam, 
