@@ -1,4 +1,4 @@
-Changes in version 4.6.11 (2024-09-10)
+Changes in version 4.6.11 (2024-09-11)
 
 New features or changed behaviour of old functions
     o  detectpar() optionally returns values for each detector
@@ -9,6 +9,7 @@ New features or changed behaviour of old functions
 Other
     o  internal addzeroCH() ignores covariate dataframe with zero columns
     o  improved robustness of fxi.secr by setting occasional NaN to zero
+    o  imports from mvtnorm
 
 Changes in version 4.6.10 (2024-08-21)
 
