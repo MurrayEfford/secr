@@ -4,11 +4,16 @@ library(secr)
 
 test_that("MCgof correct with simple multicatch model", {
     # switch to multi from single generates warning
-    expect_warning(test0 <- MCgof(secrdemo.0, nsim=2, seed=123, quiet = TRUE))
+    expect_warning(test0 <- MCgof(secrdemo.0, nsim=2, seed = 123, quiet = TRUE))
     discrepancytable <- summary(test0)
-    target1 <- c(yik = 468.87675, yi = 207.48601, yk = 137.77262)
-    target2 <- c(yik = 459.06023, yi = 205.23678, yk = 150.62346)
+    target1 <- c(yik = 462.05233, yi = 199.98601, yk = 130.30719)
+    target2 <- c(yik = 468.53801, yi = 209.66753, yk = 148.41228)
     # Tobs, Tsim rows of summary
     expect_equal(discrepancytable['Tobs',], target1) 
     expect_equal(discrepancytable['Tsim',], target2) 
 })
+
+# MCgof(secrdemo.0, nsim=2, seed=123)
+
+# set.seed(123, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rounding")
+# MCgof(secrdemo.0, nsim=2, seed=123)

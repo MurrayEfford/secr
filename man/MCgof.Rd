@@ -68,6 +68,8 @@ Parallel processing is offered using multiple cores (CPUs) through the package \
 `usefxi' and `useMVN' may be used to drop key elements of the Choo et al. (2024) 
 approach - they are provided for demonstration only.
 
+The \code{\link{RNGkind}} of the random number generator is set internally for consistency across platforms.
+
 }
 
 \value{
