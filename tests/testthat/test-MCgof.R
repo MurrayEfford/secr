@@ -12,8 +12,3 @@ test_that("MCgof correct with simple multicatch model", {
     expect_equal(discrepancytable['Tobs',], target1, tolerance = 0.001) 
     expect_equal(discrepancytable['Tsim',], target2, tolerance = 0.001) 
 })
-
-# MCgof(secrdemo.0, nsim=2, seed=123)
-
-# set.seed(123, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rounding")
-# MCgof(secrdemo.0, nsim=2, seed=123)
