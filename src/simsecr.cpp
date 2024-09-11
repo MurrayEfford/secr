@@ -174,7 +174,7 @@ List simdetectpointcpp (
                                    Named("value") = value,
                                    Named("resultcode") = 2);
     
-    RNGScope scope;             // Rcpp initialise and finalise random seed 
+    // RNGScope scope;             // Rcpp initialise and finalise random seed 
     
     if ((detect < -1) || (detect > 2)) {
         return(nullresult);
