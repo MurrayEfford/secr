@@ -37,13 +37,13 @@ Plot, summary and print methods for MCgof objects.
 
 \details{
 
-We start with a 3-D capthist array with dimensions corresponding to individuals (i), occasions (s) and detectors (k). The possible marginal counts for the default `statfn' in \code{\link{MCgof}} are designated --
+We start with a 3-D capthist array with dimensions corresponding to individuals (i), occasions (j) and detectors (k). The possible marginal counts for the default `statfn' in \code{\link{MCgof}} are designated --
 
 \tabular{lll}{
 Count \tab Margin \tab Cell value \cr
-yik \tab individual x detector \tab \eqn{y_{ik} = \sum_s y_{isk}} \cr
-yi \tab individual \tab \eqn{y_i = \sum_s \sum_k y_{isk}} \cr
-yk \tab detector \tab \eqn{y_k = \sum_s \sum_i y_{isk}} \cr
+yik \tab individual x detector \tab \eqn{y_{ik} = \sum_j y_{ijk}} \cr
+yi \tab individual \tab \eqn{y_i = \sum_j \sum_k y_{ijk}} \cr
+yk \tab detector \tab \eqn{y_k = \sum_j \sum_i y_{ijk}} \cr
 }
 
 The plot method displays a scatterplot of discrepancies for observed and simulated data (one point per replicate) (Gelman et al. 1996). 

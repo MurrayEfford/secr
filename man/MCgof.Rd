@@ -9,7 +9,7 @@
 
 At each replicate a set of parameter values is drawn from the multivariate-normal sampling distribution of the fitted model. The putative location of each detected individual is drawn from the spatial distribution implied by its observations and the resampled parameters (see \code{\link{fxi.secr}}); locations of undetected individuals are simulated from the complement of pdot(x) times D(x). 
 
-New detections are simulated under the model for individuals at the simulated locations, along with the expected numbers. Detections form a capthist object, a 3-D array with dimensions for individual \eqn{i}, occasion \eqn{s} and detector \eqn{k}*. Thus for each replicate and detected individual there are the original observations \eqn{y_{isk}}, simulated observations \eqn{Y_{isk}}, and expected counts \eqn{\mbox E (y_{isk})}. At each replicate, two discrepancy statistics are calculated -- observed vs expected counts, and simulated vs expected counts -- and a record is kept of which of these discrepancy statistics is the larger (indicating poorer fit). The default discrepancy is the Freeman-Tukey statistic. 
+New detections are simulated under the model for individuals at the simulated locations, along with the expected numbers. Detections form a capthist object, a 3-D array with dimensions for individual \eqn{i}, occasion \eqn{j} and detector \eqn{k}*. Thus for each replicate and detected individual there are the original observations \eqn{y_{ijk}}, simulated observations \eqn{Y_{ijk}}, and expected counts \eqn{\mbox E (y_{ijk})}. At each replicate, two discrepancy statistics are calculated -- observed vs expected counts, and simulated vs expected counts -- and a record is kept of which of these discrepancy statistics is the larger (indicating poorer fit). The default discrepancy is the Freeman-Tukey statistic. 
 
 The key output is the proportion of replicates in which the simulated discrepancy exceeds the observed discrepancy. For perfect fit this will be about 0.5, and for poor fit it will approach zero.
 
@@ -18,7 +18,7 @@ By default, tests are performed separately for three types of count: the numbers
 \code{MCgof} is under development. The structure of the output may change and 
 bugs may be found. See Warning below for exclusions.
 
-* Notation differs slightly from Choo et al. (2024) for consistency with the usage in \pkg{secr}.
+* Notation differs slightly from Choo et al. (2024), using \eqn{j} for occasion and \eqn{k} for detector to be consistent with usage in \pkg{secr} and elsewhere (e.g., Borchers and Fewster 2016).
 
 }
 
@@ -49,19 +49,19 @@ MCgof(object, nsim = 100, statfn = NULL, testfn = NULL, seed = NULL,
 
 \details{
 
-A capture history (capthist) object is viewed as an array y with dimensions for individuals (i), occasions (s) and detectors (k). The default \code{statfn} extracts counts yik, yi and yk from the margins of the observed and simulated capture histories.
+A capture history (capthist) object is viewed as an array y with dimensions for individuals (i), occasions (j) and detectors (k). The default \code{statfn} extracts counts yik, yi and yk from the margins of the observed and simulated capture histories.
 
 \tabular{llll}{
-\eqn{y_{ik} = \sum_s y_{isk}} \tab \tab individual x detector \cr 
-\eqn{y_{i} = \sum_s \sum_k y_{isk}} \tab\tab individual \cr
-\eqn{y_{k} = \sum_i \sum_s y_{isk}}  \tab\tab detector \cr 
+\eqn{y_{ik} = \sum_j y_{ijk}} \tab \tab individual x detector \cr 
+\eqn{y_{i} = \sum_j \sum_k y_{ijk}} \tab\tab individual \cr
+\eqn{y_{k} = \sum_i \sum_j y_{ijk}}  \tab\tab detector \cr 
 }
 
 The default \code{testfn} applies a Freeman-Tukey comparison as in Choo et al. (2024).
 
-The Freeman-Tukey statistic has this general form for \eqn{J} counts \eqn{y_j} with 
-expected value \eqn{\mbox E(y_j)}:
-\deqn{T = \sum_{j=1}^{j=J} \left(\sqrt {y_j} - \sqrt{E(y_j)}\right)^2.}
+The Freeman-Tukey statistic has this general form for \eqn{M} counts \eqn{y_m} with 
+expected value \eqn{\mbox E(y_m)}:
+\deqn{T = \sum_{m=1}^{m=M} \left(\sqrt {y_m} - \sqrt{E(y_m)}\right)^2.}
 
 Parallel processing is offered using multiple cores (CPUs) through the package \pkg{parallel} when ncores > 1. This differs from the usual multithreading paradigm in \pkg{secr} and does not rely on the environment variable set by \code{\link{setNumThreads}} \emph{except} that, if ncores = NULL, ncores will be set to the value from \code{setNumThreads}. The cluster type "FORK" is available only on Unix-like systems; it can require large amounts of memory, but is generally fast. A small value of ncores>1 may be optimal, especially With cluster type "PSOCK".
 
@@ -92,6 +92,9 @@ For secrlist input the value returned is a list of `MCgof' objects.
 Borchers, D. L. and Efford, M. G. (2008) Spatially
 explicit maximum likelihood methods for capture--recapture studies.
 \emph{Biometrics} \bold{64}, 377--385.
+
+Borchers, D. L. and Fewster, R. M. (2016) Spatial capture--recapture models.  
+\emph{Statistical Science} \bold{31}, 219--232.
 
 Choo, Y. R., Sutherland, C. and Johnston, A. (2024) A Monte Carlo resampling 
 framework for implementing goodness-of-fit tests in spatial capture-recapture model
