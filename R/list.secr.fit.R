@@ -15,10 +15,15 @@ list.secr.fit <- function (..., constant = list(), prefix = "fit", names = NULL)
         warning ("number of names does not equal number of fits")
         names <- defaultnames
     }
-    ok <- sapply(fits, inherits, 'secr')
-    if (any(!ok)) {
-        if (all(!ok)) stop ("no valid fits") 
-        else warning (sum(!ok), " fits failed and were dropped")
+    if (!is.null(constant$details$LLonly) && constant$details$LLonly) {
+        fits  
     }
-    secrlist(fits[ok], names = names[ok])
+    else {
+        ok <- sapply(fits, inherits, 'secr')
+        if (any(!ok)) {
+            if (all(!ok)) stop ("no valid fits") 
+            else warning (sum(!ok), " fits failed and were dropped")
+        }
+        secrlist(fits[ok], names = names[ok])
+    }
 }

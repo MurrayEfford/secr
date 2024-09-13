@@ -39,7 +39,10 @@ Each of the \dots arguments may also be a named argument with a single value, al
 
 \value{
 
-An \code{\link{secrlist}} of model fits (see \code{\link{secr.fit}}). 
+An \code{\link{secrlist}} of the successful model fits (see \code{\link{secr.fit}}). 
+
+In the special case that `constant' specifies `details' with component LLonly = TRUE, 
+the list of values from \code{secr.fit} without checking or modification.
 
 }
 
