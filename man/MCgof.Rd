@@ -5,20 +5,11 @@
 
 \description{
 
-\code{MCgof} implements and extends the Monte Carlo resampling method of Choo et al. (2024) to emulate Bayesian posterior predictive checks (Gelman et al. 1996, Royle et al. 2014). Initial results suggest the approach is more informative than the deviance-based test proposed by Borchers and Efford (2008) and implemented in \code{\link{secr.test}}.
-
-At each replicate a set of parameter values is drawn from the multivariate-normal sampling distribution of the fitted model. The putative location of each detected individual is drawn from the spatial distribution implied by its observations and the resampled parameters (see \code{\link{fxi.secr}}); locations of undetected individuals are simulated from the complement of pdot(x) times D(x). 
-
-New detections are simulated under the model for individuals at the simulated locations, along with the expected numbers. Detections form a capthist object, a 3-D array with dimensions for individual \eqn{i}, occasion \eqn{j} and detector \eqn{k}*. Thus for each replicate and detected individual there are the original observations \eqn{y_{ijk}}, simulated observations \eqn{Y_{ijk}}, and expected counts \eqn{\mbox E (y_{ijk})}. At each replicate, two discrepancy statistics are calculated -- observed vs expected counts, and simulated vs expected counts -- and a record is kept of which of these discrepancy statistics is the larger (indicating poorer fit). The default discrepancy is the Freeman-Tukey statistic. 
-
-The key output is the proportion of replicates in which the simulated discrepancy exceeds the observed discrepancy. For perfect fit this will be about 0.5, and for poor fit it will approach zero.
-
-By default, tests are performed separately for three types of count: the numbers of detections of each individual (yi), at each detector (yk), and for each individual at each detector (yik).
+\code{MCgof} implements and extends the Monte Carlo resampling method of Choo et al. (2024) to emulate Bayesian posterior predictive checks (Gelman et al. 1996, Royle et al. 2014). Initial results suggest the approach is more informative than the deviance-based test proposed by Borchers and Efford (2008) and implemented in \code{\link{secr.test}}. 
+However, the tests have limited power.
 
 \code{MCgof} is under development. The structure of the output may change and 
 bugs may be found. See Warning below for exclusions.
-
-* Notation differs slightly from Choo et al. (2024), using \eqn{j} for occasion and \eqn{k} for detector to be consistent with usage in \pkg{secr} and elsewhere (e.g., Borchers and Fewster 2016).
 
 }
 
@@ -49,19 +40,24 @@ MCgof(object, nsim = 100, statfn = NULL, testfn = NULL, seed = NULL,
 
 \details{
 
-A capture history (capthist) object is viewed as an array y with dimensions for individuals (i), occasions (j) and detectors (k). The default \code{statfn} extracts counts yik, yi and yk from the margins of the observed and simulated capture histories.
+At each replicate parameter values are sampled from the multivariate-normal sampling distribution of the fitted model. The putative location of each detected individual is drawn from the spatial distribution implied by its observations and the resampled parameters (see \code{\link{fxi.secr}}); locations of undetected individuals are simulated from the complement of pdot(x) times D(x). 
+
+New detections are simulated under the model for individuals at the simulated locations, along with the expected numbers. Detections form a capthist object, a 3-D array with dimensions for individual \eqn{i}, occasion \eqn{j} and detector \eqn{k}*. Thus for each replicate and detected individual there are the original observations \eqn{y_{ijk}}, simulated observations \eqn{Y_{ijk}}, and expected counts \eqn{\mbox E (y_{ijk})}. Two discrepancy statistics are calculated for each replicate -- observed vs expected counts, and simulated vs expected counts -- and a record is kept of which of these discrepancy statistics is the larger (indicating poorer fit). 
+
+* Notation differs slightly from Choo et al. (2024), using \eqn{j} for occasion and \eqn{k} for detector to be consistent with usage in \pkg{secr} and elsewhere (e.g., Borchers and Fewster 2016).
+
+The default discrepancy (\code{testfn}) is the Freeman-Tukey statistic as in Choo et al. (2024). The statistic has this general form for \eqn{M} counts \eqn{y_m} with expected value \eqn{\mbox E(y_m)}:
+\deqn{T = \sum_{m=1}^{m=M} \left(\sqrt {y_m} - \sqrt{E(y_m)}\right)^2.}
+
+The key output of \code{MCgof} is the proportion of replicates in which the simulated discrepancy exceeds the observed discrepancy. For perfect fit this will be about 0.5, and for poor fit it will approach zero.
+
+By default, tests are performed separately for three types of count: the numbers of detections of each individual (yi), at each detector (yk), and for each individual at each detector (yik) extracted by the default \code{statfn} from the margins of the observed and simulated capture histories.
 
 \tabular{llll}{
 \eqn{y_{ik} = \sum_j y_{ijk}} \tab \tab individual x detector \cr 
 \eqn{y_{i} = \sum_j \sum_k y_{ijk}} \tab\tab individual \cr
 \eqn{y_{k} = \sum_i \sum_j y_{ijk}}  \tab\tab detector \cr 
 }
-
-The default \code{testfn} applies a Freeman-Tukey comparison as in Choo et al. (2024).
-
-The Freeman-Tukey statistic has this general form for \eqn{M} counts \eqn{y_m} with 
-expected value \eqn{\mbox E(y_m)}:
-\deqn{T = \sum_{m=1}^{m=M} \left(\sqrt {y_m} - \sqrt{E(y_m)}\right)^2.}
 
 Parallel processing is offered using multiple cores (CPUs) through the package \pkg{parallel} when ncores > 1. This differs from the usual multithreading paradigm in \pkg{secr} and does not rely on the environment variable set by \code{\link{setNumThreads}} \emph{except} that, if ncores = NULL, ncores will be set to the value from \code{setNumThreads}. The cluster type "FORK" is available only on Unix-like systems; it can require large amounts of memory, but is generally fast. A small value of ncores>1 may be optimal, especially With cluster type "PSOCK".
 
