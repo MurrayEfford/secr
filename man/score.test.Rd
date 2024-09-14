@@ -25,8 +25,8 @@ score.table(object, ..., sort = TRUE, dmax = 10)
   \item{betaindex}{ vector of indices mapping fitted values to parameters in the alternative model }
 
   \item{object}{ score.test object or list of such objects }
-  \item{sort}{ logical for whether output rows should be in descending order of AICc }
-  \item{dmax}{ threshold of dAICc for inclusion in model set }
+  \item{sort}{ logical for whether output rows should be in descending order of AIC }
+  \item{dmax}{ threshold of dAIC for inclusion in model set }
 
 }
 \details{
@@ -61,8 +61,8 @@ optimal settings.
 \code{score.table} summarises one or more score tests in the form of a
 model comparison table. The \dots argument here allows the inclusion of
 additional score test objects (note the meaning differs from
-\code{score.test}). Approximate AICc values are used to compute relative
-AIC model weights for all models within dmax AICc units of the best
+\code{score.test}). Approximate AIC values are used to compute relative
+AIC model weights for all models within dmax AIC units of the best
 model.
 
 If \code{ncores = NULL} then the existing value from the environment variable 
@@ -95,6 +95,8 @@ This implementation is experimental. The AIC values, and values derived
 from them, are approximations that may differ considerably from AIC
 values obtained by fitting and comparing the respective models. Use of
 the observed information matrix may not be optimal.
+
+Weights were based on AICc rather than AIC prior to version 4.7.0.
 
 }
 

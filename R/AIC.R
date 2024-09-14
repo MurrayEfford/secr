@@ -44,7 +44,7 @@ logLik.secr <- function(object, ...) {
 ############################################################################################
 
 AIC.secr <- function (object, ..., sort = TRUE, k = 2, dmax = 10, 
-                      criterion = c('AICc','AIC'), chat = NULL) {
+                      criterion = c('AIC','AICc'), chat = NULL) {
     allargs <- list(...)
     modelnames <- (c ( as.character(match.call(expand.dots=FALSE)$object),
                        as.character(match.call(expand.dots=FALSE)$...) ))
@@ -59,7 +59,7 @@ AIC.secr <- function (object, ..., sort = TRUE, k = 2, dmax = 10,
 ############################################################################################
 
 AIC.secrlist <- function (object, ..., sort = TRUE, k = 2, dmax = 10, 
-                          criterion = c('AICc','AIC'), chat = NULL) {
+                          criterion = c('AIC','AICc'), chat = NULL) {
     
     if (k != 2)
         warning ("k != 2 and AIC.secr output may be mis-labelled", call. = FALSE)

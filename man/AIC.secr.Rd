@@ -17,8 +17,8 @@ are included.
 }
 
 \usage{
-\method{AIC}{secr}(object, ..., sort = TRUE, k = 2, dmax = 10, criterion = c("AICc","AIC"), chat = NULL)
-\method{AIC}{secrlist}(object, ..., sort = TRUE, k = 2, dmax = 10, criterion = c("AICc","AIC"), chat = NULL)
+\method{AIC}{secr}(object, ..., sort = TRUE, k = 2, dmax = 10, criterion = c("AIC","AICc"), chat = NULL)
+\method{AIC}{secrlist}(object, ..., sort = TRUE, k = 2, dmax = 10, criterion = c("AIC","AICc"), chat = NULL)
 \method{logLik}{secr}(object, ...)
 secrlist(..., names = NULL)
 \method{[}{secrlist}(x, i)
@@ -28,7 +28,7 @@ secrlist(..., names = NULL)
   \item{object}{ \code{secr} object output from the function
       \code{\link{secr.fit}}, or a list of such objects with class c("secrlist", "list") }
   \item{\dots}{ other \code{secr} objects }
-  \item{sort}{ logical for whether rows should be sorted by ascending AICc }
+  \item{sort}{ logical for whether rows should be sorted by ascending AIC }
   \item{k}{ numeric, penalty per parameter to be used; always k = 2 in this method}
   \item{dmax}{ numeric, maximum AIC difference for inclusion in confidence set}
   \item{criterion}{ character, criterion to use for model comparison and
@@ -47,7 +47,7 @@ issued if \code{\link{AICcompatible}} reveals a problem.
 
 AIC is given by
 
-\deqn{ \mbox{AIC} = -2\log(L(\hat{\theta})) + 2K}{AICc = -2log(L(theta-hat)) + 2K}
+\deqn{ \mbox{AIC} = -2\log(L(\hat{\theta})) + 2K}{AIC = -2log(L(theta-hat)) + 2K}
 
 where \eqn{K} is the number of "beta" parameters estimated. 
 
@@ -63,7 +63,7 @@ number of rows in \code{capthist}).
 Model weights are calculated as \deqn{w_i = \frac{\exp(-\Delta_i / 2),}{
 \sum{\exp(-\Delta_i / 2)}}}{w_i = exp(-delta_i / 2) / sum{ exp(-delta_i
 / 2) },} where \eqn{\Delta}{delta} refers to differences in AIC or AICc depending on the
-argument `criterion'. AICc is widely used, but AIC may be better (Fletcher 2018, p. 60).
+argument `criterion' (see Notes).
 
 Models for which delta > \code{dmax} are given a weight of zero and are
 excluded from the summation. Model weights may be used to form
@@ -88,21 +88,20 @@ If chat (\eqn{\hat c}) is provided then quasi-AIC values are computed (\pkg{secr
 \value{
 
   A data frame with one row per model.  By default, rows are sorted by ascending 
-  'criterion' (default AICc).
+  'criterion' (default AIC see Notes).
 
   \item{model }{character string describing the fitted model}
   \item{detectfn }{shape of detection function fitted (halfnormal vs hazard-rate) }
   \item{npar }{number of parameters estimated}
   \item{logLik }{maximized log likelihood}
   \item{AIC }{Akaike's Information Criterion}
-  \item{AICc }{AIC with small-sample adjustment of Hurvich & Tsai
-    (1989)}
+  \item{AICc }{AIC with small-sample adjustment of Hurvich & Tsai (1989)}
   And depending on \code{criterion}:
-  \item{dAICc }{difference between AICc of this model and the one with smallest AICc}
-  \item{AICcwt }{AICc model weight}
-  or
   \item{dAIC }{difference between AIC of this model and the one with smallest AIC}
   \item{AICwt }{AIC model weight}
+  or
+  \item{dAICc }{difference between AICc of this model and the one with smallest AICc}
+  \item{AICcwt }{AICc model weight}
 
   \code{logLik.secr} returns an object of class `logLik' that has
   attribute \code{df} (degrees of freedom = number of estimated
@@ -161,11 +160,8 @@ compare two models.
 The issue of goodness-of-fit and possible adjustment of AIC for
 overdispersion has yet to be addressed (cf QAIC in MARK).
 
-From version 2.6.0 the user may select between AIC and AICc for
-comparing models, whereas previously only AICc was used and AICc weights
-were reported as `AICwt'). There is evidence that AIC may be better for
-model averaging even when samples are small sizes - Turek and Fletcher
-(2012).
+
+The user may select between AIC and AICc for comparing models. AICc is widely used, but AIC may be better for model averaging even when samples are small (Turek and Fletcher 2012; Fletcher 2019, p. 60). The default was changed to AIC in version 4.7.0).
 
 }
 

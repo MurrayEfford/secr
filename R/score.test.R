@@ -267,14 +267,20 @@ score.table <- function (object, ..., sort = TRUE, dmax = 10) {
         AIC = score.list[[1]]$AIC[1],
         AICc = score.list[[1]]$AICc[1]), output)
 
+    # if (nrow(output)>1) {
+    #     output$dAICc <- output$AICc - min(output$AICc)
+    #     OK <- abs(output$dAICc) < abs(dmax)
+    #     sumdAICc <- sum(exp(-output$dAICc[OK]/2))
+    #     output$AICwt <- ifelse ( OK, exp(-output$dAICc/2) / sumdAICc, 0)
+    # }
     if (nrow(output)>1) {
-        output$dAICc <- output$AICc - min(output$AICc)
-        OK <- abs(output$dAICc) < abs(dmax)
-        sumdAICc <- sum(exp(-output$dAICc[OK]/2))
-        output$AICwt <- ifelse ( OK, exp(-output$dAICc/2) / sumdAICc, 0)
+        output$dAIC <- output$AIC - min(output$AIC)
+        OK <- abs(output$dAIC) < abs(dmax)
+        sumdAIC <- sum(exp(-output$dAIC[OK]/2))
+        output$AICwt <- ifelse ( OK, exp(-output$dAIC/2) / sumdAIC, 0)
     }
-
-    output[,c('AIC','AICc','dAICc')] <- round(output[,c('AIC','AICc','dAICc')],3)
+    
+    output[,c('AIC','AICc','dAIC')] <- round(output[,c('AIC','AICc','dAIC')],3)
     if (!is.null(output$AICwt)) output[,'AICwt'] <- round(output[,'AICwt'],3)
 
     if (sort) output <- output [order(output$AICc),]

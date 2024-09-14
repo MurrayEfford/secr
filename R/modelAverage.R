@@ -22,7 +22,7 @@ modelAverage <- function (object, ...,
     dmax = 10, 
     covar = FALSE, 
     average = c('link', 'real'), 
-    criterion = c('AICc','AIC'), 
+    criterion = c('AIC','AICc'), 
     CImethod = c('Wald', 'MATA'),
     chat = NULL) 
 {
@@ -31,7 +31,7 @@ modelAverage <- function (object, ...,
 
 modelAverage.default <- function (object, ..., realnames = NULL, betanames = NULL,
     newdata = NULL, alpha = 0.05, dmax = 10, covar = FALSE, average =
-        c('link', 'real'), criterion = c('AICc','AIC'), CImethod =
+        c('link', 'real'), criterion = c('AIC','AICc'), CImethod =
         c('Wald', 'MATA'), chat = NULL) 
 {
     cat ('no modelAverage method for objects of class', class(object), '\n')
@@ -39,7 +39,7 @@ modelAverage.default <- function (object, ..., realnames = NULL, betanames = NUL
 
 modelAverage.secr <- function (object, ..., realnames = NULL, betanames = NULL,
     newdata = NULL, alpha = 0.05, dmax = 10, covar = FALSE, average =
-        c('link', 'real'), criterion = c('AICc','AIC'), CImethod =
+        c('link', 'real'), criterion = c('AIC','AICc'), CImethod =
         c('Wald', 'MATA'), chat = NULL) 
 {
     allargs <- list(...)
@@ -55,7 +55,7 @@ modelAverage.secr <- function (object, ..., realnames = NULL, betanames = NULL,
 
  modelAverage.secrlist <- function (object, ..., realnames = NULL, betanames = NULL,
     newdata = NULL, alpha = 0.05, dmax = 10, covar = FALSE, average =
-        c('link', 'real'), criterion = c('AICc','AIC'), CImethod =
+        c('link', 'real'), criterion = c('AIC','AICc'), CImethod =
         c('Wald', 'MATA'), chat = NULL) 
 {
      if (length(list(...)) > 0) {

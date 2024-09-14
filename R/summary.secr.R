@@ -162,7 +162,7 @@ print.summary.secr <- function (x, ...) {
 ############################################################################################
 
 AIC.summary.secr <- function (object, ..., sort = TRUE, k = 2, dmax = 10, 
-                              criterion = c('AICc','AIC')) {
+                              criterion = c('AIC','AICc')) {
     criterion <- match.arg(criterion)
     allargs <- list(object, ...)
     output <- do.call(rbind, lapply(allargs, '[[', "AICtable"))
