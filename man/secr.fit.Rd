@@ -370,7 +370,7 @@ AIC (secr0, secrb)
 
 ## typical result
 
-##                  model   detectfn npar    logLik     AIC    AICc dAICc  AICwt
+##                  model   detectfn npar    logLik     AIC    AICc dAIC   AICwt
 ## secr0 D~1 g0~1 sigma~1 halfnormal    3 -347.1210 700.242 700.928 0.000 0.7733
 ## secrb D~1 g0~b sigma~1 halfnormal    4 -347.1026 702.205 703.382 2.454 0.2267
 }
