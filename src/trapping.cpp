@@ -68,7 +68,6 @@ List trappingsingle (
   std::vector<double> miscparm(4);
 
   // MAIN LINE 
-  RNGScope scope;             // Rcpp initialise and finalise random seed 
   for (i=0; i<N; i++) {
     caught[i] = 0;   // has animal i been caught in session? 
   }
@@ -193,7 +192,6 @@ List trappingmulti (
   
   cump[0] = 0;
   nc = 0;
-  RNGScope scope;             // Rcpp initialise and finalise random seed 
   for (s=0; s<ss; s++) {
     for (i=0; i<N; i++) {
       hsum(i) = 0;
@@ -286,7 +284,6 @@ List trappingcapped (
   std::vector<double> miscparm(4);
   double Tski;
   
-  RNGScope scope;             // Rcpp initialise and finalise random seed 
   cumh[0] = 0;
   for (s=0; s<ss; s++) {
     for (k=0; k<kk; k++) {
@@ -365,7 +362,6 @@ List trappingproximity (
   std::vector<int> caught(N);       // caught in session 
   std::vector<int> value(kk*ss*N);  // return value array of trap locations n x s x k
   
-  RNGScope scope;             // Rcpp initialise and finalise random seed 
   for (s=0; s<ss; s++) {
     for (i=0; i<N; i++) {
       for (k=0; k<kk; k++) {
@@ -433,7 +429,6 @@ List trappingcount (
   std::vector<double> miscparm(4);
   double Tski;
   
-  RNGScope scope;             // Rcpp initialise and finalise random seed 
   for (s=0; s<ss; s++) {
     for (i=0; i<N; i++) {
       for (k=0; k<kk; k++) {
@@ -521,7 +516,6 @@ List trappingpolygon (
   double dx,dy,d;
   double Tski = 1.0;
   
-  RNGScope scope;             // Rcpp initialise and finalise random seed 
   if (npoly>maxnpoly) {
     return (List::create(Named("resultcode") = 2, 
                          Named("n") = nc, 
@@ -664,7 +658,6 @@ List trappingtransect (
   double H;
   double Tski;
   
-  RNGScope scope;             // Rcpp initialise and finalise random seed 
   cumk[0] = 0;
   for (k =0; k<ntransect; k++) {
     cumk[k+1] = cumk[k] + kk[k];
@@ -707,6 +700,7 @@ List trappingtransect (
             gsb(1) = sigma[s];
             gsb(2) = z[s];
             H = hintegral1Ncpp(fn, as<std::vector<double>>(gsb)) / gsb(0);
+            // H = hintegral1(*fn, par) / par[0];
             
             // flaw in following: integral1D can exceed diameter 
             gsbval(0,0) = gsb(0);
@@ -719,6 +713,8 @@ List trappingtransect (
             const RcppParallel::RMatrix<double> animalsR(animals);
             
             lambdak = gsb(0) * integral1DNRcpp (fn, i, 0, gsbvalR, trapsR, animalsR, n1, n2) / H;
+            // lambdak = par[0] * integral1D (*fn, i, 0, par, 1, traps, animals, n1, n2, sumk, *N, ex) / H;
+            
             count = rcount(binomN[s], lambdak, Tski);
             maxg = 0;
             if (count>0) {    // find maximum - approximate 
@@ -851,7 +847,6 @@ List trappingpolygonX (
   int maybecaught;
   double Tski;
   
-  RNGScope scope;             // Rcpp initialise and finalise random seed 
   cumk[0] = 0;
   for (k =0; k<npoly; k++) cumk[k+1] = cumk[k] + kk[k];
   workXY = (double*) R_alloc(N*ss*2, sizeof(double));
@@ -991,7 +986,6 @@ List trappingtransectX (
   double pks;
   double Tski;
   
-  RNGScope scope;             // Rcpp initialise and finalise random seed 
   cumk = (int *) R_alloc(ntransect+1, sizeof(int));
   cumk[0] = 0;
   for (k =0; k<ntransect; k++)
@@ -1026,6 +1020,8 @@ List trappingtransectX (
       gsb(1) = sigma[s];
       gsb(2) = z[s];
       H = hintegral1Ncpp(fn, as<std::vector<double>>(gsb));
+      // H = hintegral1(*fn, par);
+      
       gsbval(0,0) = gsb(0);
       gsbval(0,1) = gsb(1);
       gsbval(0,2) = gsb(2);
@@ -1049,6 +1045,9 @@ List trappingtransectX (
             
             sumhaz += -log(1 - gsb(0) * integral1DNRcpp (fn, i, 0, gsbvalR, trapsR, 
                                                     animalsR, n1, n2) / H);
+            // sumhaz += -log(1 - par[0] * integral1D (*fn, i, 0, par, 1, traps, 
+            //                                         animals, n1, n2, sumk, *N, ex) / H);
+            
           }
         }
         
@@ -1060,6 +1059,8 @@ List trappingtransectX (
             n2 = cumk[k+1]-1;
             lambdak = gsb(0) * integral1DNRcpp (fn, i, 0, gsbvalR, trapsR, 
                                            animalsR, n1, n2) / H;
+            // lambdak = par[0] * integral1D (*fn, i, 0, par, 1, traps, 
+            //                                animals, n1, n2, sumk, *N, ex) / H;
             pks = (1 - exp(-sumhaz)) * (-log(1-lambdak)) / sumhaz;
             count = unif_rand() < pks;
             maxg = 0;
@@ -1169,7 +1170,6 @@ List trappingsignal (
   NumericMatrix animalss = animals;
   double Tski;
   
-  RNGScope scope;             // Rcpp initialise and finalise random seed 
   worksignal = (double*) R_alloc(maxdet, sizeof(double));
   worknoise = (double*) R_alloc(maxdet, sizeof(double));
   sortorder = (int*) R_alloc(maxdet, sizeof(int));
@@ -1301,7 +1301,6 @@ List trappingtelemetry (
   double *sortkey;
   double Tski = 1.0;   // not defined !! 2012-12-18 
   
-  RNGScope scope;             // Rcpp initialise and finalise random seed 
   workXY = (double*) R_alloc(maxdet*2, sizeof(double));
   sortorder = (int*) R_alloc(maxdet, sizeof(int));
   sortkey = (double*) R_alloc(maxdet, sizeof(double));

@@ -503,8 +503,6 @@ List sightingchatcpp (
     chat somechat (mm, nc, cc0, grain, nsim, sightmodel, sumD, area, distrib, binomN, markocc, pID, 
                    group, gk0, hk0, density, PIA0, Tsk, pmix, chatmat, chatout);
     
-    RNGScope scope;             // Rcpp initialise and finalise random seed 
-    
     if (ncores>1) {
         // Run operator() on multiple threads
         parallelFor(0, nsim, somechat, grain, ncores);

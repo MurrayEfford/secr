@@ -174,8 +174,6 @@ List simdetectpointcpp (
                                    Named("value") = value,
                                    Named("resultcode") = 2);
     
-    // RNGScope scope;             // Rcpp initialise and finalise random seed 
-    
     if ((detect < -1) || (detect > 2)) {
         return(nullresult);
     }
@@ -476,8 +474,6 @@ List simdetectpolycpp (
     //========================================================
     // MAIN LINE 
 
-    RNGScope scope;             // Rcpp initialise and finalise random seed 
-    
     cumk[0] = 0;
     for (i=0; i<=nk; i++) {                               
         if (kk[i]<=0) break;
@@ -928,8 +924,6 @@ List simdetectsignalcpp (
                                    Named("signal") = signal,
                                    Named("value") = value,
                                    Named("resultcode") = 2);
-    
-    RNGScope scope;             // Rcpp initialise and finalise random seed 
     
     if ((detect != 5)) {
         return(nullresult);
