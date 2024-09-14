@@ -95,10 +95,6 @@ double mufnL (
 
 //---------------------------------------------------------------------
 
-void SegCircle (double *p1x, double *p1y, double *p2x, double *p2y, double *scx, double *scy, 
-    double *r, double *seg);
-//---------------------------------------------------------------------
-
 double SegCircle2 (double p1x, double p1y, double p2x, double p2y, double scx, double scy, 
     double r);
 
