@@ -736,6 +736,7 @@ Here is an index of **secr** functions classified by use (some minor functions a
 | `derivedCluster` | variance from replicated sampling units |
 | `derivedExternal` | variance from replicated sampling units |
 | `ellipse.secr` | confidence ellipses for estimated parameters |
+| `esa' | effective sampling area by individual |
 | `fxi.secr`       | probability density of home-range centre |
 | `LLsurface`* | compute likelihood surface and plot contours |
 | `logLik`*	| log-likelihood of fitted model |
