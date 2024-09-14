@@ -13,6 +13,7 @@ Other
     o  improved robustness of fxi.secr by setting occasional NaN to zero
     o  imports from mvtnorm
     o  list.secr.fit() now works with details$LLonly = TRUE
+    o  some internal functions are exported
 
 Changes in version 4.6.10 (2024-08-21)
 
