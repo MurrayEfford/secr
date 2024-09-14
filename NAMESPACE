@@ -228,6 +228,10 @@ export (append.capthist)
 export (model.average)
 export (ip.secr)
 
+# miscellaneous internals
+export (gethazard)
+export (reparameterize)
+
 # new generics
 export (reduce)
 export (rotate)
