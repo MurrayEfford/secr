@@ -1,7 +1,9 @@
 #include "poly.h"
 
-//#include <R_ext/Utils.h>
-//#include <R_ext/Applic.h>
+#include <R_ext/Utils.h>
+#include <R_ext/Applic.h>
+
+using namespace Rcpp;
 
 // C++ code for R package 'secr' 
 // Murray Efford 
@@ -49,7 +51,7 @@
 //     gsb[0] = p[0];
 //     gsb[1] = p[1];
 //     gsb[2] = p[2];
-//     fn = round(p[3]);
+//     fn = std::round(p[3]);
 //     mx = p[4];
 //     my = p[5];
 //     xy[0] = p[6];
@@ -83,7 +85,7 @@
 //     double work[400];
 //     int kk;
 //     p = (double*) ex;
-//     kk = round(p[9]);
+//     kk = std::round(p[9]);
 // 
 //     for (i=0; i<kk; i++) {
 //         poly[i] = p[i+10];

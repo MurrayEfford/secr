@@ -647,7 +647,6 @@ List trappingtransect (
   rpoint xy;
   rpoint animal;
   NumericVector gsb(3); 
-  NumericMatrix gsbval(1,3); 
   double lx;
   double maxg = 0;
   double lambdak;
@@ -690,8 +689,7 @@ List trappingtransect (
         animal.x = animals(i,0);
         animal.y = animals(i,1);
         for (k=0; k<ntransect; k++) {         // each transect 
-          // if (used[s * ntransect + k]) {  
-          Tski = Tsk[s * ntransect + k];
+          Tski = Tsk(s,k);
           if (fabs(Tski) > 1e-10) {          // 2012 12 18 
             
             n1 = cumk[k];
@@ -699,21 +697,10 @@ List trappingtransect (
             gsb(0) = lambda[s];
             gsb(1) = sigma[s];
             gsb(2) = z[s];
-            H = hintegral1Ncpp(fn, as<std::vector<double>>(gsb)) / gsb(0);
-            // H = hintegral1(*fn, par) / par[0];
+            H = hintegral1(fn, gsb) / gsb(0);
             
             // flaw in following: integral1D can exceed diameter 
-            gsbval(0,0) = gsb(0);
-            gsbval(0,1) = gsb(1);
-            gsbval(0,2) = gsb(2);
-            
-            // conversions for RMatrix input to integralxDNRcpp
-            const RcppParallel::RMatrix<double> gsbvalR(gsbval);
-            const RcppParallel::RMatrix<double> trapsR(traps);
-            const RcppParallel::RMatrix<double> animalsR(animals);
-            
-            lambdak = gsb(0) * integral1DNRcpp (fn, i, 0, gsbvalR, trapsR, animalsR, n1, n2) / H;
-            // lambdak = par[0] * integral1D (*fn, i, 0, par, 1, traps, animals, n1, n2, sumk, *N, ex) / H;
+            lambdak = gsb(0) * integral1D (fn, i, 0, gsb, 1, traps, animals, n1, n2, sumk, N) / H;
             
             count = rcount(binomN[s], lambdak, Tski);
             maxg = 0;
@@ -972,7 +959,6 @@ List trappingtransectX (
   rpoint xy;
   rpoint animal;
   NumericVector gsb(3);
-  NumericMatrix gsbval(1,3);
   double lx;
   double maxg = 0;
   double lambdak;
@@ -1019,17 +1005,8 @@ List trappingtransectX (
       gsb(0) = lambda[s];
       gsb(1) = sigma[s];
       gsb(2) = z[s];
-      H = hintegral1Ncpp(fn, as<std::vector<double>>(gsb));
-      // H = hintegral1(*fn, par);
-      
-      gsbval(0,0) = gsb(0);
-      gsbval(0,1) = gsb(1);
-      gsbval(0,2) = gsb(2);
-      
-      // conversions for RMatrix input to integralxDNRcpp
-      const RcppParallel::RMatrix<double> gsbvalR(gsbval);
-      const RcppParallel::RMatrix<double> trapsR(traps);
-      const RcppParallel::RMatrix<double> animalsR(animals);
+      // H = hintegral1Ncpp(fn, as<std::vector<double>>(gsb));
+      H = hintegral1(fn, gsb);
       
       for (i=0; i<N; i++) {                        // each animal 
         animal.x = animals(i,0);
@@ -1043,10 +1020,8 @@ List trappingtransectX (
             n1 = cumk[k];
             n2 = cumk[k+1]-1;
             
-            sumhaz += -log(1 - gsb(0) * integral1DNRcpp (fn, i, 0, gsbvalR, trapsR, 
-                                                    animalsR, n1, n2) / H);
-            // sumhaz += -log(1 - par[0] * integral1D (*fn, i, 0, par, 1, traps, 
-            //                                         animals, n1, n2, sumk, *N, ex) / H);
+            sumhaz += -log(1 - gsb(0) * integral1D (fn, i, 0, gsb, 1, traps,
+                                                    animals, n1, n2, sumk, N) / H);
             
           }
         }
@@ -1057,10 +1032,8 @@ List trappingtransectX (
           if (fabs(Tski) > 1e-10) {          // 2012 12 18 
             n1 = cumk[k];
             n2 = cumk[k+1]-1;
-            lambdak = gsb(0) * integral1DNRcpp (fn, i, 0, gsbvalR, trapsR, 
-                                           animalsR, n1, n2) / H;
-            // lambdak = par[0] * integral1D (*fn, i, 0, par, 1, traps, 
-            //                                animals, n1, n2, sumk, *N, ex) / H;
+            lambdak = gsb(0) * integral1D (fn, i, 0, gsb, 1, traps,
+                                           animals, n1, n2, sumk, N) / H;
             pks = (1 - exp(-sumhaz)) * (-log(1-lambdak)) / sumhaz;
             count = unif_rand() < pks;
             maxg = 0;

@@ -15,8 +15,22 @@
 
 #include "secr.h"
 
+#include <R_ext/Utils.h>
 #include <R_ext/Applic.h>    // for Rdqags
 
+using namespace Rcpp;
+
+double hintegral1 (int fn, const NumericVector par);
+double integral1D (int fn, int m, int c, 
+                   NumericVector gsbval, 
+                   int cc, 
+                   NumericMatrix traps,
+                   NumericMatrix mask, 
+                   int n1, 
+                   int n2, 
+                   int kk, 
+                   int mm);
+    
 double integral1DNRcpp
     (const int fn, 
      const int m, 
