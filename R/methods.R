@@ -93,18 +93,18 @@ usage.traps <- function (object, noccasions = NULL, ...)       {
     if (ms(object)) lapply(object, usage, noccasions, ...)
     else {
         usge <- attr(object,'usage',exact = TRUE)
-        if (is.null(usge)) {
+        if (is.null(usge) || length(usge)==0) {
             if (!is.null(noccasions)) {
                 usge <- matrix(1, nrow(object), noccasions)
             }
         }
         else {
             if (!is.null(noccasions)) {
-                if (noccasions < ncol(usage(traps))) {
+                if (noccasions < ncol(usge)) {
                     warning ("specified noccasions less than ncol of usage matrix; some columns discarded")
                     usge <- usge[,1:noccasions]
                 }
-                if (noccasions > ncol(usage(traps)))
+                if (noccasions > ncol(usge))
                     stop ("specified noccasions exceeds ncol of usage matrix")
             }
         }
