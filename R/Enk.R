@@ -35,24 +35,9 @@ Enk <- function (D, mask, traps, detectfn = 0,
     if (length(detectpars)<3) detectpars <- c(detectpars,0)
     miscparm <- numeric(4);   ## dummy
     
-    if (!is.null(usage(traps))) {
-        usge <- usage(traps)
-        if (is.null(noccasions)) {
-            noccasions <- ncol(usage(traps))
-        }
-        else {
-            if (noccasions < ncol(usage(traps))) {
-                warning ("specified noccasions less than ncol of usage matrix")
-            }
-            if (noccasions > ncol(usage(traps)))
-                stop ("specified noccasions exceeds ncol of usage matrix")
-        }
-    }
-    else {
-        if (is.null(noccasions))
-            stop("must specify noccasions when traps does not have usage attribute")
-        usge <- matrix(1, ndetector(traps), noccasions)
-    }
+    usge <- usage(traps, noccasions)
+    noccasions <- ncol(usge)
+    
     dettype <- detectorcode(traps, noccasions = noccasions)
     binomN <- getbinomN (binomN, detector(traps))
     markocc <- markocc(traps)

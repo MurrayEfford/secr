@@ -1,5 +1,6 @@
 \name{usage}
 \alias{usage}
+\alias{usage.traps}
 \alias{usage<-}
 \alias{effort}
 
@@ -11,11 +12,15 @@
 }
 
 \usage{
-usage(object, \dots)
+% usage(object, \dots)
+
+\method{usage}{traps}(object, noccasions = NULL, \dots)
+
 usage(object) <- value
 }
 \arguments{
   \item{object}{ \code{traps} object }
+  \item{noccasions}{ integer number of occasions (optional)}
   \item{value}{ numeric matrix of detectors x occasions }
   \item{\dots}{ other arguments (not used) }
 }

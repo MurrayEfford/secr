@@ -250,19 +250,7 @@ sim.capthist <- function (
         if (length(detector(traps)) != noccasions) 
             detector(traps) <- rep(detector(traps)[1], noccasions)
         
-        usge <- usage(traps)
-        if (is.null(usge))
-            usge <- matrix (1, nrow = ndetector(traps), ncol = noccasions)
-        else {
-            if (nrow(usge) != ndetector(traps))
-                stop ("invalid usage matrix; number of rows ",
-                      "must match number of detectors")
-            if (ncol(usge) != noccasions) {
-                noccasions <- ncol(usge)
-                warning ("'noccasions' does not match usage ",
-                         "attribute of 'traps'; ignored")
-            }
-        }
+        usge <- usage(traps, noccasions)
 
         validatepar <- function (x, xrange) {
             xname <- deparse(substitute(x))
