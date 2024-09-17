@@ -7,6 +7,7 @@ New features or changed behaviour of old functions
     o  blackbearCH new dataset of J. Laufenberg, F. van Manen and J. Clark
     o  default criterion for AIC and modelAverage changed from AICc to AIC
     o  score.table reports dAIC rather than dAICc
+    o  usage() method for traps objects acquires argument 'noccasions' to create from scratch
 
 Other
     o  internal addzeroCH() ignores covariate dataframe with zero columns

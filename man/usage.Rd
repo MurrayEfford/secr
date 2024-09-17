@@ -57,7 +57,8 @@ usage(object) <- value
 \value{
   
   usage(object) returns the usage matrix of the \code{traps}
-  object. \code{usage(object)} may be NULL.
+  object. \code{usage(object)} may be NULL. If \code{noccasions} is provided 
+  and there is no pre-existing matrix then a matrix of all ones will be generated.
   
 }
 

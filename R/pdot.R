@@ -68,7 +68,7 @@ pdot <- function (X, traps, detectfn = 0, detectpar = list(g0 = 0.2, sigma = 25,
 
     ntraps <- ndetector(traps)
     usge <- usage(traps, noccasions)
-    noccasions <- ncol(usge)
+    if (is.null(noccasions)) noccasions <- ncol(usge)
 
     detectpars <- detectpar[parnames(detectfn)]
     gl0 <- detectpars[[1]]   ## g0 or lambda0

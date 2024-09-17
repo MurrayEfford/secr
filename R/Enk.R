@@ -36,7 +36,7 @@ Enk <- function (D, mask, traps, detectfn = 0,
     miscparm <- numeric(4);   ## dummy
     
     usge <- usage(traps, noccasions)
-    noccasions <- ncol(usge)
+    if (is.null(noccasions)) noccasions <- ncol(usge)
     
     dettype <- detectorcode(traps, noccasions = noccasions)
     binomN <- getbinomN (binomN, detector(traps))

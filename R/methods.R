@@ -94,16 +94,19 @@ usage.traps <- function (object, noccasions = NULL, ...)       {
     else {
         usge <- attr(object,'usage',exact = TRUE)
         if (is.null(usge)) {
-            if (is.null(noccasions))
-                stop("must specify noccasions when traps does not have usage attribute")
-            usge <- matrix(1, nrow(object), noccasions)
+            if (!is.null(noccasions)) {
+                usge <- matrix(1, nrow(object), noccasions)
+            }
         }
         else {
-            if (noccasions < ncol(usage(traps))) {
-                warning ("specified noccasions less than ncol of usage matrix")
+            if (!is.null(noccasions)) {
+                if (noccasions < ncol(usage(traps))) {
+                    warning ("specified noccasions less than ncol of usage matrix; some columns discarded")
+                    usge <- usge[,1:noccasions]
+                }
+                if (noccasions > ncol(usage(traps)))
+                    stop ("specified noccasions exceeds ncol of usage matrix")
             }
-            if (noccasions > ncol(usage(traps)))
-                stop ("specified noccasions exceeds ncol of usage matrix")
         }
     }
     usge
