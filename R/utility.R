@@ -651,19 +651,6 @@ userD <- function (object) {
 
 #-------------------------------------------------------------------------------
 
-## mean and SD if x numeric
-getMeanSD <- function(xy) {
-    MeanSD <- function (x) {
-        if (is.numeric(x))
-            c(mean(x, na.rm = TRUE), sd(x, na.rm = TRUE))
-        else
-            c(NA,NA)
-    }
-    as.data.frame (apply(xy, 2, MeanSD))
-}
-
-#-------------------------------------------------------------------------------
-
 nclusters <- function (capthist) {
     if (ms(capthist)) {
 	lapply(capthist, nclusters)
@@ -1210,29 +1197,6 @@ inflatechull <- function (poly, r, ntheta = 60) {
 
 #-------------------------------------------------------------------------------
 
-maskarea <- function (mask, sessnum = 1) {
-    if (!ms(mask)) nrow(mask) * attr(mask,'area')
-    else nrow(mask[[sessnum]]) * attr(mask[[sessnum]],'area')
-}
-
-#-------------------------------------------------------------------------------
-
-masklength <- function (mask, sessnum = 1) {
-    if (!ms(mask)) nrow(mask) * attr(mask,'spacing')/1000
-    else nrow(mask[[sessnum]]) * attr(mask[[sessnum]],'spacing')/1000
-}
-
-#-------------------------------------------------------------------------------
-
-masksize <- function (mask, sessnum = 1) {
-    if (inherits(mask, 'linearmask'))
-        masklength(mask, sessnum)
-    else
-        maskarea(mask, sessnum)
-}
-
-#-------------------------------------------------------------------------------
-
 complete.beta <- function (object) {
     fb <- object$details$fixedbeta
     # modified 2022-04-02 for consistency with ipsecr
@@ -1518,41 +1482,6 @@ secr.lpredictor <- function (formula, newdata, indx, beta, field, beta.vcv=NULL,
         attr(temp, 'vcv') <- vcv
         return(temp)
     }
-}
-
-#-------------------------------------------------------------------------------
-
-edist <- function (xy1, xy2) {
-    nr <- nrow(xy1)
-    nc <- nrow(xy2)
-    x1 <- matrix(xy1[,1], nr, nc)
-    x2 <- matrix(xy2[,1], nr, nc, byrow=T)
-    y1 <- matrix(xy1[,2], nr, nc)
-    y2 <- matrix(xy2[,2], nr, nc, byrow=T)
-    sqrt((x1-x2)^2 + (y1-y2)^2)
-}
-
-#-------------------------------------------------------------------------------
-
-## least cost paths from mask including barriers to movement
-## use edist for equivalent Euclidean distances
-
-nedist <- function (xy1, xy2, mask, inf = Inf, ...) {
-    newargs <- list(...)
-    if (missing(mask)) mask <- xy2
-    noneuc <- covariates(mask)$noneuc
-    if (is.null(noneuc)) noneuc <- rep(1, nrow(mask))
-    defaultargs <- list(transitionFunction = mean, directions = 16)
-    args <- replace(defaultargs, names(newargs), newargs)
-    args$x <- raster(mask, values = noneuc)
-    if (requireNamespace('gdistance', quietly = TRUE)) {    ## 2015-01-23
-        tr <- do.call(gdistance::transition, args)
-        tr <- gdistance::geoCorrection(tr, type = "c", multpl = FALSE)
-        out <- gdistance::costDistance(tr, as.matrix(xy1), as.matrix(xy2))
-    }
-    else stop ("package gdistance is required for nedist")
-    if (is.finite(inf)) out[!is.finite(out)] <- inf
-    out
 }
 
 #-------------------------------------------------------------------------------
@@ -2223,14 +2152,6 @@ snap_points <- function(x, y, max_dist = 1000) {
 # random truncated Poisson
 rtpois <- function(n, lambda) {
     qpois(runif(n, dpois(0, lambda), 1), lambda)
-}
-#-------------------------------------------------------------------------------
-
-rlnormCV <- function(n, mean, cv) {
-  # n simulated values from log-normal distribution with mean = mean and CV = cv
-  sdlog <- log(cv^2 + 1)^0.5
-  meanlog <- log(mean) - sdlog^2/2
-  rlnorm(n, meanlog = meanlog, sdlog = sdlog)
 }
 #-------------------------------------------------------------------------------
 
