@@ -23,24 +23,27 @@ reparameterize(realparval, detectfn, details, mask, traps, D, s)
 
 \arguments{
 
-  \item{m}{}
-  \item{binomN}{}
-  \item{cc}{}
-  \item{hk}{}
-  \item{PIA}{}
-  \item{usge}{}
+  \item{m}{integer number of mask rows}
+  \item{binomN}{integer vector indicating detector type (-2 = multi-catch trap)}
+  \item{cc}{integer number of parameter combinations}
+  \item{hk}{numeric pre-computed hazards}
+  \item{PIA}{parameter index array}
+  \item{usge}{numeric matrix of detector usage}
   
-  \item{realparval}{}
-  \item{detectfn}{}
-  \item{details}{}
-  \item{mask}{}
-  \item{traps}{}
-  \item{D}{}
-  \item{s}{}
+  \item{realparval}{matrix of parameter values, one row per combination}
+  \item{detectfn}{integer code for detection function}
+  \item{details}{list of additional settings, including code for new paraeterisation}
+  \item{mask}{ \code{\link{mask}} object}
+  \item{traps}{\code{\link{traps}} object}
+  \item{D}{numeric scalar density}
+  \item{s}{integer occasion}
 
 }
 
 \details{
+
+\code{reparameterize} applies the alternative parameterisations in 
+\url{https://www.otago.ac.nz/density/pdfs/secr-parameterisations.pdf}.
 
 Not for general use. Refer to secr code.
 
@@ -48,9 +51,9 @@ Not for general use. Refer to secr code.
 
 \value{
 
-gethazard
+gethazard --
 
-reparameterize
+reparameterize -- matrix of recast parameter values for alternative parameterisation
 
 }
 
