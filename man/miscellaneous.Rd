@@ -1,7 +1,7 @@
 \name{Miscellaneous}
 
 \alias{gethazard}
-\alias{make.lookup}
+\alias{reparameterize}
 
 \title{Miscellaneous Internal Functions}
 
