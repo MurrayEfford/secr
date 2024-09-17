@@ -45,6 +45,7 @@
 ## [bias.D  disabled]
 ## pdot.contour
 ## MCgof
+## esa.plot
 
 ## * has ncores argument
 
@@ -53,7 +54,6 @@ pdot <- function (X, traps, detectfn = 0, detectpar = list(g0 = 0.2, sigma = 25,
 
     ## X should be 2-column dataframe, mask, matrix or similar
     ## with x coord in col 1 and y coord in col 2
-
     ncores <- setNumThreads(ncores)
     grain <- if (ncores==1) 0 else 1
 
@@ -89,22 +89,17 @@ pdot <- function (X, traps, detectfn = 0, detectpar = list(g0 = 0.2, sigma = 25,
     detectpars <- detectpar[parnames(detectfn)]
     gl0 <- detectpars[[1]]   ## g0 or lambda0
     sig <- detectpars[[2]]   ## sigma
-    if (length(detectpars)>2) z <- detectpars[[3]] 
-        
     
-    otherdetpar <- unlist(detectpar[3:4])  # assume scalar 
     ## g0/lambda0 or sigma is a matrix
     nonscalardetpar <- (is.matrix(gl0) || is.matrix(sig))
     gl0 <- matrix(gl0, nrow = ntraps, ncol = noccasions)
     sig <- matrix(sig, nrow = ntraps, ncol = noccasions)
     
+    otherdetpar <- unlist(detectpar[3:4])  # assume scalar 
     if ((detectfn>9) & (detectfn<14))  {
         otherdetpar <- c(otherdetpar, detectpar$cutval)
     }
-    else {
-        
-    }
-    if (length(detectpars)<1) otherdetpar <- c(otherdetpar,0)
+    otherdetpar <- c(otherdetpar, c(0,0))[1:2]   # pad to length 2
     
     miscparm <- numeric(4);   ## dummy
     
@@ -145,7 +140,7 @@ pdot <- function (X, traps, detectfn = 0, detectpar = list(g0 = 0.2, sigma = 25,
         1 - exp(-temp)   ## probability detected at least once, given total hazard
     }
     else {
-      distmat2 <- getuserdist (traps, X, userdist, sessnum = NA, NULL, NULL, 
+        distmat2 <- getuserdist (traps, X, userdist, sessnum = NA, NULL, NULL, 
                                miscparm, detectfn == 20)
       #-------------------------------------------------------------
       pdotpointcpp(
