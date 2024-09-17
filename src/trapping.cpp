@@ -1005,7 +1005,6 @@ List trappingtransectX (
       gsb(0) = lambda[s];
       gsb(1) = sigma[s];
       gsb(2) = z[s];
-      // H = hintegral1Ncpp(fn, as<std::vector<double>>(gsb));
       H = hintegral1(fn, gsb);
       
       for (i=0; i<N; i++) {                        // each animal 
