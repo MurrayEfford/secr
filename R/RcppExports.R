@@ -17,6 +17,10 @@ insidecpp <- function(xy, n1, n2, poly) {
     .Call('_secr_insidecpp', PACKAGE = 'secr', xy, n1, n2, poly)
 }
 
+movematcpp <- function(ntrap, trapno) {
+    .Call('_secr_movematcpp', PACKAGE = 'secr', ntrap, trapno)
+}
+
 naivedcpp <- function(sigma, wt, traps, animals, fn) {
     .Call('_secr_naivedcpp', PACKAGE = 'secr', sigma, wt, traps, animals, fn)
 }

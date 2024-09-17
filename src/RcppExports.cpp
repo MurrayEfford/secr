@@ -62,6 +62,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// movematcpp
+NumericMatrix movematcpp(int ntrap, const IntegerVector& trapno);
+RcppExport SEXP _secr_movematcpp(SEXP ntrapSEXP, SEXP trapnoSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type ntrap(ntrapSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type trapno(trapnoSEXP);
+    rcpp_result_gen = Rcpp::wrap(movematcpp(ntrap, trapno));
+    return rcpp_result_gen;
+END_RCPP
+}
 // naivedcpp
 double naivedcpp(const double sigma, const IntegerVector& wt, const NumericMatrix& traps, const NumericMatrix& animals, const int fn);
 RcppExport SEXP _secr_naivedcpp(SEXP sigmaSEXP, SEXP wtSEXP, SEXP trapsSEXP, SEXP animalsSEXP, SEXP fnSEXP) {
@@ -883,6 +895,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_secr_xydist2cpp", (DL_FUNC) &_secr_xydist2cpp, 2},
     {"_secr_nearestcpp", (DL_FUNC) &_secr_nearestcpp, 3},
     {"_secr_insidecpp", (DL_FUNC) &_secr_insidecpp, 4},
+    {"_secr_movematcpp", (DL_FUNC) &_secr_movematcpp, 2},
     {"_secr_naivedcpp", (DL_FUNC) &_secr_naivedcpp, 5},
     {"_secr_naivecap3cpp", (DL_FUNC) &_secr_naivecap3cpp, 7},
     {"_secr_getdenomcpp", (DL_FUNC) &_secr_getdenomcpp, 6},

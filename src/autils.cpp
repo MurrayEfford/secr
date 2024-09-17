@@ -1195,3 +1195,10 @@ double classmembership (
 }
 //--------------------------------------------------------------------------
 
+// [[Rcpp::export]]
+NumericMatrix movematcpp (int ntrap, const IntegerVector &trapno) {
+    NumericMatrix out (ntrap, ntrap);
+    for (int i=0; i<(trapno.size()-1); i++) out(trapno(i), trapno(i+1))++;
+    return(out);
+}
+                   
