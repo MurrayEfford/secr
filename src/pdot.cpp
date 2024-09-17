@@ -51,8 +51,8 @@ struct pdotpoint : public Worker {
             if (markocc[s]>0) allsighting = false;    /* capture occasions */
         }
         
-        gsbS[2] = otherdetpar[2];    // assumed constant
-        gsbS[3] = otherdetpar[3];    // assumed constant
+        gsbS[2] = otherdetpar[0];    // assumed constant
+        gsbS[3] = otherdetpar[1];    // assumed constant
         miscparmS = as<std::vector<double>>(miscparm);
     }
     
