@@ -108,8 +108,8 @@ usage.traps <- function (object, noccasions = NULL, ...)       {
                     stop ("specified noccasions exceeds ncol of usage matrix")
             }
         }
+        usge
     }
-    usge
 }
 
 markocc.default <- function (object, ...)       {
