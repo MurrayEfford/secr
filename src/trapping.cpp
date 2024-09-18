@@ -697,10 +697,10 @@ List trappingtransect (
             gsb(0) = lambda[s];
             gsb(1) = sigma[s];
             gsb(2) = z[s];
-            H = hintegral1(fn, gsb) / gsb(0);
+            H = hintegral1Dcpp(fn, gsb) / gsb(0);
             
-            // flaw in following: integral1D can exceed diameter 
-            lambdak = gsb(0) * integral1D (fn, i, 0, gsb, 1, traps, animals, n1, n2, sumk, N) / H;
+            // flaw in following: integral1Dcpp can exceed diameter 
+            lambdak = gsb(0) * integral1Dcpp (fn, i, 0, gsb, 1, traps, animals, n1, n2, sumk, N) / H;
             
             count = rcount(binomN[s], lambdak, Tski);
             maxg = 0;
@@ -1005,7 +1005,7 @@ List trappingtransectX (
       gsb(0) = lambda[s];
       gsb(1) = sigma[s];
       gsb(2) = z[s];
-      H = hintegral1(fn, gsb);
+      H = hintegral1Dcpp(fn, gsb);
       
       for (i=0; i<N; i++) {                        // each animal 
         animal.x = animals(i,0);
@@ -1019,7 +1019,7 @@ List trappingtransectX (
             n1 = cumk[k];
             n2 = cumk[k+1]-1;
             
-            sumhaz += -log(1 - gsb(0) * integral1D (fn, i, 0, gsb, 1, traps,
+            sumhaz += -log(1 - gsb(0) * integral1Dcpp (fn, i, 0, gsb, 1, traps,
                                                     animals, n1, n2, sumk, N) / H);
             
           }
@@ -1031,7 +1031,7 @@ List trappingtransectX (
           if (fabs(Tski) > 1e-10) {          // 2012 12 18 
             n1 = cumk[k];
             n2 = cumk[k+1]-1;
-            lambdak = gsb(0) * integral1D (fn, i, 0, gsb, 1, traps,
+            lambdak = gsb(0) * integral1Dcpp (fn, i, 0, gsb, 1, traps,
                                            animals, n1, n2, sumk, N) / H;
             pks = (1 - exp(-sumhaz)) * (-log(1-lambdak)) / sumhaz;
             count = unif_rand() < pks;

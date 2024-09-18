@@ -15,49 +15,67 @@
 
 #include "secr.h"
 
-#include <R_ext/Utils.h>
-#include <R_ext/Applic.h>    // for Rdqags
-
 using namespace Rcpp;
 
-double hintegral1 (int fn, const NumericVector par);
-double integral1D (int fn, int m, int c, 
-                   NumericVector gsbval, 
-                   int cc, 
-                   NumericMatrix traps,
-                   NumericMatrix mask, 
-                   int n1, 
-                   int n2, 
-                   int kk, 
-                   int mm);
+rpoint getxycpp(
+        const double l, 
+        const std::vector<double> &cumd, 
+        const RcppParallel::RMatrix<double> &line, 
+        const int n1, 
+        const int n2);
     
-double integral1DNRcpp
-    (const int fn, 
-     const int m, 
-     const int c, 
-     const RcppParallel::RMatrix<double> &gsbval, 
-     const RcppParallel::RMatrix<double> &traps,
-     const RcppParallel::RMatrix<double> &mask, 
-     const int n1, 
-     const int n2);
+//--------------------------
+// original using Rdqags
+//--------------------------
 
-//--------------------------
-// original 2-D using Rdqags
-//--------------------------
-double integral2Dcpp  (
-        const int &fn,
-        const int &m,
-        const int &c,
-        const RcppParallel::RMatrix<double> &gsbval,
-        const RcppParallel::RMatrix<double> &poly,
-        const RcppParallel::RMatrix<double> &mask,
-        const int &n1,
-        const int &n2,
-        double ex[]);
+double hintegral1Dcpp (int fn, const NumericVector par);
+
+double integral1Dcpp (
+        int fn, 
+        int m, 
+        int c, 
+        NumericVector gsbval, 
+        int cc, 
+        NumericMatrix traps,
+        NumericMatrix mask, 
+        int n1, 
+        int n2, 
+        int kk, 
+        int mm);
+
+// double integral2Dcpp  (
+//         const int &fn,
+//         const int &m,
+//         const int &c,
+//         const RcppParallel::RMatrix<double> &gsbval,
+//         const RcppParallel::RMatrix<double> &poly,
+//         const RcppParallel::RMatrix<double> &mask,
+//         const int &n1,
+//         const int &n2,
+//         double ex[]);
 
 //-----------------------------------------------------
 // alternative 2-D using RcppNumerical Numer::integrate
 //-----------------------------------------------------
+
+double hintegral1DNRcpp (
+        const int fn, 
+        const std::vector<double> &gsb);
+
+double hintegral2DNRcpp (
+        const int fn, 
+        const std::vector<double> &gsb); 
+
+double integral1DNRcpp (
+        const int fn, 
+        const int m, 
+        const int c, 
+        const RcppParallel::RMatrix<double> &gsbval, 
+        const RcppParallel::RMatrix<double> &traps,
+        const RcppParallel::RMatrix<double> &mask, 
+        const int n1, 
+        const int n2);
+
 double integral2DNRcpp  (
         const int &fn,
         const int &m,
@@ -68,14 +86,6 @@ double integral2DNRcpp  (
         const int &n1,
         const int &n2,
         const bool &convex);
-
-double hintegral1Ncpp (
-        const int fn, 
-        const std::vector<double> &gsb);
-
-double hintegral2Ncpp (
-        const int fn, 
-        const std::vector<double> &gsb); 
 
 #endif
 

@@ -1193,12 +1193,16 @@ double classmembership (
     return (pmixnx);
     
 }
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // [[Rcpp::export]]
-NumericMatrix movematcpp (int ntrap, const IntegerVector &trapno) {
-    NumericMatrix out (ntrap, ntrap);
-    for (int i=0; i<(trapno.size()-1); i++) out(trapno(i), trapno(i+1))++;
+IntegerMatrix movematcpp (int ntrap, const IntegerVector &trapno) {
+    IntegerMatrix out (ntrap, ntrap);
+    int i;
+    int nobs = trapno.size();
+    if (nobs>1) {
+        for (i=0; i<(nobs-1); i++) out(trapno(i)-1, trapno(i+1)-1) += 1;
+    }
     return(out);
 }
-                   
+//------------------------------------------------------------------------------

@@ -42,7 +42,7 @@ void justgr(double *x, int n, void *ex) {
     }
 }
 
-double hintegral1 (int fn, const NumericVector par) {
+double hintegral1Dcpp (int fn, const NumericVector par) {
     double ex[4];
     double a;
     int b;
@@ -125,7 +125,7 @@ void fx1 (double *x, int n, void *ex) {
     }
 }
 
-double integral1D (int fn, int m, int c,
+double integral1Dcpp (int fn, int m, int c,
                    NumericVector gsbval,
                    int cc,
                    NumericMatrix traps,
@@ -192,7 +192,7 @@ double integral1D (int fn, int m, int c,
     }
     Rdqags(fx1, ex, &ax, &bx, &epsabs, &epsrel, &result, &abserr, &neval, &ier,
            &limit, &lenw, &last, iwork, work);
-    if (ier != 0) Rprintf("ier error code in integral1D %5d\n", ier);
+    if (ier != 0) Rprintf("ier error code in integral1Dcpp %5d\n", ier);
     return (result);
 }
 

@@ -63,7 +63,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // movematcpp
-NumericMatrix movematcpp(int ntrap, const IntegerVector& trapno);
+IntegerMatrix movematcpp(int ntrap, const IntegerVector& trapno);
 RcppExport SEXP _secr_movematcpp(SEXP ntrapSEXP, SEXP trapnoSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -268,36 +268,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int& >::type grain(grainSEXP);
     Rcpp::traits::input_parameter< const int& >::type ncores(ncoresSEXP);
     rcpp_result_gen = Rcpp::wrap(pdotpointcpp(xy, traps, dist2, detect, Tsk, markocc, fn, gl0, sig, otherdetpar, miscparm, w2, binomN, grain, ncores));
-    return rcpp_result_gen;
-END_RCPP
-}
-// ontransectcpp
-bool ontransectcpp(NumericVector xy, NumericMatrix transect, int n1, int n2, double tol);
-RcppExport SEXP _secr_ontransectcpp(SEXP xySEXP, SEXP transectSEXP, SEXP n1SEXP, SEXP n2SEXP, SEXP tolSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type xy(xySEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type transect(transectSEXP);
-    Rcpp::traits::input_parameter< int >::type n1(n1SEXP);
-    Rcpp::traits::input_parameter< int >::type n2(n2SEXP);
-    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
-    rcpp_result_gen = Rcpp::wrap(ontransectcpp(xy, transect, n1, n2, tol));
-    return rcpp_result_gen;
-END_RCPP
-}
-// alongtransectcpp
-double alongtransectcpp(NumericVector xy, NumericMatrix transect, int n1, int n2, double tol);
-RcppExport SEXP _secr_alongtransectcpp(SEXP xySEXP, SEXP transectSEXP, SEXP n1SEXP, SEXP n2SEXP, SEXP tolSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type xy(xySEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type transect(transectSEXP);
-    Rcpp::traits::input_parameter< int >::type n1(n1SEXP);
-    Rcpp::traits::input_parameter< int >::type n2(n2SEXP);
-    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
-    rcpp_result_gen = Rcpp::wrap(alongtransectcpp(xy, transect, n1, n2, tol));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -667,6 +637,36 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// ontransectcpp
+bool ontransectcpp(NumericVector xy, NumericMatrix transect, int n1, int n2, double tol);
+RcppExport SEXP _secr_ontransectcpp(SEXP xySEXP, SEXP transectSEXP, SEXP n1SEXP, SEXP n2SEXP, SEXP tolSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type xy(xySEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type transect(transectSEXP);
+    Rcpp::traits::input_parameter< int >::type n1(n1SEXP);
+    Rcpp::traits::input_parameter< int >::type n2(n2SEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    rcpp_result_gen = Rcpp::wrap(ontransectcpp(xy, transect, n1, n2, tol));
+    return rcpp_result_gen;
+END_RCPP
+}
+// alongtransectcpp
+double alongtransectcpp(NumericVector xy, NumericMatrix transect, int n1, int n2, double tol);
+RcppExport SEXP _secr_alongtransectcpp(SEXP xySEXP, SEXP transectSEXP, SEXP n1SEXP, SEXP n2SEXP, SEXP tolSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type xy(xySEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type transect(transectSEXP);
+    Rcpp::traits::input_parameter< int >::type n1(n1SEXP);
+    Rcpp::traits::input_parameter< int >::type n2(n2SEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    rcpp_result_gen = Rcpp::wrap(alongtransectcpp(xy, transect, n1, n2, tol));
+    return rcpp_result_gen;
+END_RCPP
+}
 // trappingsingle
 List trappingsingle(const NumericVector& g0, const NumericVector& sigma, const NumericVector& z, const NumericMatrix& dist2, const NumericMatrix& Tsk, const int fn, const double w2, const IntegerVector& binomN, const bool bk);
 RcppExport SEXP _secr_trappingsingle(SEXP g0SEXP, SEXP sigmaSEXP, SEXP zSEXP, SEXP dist2SEXP, SEXP TskSEXP, SEXP fnSEXP, SEXP w2SEXP, SEXP binomNSEXP, SEXP bkSEXP) {
@@ -907,8 +907,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_secr_makelookupcpp", (DL_FUNC) &_secr_makelookupcpp, 1},
     {"_secr_nkpointcpp", (DL_FUNC) &_secr_nkpointcpp, 12},
     {"_secr_pdotpointcpp", (DL_FUNC) &_secr_pdotpointcpp, 15},
-    {"_secr_ontransectcpp", (DL_FUNC) &_secr_ontransectcpp, 5},
-    {"_secr_alongtransectcpp", (DL_FUNC) &_secr_alongtransectcpp, 5},
     {"_secr_fasthistoriescpp", (DL_FUNC) &_secr_fasthistoriescpp, 15},
     {"_secr_polygonhistoriescpp", (DL_FUNC) &_secr_polygonhistoriescpp, 22},
     {"_secr_polygonfxicpp", (DL_FUNC) &_secr_polygonfxicpp, 21},
@@ -923,6 +921,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_secr_simdetectpolycpp", (DL_FUNC) &_secr_simdetectpolycpp, 17},
     {"_secr_simdetectsignalcpp", (DL_FUNC) &_secr_simdetectsignalcpp, 13},
     {"_secr_expdetectpointcpp", (DL_FUNC) &_secr_expdetectpointcpp, 17},
+    {"_secr_ontransectcpp", (DL_FUNC) &_secr_ontransectcpp, 5},
+    {"_secr_alongtransectcpp", (DL_FUNC) &_secr_alongtransectcpp, 5},
     {"_secr_trappingsingle", (DL_FUNC) &_secr_trappingsingle, 9},
     {"_secr_trappingmulti", (DL_FUNC) &_secr_trappingmulti, 9},
     {"_secr_trappingcapped", (DL_FUNC) &_secr_trappingcapped, 9},

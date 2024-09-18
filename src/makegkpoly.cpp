@@ -65,10 +65,10 @@ struct Hckmpoly : public Worker {
           for (int i=0; i<npar; i++) gsb[i] = gsbval(c, i);
           
           if (dim==1)
-              H[c] = hintegral1Ncpp(detectfn, gsb);         // unbounded integrated hazard from radial function
+              H[c] = hintegral1DNRcpp(detectfn, gsb);    // unbounded integrated hazard from radial function
           else
-              H[c] = hintegral2Ncpp(detectfn, gsb);         // unbounded integrated hazard from radial function
-          for (int k=0; k<nk; k++) {                  // over parts 
+              H[c] = hintegral2DNRcpp(detectfn, gsb);    // unbounded integrated hazard from radial function
+          for (int k=0; k<nk; k++) {                    // over parts 
               for (std::size_t m = begin; m < end; m++) {
                   int gi = i3(c, k, m, cc, nk);
                   // strictly use hazard form : expected detections of animals at m 
@@ -79,13 +79,9 @@ struct Hckmpoly : public Worker {
                   int n2 = cumk[k+1]-1;
                   
                   if (dim==1) {
-                      // hk[gi] = gsb[0] * integral1DNRcpp (detectfn, m, 0, gsbval, traps, mask, n1, n2) / H[c];
                       hk[gi] = gsb[0] * integral1DNRcpp (detectfn, m, c, gsbval, traps, mask, n1, n2) / H[c];
-                      // if (grain<1 && m==512) Rprintf("c %d k %d m %d n1 %d n2 %d hk[gi] %8.6g \n",
-                      //     c, k, m, n1, n2, hk[gi]);
                   }
                   else {
-                      // hk[gi] = gsb[0] * integral2DNRcpp (detectfn, m, 0, gsbval, traps, mask, n1, n2, convex) / H[c];
                       hk[gi] = gsb[0] * integral2DNRcpp (detectfn, m, c, gsbval, traps, mask, n1, n2, convex) / H[c];
                   }
                   

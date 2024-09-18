@@ -53,9 +53,9 @@ struct hdotpoly : public Worker {
         }
         
         if (dim==1)
-            H = hintegral1Ncpp(detectfn, as<std::vector<double>>(gsb));
+            H = hintegral1DNRcpp(detectfn, as<std::vector<double>>(gsb));
         else
-            H = hintegral2Ncpp(detectfn, as<std::vector<double>>(gsb));     
+            H = hintegral2DNRcpp(detectfn, as<std::vector<double>>(gsb));     
         
     }
     

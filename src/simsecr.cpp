@@ -605,10 +605,6 @@ List simdetectpolycpp (
         // exclusive transect detectors  
         else if (detect == 4) {
             // ex = (double *) R_alloc(10 + 2 * maxvertices, sizeof(double));
-            // conversions for RMatrix input to integralxDNRcpp
-            const RcppParallel::RMatrix<double> trapsR(traps);
-            const RcppParallel::RMatrix<double> animalsR(animals);
-            
             for (i=0; i<N; i++) {                            // each animal 
                 animal.x = animals[i];
                 animal.y = animals[i + N];
@@ -623,11 +619,10 @@ List simdetectpolycpp (
                                       before, PIA0, gsb0val, PIA1, gsb1val);
                         n1 = cumk[k];
                         n2 = cumk[k+1]-1;
-                        H = hintegral1Ncpp(fn, as<std::vector<double>>(gsb));
+                        H = hintegral1Dcpp(fn, gsb);
                         for (i=0;i<3;i++) gsbval(0,i) = gsb(i);
-                        const RcppParallel::RMatrix<double> gsbvalR(gsbval);
                         sumhaz += -log(1 - gsb(0) * 
-                            integral1DNRcpp (fn, i, 0, gsbvalR, trapsR, animalsR, n1, n2) / H);
+                            integral1Dcpp (fn, i, 0, gsb, 1, traps, animals, n1, n2, sumk, N) / H);
                     }
                 }
                 // ------------------------------------ 
@@ -640,11 +635,11 @@ List simdetectpolycpp (
                                       before, PIA0, gsb0val, PIA1, gsb1val);
                         n1 = cumk[k];
                         n2 = cumk[k+1]-1;
-                        H = hintegral1Ncpp(fn, as<std::vector<double>>(gsb));
+                        H = hintegral1Dcpp(fn, gsb);
                         for (i=0;i<3;i++) gsbval(0,i) = gsb(i);
                         const RcppParallel::RMatrix<double> gsbvalR(gsbval);
-                        lambdak = gsb(0) * integral1DNRcpp (fn, i, 0, gsbvalR, trapsR, animalsR,
-                                      n1, n2) / H;
+                        lambdak = gsb(0) * integral1Dcpp (fn, i, 0, gsb, 1, traps, animals,
+                                      n1, n2, sumk, N) / H;
                         pks = (1 - exp(-sumhaz)) * (-log(1-lambdak)) / sumhaz;
                         count = unif_rand() < pks;
                         maxg = 0;
@@ -757,11 +752,11 @@ List simdetectpolycpp (
                                       before, PIA0, gsb0val, PIA1, gsb1val);
                         n1 = cumk[k];
                         n2 = cumk[k+1]-1;
-                        H = hintegral1Ncpp(fn, as<std::vector<double>>(gsb));
+                        H = hintegral1Dcpp(fn, gsb);
                         for (i=0;i<3;i++) gsbval(0,i) = gsb(i);
                         const RcppParallel::RMatrix<double> gsbvalR(gsbval);
-                        lambdak = gsb(0) * integral1DNRcpp (fn, i, 0, gsbvalR, trapsR, animalsR,
-                                      n1, n2) / H;
+                        lambdak = gsb(0) * integral1Dcpp (fn, i, 0, gsb, 1, traps, animals,
+                                      n1, n2, sumk, N) / H;
                         count = rcount(binomN[s], lambdak, Tski);  // numb detections on transect 
                         maxg = 0;
                         if (count>0) {                       // find maximum - approximate 
