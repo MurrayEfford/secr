@@ -49,6 +49,7 @@ CVa0 <- function (object, ...) {
 # can embrace h3? yes - as stands
 # can extend to esa?
 # DOES NOT handle individual covariates
+# EXCLUDES poly from 2024-09-19
 
 CVa <- function (object, sessnum = 1, ...) {
     if (ms(object)) {
@@ -67,6 +68,10 @@ CVa <- function (object, sessnum = 1, ...) {
     if ((nmix == 1) | (length(pred) != nmix))
         stop ("requires 2- or 3-class mixture")
     trps <- traps(capthists)
+    dettype <- detectorcode(trps)
+    if (!all(dettype %in%  c(0,1,2,5,8,13))) {
+        stop ("type CVa is available only for point detectors")
+    }
     binomN <- getbinomN(binomN, detector(trps))
     # temporary bug fix 2021-01-25
     # dpar <-  detectpar(object, sessnum=sessnum, ..., byclass = TRUE)
@@ -85,6 +90,11 @@ CVa <- function (object, sessnum = 1, ...) {
 #msk <- make.mask(traps, buffer = buffer, ...)
 
 CVpdot <- function (..., conditional = FALSE) {
+    trps <- eval(match.call(pdot, expand.dots=T)$traps)
+    dettype <- detectorcode(trps)
+    if (!all(dettype %in%  c(0,1,2,5,8,13))) {
+        stop ("type CVpdot is available only for point detectors")
+    }
     p <- pdot (...)
     if (conditional) {
         fx <- p/sum(p)    # distribution of captured animals

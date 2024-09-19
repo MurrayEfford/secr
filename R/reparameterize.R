@@ -50,6 +50,10 @@ reparameterize.esa <- function (realparval, mask, traps, detectfn, nocc) {
   cell <- getcellsize(mask)
   if (inherits(mask, 'linearmask'))
     stop ('esa parameterization not available for linear masks')
+  dettype <- detectorcode(traps)
+  if (!all(dettype %in%  c(0,1,2,5,8,13))) {
+      stop ("esa parameterization is available only for point detectors")
+  }
   realnames <- dimnames(realparval)[[2]]
   sigmaindex <- match('sigma', realnames)
   esaindex <- match('esa', realnames)

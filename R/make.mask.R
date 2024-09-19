@@ -183,6 +183,10 @@ make.mask <- function (traps, buffer = 100, spacing = NULL, nx = 64, ny = 64,
     }
     
     if (type=='pdot') {
+      dettype <- detectorcode(traps)
+      if (!all(dettype %in%  c(0,1,2,5,8,13))) {
+          stop ("type pdot is available only for point detectors")
+      }
       OK <- pdot(mask, traps = traps, ...) > pdotmin
       edge <- function (a,b) any (abs(a-b) < (spacing))
       mask <- mask[OK,]

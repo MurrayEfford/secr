@@ -8,5 +8,6 @@ src\*.o
 revdep
 extraR
 extraman
+extracpp
 README.md
 ^\.github$

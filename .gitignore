@@ -10,3 +10,5 @@ extraR/*.*
 extraman/*.*
 knownbugs.txt
 secr.Rproj
+extracpp/*.*
+.gitignore

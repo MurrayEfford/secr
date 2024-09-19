@@ -38,14 +38,17 @@
 ## CVa
 ## CVpdot
 ## esa*
-## derivedSystematic* (via Fewstervarn)
-## fx.total*
 ## make.mask (pdotmin option)
 ## reparameterize.esa
-## [bias.D  disabled]
 ## pdot.contour
-## MCgof
 ## esa.plot
+
+# fixed
+## fx.total*
+
+# poly supppressed
+## [bias.D  disabled]
+## MCgof
 
 ## * has ncores argument
 

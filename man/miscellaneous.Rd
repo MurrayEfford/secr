@@ -2,6 +2,7 @@
 
 \alias{gethazard}
 \alias{reparameterize}
+\alias{stdform}
 
 \title{Miscellaneous Internal Functions}
 
@@ -18,6 +19,8 @@ called by most users.
 gethazard(m, binomN, cc, hk, PIA, usge)
 
 reparameterize(realparval, detectfn, details, mask, traps, D, s)
+
+stdform(flist) 
 
 }
 
@@ -38,6 +41,8 @@ reparameterize(realparval, detectfn, details, mask, traps, D, s)
   \item{D}{numeric scalar density}
   \item{s}{integer occasion}
 
+  \item{flist}{ list of formulae }
+
 }
 
 \details{
@@ -54,6 +59,8 @@ Not for general use. Refer to secr code.
 gethazard --
 
 reparameterize -- matrix of recast parameter values for alternative parameterisation
+
+stdform -- list of formulae in standard form (named, no LHS)
 
 }
 

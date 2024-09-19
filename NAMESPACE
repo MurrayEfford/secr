@@ -167,7 +167,6 @@ export (LR.test)
 export (esa)
 export (derivedCluster)
 export (derivedSession)
-export (derivedSystematic)
 export (derivedMash)
 export (derivedExternal)
 export (derivednj)
@@ -231,6 +230,7 @@ export (ip.secr)
 # miscellaneous internals
 export (gethazard)
 export (reparameterize)
+export (stdform)
 
 # new generics
 export (reduce)

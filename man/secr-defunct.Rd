@@ -7,6 +7,7 @@
 \alias{secr.make.newdata}
 \alias{read.SPACECAP}
 \alias{write.SPACECAP}
+\alias{derivedSystematic}
 
 \title{Defunct Functions in Package \pkg{secr}}
 
@@ -17,6 +18,10 @@ These functions are no longer available in \pkg{secr}.
 }
 
 \usage{
+
+# Defunct in 4.7.0
+
+derivedSystematic()
 
 # Defunct in 4.6.2 (2023-09-30)
 

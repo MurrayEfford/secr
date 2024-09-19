@@ -1,4 +1,4 @@
-Changes in version 4.7.0 (2024-09-16)
+Changes in version 4.7.0 (2024-09-19)
 
 New features or changed behaviour of old functions
     o  detectpar() optionally returns values for each detector
@@ -16,6 +16,9 @@ Other
     o  list.secr.fit() now works with details$LLonly = TRUE
     o  some internal functions are exported
     o  trappingtransect, trappingtransectX revert to builtin integration
+    o  some minor functions restricted to point detectors (i.e. not area search)
+       CVa, CVpdot, reparameterize.esa, make.mask(type=pdot)
+    o  derivedSystematic() defunct
     
 Changes in version 4.6.10 (2024-08-21)
 

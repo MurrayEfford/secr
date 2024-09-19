@@ -14,7 +14,6 @@ These functions use multi-threading and call \code{setNumThreads} internally:
   \code{\link{autoini}} \cr
   \code{\link{confint.secr}} \cr
   \code{\link{derived.secr}} \cr
-  \code{\link{derivedSystematic}} \cr
   \code{\link{esa}} \cr
   \code{\link{fxi.secr}} and related functions \cr
   \code{\link{pdot}} \cr
