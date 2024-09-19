@@ -158,7 +158,6 @@ Huggins, R. M. (1989) On the statistical analysis of capture experiments. \emph{
   \code{\link{print.secr}},
   \code{\link{secr.fit}},
   \code{\link{empirical.varD}}
-  \code{\link{par.derived}}
 
 }
 

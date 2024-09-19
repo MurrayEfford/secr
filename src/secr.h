@@ -142,35 +142,8 @@ Rcpp::NumericVector gxy (const int fn,
 
 double hazard (double pp);
 
-void getdetspec (
-    const Rcpp::IntegerVector &detect, 
-    const int fn, 
-    const int nc,  
-    const int nc1, 
-    const int cc, 
-    const int nmix, 
-    const int nd, 
-    const int nk, 
-    const int ss, 
-    const int mm, 
-    const Rcpp::IntegerVector &PIA, 
-    const Rcpp::NumericVector &miscparm, 
-    const std::vector<int> &start, 
-    std::vector<double> &detspec);
-
-void geth2 (
-    const int nc1, 
-    const int cc, 
-    const int nmix, 
-    const int mm, 
-    const Rcpp::IntegerVector &PIA, 
-    const std::vector<double> &hk, 
-    const Rcpp::NumericMatrix &Tsk, 
-    std::vector<double> &h, 
-    std::vector<int> &hindex);
-
 //---------------------------------------------------------------------
-// 
+ 
 double gpois (int count, double lambda);
 double gbinom(int count, int size, double p);
 double pski ( int binomN, int count, double Tski, double g, double pI);
@@ -192,33 +165,13 @@ Rcpp::List makelookupcpp (
 // Functions to characterize detector type 
 // polygon, transect and signal detector types must be constant across occasions
 
-bool anyexclusive (const Rcpp::IntegerVector detect);
-bool anycapped (const Rcpp::IntegerVector detect);
 bool anypolygon (const Rcpp::IntegerVector detect);
 bool anytransect (const Rcpp::IntegerVector detect);
-bool anysignal (const Rcpp::IntegerVector detect);
+// bool anysignal (const Rcpp::IntegerVector detect);
 bool anytelemetry (const Rcpp::IntegerVector detect);
-bool alltelemetry (const Rcpp::IntegerVector detect);
-bool allpobool (const Rcpp::IntegerVector detect, bool allowsignal, bool allowtelem);
-bool allcapped  (const Rcpp::IntegerVector detect);
-bool allmulti (const Rcpp::IntegerVector detect);
 bool allpoint (const Rcpp::IntegerVector detect, bool allowsignal, bool allowtelem);
 
-bool anyvarying (const int nc, const int ss, const int nk, const int nmix,
-                 const Rcpp::IntegerVector &PIA0);
-bool anyb (
-    const Rcpp::NumericMatrix &gsbval, 
-    const Rcpp::NumericMatrix &gsb0val);
-
 // miscellaneous functions
-
-int nval(int detect0, int nc1, int cc, int ss, int nk);
-
-Rcpp::NumericMatrix makedist2cpp (
-    const Rcpp::NumericMatrix &traps, 
-    const Rcpp::NumericMatrix &mask);
-
-void squaredistcpp (Rcpp::NumericMatrix &dist2);
 
 bool insidecpp (
         const Rcpp::NumericVector &xy,
@@ -231,16 +184,6 @@ void fillngcpp(const int nc,
                const Rcpp::IntegerVector &grp, 
                std::vector<int> &ng);
 
-//---------------------------------------------------------------
-// Return probability individual n belongs to class x. This may be binary 
-//   (0/1) in the case of known class, or continuous if class is unknown 
-double classmembership (
-    const int n, 
-    const int x, 
-    const Rcpp::IntegerVector &knownclass, 
-    const std::vector<double> &pmixn, 
-    const int nmix);
-  
 void yab(double x[], int *i, int *np, double poly[], double *a, double *b);
 void fy(double *x, int n, void *ex);
 void fx(double *x, int n, void *ex);

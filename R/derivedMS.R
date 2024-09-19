@@ -11,6 +11,7 @@
 ## 2017-01-04 updated for telemetry (but needs more work)
 ## 2017-11-21 derived as generic method
 ## 2018-12-18 derived new argument bycluster
+## 2024-09-20 delete CLtotalD, CLtotalesa (unused)
 ############################################################################################
 
 
@@ -21,18 +22,6 @@ CLdensity <- function (beta, object, individuals, sessnum)
 # Only 1 session
 {
     sum(1 / esa (object, sessnum, beta)[individuals])
-}
-############################################################################################
-
-CLtotalD <- function (beta, object)
-## object is a fitted secr object (CL=T)
-# Return the density summed over sessions for given detection parameters in beta
-{
-    onesessionD <- function (sessnum) {
-        sum(1 / esa (object, sessnum, beta))
-    }
-    nsession <- object$design$R
-    sum(sapply(1:nsession, onesessionD))
 }
 ############################################################################################
 
@@ -81,19 +70,6 @@ CLmeanesa <- function (beta, object, individuals, sessnum, noccasions = NULL)
 
     a <- esa (object, sessnum, beta, noccasions=noccasions)[individuals]
     length(a) / sum (1/a)
-}
-############################################################################################
-
-CLtotalesa <- function (beta, object)
-## object is a fitted secr object (CL=T)
-# Return the esa summed over sessions for given detection parameters in beta
-{
-    onesessionesa <- function (sessnum) {
-        a <- esa (object, sessnum, beta)
-        length(a) / sum (1/a)
-    }
-    nsession <- object$design$R
-    sum(sapply(1:nsession, onesessionesa))
 }
 ############################################################################################
 
@@ -248,8 +224,7 @@ derived.secr <- function (object, sessnum = NULL, groups=NULL, alpha=0.05, se.es
             }
             temp
         }
-        
-        
+
         ## mainline
 
         setNumThreads(ncores)

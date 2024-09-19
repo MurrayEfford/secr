@@ -49,7 +49,7 @@ List gethcpp (int nc1, int cc, int nmix, int nk, int ss, int mm,
   // search hindex for each row index in turn, identifying first n,s with the index
   // fill h[] for this row
   hi = 0;
-  for (s=0; s < ss; s++) {    // scan by column (see geth2 in secr)
+  for (s=0; s < ss; s++) {    // scan by column 
     for (n=0; n < nc1; n++) {
       if (hindex(n,s) == hi) {
         for (k=0; k < nk; k++) {

@@ -606,24 +606,6 @@ double hazard (double pp) {
 // polygon, transect and signal detector types must be constant 
 // across occasions 
 
-bool anyexclusive (const IntegerVector detect) {
-    bool exclusive = false;
-    for (int s=0; s< detect.size(); s++) {
-        if ((detect[s]==0) || (detect[s]==3) || (detect[s]==4))
-            exclusive = true;
-    }
-    return exclusive;
-}
-
-bool anycapped  (const IntegerVector detect) {
-    bool capped = false;
-    for (int s=0; s<detect.size(); s++) {
-        if (detect[s]==8)
-            capped = true;
-    }
-    return capped;
-}
-
 bool anypolygon  (const IntegerVector detect) {
     bool polygon = false;
     for (int s=0; s<detect.size(); s++) {
@@ -642,59 +624,20 @@ bool anytransect (const IntegerVector detect) {
     return transect;
 }
 
-bool anysignal (const IntegerVector detect) {
-    bool signal = false;
-    for (int s=0; s<detect.size(); s++) {
-        if ((detect[s]==5) || (detect[s]==12))
-            signal = true;
-    }
-    return signal;
-}
+// bool anysignal (const IntegerVector detect) {
+//     bool signal = false;
+//     for (int s=0; s<detect.size(); s++) {
+//         if ((detect[s]==5) || (detect[s]==12))
+//             signal = true;
+//     }
+//     return signal;
+// }
 
 bool anytelemetry (const IntegerVector detect) {
     bool telemetry = false;
     for (int s=0; s<detect.size(); s++) {
         if (detect[s]==13)
             telemetry = true;
-    }
-    return telemetry;
-}
-
-//  check if we need to consider variation among individuals 
-// i.e. check if detection parameters constant for given s,k 
-bool anyvarying (
-        const int    nc,     // number of capture histories (or groups if PIA0 has that dim) 
-        const int    ss,     // number of occasions 
-        const int    nk,     // number of traps 
-        const int    nmix,   // number of mixture classes 
-        const IntegerVector &PIA0  // lookup which g0/sigma/b combination to use for given n, S, K [naive] 
-) {
-    int i,n,s,k,x;
-    int wxi;
-    bool indiv = false;
-    for (s=0; s<ss; s++) {
-        for (k=0; k<nk; k++) {
-            for (x=0; x<nmix; x++) {
-                wxi = i4(0,s,k,x,nc,ss,nk);       
-                i = PIA0[wxi];
-                for (n=1; n<nc; n++) {
-                    wxi = i4(n,s,k,x,nc,ss,nk);    
-                    if (i != PIA0[wxi]) {
-                        indiv = true; break;
-                    }
-                }
-            }
-        }
-    }
-    return(indiv);
-}
-//--------------------------------------------------------------------
-
-bool alltelemetry (const IntegerVector detect) {
-    bool telemetry = true;
-    for (int s=0; s<detect.size(); s++) {
-        if ((detect[s]!=13))
-            telemetry = false;
     }
     return telemetry;
 }
@@ -712,33 +655,6 @@ bool allpoint (const IntegerVector detect, bool allowsignal, bool allowtelem) {
     return OK;
 }
 
-bool allcapped  (const IntegerVector detect) {
-    bool OK = true;
-    for (int s=0; s<detect.size(); s++) {
-        OK = OK && (detect[s] == 8);
-    }
-    return OK;
-}
-
-bool allmulti (const IntegerVector detect) {
-    bool notmulti = false;
-    for (int s=0; s<detect.size(); s++) {
-        if (detect[s]!=0)
-            notmulti = true;
-    }
-    return (!notmulti);
-}
-//--------------------------------------------------------------------
-
-// Do parameter values for naive animals differ at all from those for other animals ?
-bool anyb (const NumericMatrix &gsbval, const NumericMatrix &gsb0val) {
-    bool identical = true;
-    for (int i=0; i<gsbval.size(); i++) {
-        if (gsbval[i] != gsb0val[i]) identical = false;
-    }
-    return (!identical);
-}
-//==============================================================================
 // 
 // std::vector<int> fillcumkcpp(
 //         const IntegerVector detect, 
@@ -859,51 +775,6 @@ void fillngcpp(
 
 //=============================================================
 
-int nval(int detect0, int nc1, int cc, int ss, int nk) {
-    // compute and allocate the space needed for ancillary data 
-    int nv;
-    if ((detect0==3) || (detect0==4))
-        nv = 2 + cc + nc1 * ss;
-    else if ((detect0==6) || (detect0==7))
-        nv = 2 + cc + nc1 * ss * nk;
-    else if (detect0==5)
-        nv = 4 + nc1 * ss * nk;
-    else if (detect0==12)    // signalnoise 
-        nv = 6 + nc1 * ss * nk;
-    else
-        nv = ss + nc1;    // default for (possibly mixed) 0,1,2,8,13 
-    return(nv);
-}
-//=============================================================
-
-NumericMatrix makedist2cpp (
-        const NumericMatrix &traps, 
-        const NumericMatrix &mask) 
-{
-    int kk, mm;
-    int k, m;
-    kk = traps.nrow();
-    mm = mask.nrow();
-    NumericMatrix dist2(kk,mm);
-    // fill array with squared Euclidean distances 
-    for (k=0; k<kk; k++)
-        for (m=0; m<mm; m++) 
-            dist2(k,m) = d2cpp(k, m, traps, mask);
-    return(dist2);
-}
-//--------------------------------------------------------------------------
-
-void squaredistcpp (
-        NumericMatrix &dist2)
-{
-    int i;
-    // just square the inputs 
-    for (i=0; i<dist2.size(); i++)
-        dist2[i] = dist2[i] * dist2[i];
-}
-
-//--------------------------------------------------------------------------
-
 // int getstart(
 //         const IntegerVector &detect, 
 //         std::vector<int> &start, 
@@ -950,168 +821,6 @@ void squaredistcpp (
 //     }
 //     return(nd);
 // }
-//=============================================================
-
-void getdetspec (
-        const IntegerVector &detect, 
-        const int fn, 
-        const int nc,  
-        const int nc1, 
-        const int cc, 
-        const int nmix, 
-        const int nd, 
-        const int nk, 
-        const int ss, 
-        const int mm, 
-        const IntegerVector &PIA, 
-        const NumericVector &miscparm, 
-        const std::vector<int> &start, 
-        std::vector<double> &detspec) {
-    
-    // detector-type-specific data passed later to prwi functions 
-    
-    // mixtures are group-specific for full likelihood, and     
-    // individual-specific for conditional likelihood           
-    
-    int i,s;
-    
-    // default for (possibly mixed) point detectors and telemetry 
-    if (allpoint(detect, 0, 1)) {
-        for(s=0; s<ss; s++)
-            detspec[s] = (double) detect[s];
-        
-        // start position (in xy) of telemetry fixes of each animal 
-        if (anytelemetry(detect)) {
-            for (i=0; i< nc; i++)
-                detspec[ss+i] = (double) start[i];
-        }
-    }
-    //  polygonX and transectX 
-    else if ((detect[0] == 3) || (detect[0] == 4)) {
-        detspec[0] = (double) nk;
-        detspec[1] = (double) nd;
-        // pass index of first detection of each animal + occasion 
-        // maximum 1 per polygon as exclusive 
-        for (i=0; i< (nc * ss); i++)
-            detspec[2+cc+i] = (double) start[i];
-    }
-    //  polygon and transect 
-    else if ((detect[0] == 6) || (detect[0] == 7)) {
-        detspec[0] = (double) nk;
-        detspec[1] = (double) nd;
-        // pass index of first detection of each animal + occasion 
-        // maximum 1 per polygon as exclusive 
-        for (i=0; i< (nc * ss * nk); i++)
-            detspec[2+cc+i] = (double) start[i];
-    }
-    // signal  
-    else if (detect[0] == 5) {    
-        for (i=0; i<3; i++) detspec[i]= miscparm[i];
-        detspec[3]= ((fn == 11) || (fn == 13));     // spherical 
-        for (i=0; i< (nc * ss * nk); i++)
-            detspec[4+i] = (double) start[i];
-    }
-    // signal-noise 
-    else if (detect[0] == 12) {                           
-        detspec[0] = (double) nk;
-        detspec[1] = (double) nd;                     // number of detections or detectors??
-        detspec[2]= miscparm[0];                      // cut 
-        detspec[3]= miscparm[1];                      // noise mean 
-        detspec[4]= miscparm[2];                      // noise sd 
-        detspec[5]= ((fn == 11) || (fn == 13));     // spherical 
-        for (i=0; i< (nc * ss * nk); i++)
-            detspec[6+i] = (double) start[i];
-    }
-}
-//=============================================================
-
-void geth2 (
-        const int nc1, 
-        const int cc, 
-        const int nmix, 
-        const int mm, 
-        const IntegerVector &PIA, 
-        const std::vector<double> &hk, 
-        const NumericMatrix &Tsk, 
-        std::vector<double> &h, 
-        std::vector<int> &hindex) 
-    
-    // This function fills a vector h representing a 4-D (x,m,n,s) array with
-    // the total hazard (summed across traps) for animal n on occasion s 
-    // wrt mask point m and latent class x
-    
-    // Computation is limited to combinations of n, s with unique parameter combinations 
-    // (values in PIA and Tsk) and the returned n x s matrix 'hindex' contains the index for
-    // each n, s to the unique total in h (for given x, m).
-    
-    // adapted from gethcpp in openCR 2018-11-09
-    // replaces defective geth
-    
-{
-    int c,i,m,n,k,x,gi,hi,s;
-    int nk = Tsk.nrow();
-    int ss = Tsk.ncol(); 
-    double Tski;          
-    int row, col;
-    int nrow, ncol;
-    int uniquerows;
-    List lookuplist;
-    nrow = nc1*ss;
-    ncol = nk*(nmix+1);
-    NumericMatrix xmat(nrow, ncol);
-    
-    //---------------------------------------
-    // find unique combinations
-    for (n=0; n<nc1; n++) {
-        for (s=0; s<ss; s++) {
-            row = nc1*s+n;
-            for (k=0; k<nk; k++) {                         
-                for(x=0; x<nmix; x++) {
-                    col = x * nk + k;
-                    xmat(row,col) = PIA[i4(n,s,k,x, nc1, ss, nk)];
-                }
-                col = nmix * nk + k;  // append usage for this trap and occasion
-                xmat(row,col) = Tsk(k,s);		
-            }
-        }
-    }
-    
-    lookuplist = makelookupcpp(xmat);
-    uniquerows = lookuplist["uniquerows"];
-    hindex = as <std::vector<int> >(lookuplist["index"]);
-    
-    // need zero-based index 
-    for (i=0; i< nrow; i++) hindex[i]--;
-    
-    // zero array for accumulated hazard h
-    for (i=0; i<(uniquerows * mm * nmix); i++) h[i] = 0;
-    
-    // search hindex for each row index in turn, identifying first n,s with the index
-    // fill h[] for this row
-    hi = 0;
-    for (s=0; s < ss; s++) {    // scan by occasion as new hi appear in column order
-        for (n=0; n < nc1; n++) {
-            if (hindex[s*nc1 + n] == hi) {
-                for (k=0; k < nk; k++) {
-                    Tski = Tsk[s * nk + k];
-                    for (x=0; x<nmix; x++) {
-                        c = PIA[i4(n,s,k,x, nc1, ss, nk)]-1;
-                        // c<0 (PIA=0) implies detector not used on this occasion
-                        if (c >= 0) {
-                            for (m=0; m<mm; m++) {
-                                gi = i3(c,k,m,cc,nk);
-                                h[i3(x,m,hi, nmix, mm)] += Tski * hk[gi];
-                            }
-                        }
-                    }
-                }
-                hi++;
-            } 
-            if (hi >= uniquerows) break;
-        }
-        if (hi >= uniquerows) break;
-    }   
-}
 //=============================================================
 
 // probability of count for session s, detector k, animal i
@@ -1163,37 +872,6 @@ double pski ( int binomN,
     return (result);
 }
 //--------------------------------------------------------------------------
-
-double classmembership (
-        const int n, 
-        const int x, 
-        const IntegerVector &knownclass, 
-        const std::vector<double> &pmixn, 
-        const int nmix) {
-    
-    // Return probability individual n belongs to class x. This may be binary 
-    //   (0/1) in the case of known class, or continuous if class is unknown 
-    
-    double pmixnx = 0;
-    int knownx = -1;
-    
-    if (knownclass[n] == 1) 
-        knownx = -1;                         // unknown class 
-    else
-        knownx = R::imax2(0, knownclass[n]-2);  // known class 
-    
-    // unknown class : weighted by probability of membership  
-    // known class does not require probability of membership 
-    if (knownx < 0)
-        pmixnx = pmixn[nmix * n + x];
-    else if (knownx == x)
-        pmixnx = 1.0;
-    else 
-        pmixnx = 0.0;
-    return (pmixnx);
-    
-}
-//------------------------------------------------------------------------------
 
 // [[Rcpp::export]]
 IntegerMatrix movematcpp (int ntrap, const IntegerVector &trapno) {
