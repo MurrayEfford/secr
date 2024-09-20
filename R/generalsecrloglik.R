@@ -265,7 +265,7 @@ integralprw1poly <- function (detectfn, realparval0, haztemp, hk, H, pi.density,
   nr <- nrow(CH0)       ## unique naive animals (1 or nc)
   m <- nrow(pi.density)
   nmix <- nrow(pmixn)
-  if (length(grp)<=1) grp <- rep(1,nc)
+  if (length(grp)<=1) grp <- rep(1,nr)
   s <- ncol(usge)
   ngroup <- length(levels(grp))
   sump <- numeric(nc)
