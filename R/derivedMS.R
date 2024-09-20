@@ -12,6 +12,7 @@
 ## 2017-11-21 derived as generic method
 ## 2018-12-18 derived new argument bycluster
 ## 2024-09-20 delete CLtotalD, CLtotalesa (unused)
+## 2024-09-20 fdHess for gradients
 ############################################################################################
 
 
@@ -25,35 +26,11 @@ CLdensity <- function (beta, object, individuals, sessnum)
 }
 ############################################################################################
 
-CLgradient <- function (object, individuals, sessnum, eps=0.001)
+CLgradient <- function (object, individuals, sessnum, ...)
 ## object is a fitted secr object (CL=T)
 ## individuals is vector indexing the subset of a to be used
 {
-  beta <- object$fit$par
-  if (object$detectfn %in% c(0,2,9)) {    ## halfnormal, exponential and binary SS have just 2 parameters
-      est <- beta[1:2]
-      g   <- double(2)
-  } else {                       ## other detectfn have 3 parameters
-      est <- beta[1:3]
-      g   <- double(3)
-  }
-
-  est <- beta
-  g   <- beta
-
-  ## consider replacing this with packaged, optimized gradient function (nlme fnHess?)
-
-  grad <- function(i, est, eps) {
-          temp     <- est[i]
-          if (temp != 0.0) delta <- eps * abs(temp)
-          else             delta <- eps
-          est[i]  <- temp - delta
-          fminus  <- CLdensity (est, object, individuals, sessnum)
-          est[i]  <- temp + delta
-          fplus   <- CLdensity (est, object, individuals, sessnum)
-          (fplus - fminus) / (2.0 * delta)
-  }
-  sapply(1:length(est), grad, est = est, eps = eps)
+  nlme::fdHess(object$fit$par, CLdensity, object, individuals, sessnum, ...)$gradient
 }
 ############################################################################################
 
@@ -73,35 +50,9 @@ CLmeanesa <- function (beta, object, individuals, sessnum, noccasions = NULL)
 }
 ############################################################################################
 
-esagradient <- function (object, individuals, sessnum, noccasions = NULL, eps=0.001)
-##  noccasions = NULL added 2011-04-04
+esagradient <- function (object, individuals, sessnum, noccasions = NULL, ...)
 {
-  beta <- object$fit$par
-  if (object$detectfn %in% c(0,2,9)) {    ## halfnormal, exponential and binary SS
-                                          ## have just 2 parameters
-      est <- beta[1:2]
-      g   <- double(2)
-  } else {                       ## other detectfn have 3 parameters
-      est <- beta[1:3]
-      g   <- double(3)
-  }
-
-  est <- beta
-  g   <- beta
-
-  ## consider replacing this with fdHess from package nlme
-
-  grad <- function (i, est, eps) {
-      temp     <- est[i]
-      if (temp != 0.0) delta <- eps * abs(temp)
-      else             delta <- eps
-      est[i]  <- temp - delta
-      fminus  <- CLmeanesa (est, object, individuals, sessnum, noccasions)
-      est[i]  <- temp + delta
-      fplus   <- CLmeanesa (est, object, individuals, sessnum, noccasions)
-      (fplus - fminus) / (2.0 * delta)
-  }
-  sapply(1:length(est), grad, est=est, eps=eps)
+  nlme::fdHess(object$fit$par, CLmeanesa, object, individuals, sessnum, noccasions, ...)$gradient
 }
 
 ############################################################################################
@@ -150,7 +101,7 @@ derived.secr <- function (object, sessnum = NULL, groups=NULL, alpha=0.05, se.es
             output <- lapply(jj, derived, object = object, groups = groups,
                              alpha = alpha, se.esa = se.esa, se.D = se.D,
                              loginterval = loginterval, distribution = distribution, 
-                             ncores = ncores, bycluster = bycluster)
+                             ncores = ncores, bycluster = bycluster, ...)
             names(output) <- sessnames
             output
         }
@@ -160,12 +111,12 @@ derived.secr <- function (object, sessnum = NULL, groups=NULL, alpha=0.05, se.es
             s2 <- switch (tolower(object$details$distribution),
                           poisson  = sum (1/selected.a^2),
                           binomial = sum (( 1 - selected.a / A) / selected.a^2))
-            CLg  <- CLgradient (object, selection, asess)
+            CLg  <- CLgradient (object, selection, asess, ...)
             varDn <- CLg %*% object$beta.vcv %*% CLg
             list(SE=sqrt(s2 + varDn), s2=s2, varDn=varDn)
         }
         se.deriveesa <- function (selection, object, asess) {
-            CLesa  <- esagradient (object, selection, asess)
+            CLesa  <- esagradient (object, selection, asess, ...)
             sqrt(CLesa %*% object$beta.vcv %*% CLesa)
         }
         weighted.mean <- function (a) {
