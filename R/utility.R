@@ -790,29 +790,6 @@ HPX <- function (r, pars, cutval) {
 
 #-------------------------------------------------------------------------------
 
-gradient <- function (pars, fun, eps=0.001, ...)
-## quick & dirty 2009 09 14
-## used by plot.secr for delta method limits
-{
-  est <- pars
-  g   <- pars
-  for (i in 1:length(est))
-  {
-      temp     <- est[i]
-      if (temp != 0.0) delta <- eps * abs(temp)
-      else             delta <- eps
-      est[i]  <- temp - delta
-      fminus  <- fun (est, ...)
-      est[i]  <- temp + delta
-      fplus   <- fun (est, ...)
-      g[i]    <- (fplus - fminus) / (2.0 * delta)
-      est[i]  <- temp;
-  }
-  g
-}
-
-#-------------------------------------------------------------------------------
-
 # transformation tidy up 2021-12-16
 # arbitrary link function specified with functions X, invX, se.invX
 
