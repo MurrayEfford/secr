@@ -43,7 +43,7 @@ esa(object, sessnum = 1, beta = NULL, real = NULL, noccasions = NULL,
   \item{beta}{ vector of fitted parameters on transformed (link) scale }
   \item{real}{ vector of `real' parameters } 
   \item{noccasions}{ integer number of sampling occasions (see Details) } 
-  \item{...}{other arguments (not used)}
+  \item{...}{other arguments passed to \code{\link{fdHess}}}
 }
 
 \details{
@@ -118,6 +118,9 @@ suppressed with \code{se.esa} and \code{se.D} as desired.
 
 For computing \code{derived} across multiple models in parallel see
 \code{\link{par.derived}}.
+
+From \pkg{secr} 4.7.0 the \dots argument may be used to control the step size 
+(.relStep) used by \code{\link{fdHess}} when estimating gradients for SE(D) and SE(esa).
 
 }
 
