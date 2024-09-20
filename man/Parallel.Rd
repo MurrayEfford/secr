@@ -15,7 +15,7 @@ These functions use multi-threading and call \code{setNumThreads} internally:
   \code{\link{confint.secr}} \cr
   \code{\link{derived.secr}} \cr
   \code{\link{esa}} \cr
-  \code{\link{fxi.secr}} and related functions \cr
+  \code{\link{fxi}} and related functions \cr
   \code{\link{pdot}} \cr
   \code{\link{region.N}} \cr
   \code{\link{score.test}} \cr

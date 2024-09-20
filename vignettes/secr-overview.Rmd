@@ -737,7 +737,7 @@ Here is an index of **secr** functions classified by use (some minor functions a
 | `derivedExternal` | variance from replicated sampling units |
 | `ellipse.secr` | confidence ellipses for estimated parameters |
 | `esa' | effective sampling area by individual |
-| `fxi.secr`       | probability density of home-range centre |
+| `fxi`       | probability density of home-range centre |
 | `LLsurface`* | compute likelihood surface and plot contours |
 | `logLik`*	| log-likelihood of fitted model |
 |	`LR.test`	| likelihood-ratio test of two models |
@@ -759,8 +759,8 @@ Here is an index of **secr** functions classified by use (some minor functions a
 | `suggest.buffer`	| find buffer width to keep bias within bounds |
 | <a name="graphics"></a> **Specialised graphics** | |
 | `buffer.contour`	| concave and convex boundary strips |
-| `fx.total`	| summed pdfs of home-range centre pdfs (use with `plot.Dsurface`) |
-| `fxi.contour`  | contour plot of home-range centre pdf(s) |
+| `fxTotal`	| summed pdfs of home-range centre pdfs (use with `plot.Dsurface`) |
+| `fxiContour`  | contour plot of home-range centre pdf(s) |
 | `pdot.contour`	| contour plot of detection probability |
 | `strip.legend`	| add colour legend to existing plot |
 | <a name="convert"></a> **Convert or export data** | |

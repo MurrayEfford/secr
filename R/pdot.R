@@ -44,7 +44,7 @@
 ## esa.plot
 
 # fixed
-## fx.total*
+## fxTotal*
 
 # poly supppressed
 ## [bias.D  disabled]

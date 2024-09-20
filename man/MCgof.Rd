@@ -40,7 +40,7 @@ MCgof(object, nsim = 100, statfn = NULL, testfn = NULL, seed = NULL,
 
 \details{
 
-At each replicate parameter values are sampled from the multivariate-normal sampling distribution of the fitted model. The putative location of each detected individual is drawn from the spatial distribution implied by its observations and the resampled parameters (see \code{\link{fxi.secr}}); locations of undetected individuals are simulated from the complement of pdot(x) times D(x). 
+At each replicate parameter values are sampled from the multivariate-normal sampling distribution of the fitted model. The putative location of each detected individual is drawn from the spatial distribution implied by its observations and the resampled parameters (see \code{\link{fxi}}); locations of undetected individuals are simulated from the complement of pdot(x) times D(x). 
 
 New detections are simulated under the model for individuals at the simulated locations, along with the expected numbers. Detections form a capthist object, a 3-D array with dimensions for individual \eqn{i}, occasion \eqn{j} and detector \eqn{k}*. Thus for each replicate and detected individual there are the original observations \eqn{y_{ijk}}, simulated observations \eqn{Y_{ijk}}, and expected counts \eqn{\mbox E (y_{ijk})}. Two discrepancy statistics are calculated for each replicate -- observed vs expected counts, and simulated vs expected counts -- and a record is kept of which of these discrepancy statistics is the larger (indicating poorer fit). 
 

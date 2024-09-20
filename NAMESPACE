@@ -174,9 +174,7 @@ export (pdot)
 export (nk)
 export (Enk)
 export (esa.plot)
-export (esa.plot.secr)
 export (suggest.buffer)
-export (bias.D)
 export (mask.check)
 export (polyarea)
 export (pdot.contour)
@@ -200,10 +198,18 @@ export (closedN)
 export (read.DA)
 export (write.DA)
 export (logmultinom)
+
 export (fxi.secr)
-export (fx.total)
 export (fxi.contour)
 export (fxi.mode)
+export (fx.total)
+
+# new names 4.7.0
+export (fxi)
+export (fxiContour)
+export (fxiMode)
+export (fxTotal)
+
 export (pointsInPolygon)
 export (predictDsurface)
 export (rectangularMask)
@@ -213,26 +219,12 @@ export (spotHeight)
 export (strip.legend)
 export (randomHabitat)
 export (randomDensity)
-export (make.lookup)
-export (insertdim)
 export (as.mask)
 export (as.popn)
 export (setNumThreads)
 export (extractMoves)
-export (makeStart)
 export (kfn)
 export (append.capthist)
-
-# defunct, still exported
-export (model.average)
-export (ip.secr)
-
-# miscellaneous internals
-export (add.cl)
-export (detectorcode)
-export (gethazard)
-export (reparameterize)
-export (stdform)
 
 # new generics
 export (reduce)
@@ -396,18 +388,6 @@ export ("noise<-")
 
 export ("predictDlambda")
 
-## assume these internal fns not needed outside
-# export (group.levels)
-# export (group.factor)
-# export (secr.lpredictor)
-# export (make.lookup)
-
-export (makeNewData)
-S3method(makeNewData, default)
-S3method(makeNewData, secr)
-
-export (secr.design.MS)
-export (D.designdata)
 export (sim.secr)
 export (sim.detect)
 export (secr.test)
@@ -516,6 +496,44 @@ S3method(print, Rsurface)
 S3method(print, secrtest)
 S3method(plot, secrtest)
 
+# defunct, still exported
+# =======================
+export (model.average)
+export (ip.secr)
+
+# exported (mostly) internal functions
+# ====================================
+
+export (secr.design.MS)        # secr.design.MS.Rd
+export (make.lookup)           # secr.design.MS.Rd
+export (insertdim)             # secr.design.MS.Rd
+
+export (D.designdata)          # D.designdata.Rd
+
+export (makeStart)             # makestart.Rd
+
+export (makeNewData)           # makeNewData.Rd
+S3method(makeNewData, default) # makeNewData.Rd
+S3method(makeNewData, secr)    # makeNewData.Rd
+
+export (bias.D)                # suggest.buffer.Rd    
+
+export (esa.plot.secr)         # esaplotsecr.Rd
+
+export (add.cl)                # miscellaneous.Rd
+export (detectorcode)          # miscellaneous.Rd
+export (gethazard)             # miscellaneous.Rd
+export (reparameterize)        # miscellaneous.Rd
+export (stdform)               # miscellaneous.Rd
+
+## assume these internal fns not needed outside
+# export (group.levels)
+# export (group.factor)
+# export (secr.lpredictor)
+# export (boundarytoSF)        # secr-internal.Rd
+# export (Dfn2)                # secr-internal.Rd
+
+# ===========================
 useDynLib (secr)
 ## DEBUGGING ONLY (cpp functions not documented)
 ## exportPattern("*cpp")
