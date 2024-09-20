@@ -131,8 +131,9 @@ plot.secr <- function (x, newdata = NULL, add = FALSE,
                         logit(gr) 
                 }
                 
-                for (i in 1:length(xval))
-                    grad[i,] <- gradient (pars = x$fit$par, fun = lkdfn, r = xval[i])  ## see 'utility.R'
+                for (i in 1:length(xval)) {
+                    grad[i,] <- nlme::fdHess(x$fit$par, lkdfn, r = xval[i])
+                }
                 
                 vc <- vcov (x)
                 gfn <- function(gg) {
