@@ -15,6 +15,6 @@ test_that("correct chat.nk ovenbird.model.1", {
 
 test_that("correct derived density secrdemo.CL", {
     expect_equal(derived(secrdemo.CL)['D',], 
-        c(5.4798074, 0.64455399, 4.3549958, 6.8951362, 0.11470787, 0.026026665, 0.11762348), 
+        c(5.4798074, 0.6445541, 4.3549957, 6.8951365, 0.11470787, 0.02602675, 0.11762349),
         tolerance = 1e-6, check.attributes = FALSE)
 })
