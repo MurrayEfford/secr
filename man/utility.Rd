@@ -2,6 +2,7 @@
 \alias{getMeanSD}
 \alias{maskarea}
 \alias{masklength}
+\alias{masksize}
 \alias{edist}
 \alias{nedist}
 \alias{rlnormCV}
@@ -18,6 +19,7 @@ Minor functions.
 getMeanSD(xy)
 maskarea(mask, sessnum = 1)
 masklength(mask, sessnum = 1)
+masksize(mask, sessnum = 1)
 edist(xy1, xy2)
 nedist(xy1, xy2, mask, inf = Inf, ...)
 rlnormCV(n, mean, cv)
@@ -85,6 +87,8 @@ rlnormCV(n, mean, cv)
   For \code{maskarea}, the summed area of mask cells in hectares (ha).
 
   For \code{masklength}, the summed length of mask cells in kilometers (km).
+  
+  For \code{masksize}, whichever of area or length is appropriate.
   
   For \code{edist} and \code{nedist}, a matrix with dim = c(nrow(xy1), nrow(xy2)).
 
