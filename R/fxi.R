@@ -23,18 +23,18 @@ fxi.contour <- function (
                output = c('list','sf','SPDF'), ncores = NULL, ...)
 }
 
-fxi.secr <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL) {
-    .Deprecated("fxi", package="secr", 
-                "fxi.secr will soon be renamed fxi",
-                old = as.character(sys.call(sys.parent()))[1L])
-    fxi (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL)
-}
+# fxi.secr <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL) {
+#     .Deprecated("fxi", package="secr", 
+#                 "fxi.secr will soon be renamed fxi",
+#                 old = as.character(sys.call(sys.parent()))[1L])
+#     fxi (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL)
+# }
 
 fxi.mode <- function (object, i = 1, sessnum = 1, start = NULL, ncores = NULL, ...) {
     .Deprecated("fxiMode", package="secr", 
                 "fxi.mode will soon be renamed fxiMode",
                 old = as.character(sys.call(sys.parent()))[1L])
-    fxiMode <- function (object, i = 1, sessnum = 1, start = NULL, ncores = NULL, ...)
+    fxiMode (object, i = 1, sessnum = 1, start = NULL, ncores = NULL, ...)
 }
 
 fx.total <- function (object, sessnum = 1, mask = NULL, ncores = NULL, ...) {
@@ -316,7 +316,7 @@ allhistpolygonfxi <- function (detectfn, realparval, haztemp, hk, H, pi.density,
     sump
 }
 
-fxi <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL) {
+fxi.secr <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL, ...) {
     
     ## temporary fix for lack of fastproximity code
     object$details$fastproximity <- FALSE   ## 2020-08-30

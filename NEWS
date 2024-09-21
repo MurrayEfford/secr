@@ -1,4 +1,4 @@
-Changes in version 4.7.0 (2024-09-21)
+Changes in version 4.7.0 (2024-09-22)
 
 New features or changed behaviour of old functions
     o  detectpar() optionally returns values for each detector
@@ -8,7 +8,8 @@ New features or changed behaviour of old functions
     o  default criterion for AIC and modelAverage changed from AICc to AIC
     o  score.table reports dAIC rather than dAICc
     o  usage() method for traps objects acquires argument 'noccasions' to create from scratch
-    o  fxi.xxx functions will be renamed fxiXxx (deprecated for now)
+    o  fxi.secr() becomes S3 generic fxi() with method for secr objects
+    o  other fxi.xxx functions renamed fxiXxx (old ones deprecated for now)
 
 Other
     o  internal addzeroCH() ignores covariate dataframe with zero columns

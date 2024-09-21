@@ -46,6 +46,7 @@ signal     <- function (object, ...) UseMethod("signal")
 noise      <- function (object, ...) UseMethod("noise")
 
 derived    <- function (object, ...) UseMethod("derived")
+fxi        <- function (object, ...) UseMethod("fxi")
 region.N   <- function (object, ...) UseMethod("region.N")
 LLsurface  <- function (object, ...) UseMethod("LLsurface")
 intervals  <- function (object, ...) UseMethod("intervals")

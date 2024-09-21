@@ -27,7 +27,6 @@ Dfn2(designD, beta = NULL, ...)
   \item{beta}{numeric vector of beta values (see Details for NULL)}
   \item{...}{other arguments (not used)}
 
-
 }
 
 \details{

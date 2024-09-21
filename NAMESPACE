@@ -199,13 +199,13 @@ export (read.DA)
 export (write.DA)
 export (logmultinom)
 
-export (fxi.secr)
 export (fxi.contour)
 export (fxi.mode)
 export (fx.total)
 
-# new names 4.7.0
+# new names 4.7.0 September 2024
 export (fxi)
+S3method(fxi, secr)
 export (fxiContour)
 export (fxiMode)
 export (fxTotal)

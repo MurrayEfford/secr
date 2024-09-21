@@ -1,6 +1,7 @@
 \name{fxi}
 \alias{fxiContour}
 \alias{fxiMode}
+\alias{fxi.secr}
 \alias{fxi}
 
 \title{ Probability Density of Home Range Centre }
@@ -13,13 +14,13 @@
   Pr(\omega_i|X)\pi(X_j)}, where \eqn{\pi(X)} is the probability density
   of range centres across the mask (Borchers and Efford 2008).
   
-  These are renamed functions \code{fxi.contour}, \code{fxi.mode} and \code{fxi.secr}.
+  These functions were previously named \code{fxi.secr}, \code{fxi.contour} and \code{fxi.mode}. 
 
 }
 
 \usage{
 
-fxi(object, i = NULL, sessnum = 1, X = NULL, ncores = NULL)
+\method{fxi}{secr}(object, i = NULL, sessnum = 1, X = NULL, ncores = NULL, ...)
 
 fxiContour (object, i = 1, sessnum = 1, border = 100, nx = 64,
     levels = NULL, p = seq(0.1,0.9,0.1), plt = TRUE, add = FALSE,
@@ -93,6 +94,10 @@ fxiMode(object, i = 1, sessnum = 1, start = NULL, ncores = NULL, ...)
 
 \value{
   
+\code{fxi} --
+
+Vector of probability densities
+
 \code{fxiContour} (output = 'list') --
   
 Coordinates of the plotted contours are returned as a list with one
@@ -110,10 +115,6 @@ invisibly if plt = TRUE.
 
 \code{fxiContour} (output = 'sf') -- simple features 'sf' object, as for SPDF.
 
-\code{fxi} --
-
-Vector of probability densities
-
 \code{fxiMode} --
 
 List with components `x' and `y'
@@ -121,7 +122,7 @@ List with components `x' and `y'
 }
 \references{
 
-  Borchers, D. L. and Efford, M. G. (2008) Spatially explicit maximum
+Borchers, D. L. and Efford, M. G. (2008) Spatially explicit maximum
 likelihood methods for capture--recapture studies. \emph{Biometrics}
 \bold{64}, 377--385.
 

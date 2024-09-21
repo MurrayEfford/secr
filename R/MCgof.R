@@ -29,7 +29,7 @@ simfxiAC <- function (object, bytrap, dN = TRUE) {
 
     # -----------------------------------
     # sample one location of each _observed_ animal from its pdf
-    fxi.list <- fxi.secr(object)
+    fxi.list <- fxi(object)
     mask <- object$mask
     sp   <- spacing(mask) # cell size
     m <- sapply(fxi.list, sample.int, n = nrow(mask), size = 1, replace=TRUE)
@@ -42,7 +42,7 @@ simfxiAC <- function (object, bytrap, dN = TRUE) {
     # sample unobserved AC from their pdf
     
     # density of unobserved AC
-    # this code is also in fx.total
+    # this code is also in fxTotal
     D <- predictDsurface(object)
     D <- covariates(D)$D.0
     
