@@ -29,14 +29,14 @@ simfxiAC <- function (object, bytrap, dN = TRUE) {
 
     # -----------------------------------
     # sample one location of each _observed_ animal from its pdf
-    fxi.list <- fxi(object)
+    fxiList <- fxi(object)
     mask <- object$mask
     sp   <- spacing(mask) # cell size
-    m <- sapply(fxi.list, sample.int, n = nrow(mask), size = 1, replace=TRUE)
+    m <- sapply(fxiList, sample.int, n = nrow(mask), size = 1, replace=TRUE)
     obspop <- mask[m,] + runif(length(m)*2, -sp/2, +sp/2)  # jitter within cells
     class (obspop) <- c('popn', 'data.frame')
     attr(obspop, 'boundingbox') <- attr(mask, 'boundingbox')
-    rownames(obspop) <- names(fxi.list)
+    rownames(obspop) <- names(fxiList)
     
     # -----------------------------------
     # sample unobserved AC from their pdf
