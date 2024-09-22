@@ -530,7 +530,9 @@ export (bias.D)                # suggest.buffer.Rd
 
 export (add.cl)                # miscellaneous.Rd
 export (detectorcode)          # miscellaneous.Rd
+export (Dfn2)                  # miscellaneous.Rd
 export (gethazard)             # miscellaneous.Rd
+export (prepareSessionData)    # miscellaneous.Rd
 export (reparameterize)        # miscellaneous.Rd
 export (stdform)               # miscellaneous.Rd
 
@@ -539,7 +541,6 @@ export (stdform)               # miscellaneous.Rd
 # export (group.factor)
 # export (secr.lpredictor)
 # export (boundarytoSF)        # secr-internal.Rd
-# export (Dfn2)                # secr-internal.Rd
 # export (esaPlotsecr)         # secr-internal.Rd
 
 
