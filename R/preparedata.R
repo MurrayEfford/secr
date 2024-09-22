@@ -324,8 +324,6 @@ prepareSessionData <- function (capthist, mask, maskusage,
         traps   <- traps(capthist)
         dettype <- detectorcode(traps, MLonly = TRUE, noccasions = s)
         binomNcode <- recodebinomN(dettype, details$binomN, telemcode(traps))
-        HPXpoly <- detectfn == 20 && all(detector(traps) %in% .localstuff$polydetectors)
-        if (HPXpoly) binomNcode[] <- -1
         ## k-1 because we have zero-terminated these vectors
         k <- getk(traps)
         K <- if (length(k)>1) length(k)-1 else k
@@ -339,7 +337,7 @@ prepareSessionData <- function (capthist, mask, maskusage,
         knownclass <- getknownclass(capthist, details$nmix, hcov)
         
         ## get static distance matrix
-        distmat2 <- getdistmat2(traps, mask, details$userdist, detectfn == 20)
+        distmat2 <- getdistmat2(traps, mask, details$userdist)
 
         n.distrib <- switch (tolower(details$distribution), poisson=0, binomial=1, 0)
         signal <- getsignal (dettype, capthist, details$tx)
@@ -386,7 +384,7 @@ prepareSessionData <- function (capthist, mask, maskusage,
         
         #####################################################################
         ## unclear whether this is correct wrt groups
-        if (all(detector(traps) %in% .localstuff$simpledetectors) || HPXpoly) {
+        if (all(detector(traps) %in% .localstuff$simpledetectors)) {
             logmult <- logmultinom(capthist, group.factor(capthist, groups))
         }
         else {
@@ -418,8 +416,7 @@ prepareSessionData <- function (capthist, mask, maskusage,
             xy = xy,
             grp = grp,
             maskusage = maskusage,
-            logmult = logmult,
-            HPXpoly = HPXpoly
+            logmult = logmult
         )
     if (aslist) list(data=data)
     else data

@@ -198,13 +198,6 @@ double zhvpr (const NumericVector& param, const double r) {
 }
 //--------------------------------------------------------------------
 
-// hazard pixelar 
-double zhpxr (const NumericVector& param, const double r) {
-    if (r<param[1]) return (1-exp(-param[0]));
-    else return (0);
-}
-//--------------------------------------------------------------------
-
 // hazard halfnormal 
 double zhhnrC (const std::vector<double>& param, const double r) {
     return(param[0] * exp(- r * r / 2 / param[1] / param[1]));
@@ -440,12 +433,6 @@ double ghvps (const std::vector<double>& param, const double r) {
     return(1 - exp( - param[0] * exp(- pow(r / param[1], param[2]))));
 }
 
-// hazard pixelar   
-double ghpxs (const std::vector<double>& param, const double r) {
-    if (r<param[1]) return (1-exp(-param[0]));
-    else return (0);
-}
-//====================================================================
 //====================================================================
 
 double pfnS (
@@ -514,8 +501,6 @@ fnptrC getgfns (const int fn)
         return(ghcgs);
     else if (fn == 19)
         return(ghvps);
-    else if (fn == 20)
-        return(ghpxs);
     else // Rcpp::stop("unknown or invalid detection function");
         return(ghns);
 }
@@ -562,8 +547,6 @@ fnptr getzfnr (const int fn)
     return(zhcgr);
   else if (fn == 19)
       return(zhvpr);
-  else if (fn == 20)
-      return(zhpxr);
   else // Rcpp::stop("unknown or invalid detection function");
   return(zhnr);
 }

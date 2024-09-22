@@ -128,7 +128,7 @@ pdot <- function (X, traps, detectfn = 0, detectpar = list(g0 = 0.2, sigma = 25,
     }
     else {
         distmat2 <- getuserdist (traps, X, userdist, sessnum = NA, NULL, NULL, 
-                               miscparm, detectfn == 20)
+                               miscparm)
       #-------------------------------------------------------------
       pdotpointcpp(
         as.matrix(X),

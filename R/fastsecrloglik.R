@@ -145,7 +145,7 @@ fastsecrloglikfn <- function (
         if (!is.null(details$userdist)) {    # changed from is.function() 2024-02-15
             noneuc <- getmaskpar(!is.null(NE), NE, data$m, sessnum, FALSE, NULL)
             distmat2 <- getuserdist(data$traps, data$mask, details$userdist, sessnum, 
-                                    noneuc[,1], density[,1], miscparm, detectfn == 20)
+                                    noneuc[,1], density[,1], miscparm)
         }
         else {
             distmat2 <- data$distmat2

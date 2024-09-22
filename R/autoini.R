@@ -43,7 +43,7 @@ autoini <- function (capthist, mask, detectfn = 0, thin = 0.2, tol = 0.001,
       # allow for binary use/non-use of detectors
       if (!is.null(usage(trps))) PIA0[t(usage(trps)==0)] <- -1
       
-      distmat2 <- getdistmat2(trps, mask, NULL, FALSE)
+      distmat2 <- getdistmat2(trps, mask, NULL)
       gkhk <- makegkPointcpp (
           as.integer(detectfn), 
           as.integer(grain), 

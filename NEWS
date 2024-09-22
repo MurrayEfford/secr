@@ -25,6 +25,7 @@ Other
     o  purged unused code
     o  derived() uses nlme::fdHess for gradients
     o  esa(), fxTotal(), MCgof() become S3 generic
+    o  unused HPX detectfn removed 
     
 Changes in version 4.6.10 (2024-08-21)
 

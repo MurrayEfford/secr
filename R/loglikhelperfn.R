@@ -91,10 +91,10 @@ getmiscparm <- function(miscparm, detectfn, beta, parindx, cutval) {
     miscparm
 }
 #--------------------------------------------------------------------------------
-getuserdist <- function (traps, mask, userdist, sessnum, noneuc, density, miscparm, HPX) {
+getuserdist <- function (traps, mask, userdist, sessnum, noneuc, density, miscparm) {
     ## Apply user-provided distance function or basic distance function getdistmat2()
     if (is.null(userdist)) {
-        getdistmat2(traps, mask, NULL, HPX)
+        getdistmat2(traps, mask, NULL)
     }
     else {
         userdistnames <- getuserdistnames(userdist)
@@ -241,7 +241,7 @@ getchat <- function (cc0, nc, n.distrib, group, usge, pmixn, pID,
 makegk <- function(dettype, detectfn, trps, mask, details, sessnum, noneuc, D, miscparm, realparval, grain, ncores) {
     ## precompute gk, hk for point detectors
     if (all(dettype %in% c(0,1,2,5,8,13))) {
-        distmat2 <- getuserdist(trps, mask, details$userdist, sessnum, noneuc, D, miscparm, detectfn == 20)
+        distmat2 <- getuserdist(trps, mask, details$userdist, sessnum, noneuc, D, miscparm)
         gkhk <- makegkPointcpp (
             as.integer(detectfn), 
             as.integer(grain),

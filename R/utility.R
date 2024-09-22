@@ -83,7 +83,7 @@
 
 .localstuff$DFN <- c('HN', 'HR', 'EX', 'CHN', 'UN', 'WEX', 'ANN', 'CLN', 'CG',
   'BSS', 'SS', 'SSS', 'SN', 'SNS',
-  'HHN', 'HHR', 'HEX', 'HAN', 'HCG', 'HVP','HPX')
+  'HHN', 'HHR', 'HEX', 'HAN', 'HCG', 'HVP')
 
 .localstuff$learnedresponses <- c('b', 'bk', 'B', 'k', 'Bk') ## Bk added 2020-02-26
 
@@ -136,7 +136,7 @@ parnames <- function (detectfn) {
 
 getdfn <- function (detectfn) {
     switch (detectfn+1, HN, HR, EX, CHN, UN, WEX, ANN, CLN, CG, BSS, SS, SSS,
-                       SN, SNS, HHN, HHR, HEX, HAN, HCG, HVP, HPX)
+                       SN, SNS, HHN, HHR, HEX, HAN, HCG, HVP)
 }
 
 #-------------------------------------------------------------------------------
@@ -781,11 +781,6 @@ HCG <- function (r, pars, cutval) {
 HVP <- function (r, pars, cutval) {
     lambda0 <- pars[1]; sigma <- pars[2]; z <- pars[3]
     1 - exp(-lambda0 * exp(-(r/sigma)^z))
-}
-HPX <- function (r, pars, cutval) {
-    g0 <- 1-exp(-pars[1])
-    radius <- pars[2]
-    ifelse (r<=radius, g0, 0)  # circular, not square! crude approx
 }
 
 #-------------------------------------------------------------------------------
@@ -2012,37 +2007,21 @@ stringsAsFactors <- function (DF) {
 
 # see also getuserdist in loglikhelperfn.R
 # 2021-03-30 moved from preparedata.R 
-# 2021-03-30 integrate HPX 
 
-getdistmat2 <- function (traps, mask, userdist, HPX = FALSE) {
+getdistmat2 <- function (traps, mask, userdist) {
     ## Static distance matrix
     if (is.function(userdist)) {
         NULL   ## compute dynamically later
     }
     else {
-        if (HPX) {
-            if (any(detector(traps) %in% .localstuff$polydetectors)) {
-                trps <- split(traps, polyID(traps))
-                inside <- t(sapply(trps, pointsInPolygon, xy = mask))
-                d2 <- 1-inside      # 0 inside, 1 outside
-                d2[d2>0] <- 1e10    # 0 inside, 1e10 outside
-                d2
-            }
-            else {
-                # maximum of squared distance in x- or y- directions
-                xydist2cpp(as.matrix(traps), as.matrix(mask))
-            }
+        if (any(detector(traps) %in% .localstuff$polydetectors)) {
+            ## do not use result if detector is one of
+            ## polygonX, polygon, transectX, transect, OR telemetry?
+            matrix(0, nrow = nrow(traps), ncol = nrow(mask))
         }
         else {
-            if (any(detector(traps) %in% .localstuff$polydetectors)) {
-                ## do not use result if detector is one of
-                ## polygonX, polygon, transectX, transect, OR telemetry?
-                matrix(0, nrow = nrow(traps), ncol = nrow(mask))
-            }
-            else {
-                # Euclidean distance
-              edist2cpp(as.matrix(traps), as.matrix(mask))
-            }
+            # Euclidean distance
+            edist2cpp(as.matrix(traps), as.matrix(mask))
         }
     }
 }
@@ -2206,7 +2185,6 @@ im2mask <- function(im) {
 # HAN (r, pars, cutval)
 # HCG (r, pars, cutval)
 # HVP (r, pars, cutval)
-# HPX (r, pars, cutval)
 # gradient (pars, fun, eps=0.001, ...)
 
 # transform (x, link)
@@ -2274,7 +2252,7 @@ im2mask <- function(im) {
 # uniquerownames (capthist)
 # selectCHsession(capthist, sessnum)
 # stringsAsFactors (DF)
-# getdistmat2 (traps, mask, userdist, HPX = FALSE)
+# getdistmat2 (traps, mask, userdist)
 # uniformusage(object, noccasions)
 # sfrotate (x, degrees, centrexy = NULL, usecentroid = FALSE)
 # snap_points(x, y, max_dist = 1000)

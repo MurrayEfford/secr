@@ -438,7 +438,7 @@ sim.capthist <- function (
             
         ## user-provided distances
         if (is.null(userdist)) {
-            distmat2 <- getdistmat2(traps, popn, NULL, detectfn==20)
+            distmat2 <- getdistmat2(traps, popn, NULL)
         }
         else {
             ## move towards IHP/k simulations
@@ -464,11 +464,7 @@ sim.capthist <- function (
         animals <- as.matrix(popn)
         K <- ndetector(traps)
         dettype <- detectorcode(traps, noccasions = noccasions)
-        HPXpoly <- (detectfn == 20) && any(detector(traps) %in% .localstuff$polydetectors)
-        if (HPXpoly)
-            simfunctionname <- 'trappingproximity'
-        else
-            simfunctionname <- paste0('trapping', detector(traps))
+        simfunctionname <- paste0('trapping', detector(traps))
         if (length(simfunctionname)==1 & noccasions>1)
             simfunctionname <- rep(simfunctionname, noccasions)
         if (length(simfunctionname)>1 & length(simfunctionname)!=noccasions)
@@ -593,15 +589,7 @@ sim.capthist <- function (
             class(w) <- 'capthist'
             traps(w) <- traps
 
-            if (temp$n > 0 && HPXpoly) {
-                ## put XY coordinates in attribute
-              ## xy(w) <- data.frame(animals[animalID(w, names = TRUE),])
-              xy(w) <- data.frame(animals[animalID(w, names = TRUE, sortorder = 'ksn'),])
-            }
-            else {
-                xy(w) <- NULL
-            }
-            
+            xy(w) <- NULL
             
         }
         ##-----------------------------------------------------------------------
@@ -836,7 +824,7 @@ sim.capthist <- function (
         if (renumber & (nrow(w)>0)) 
             rownames(w) <- 1:nrow(w)
         else {
-            if (!all(detector(traps) %in% c('single','multi','proximity','count','capped')) && !HPXpoly) {
+            if (!all(detector(traps) %in% c('single','multi','proximity','count','capped'))) {
                 rown <- rownames(popn)[temp$caught > 0]
                 caught <- temp$caught[temp$caught>0]
                 rownames(w) <- rown[order(caught)]
