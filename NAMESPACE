@@ -207,13 +207,15 @@ export (fx.total)
 
 # new names 4.7.0 September 2024
 export (fxi)
+export (fxTotal)
+export (esa)
+
 S3method(fxi, secr)
+S3method(fxTotal, secr)
+S3method(esa, secr)
+
 export (fxiContour)
 export (fxiMode)
-export (fxTotal)
-
-export (esa)
-S3method(esa, secr)
 
 export (pointsInPolygon)
 export (predictDsurface)

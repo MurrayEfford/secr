@@ -214,7 +214,7 @@ fxiMode <- function (object, i = 1, sessnum = 1, start = NULL, ncores = NULL, ..
 ## mask if specified should be for a single session
 ## ... passes newdata df to predict.secr
 
-fxTotal <- function (object, sessnum = 1, mask = NULL, ncores = NULL, ...)
+fxTotal.secr <- function (object, sessnum = 1, mask = NULL, ncores = NULL, ...)
 {
   if (ms(object)) {
       n <- nrow(object$capthist[[sessnum]])

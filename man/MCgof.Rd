@@ -41,6 +41,7 @@ bugs may be found. See Warning below for exclusions.
   \item{useMVN}{logical; if FALSE parameter values are fixed at the MLE rather
   than drawn from multivariate normal distribution}
   \item{quiet}{logical; if FALSE then a progress bar (ncores=1) and final timing are shown}
+  \item{\dots}{other arguments (not used)}
   
 }
 

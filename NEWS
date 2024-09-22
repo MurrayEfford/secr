@@ -24,7 +24,7 @@ Other
     o  derivedSystematic() defunct
     o  purged unused code
     o  derived() uses nlme::fdHess for gradients
-    o  esa() becomes S3 generic
+    o  esa(), fxTotal(), MCgof() become S3 generic
     
 Changes in version 4.6.10 (2024-08-21)
 
