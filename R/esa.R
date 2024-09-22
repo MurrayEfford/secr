@@ -3,19 +3,17 @@
 ## esa.R
 ## 2020-05-13 fixed bug that ignored individual covariates by providing only single-row CH0
 ## 2022-01-22 fixed bug that ignored details$ignoreusage
+## 2024-09-22 S3 method
 ############################################################################################
 
-esa <- function (object, sessnum = 1, beta = NULL, real = NULL, noccasions = NULL, ncores = NULL)
+esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL, noccasions = NULL, ncores = NULL, ...)
 
 # Return vector of 'a' for given g0, sigma, [z (if hazard fn) ] and session
 # detectfn is integer code for detection function 0 = halfnormal, 1 = hazard, 2 = exponential
 # 'sessnum' is integer index of session (factor level of the 'session' attribute in capthist)
 # object must have at least capthist, mask, detectfn
 
-## strictly doesn't need data, so better to avoid when object not available...
 {
-    if (inherits(object, 'secrlist'))
-        stop("object should be secr not secrlist")
     if (ms(object))
         capthists <- object$capthist[[sessnum]]
     else

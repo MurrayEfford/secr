@@ -6,6 +6,7 @@
 \alias{fxi.contour}
 \alias{fxi.mode}
 \alias{fx.total}
+\alias{esa.plot}
 
 \title{Deprecated Functions in Package \pkg{secr}}
 
@@ -28,6 +29,12 @@ fxi.mode (object, i = 1, sessnum = 1, start = NULL, ncores = NULL, ...)
 
 fx.total (object, sessnum = 1, mask = NULL, ncores = NULL, ...)
 
+esa.plot (object, max.buffer = NULL, spacing = NULL, max.mask = NULL, detectfn,
+      detectpar, noccasions, binomN = NULL, thin = 0.1, poly = NULL,
+      poly.habitat = TRUE, session = 1, plt = TRUE, type = c('density', 
+      'esa','meanpdot', 'CVpdot'), n = 1, add = FALSE, overlay = TRUE, 
+      conditional = FALSE, ...)
+
 }
 
 \details{
@@ -46,6 +53,7 @@ fxi.secr \tab \code{\link{fxi}} (S3 generic with method for secr objects) \cr
 fxi.contour \tab \code{\link{fxiContour}} \cr
 fxi.mode \tab \code{\link{fxiMode}} \cr
 fx.total \tab \code{\link{fxTotal}} \cr
+esa.plot \tab esaPlot \cr
 }
 
 }

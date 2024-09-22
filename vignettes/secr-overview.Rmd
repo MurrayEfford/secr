@@ -456,7 +456,7 @@ cause bias in estimated densities'. This depends on the scale of
 movement of the animal, and on the chosen detection function. For
 specifics, see the separate vignette on habitat masks [secr-habitatmasks.pdf] 
 and the help for 'mask' and the various mask-related functions (`make.mask`,
-`mask.check`, `suggest.buffer`, and `esa.plot`). Heavy-tailed detection 
+`mask.check`, `suggest.buffer`, and `esaPlot`). Heavy-tailed detection 
 functions such as the hazard-rate and lognormal can be problematic because 
 they require an unreasonably large buffer for stable density estimates.
 
@@ -736,7 +736,7 @@ Here is an index of **secr** functions classified by use (some minor functions a
 | `derivedCluster` | variance from replicated sampling units |
 | `derivedExternal` | variance from replicated sampling units |
 | `ellipse.secr` | confidence ellipses for estimated parameters |
-| `esa' | effective sampling area by individual |
+| `esa'* | effective sampling area by individual |
 | `fxi`*       | probability density of home-range centre |
 | `LLsurface`* | compute likelihood surface and plot contours |
 | `logLik`*	| log-likelihood of fitted model |
@@ -754,7 +754,7 @@ Here is an index of **secr** functions classified by use (some minor functions a
 |	`sim.secr`	| parametric bootstrap |
 | `vcov`*     | variance-covariance matrix of 'beta' or 'real' parameters |
 | <a name="mask"></a> **Mask diagnostics** | |
-|	`esa.plot`	| cumulative plot esa or $\hat D$ vs buffer width |
+|	`esaPlot`	| cumulative plot esa or $\hat D$ vs buffer width |
 |	`mask.check`	| likelihood or estimates vs. buffer width and spacing |[6pt]
 | `suggest.buffer`	| find buffer width to keep bias within bounds |
 | <a name="graphics"></a> **Specialised graphics** | |

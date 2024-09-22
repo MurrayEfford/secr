@@ -1,17 +1,34 @@
 ###############################################################################
 ## package 'secr'
-## esa.plot.R
+## esaPlot.R
 ## 2022-11-19 separated from pdot.R
 ###############################################################################
 
 esa.plot <- function (object, max.buffer = NULL, spacing = NULL, max.mask = NULL, detectfn,
+                      detectpar, noccasions, binomN = NULL, thin = 0.1, poly = NULL,
+                      poly.habitat = TRUE, session = 1,
+                      plt = TRUE, type = c('density', 'esa','meanpdot', 'CVpdot'),
+                      n = 1, add = FALSE, overlay = TRUE, conditional = FALSE, ...) {
+
+    .Deprecated("esaPlot", package="secr", 
+                "esa.plot has been renamed esaPlot; the old version will be removed soon",
+                old = as.character(sys.call(sys.parent()))[1L])
+    
+    esaPlot (object, max.buffer = NULL, spacing = NULL, max.mask = NULL, detectfn,
+                 detectpar, noccasions, binomN = NULL, thin = 0.1, poly = NULL,
+                 poly.habitat = TRUE, session = 1,
+                 plt = TRUE, type = c('density', 'esa','meanpdot', 'CVpdot'),
+                 n = 1, add = FALSE, overlay = TRUE, conditional = FALSE, ...)    
+}
+
+esaPlot <- function (object, max.buffer = NULL, spacing = NULL, max.mask = NULL, detectfn,
     detectpar, noccasions, binomN = NULL, thin = 0.1, poly = NULL,
     poly.habitat = TRUE, session = 1,
     plt = TRUE, type = c('density', 'esa','meanpdot', 'CVpdot'),
     n = 1, add = FALSE, overlay = TRUE, conditional = FALSE, ...) {
     type <- match.arg(type)
     if (inherits(object, 'secr')) {
-        esa.plot.secr (object, max.buffer, max.mask, thin, poly, poly.habitat, session, plt,
+        esaPlotsecr (object, max.buffer, max.mask, thin, poly, poly.habitat, session, plt,
             type, add, overlay, conditional, ...)
     }
     else {
@@ -26,14 +43,14 @@ esa.plot <- function (object, max.buffer = NULL, spacing = NULL, max.mask = NULL
                 extra$col <- c("#000000", rainbow(length(object)))
             arg <- c(arg, extra)
             arg$object <- object[[1]]
-            output[[1]] <- do.call( esa.plot.secr, arg)
+            output[[1]] <- do.call( esaPlotsecr, arg)
             
             if (length(object)>1) {
                 for (i in 2:length(object)) {
                     arg$object <- object[[i]]
                     arg$col <- extra$col[i]
                     arg$add <- TRUE
-                    output[[i]] <- do.call( esa.plot.secr, arg)
+                    output[[i]] <- do.call( esaPlotsecr, arg)
                 }
                 if (arg$plt) {
                     x1 <- par()$usr[1] + (par()$usr[2]-par()$usr[1])*0.65
@@ -137,7 +154,7 @@ esa.plot <- function (object, max.buffer = NULL, spacing = NULL, max.mask = NULL
 
 ###############################################################################
 
-esa.plot.secr <- function (object, max.buffer = NULL, max.mask = NULL,
+esaPlotsecr <- function (object, max.buffer = NULL, max.mask = NULL,
     thin = 0.1, poly = NULL, poly.habitat = TRUE, session = 1, plt = TRUE, type = 'density',
     add = FALSE, overlay = TRUE, conditional = FALSE, ...) {
     
@@ -153,19 +170,19 @@ esa.plot.secr <- function (object, max.buffer = NULL, max.mask = NULL,
     
     ## recursive call
     if (MS & (length(session) > 1)) {
-        esa.plot.outputs <- vector(mode='list')
+        esaPlotOutputs <- vector(mode='list')
         
         for (i in session) {
             addthisone <- ifelse (add | (overlay & (i != session[1])),
                 TRUE, FALSE)
-            esa.plot.outputs[[i]] <- esa.plot.secr (object, max.buffer,
+            esaPlotOutputs[[i]] <- esaPlotsecr (object, max.buffer,
                 max.mask, thin, poly, poly.habitat, i, plt, type, addthisone,
                 overlay, conditional, ...)
         }
         if (plt)
-            invisible(esa.plot.outputs)
+            invisible(esaPlotOutputs)
         else
-            esa.plot.outputs
+            esaPlotOutputs
     }
     ## not recursive
     else {
@@ -196,7 +213,7 @@ esa.plot.secr <- function (object, max.buffer = NULL, max.mask = NULL,
             }
         }
         binomN <- object$details$binomN
-        esa.plot (trps, max.buffer, spacg, max.mask, object$detectfn, detpar,
+        esaPlot (trps, max.buffer, spacg, max.mask, object$detectfn, detpar,
             nocc, binomN, thin, poly, poly.habitat, session, plt, type, n, add, overlay,
             conditional, ...)
     }

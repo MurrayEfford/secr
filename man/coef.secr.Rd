@@ -28,7 +28,7 @@ confidence limits.
 
 }
 
-\seealso{ \code{\link{secr.fit}}, \code{\link{esa.plot}} }
+\seealso{ \code{\link{secr.fit}}, \code{\link{esaPlot}} }
 
 \examples{
 

@@ -31,7 +31,7 @@ fluid. Any probability less than 0.001 seems OK in the sense of not
 causing noticeable bias in density estimates, but this depends on the
 shape of the detection function (fat-tailed functions such as `hazard
 rate' are problematic). New tools for evaluating masks appeared in
-\pkg{secr} 1.5 (\code{\link{mask.check}}, \code{\link{esa.plot}}), and
+\pkg{secr} 1.5 (\code{\link{mask.check}}, \code{\link{esaPlot}}), and
 \code{\link{suggest.buffer}} automates selection of a buffer width.
 
 Mask points are stored in a data frame with columns `x' and `y'. The
@@ -67,7 +67,7 @@ appropriate.  }
 
 \seealso{ 
   \code{\link{make.mask}}, \code{\link{read.mask}},
-  \code{\link{mask.check}}, \code{\link{esa.plot}},
+  \code{\link{mask.check}}, \code{\link{esaPlot}},
   \code{\link{suggest.buffer}}, \code{\link{secr.fit}}
 }
 

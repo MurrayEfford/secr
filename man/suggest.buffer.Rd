@@ -149,7 +149,7 @@ The potential components of \code{control} are --
 
 \seealso{
 
-\code{\link{mask}}, \code{\link{make.mask}}, \code{\link{mask.check}}, \code{\link{esa.plot}}
+\code{\link{mask}}, \code{\link{make.mask}}, \code{\link{mask.check}}, \code{\link{esaPlot}}
 
 }
 
@@ -173,7 +173,7 @@ RB <- bias.D(50:150, temptraps, "hazard rate", detpar, 5)
 lines(RB)
 
 ## compare to esa plot
-esa.plot (temptraps, max.buffer = 150, spacing = 4, detectfn = 0,
+esaPlot (temptraps, max.buffer = 150, spacing = 4, detectfn = 0,
   detectpar = detpar, noccasions = 5, type = "density")
 
 ## compare detection histories and fitted model as input

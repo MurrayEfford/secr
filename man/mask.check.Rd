@@ -155,7 +155,7 @@ University of Otago, Dunedin, New Zealand. \url{https://www.otago.ac.nz/density/
 }
 
 \seealso{
-\code{\link{esa.plot}}, \code{\link{make.mask}}, \code{\link{secr.fit}} 
+\code{\link{esaPlot}}, \code{\link{make.mask}}, \code{\link{secr.fit}} 
 }
 
 \examples{

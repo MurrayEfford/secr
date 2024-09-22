@@ -115,7 +115,7 @@ bias.D <- function (buffer, traps, detectfn, detectpar, noccasions, binomN = NUL
                         MAR=2, FUN='+')
         pdotwo <- pdot(wayout, traps, detectfn, detectpar, noccasions, binomN,
                        ncores = control$ncores)
-        tempesa <- esa.plot(traps, max.buffer= trapspacing*control$bfactor,
+        tempesa <- esaPlot(traps, max.buffer= trapspacing*control$bfactor,
                        spacing = trapspacing/2, detectfn = detectfn,
                        detectpar=detectpar, noccasions=noccasions,
                        plt = FALSE, thin = 0.01)

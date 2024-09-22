@@ -62,7 +62,7 @@ The value of \code{newdata} is optionally saved as an attribute.
 
 \code{detectpar} is used to extract the detection parameter estimates
 from a simple model to pass to functions such as
-\code{esa.plot}. \code{detectpar} calls \code{predict.secr}. Parameters
+\code{esaPlot}. \code{detectpar} calls \code{predict.secr}. Parameters
 will be evaluated by default at base levels of the covariates, although
 this may be overcome by passing a one-line \code{newdata} to
 \code{predict} via the \dots argument. Groups and mixtures are a

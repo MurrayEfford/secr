@@ -107,10 +107,7 @@ importMethodsFrom (terra, rast)
 exportMethods     (rast)
 
 export (secr.fit)
-export (par.secr.fit)
 export (list.secr.fit)
-export (par.derived)
-export (par.region.N)
 export (expected.n)
 export (read.traps)
 export (read.telemetry)
@@ -164,7 +161,6 @@ export (write.mask)
 export (score.test)
 export (score.table)
 export (LR.test)
-export (esa)
 export (derivedCluster)
 export (derivedSession)
 export (derivedMash)
@@ -173,7 +169,7 @@ export (derivednj)
 export (pdot)
 export (nk)
 export (Enk)
-export (esa.plot)
+export (esaPlot)
 export (suggest.buffer)
 export (mask.check)
 export (polyarea)
@@ -199,6 +195,12 @@ export (read.DA)
 export (write.DA)
 export (logmultinom)
 
+# deprecated, still exported 4.7.0
+
+export (par.secr.fit)
+export (par.derived)
+export (par.region.N)
+export (esa.plot)
 export (fxi.contour)
 export (fxi.mode)
 export (fx.total)
@@ -209,6 +211,9 @@ S3method(fxi, secr)
 export (fxiContour)
 export (fxiMode)
 export (fxTotal)
+
+export (esa)
+S3method(esa, secr)
 
 export (pointsInPolygon)
 export (predictDsurface)
@@ -518,8 +523,6 @@ S3method(makeNewData, secr)    # makeNewData.Rd
 
 export (bias.D)                # suggest.buffer.Rd    
 
-export (esa.plot.secr)         # esaplotsecr.Rd
-
 export (add.cl)                # miscellaneous.Rd
 export (detectorcode)          # miscellaneous.Rd
 export (gethazard)             # miscellaneous.Rd
@@ -532,6 +535,8 @@ export (stdform)               # miscellaneous.Rd
 # export (secr.lpredictor)
 # export (boundarytoSF)        # secr-internal.Rd
 # export (Dfn2)                # secr-internal.Rd
+# export (esaPlotsecr)         # secr-internal.Rd
+
 
 # ===========================
 useDynLib (secr)

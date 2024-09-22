@@ -28,7 +28,7 @@
 ## 2019-07-29 C++
 ## 2019-12-28 multithreaded
 ## 2021-05-19 cv: pmax protects against negative argument to sqrt     
-## 2022-11-19 esa.plot in separate file
+## 2022-11-19 esa.plot in separate file, now esaPlot.R
 ## 2024-09-07 pdot accepts vector or matrix detectpar for g0/lambda0 and sigma 
 ##            replicated to fill matrix of dimensions ntraps x noccasions (traps are rows)
 ###############################################################################
@@ -41,7 +41,7 @@
 ## make.mask (pdotmin option)
 ## reparameterize.esa
 ## pdot.contour
-## esa.plot
+## esaPlot
 
 # fixed
 ## fxTotal*

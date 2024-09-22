@@ -14,7 +14,7 @@ These functions use multi-threading and call \code{setNumThreads} internally:
   \code{\link{autoini}} \cr
   \code{\link{confint.secr}} \cr
   \code{\link{derived.secr}} \cr
-  \code{\link{esa}} \cr
+  \code{\link{esa.secr}} \cr
   \code{\link{fxi}} and related functions \cr
   \code{\link{pdot}} \cr
   \code{\link{region.N}} \cr
@@ -32,7 +32,7 @@ These functions use multi-threading without calling \code{setNumThreads}:
   \code{\link{sim.secr}} \cr
 }
 
-Other functions may use multithreading indirectly through a call to one of these functions. Examples are \code{\link{suggest.buffer}} (\code{autoini}), \code{\link{esa.plot}} (\code{pdot}), and \code{\link{bias.D}} (\code{pdot}).
+Other functions may use multithreading indirectly through a call to one of these functions. Examples are \code{\link{suggest.buffer}} (\code{autoini}), \code{\link{esaPlot}} (\code{pdot}), and \code{\link{bias.D}} (\code{pdot}).
 
 NOTE: The mechanism for setting the number of threads changed between versions 4.1.0 and 4.2.0. The default number of cores is now capped at 2 to meet CRAN requirements. Setting \code{ncores = NULL} previously specified one less than the maximum number of cores.
 
