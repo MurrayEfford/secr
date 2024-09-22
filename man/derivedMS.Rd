@@ -122,7 +122,7 @@ suppressed with \code{se.esa} and \code{se.D} as desired.
 For computing \code{derived} across multiple models in parallel see
 \code{\link{par.derived}}.
 
-From \pkg{secr} 4.7.0 the \dots argument may be used to control the step size 
+From \pkg{secr} 5.0.0 the \dots argument may be used to control the step size 
 (.relStep) used by \code{\link{fdHess}} when estimating gradients for SE(D) and SE(esa).
 
 }

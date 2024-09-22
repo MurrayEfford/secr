@@ -9,7 +9,7 @@
   The summed probability densities of both observed and
   unobserved individuals are computed for a fitted model and dataset.
 
-  Function \code{fx.total} was replaced by method \code{fxTotal} in \pkg{secr} 4.7.0.
+  Function \code{fx.total} was replaced by method \code{fxTotal} in \pkg{secr} 5.0.0.
 }
 
 \usage{

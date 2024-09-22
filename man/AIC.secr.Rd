@@ -161,7 +161,7 @@ The issue of goodness-of-fit and possible adjustment of AIC for
 overdispersion has yet to be addressed (cf QAIC in MARK).
 
 
-The user may select between AIC and AICc for comparing models. AICc is widely used, but AIC may be better for model averaging even when samples are small (Turek and Fletcher 2012; Fletcher 2019, p. 60). The default was changed to AIC in version 4.7.0).
+The user may select between AIC and AICc for comparing models. AICc is widely used, but AIC may be better for model averaging even when samples are small (Turek and Fletcher 2012; Fletcher 2019, p. 60). The default was changed to AIC in version 5.0.0).
 
 }
 

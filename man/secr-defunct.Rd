@@ -19,7 +19,7 @@ These functions are no longer available in \pkg{secr}.
 
 \usage{
 
-# Defunct in 4.7.0
+# Defunct in 5.0.0
 
 derivedSystematic()
 

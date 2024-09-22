@@ -96,7 +96,7 @@ from them, are approximations that may differ considerably from AIC
 values obtained by fitting and comparing the respective models. Use of
 the observed information matrix may not be optimal.
 
-Weights were based on AICc rather than AIC prior to version 4.7.0.
+Weights were based on AICc rather than AIC prior to version 5.0.0.
 
 }
 
