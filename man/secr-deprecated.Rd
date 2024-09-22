@@ -53,7 +53,7 @@ fxi.secr \tab \code{\link{fxi}} (S3 generic with method for secr objects) \cr
 fxi.contour \tab \code{\link{fxiContour}} \cr
 fxi.mode \tab \code{\link{fxiMode}} \cr
 fx.total \tab \code{\link{fxTotal}} \cr
-esa.plot \tab esaPlot \cr
+esa.plot \tab \code{\link{esaPlot}} \cr
 }
 
 }

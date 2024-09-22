@@ -11,7 +11,9 @@
 }
 
 \usage{
+
 \method{coef}{secr} (object, alpha = 0.05, ...)
+
 }
 
 \arguments{

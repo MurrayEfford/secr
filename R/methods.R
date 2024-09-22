@@ -47,6 +47,7 @@ noise      <- function (object, ...) UseMethod("noise")
 
 esa        <- function (object, ...) UseMethod("esa")
 derived    <- function (object, ...) UseMethod("derived")
+MCgof      <- function (object, ...) UseMethod("MCgof")
 fxi        <- function (object, ...) UseMethod("fxi")
 region.N   <- function (object, ...) UseMethod("region.N")
 LLsurface  <- function (object, ...) UseMethod("LLsurface")

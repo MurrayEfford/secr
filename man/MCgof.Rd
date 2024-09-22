@@ -1,5 +1,7 @@
 \name{MCgof}
 \alias{MCgof}
+\alias{MCgof.secr}
+\alias{MCgof.secrlist}
 
 \title{Monte Carlo Goodness-of-fit for SECR Models}
 
@@ -15,9 +17,13 @@ bugs may be found. See Warning below for exclusions.
 
 \usage{
 
-MCgof(object, nsim = 100, statfn = NULL, testfn = NULL, seed = NULL, 
+\method{MCgof}{secr}(object, nsim = 100, statfn = NULL, testfn = NULL, seed = NULL, 
     ncores = 1, clustertype = c("PSOCK", "FORK"), usefxi = TRUE, 
-    useMVN = TRUE, quiet = FALSE)
+    useMVN = TRUE, quiet = FALSE, ...)
+
+\method{MCgof}{secrlist}(object, nsim = 100, statfn = NULL, testfn = NULL, seed = NULL, 
+    ncores = 1, clustertype = c("PSOCK", "FORK"), usefxi = TRUE, 
+    useMVN = TRUE, quiet = FALSE, ...)
 
 }
 

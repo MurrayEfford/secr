@@ -110,198 +110,200 @@ simfxiAC <- function (object, bytrap, dN = TRUE) {
     popn
 }
 
-MCgof <- function (object, nsim = 100, statfn = NULL, testfn = NULL,
-                   seed = NULL, ncores = 1, clustertype = c("PSOCK","FORK"), 
-                   usefxi = TRUE, useMVN = TRUE, quiet = FALSE)
+MCgof.secrlist <- function (object, nsim = 100, statfn = NULL, testfn = NULL,
+                        seed = NULL, ncores = 1, clustertype = c("PSOCK","FORK"), 
+                        usefxi = TRUE, useMVN = TRUE, quiet = FALSE, ...)
     
 {
-    if (inherits(object, 'secrlist')) {
-        out <- lapply(object, MCgof, 
-                      nsim = nsim, statfn = statfn, testfn = testfn,
-                      seed = seed, ncores = ncores, clustertype = clustertype, 
-                      usefxi = usefxi, useMVN = useMVN, quiet = quiet)
-        names(out) <- names(object)
-        out
+    out <- lapply(object, MCgof, 
+                  nsim = nsim, statfn = statfn, testfn = testfn,
+                  seed = seed, ncores = ncores, clustertype = clustertype, 
+                  usefxi = usefxi, useMVN = useMVN, quiet = quiet)
+    names(out) <- names(object)
+}
+
+MCgof.secr <- function (object, nsim = 100, statfn = NULL, testfn = NULL,
+                   seed = NULL, ncores = 1, clustertype = c("PSOCK","FORK"), 
+                   usefxi = TRUE, useMVN = TRUE, quiet = FALSE, ...)
+    
+{
+    #---------------------------------------------------------------------------
+    ## function to run one replicate
+    runone <- function(i=1) {
+        # -----------------------------------------------
+        # randomize parameter values from MVN
+        if (useMVN) {
+            # MASS::mvrnorm not consistent between platforms
+            # possibly due to dependence LAPACK/BLAS
+            # object$fit$par <- MASS::mvrnorm(
+            #     n     = 1,
+            #     mu    = object$fit$par,
+            #     Sigma = object$beta.vcv)
+            object$fit$par <- mvtnorm::rmvnorm(
+                n     = 1,
+                mean  = object$fit$par, 
+                sigma = object$beta.vcv)[1,]
+        }
+        # -----------------------------------------------
+        # draw randomized AC
+        if (usefxi) {
+            popn <- simfxiAC(object, bytrap)
+        }
+        else {
+            Darray <- getDensityArray (predictDsurface(object))
+            popn <- sim.onepopn(object, Darray)[[1]]
+        }
+        
+        # -----------------------------------------------
+        # simulate detections for these parameters and AC
+        simCH <- sim.detect(
+            object     = object, 
+            popnlist   = list(popn), 
+            expected   = TRUE, 
+            dropzeroCH = FALSE, 
+            renumber   = FALSE)
+        
+        # -----------------------------------------------
+        # expected counts for these parameters and AC
+        
+        # if usefxi = FALSE the 'expected' count is for a random AC
+        # and the comparison may not be meaningful
+        
+        expCH <- attr(simCH, 'expected')
+        
+        Tsim <- statfn(simCH)
+        Texp <- statfn(expCH)
+        
+        if (!quiet && ncores == 1) setTxtProgressBar(progressbar, i)
+        list(Tsim = Tsim, Texp = Texp, par = object$fit$par, popn = popn)
+        
+    }   # end of runone
+    
+    #---------------------------------------------------------------------------
+    # construct test statistic for simulation 'capti' and marginal counts 'stat'
+    ft <- function (capti, stat) {
+        N <- nrow(capti$popn)  # varies for each replicate because D varies
+        CH <- object$capthist
+        n <- nrow(CH)
+        # addzeroCH is internal secr function
+        paddedCH <- addzeroCH(CH, N - n, prefix = 'N')
+        Tobs <- statfn(paddedCH)
+        obs <- testfn(Tobs[[stat]],       capti$Texp[[stat]])
+        sim <- testfn(capti$Tsim[[stat]], capti$Texp[[stat]])
+        c(Tobs = obs, Tsim = sim, p = sim>obs)  
+    }   # end of ft
+    #---------------------------------------------------------------------------
+    
+    ## create default statfn if needed
+    if (is.null(statfn)) {
+        statfn <- defaultstatfn
+    }
+    ## create default testfn if needed
+    if (is.null(testfn)) {
+        testfn <- defaulttestfn
+    }
+    
+    #---------------------------------------------------------------------------
+    ##  check input
+    if (any(c("bn", "bkn", "bkc", "Bkc") %in% tolower(object$vars)))
+        stop ("MCgof works only with binary behavioural responses")
+    
+    if (!inherits(object,'secr'))
+        stop ("requires 'secr' object")
+    
+    if (object$CL)
+        stop ("MCgof not implemented for conditional likelihood")
+    
+    if (ms(object$capthist))
+        stop ("MCgof not implemented for multi-session data")
+    
+    if (!is.null(object$groups)) {
+        stop ("MCgof not implemented for groups")
+    }
+    
+    #---------------------------------------------------------------------------
+    
+    if (any(detector(traps(object$capthist)) == 'single')) {
+        # expected values not available for 'single'
+        warning("replacing single detector type with multi - results unreliable")
+        detector(traps(object$capthist)) <- 'multi'
+    }
+    #---------------------------------------------------------------------------
+    
+    clustertype <- match.arg(clustertype)
+    
+    #---------------------------------------------------------------------------
+    ## set random seed
+    ## copied from simulate.lm
+    if (!exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE))
+        runif(1)
+    if (is.null(seed))
+        RNGstate <- get(".Random.seed", envir = .GlobalEnv)
+    else {
+        R.seed <- get(".Random.seed", envir = .GlobalEnv)
+        set.seed(seed, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rounding")
+        RNGstate <- structure(seed, kind = as.list(RNGkind()))
+        on.exit(assign(".Random.seed", R.seed, envir = .GlobalEnv))
+    }
+    #---------------------------------------------------------------------------
+    
+    ## action starts here
+    
+    ptm  <- proc.time()
+    
+    ## Does model have differences in detection parameters between traps?
+    ## this is conditional to save time in pdot
+    bytrap <- length(unique(apply(object$design0$PIA, 4, mean)))>1
+    
+    # ----------------------------------------------------------
+    # perform nsim simulations
+    ## parallel processing optional - often slower
+    
+    if (is.null(ncores)) ncores <- setNumThreads()  # default is 1
+    if (!quiet && ncores == 1) progressbar <- txtProgressBar(0, nsim, style = 3)
+    
+    if (ncores > 1) {
+        if (.Platform$OS.type != "unix") clustertype <- "PSOCK"
+        clust <- makeCluster(ncores, type = clustertype)
+        if (clustertype == "PSOCK") {
+            clusterExport(clust, c("object", "simfxiAC", "statfn", "bytrap"), 
+                          environment())
+        }
+        clusterSetRNGStream(clust, seed)
+        on.exit(stopCluster(clust))
+        capt <- parLapply(clust, 1:nsim, runone)
+        
     }
     else {
-        
-        #---------------------------------------------------------------------------
-        ## function to run one replicate
-        runone <- function(i=1) {
-            # -----------------------------------------------
-            # randomize parameter values from MVN
-            if (useMVN) {
-                # MASS::mvrnorm not consistent between platforms
-                # possibly due to dependence LAPACK/BLAS
-                # object$fit$par <- MASS::mvrnorm(
-                #     n     = 1,
-                #     mu    = object$fit$par,
-                #     Sigma = object$beta.vcv)
-                object$fit$par <- mvtnorm::rmvnorm(
-                    n     = 1,
-                    mean  = object$fit$par, 
-                    sigma = object$beta.vcv)[1,]
-            }
-            # -----------------------------------------------
-            # draw randomized AC
-            if (usefxi) {
-                popn <- simfxiAC(object, bytrap)
-            }
-            else {
-                Darray <- getDensityArray (predictDsurface(object))
-                popn <- sim.onepopn(object, Darray)[[1]]
-            }
-
-            # -----------------------------------------------
-            # simulate detections for these parameters and AC
-            simCH <- sim.detect(
-                object     = object, 
-                popnlist   = list(popn), 
-                expected   = TRUE, 
-                dropzeroCH = FALSE, 
-                renumber   = FALSE)
-            
-            # -----------------------------------------------
-            # expected counts for these parameters and AC
-            
-            # if usefxi = FALSE the 'expected' count is for a random AC
-            # and the comparison may not be meaningful
-            
-            expCH <- attr(simCH, 'expected')
-            
-            Tsim <- statfn(simCH)
-            Texp <- statfn(expCH)
-            
-            if (!quiet && ncores == 1) setTxtProgressBar(progressbar, i)
-            list(Tsim = Tsim, Texp = Texp, par = object$fit$par, popn = popn)
-            
-        }   # end of runone
-        
-        #---------------------------------------------------------------------------
-        # construct test statistic for simulation 'capti' and marginal counts 'stat'
-        ft <- function (capti, stat) {
-            N <- nrow(capti$popn)  # varies for each replicate because D varies
-            CH <- object$capthist
-            n <- nrow(CH)
-            # addzeroCH is internal secr function
-            paddedCH <- addzeroCH(CH, N - n, prefix = 'N')
-            Tobs <- statfn(paddedCH)
-            obs <- testfn(Tobs[[stat]],       capti$Texp[[stat]])
-            sim <- testfn(capti$Tsim[[stat]], capti$Texp[[stat]])
-            c(Tobs = obs, Tsim = sim, p = sim>obs)  
-        }   # end of ft
-        #---------------------------------------------------------------------------
-        
-        ## create default statfn if needed
-        if (is.null(statfn)) {
-            statfn <- defaultstatfn
-        }
-        ## create default testfn if needed
-        if (is.null(testfn)) {
-            testfn <- defaulttestfn
-        }
-        
-        #---------------------------------------------------------------------------
-        ##  check input
-        if (any(c("bn", "bkn", "bkc", "Bkc") %in% tolower(object$vars)))
-            stop ("MCgof works only with binary behavioural responses")
-        
-        if (!inherits(object,'secr'))
-            stop ("requires 'secr' object")
-        
-        if (object$CL)
-            stop ("MCgof not implemented for conditional likelihood")
-        
-        if (ms(object$capthist))
-            stop ("MCgof not implemented for multi-session data")
-        
-        if (!is.null(object$groups)) {
-            stop ("MCgof not implemented for groups")
-        }
-        
-        #---------------------------------------------------------------------------
-        
-        if (any(detector(traps(object$capthist)) == 'single')) {
-            # expected values not available for 'single'
-            warning("replacing single detector type with multi - results unreliable")
-            detector(traps(object$capthist)) <- 'multi'
-        }
-        #---------------------------------------------------------------------------
-        
-        clustertype <- match.arg(clustertype)
-        
-        #---------------------------------------------------------------------------
-        ## set random seed
-        ## copied from simulate.lm
-        if (!exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE))
-            runif(1)
-        if (is.null(seed))
-            RNGstate <- get(".Random.seed", envir = .GlobalEnv)
-        else {
-            R.seed <- get(".Random.seed", envir = .GlobalEnv)
-            set.seed(seed, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rounding")
-            RNGstate <- structure(seed, kind = as.list(RNGkind()))
-            on.exit(assign(".Random.seed", R.seed, envir = .GlobalEnv))
-        }
-        #---------------------------------------------------------------------------
-        
-        ## action starts here
-        
-        ptm  <- proc.time()
-        
-        ## Does model have differences in detection parameters between traps?
-        ## this is conditional to save time in pdot
-        bytrap <- length(unique(apply(object$design0$PIA, 4, mean)))>1
-        
-        # ----------------------------------------------------------
-        # perform nsim simulations
-        ## parallel processing optional - often slower
-        
-        if (is.null(ncores)) ncores <- setNumThreads()  # default is 1
-        if (!quiet && ncores == 1) progressbar <- txtProgressBar(0, nsim, style = 3)
-        
-        if (ncores > 1) {
-            if (.Platform$OS.type != "unix") clustertype <- "PSOCK"
-            clust <- makeCluster(ncores, type = clustertype)
-            if (clustertype == "PSOCK") {
-                clusterExport(clust, c("object", "simfxiAC", "statfn", "bytrap"), 
-                              environment())
-            }
-            clusterSetRNGStream(clust, seed)
-            on.exit(stopCluster(clust))
-            capt <- parLapply(clust, 1:nsim, runone)
-            
-        }
-        else {
-            capt <- lapply(1:nsim, runone)
-        }
-        
-        # ----------------------------------------------------------
-        # apply function 'ft' for each count vector 'stat'
-        # stats correspond to named components of statfn output list
-        stats <- names(statfn(object$capthist))
-        all <- lapply(stats, function(x) sapply (capt, ft, stat = x))
-        names(all) <- stats
-        
-        # ----------------------------------------------------------
-        # wrap up
-        out <- list(
-            object   = object,
-            nsim     = nsim,
-            statfn   = statfn,
-            testfn   = testfn,
-            all      = all,
-            proctime = (proc.time() - ptm)[3])
-        class(out) <- 'MCgof'
-        
-        if (!quiet) {
-            if (ncores==1) close(progressbar)
-            message ("MCgof for ", nsim, " simulations completed in ", 
-                     round((proc.time() - ptm)[3],3), " seconds")
-            print(summary(out))
-        }
-        attr(out, 'seed') <- RNGstate      ## save random seed
-        invisible(out)
-    }    
+        capt <- lapply(1:nsim, runone)
+    }
+    
+    # ----------------------------------------------------------
+    # apply function 'ft' for each count vector 'stat'
+    # stats correspond to named components of statfn output list
+    stats <- names(statfn(object$capthist))
+    all <- lapply(stats, function(x) sapply (capt, ft, stat = x))
+    names(all) <- stats
+    
+    # ----------------------------------------------------------
+    # wrap up
+    out <- list(
+        object   = object,
+        nsim     = nsim,
+        statfn   = statfn,
+        testfn   = testfn,
+        all      = all,
+        proctime = (proc.time() - ptm)[3])
+    class(out) <- 'MCgof'
+    
+    if (!quiet) {
+        if (ncores==1) close(progressbar)
+        message ("MCgof for ", nsim, " simulations completed in ", 
+                 round((proc.time() - ptm)[3],3), " seconds")
+        print(summary(out))
+    }
+    attr(out, 'seed') <- RNGstate      ## save random seed
+    invisible(out)
+    
 }
 ################################################################################
