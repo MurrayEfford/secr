@@ -758,10 +758,10 @@ Here is an index of **secr** functions classified by use (some minor functions a
 |	`mask.check`	| likelihood or estimates vs. buffer width and spacing |[6pt]
 | `suggest.buffer`	| find buffer width to keep bias within bounds |
 | <a name="graphics"></a> **Specialised graphics** | |
-| `buffer.contour`	| concave and convex boundary strips |
+| `bufferContour`	| concave and convex boundary strips |
 | `fxTotal`	| summed pdfs of home-range centre pdfs (use with `plot.Dsurface`) |
 | `fxiContour`  | contour plot of home-range centre pdf(s) |
-| `pdot.contour`	| contour plot of detection probability |
+| `pdotContour`	| contour plot of detection probability |
 | `strip.legend`	| add colour legend to existing plot |
 | <a name="convert"></a> **Convert or export data** | |
 |	`RMarkInput`	| convert 'capthist' to dataframe for RMark |

@@ -31,6 +31,7 @@
 ## 2022-11-19 esa.plot in separate file, now esaPlot.R
 ## 2024-09-07 pdot accepts vector or matrix detectpar for g0/lambda0 and sigma 
 ##            replicated to fill matrix of dimensions ntraps x noccasions (traps are rows)
+## 2024-09-23 pdot.contour and buffer.contour renamed
 ###############################################################################
 
 ## pdot is used in --
@@ -156,11 +157,23 @@ pdot.contour <- function (traps, border = NULL, nx = 64, detectfn = 0,
                           noccasions = NULL, binomN = NULL,
                           levels = seq(0.1, 0.9, 0.1),
                           poly = NULL, poly.habitat = TRUE, plt = TRUE, add = FALSE, fill = NULL, ...) {
+    .Deprecated("pdotContour", package="secr", 
+                "pdot.contour has been renamed pdotContour",
+                old = as.character(sys.call(sys.parent()))[1L])
+    pdotContour (traps, border, nx, detectfn, detectpar, noccasions, binomN,
+                  levels, poly, poly.habitat, plt, add, fill, ...)
+    
+}
 
+pdotContour <- function (traps, border = NULL, nx = 64, detectfn = 0,
+    detectpar = list(g0 = 0.2, sigma = 25, z = 1), noccasions = NULL, 
+    binomN = NULL, levels = seq(0.1, 0.9, 0.1), poly = NULL, 
+    poly.habitat = TRUE, plt = TRUE, add = FALSE, fill = NULL, ...) {
+    
     if (ms(traps)) {
         if (length(noccasions) == 1)
             noccasions <- rep(noccasions,length(traps))
-        output <- mapply(pdot.contour, traps, detectpar=detectpar, noccasions=noccasions,
+        output <- mapply(pdotContour, traps, detectpar=detectpar, noccasions=noccasions,
                          MoreArgs = list(border = border, nx = nx,
                          detectfn = detectfn, binomN = binomN,
                          levels = levels, poly = poly, poly.habitat = poly.habitat, plt = plt, add = add, ...))
@@ -208,6 +221,17 @@ pdot.contour <- function (traps, border = NULL, nx = 64, detectfn = 0,
 buffer.contour <- function (traps, buffer, nx = 64, convex = FALSE, ntheta = 100,
                             plt = TRUE, add = FALSE, poly = NULL, poly.habitat = TRUE,
                             fill = NULL, ...) {
+    .Deprecated("bufferContour", package="secr", 
+                "buffer.contour has been renamed bufferContour",
+                old = as.character(sys.call(sys.parent()))[1L])
+    bufferContour <- function (traps, buffer, nx = 64, convex = FALSE, ntheta = 100,
+                               plt = TRUE, add = FALSE, poly = NULL, poly.habitat = TRUE,
+                               fill = NULL, ...) 
+}
+
+bufferContour <- function (traps, buffer, nx = 64, convex = FALSE, ntheta = 100,
+                            plt = TRUE, add = FALSE, poly = NULL, poly.habitat = TRUE,
+                            fill = NULL, ...) {
     oneconvexbuffer <- function (buffer) {
         temp  <- data.frame(x = apply(expand.grid(traps$x, buffer * cos(theta)),1,sum),
                        y = apply(expand.grid(traps$y, buffer * sin(theta)),1,sum))
@@ -222,7 +246,7 @@ buffer.contour <- function (traps, buffer, nx = 64, convex = FALSE, ntheta = 100
         stop ("requires 'traps' or 'mask' object")
 
     if (ms(traps)) {
-        output <- lapply(traps, buffer.contour, buffer = buffer, nx = nx, convex = convex,
+        output <- lapply(traps, bufferContour, buffer = buffer, nx = nx, convex = convex,
                ntheta = ntheta, plt = plt, add = add, poly = poly, poly.habitat = poly.habitat, ...)
         if (plt)
             invisible(output)

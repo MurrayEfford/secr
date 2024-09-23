@@ -7,6 +7,8 @@
 \alias{fxi.mode}
 \alias{fx.total}
 \alias{esa.plot}
+\alias{pdot.contour}
+\alias{buffer.contour}
 
 \title{Deprecated Functions in Package \pkg{secr}}
 
@@ -35,6 +37,15 @@ esa.plot (object, max.buffer = NULL, spacing = NULL, max.mask = NULL, detectfn,
       'esa','meanpdot', 'CVpdot'), n = 1, add = FALSE, overlay = TRUE, 
       conditional = FALSE, ...)
 
+buffer.contour (traps, buffer, nx = 64, convex = FALSE, ntheta = 100,
+    plt = TRUE, add = FALSE, poly = NULL, poly.habitat = TRUE,
+    fill = NULL, ...)
+    
+pdot.contour (traps, border = NULL, nx = 64, detectfn = 0,
+    detectpar = list(g0 = 0.2, sigma = 25, z = 1), noccasions = NULL, 
+    binomN = NULL, levels = seq(0.1, 0.9, 0.1), poly = NULL, 
+    poly.habitat = TRUE, plt = TRUE, add = FALSE, fill = NULL, ...)
+    
 }
 
 \details{
@@ -54,6 +65,8 @@ fxi.contour \tab \code{\link{fxiContour}} \cr
 fxi.mode \tab \code{\link{fxiMode}} \cr
 fx.total \tab \code{\link{fxTotal}} \cr
 esa.plot \tab \code{\link{esaPlot}} \cr
+pdot.contour \tab \code{\link{pdotContour}} \cr
+buffer.contour \tab \code{\link{bufferContour}} \cr
 }
 
 }

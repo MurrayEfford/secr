@@ -152,7 +152,7 @@ make.mask <- function (traps, buffer = 100, spacing = NULL, nx = 64, ny = 64,
       
       if (!is.null(detector(traps)) &    ## 2017-01-27
           all(detector(traps) %in% c('polygon','polygonX'))) {
-        temp <- buffer.contour(traps, buffer = buffer, nx = nx,
+        temp <- bufferContour(traps, buffer = buffer, nx = nx,
           convex = T, plt = F)
         OK <- array(dim=c(length(x), length(y), length(temp)))
         for (i in 1:length(temp)) {

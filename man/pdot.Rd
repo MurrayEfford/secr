@@ -83,7 +83,7 @@ For \code{CVpdot}, a named vector with elements `meanpdot' and `CVpdot'.
   \code{\link{secr}}, 
   \code{\link{make.mask}},
   \code{\link{Detection functions}}, 
-  \code{\link{pdot.contour}},
+  \code{\link{pdotContour}},
   \code{\link{CV}}}
 
 \note{

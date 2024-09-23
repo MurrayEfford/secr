@@ -1,33 +1,32 @@
 \name{contour}
-\alias{pdot.contour}
-\alias{buffer.contour}
+\alias{pdotContour}
+\alias{bufferContour}
 
-\title{
-Contour Detection Probability
-}
+\title{Contour Detection Probability}
+
 \description{
 
   Display contours of the net probability of detection p.(X), or the
-area within a specified distance of detectors.  \code{buffer.contour}
+area within a specified distance of detectors.  \code{bufferContour}
 adds a conventional `boundary strip' to a detector (trap) array, where
 \code{buffer} equals the strip width.
 
 }
 \usage{
 
-pdot.contour(traps, border = NULL, nx = 64, detectfn = 0,
+pdotContour(traps, border = NULL, nx = 64, detectfn = 0,
     detectpar = list(g0 = 0.2, sigma = 25, z = 1), noccasions = NULL,
     binomN = NULL, levels = seq(0.1, 0.9, 0.1), poly =
     NULL, poly.habitat = TRUE, plt = TRUE, add = FALSE, fill = NULL, ...)
 
-buffer.contour(traps, buffer, nx = 64, convex = FALSE, ntheta = 100,
+bufferContour(traps, buffer, nx = 64, convex = FALSE, ntheta = 100,
      plt = TRUE, add = FALSE, poly = NULL, poly.habitat = TRUE, 
      fill = NULL, ...)
 
 }
 
 \arguments{
-  \item{traps}{ \code{traps} object (or mask for \code{buffer.contour}) }
+  \item{traps}{ \code{traps} object (or mask for \code{bufferContour}) }
   \item{border}{ width of blank margin around the outermost detectors }
   \item{nx}{ dimension of interpolation grid in x-direction }
   \item{detectfn}{ integer code or character string for shape of
@@ -50,14 +49,14 @@ buffer.contour(traps, buffer, nx = 64, convex = FALSE, ntheta = 100,
   \item{ntheta}{ integer value for smoothness of convex contours }
 }
 \details{
-\code{pdot.contour} constructs a rectangular mask and applies \code{\link{pdot}} to
+\code{pdotContour} constructs a rectangular mask and applies \code{\link{pdot}} to
 compute the p.(X) at each mask point.
 
-If \code{convex = FALSE}, \code{buffer.contour} constructs a mask and
+If \code{convex = FALSE}, \code{bufferContour} constructs a mask and
 contours the points on the basis of distance to the nearest detector at the
 levels given in \code{buffer}.
 
-If \code{convex = TRUE}, \code{buffer.contour} constructs a set of
+If \code{convex = TRUE}, \code{bufferContour} constructs a set of
 potential vertices by adding points on a circle of radius =
 \code{buffer} to each detector location; the desired contour is the
 convex hull of these points (this algorithm derives from Efford, 2012).
@@ -94,7 +93,7 @@ University of Otago, Dunedin, New Zealand
 
 \note{
  
-  The precision (smoothness) of the fitted line in \code{buffer.contour}
+  The precision (smoothness) of the fitted line in \code{bufferContour}
   is controlled by \code{ntheta} rather than \code{nx} when \code{convex
     = TRUE}.
 
@@ -104,9 +103,9 @@ University of Otago, Dunedin, New Zealand
   and \code{lwd} (line width).
 
   You may wish to consider function st_buffer in package \pkg{sf} as an
-  alternative to \code{buffer.contour}..
+  alternative to \code{bufferContour}.
 
-  \code{buffer.contour} failed with multi-session \code{traps} before
+  \code{bufferContour} failed with multi-session \code{traps} before
   \pkg{secr} 2.8.0.
   
 }
@@ -122,26 +121,26 @@ possumtraps <- traps(possumCH)
 
 ## convex and concave buffers
 plot(possumtraps, border = 270)
-buffer.contour(possumtraps, buffer = 100, add = TRUE, col = "blue")
-buffer.contour(possumtraps, buffer = 100, convex = TRUE, add = TRUE)
+bufferContour(possumtraps, buffer = 100, add = TRUE, col = "blue")
+bufferContour(possumtraps, buffer = 100, convex = TRUE, add = TRUE)
 
 ## areas
-buff.concave <- buffer.contour(possumtraps, buffer = 100,
+buff.concave <- bufferContour(possumtraps, buffer = 100,
     plt = FALSE)
-buff.convex  <- buffer.contour(possumtraps, buffer = 100,
+buff.convex  <- bufferContour(possumtraps, buffer = 100,
     plt = FALSE, convex = TRUE)
 sum (sapply(buff.concave, polyarea)) ## sum over parts
 sapply(buff.convex, polyarea)
 
 ## effect of nx on area
-buff.concave2 <- buffer.contour(possumtraps, buffer = 100,
+buff.concave2 <- bufferContour(possumtraps, buffer = 100,
     nx = 128, plt = FALSE)
 sum (sapply(buff.concave2, polyarea))
 
 \dontrun{
 
 plot(possumtraps, border = 270)
-pdot.contour(possumtraps, detectfn = 0, nx = 128, detectpar =
+pdotContour(possumtraps, detectfn = 0, nx = 128, detectpar =
     detectpar(possum.model.0), levels = c(0.1, 0.01, 0.001),
     noccasions = 5, add = TRUE)
 
@@ -151,7 +150,7 @@ possumtraps <- traps(possumCH)
 possumarea <- read.table("possumarea.txt", header = TRUE)
 par(xpd = TRUE, mar = c(1,6,6,6))
 plot(possumtraps, border = 400, gridlines = FALSE)
-pdot.contour(possumtraps, detectfn = 0, nx = 256, detectpar =
+pdotContour(possumtraps, detectfn = 0, nx = 256, detectpar =
     detectpar(possum.model.0), levels = c(0.1, 0.01, 0.001),
     noccasions = 5, add = TRUE, poly = possumarea, col = "blue")
 lines(possumarea)

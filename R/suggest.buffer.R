@@ -160,7 +160,7 @@ bias.D <- function (buffer, traps, detectfn, detectpar, noccasions, binomN = NUL
     ## make function to return linear approximation to contour length at radius r
     ## assuming spacing/2 <= r < (scale*spacing)
 
-    hull <- buffer.contour(traps, buffer = 0, convex = TRUE, plt = FALSE, ntheta = 1)
+    hull <- bufferContour(traps, buffer = 0, convex = TRUE, plt = FALSE, ntheta = 1)
     perimeter <- sum(sapply(hull, function (xy) sum(sqrt(diff(xy$x)^2 + diff(xy$y)^2))))
     perimeter <- perimeter + 2 * pi * trapspacing/2^0.5
     critx <- c(trapspacing/2,

@@ -129,7 +129,7 @@ likelihood methods for capture--recapture studies. \emph{Biometrics}
 }
 
 \seealso{
-\code{\link{pdot.contour}}, \code{\link[graphics]{contour}}, \code{\link{fxTotal}}
+\code{\link{pdotContour}}, \code{\link[graphics]{contour}}, \code{\link{fxTotal}}
 }
 
 \note{

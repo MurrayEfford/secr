@@ -6,7 +6,7 @@
 
 PG <- function (CH, poly = NULL, includeNULL = FALSE, plt = FALSE, ...) {
     if (is.null(poly)) {
-        poly <- buffer.contour (traps(CH), plt = plt, ...)
+        poly <- bufferContour (traps(CH), plt = plt, ...)
         clean <- function(x) {
             ## x may be list or data frame, depending on concave or convex
             if (is.data.frame(x))

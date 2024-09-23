@@ -662,9 +662,9 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
 
             bufferpoly <- switch(buffertype,
                                  rect = NA,
-                                 convex = buffer.contour(core, buffer = buffer,
+                                 convex = bufferContour(core, buffer = buffer,
                                                          convex = TRUE, plt = FALSE)[[1]],
-                                 concave = buffer.contour(core, buffer = buffer,
+                                 concave = bufferContour(core, buffer = buffer,
                                                           convex = FALSE, plt = FALSE))
 
             bufferarea <- switch (buffertype,

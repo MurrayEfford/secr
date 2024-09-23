@@ -36,10 +36,12 @@ continue to work for a while.
 
 | Old | New |
 |---------------|---------------|
+| `buffer.contour` | `bufferContour` |
 | `esa.plot` | `esaPlot` |
 | `fxi.contour` | `fxiContour` |
 | `fxi.mode` | `fxiMode` |
 | `fx.total` | `fxTotal` (generic)|
+| `pdot.contour` | `pdotContour` |
 
 ## New default
 

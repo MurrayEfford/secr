@@ -26,18 +26,18 @@ PG(CH, poly = NULL, includeNULL = FALSE, plt = FALSE, ...)
   \item{includeNULL}{ logical; if TRUE then missing values are returned
     for animals without telemetry data}
   \item{plt}{ logical; if TRUE then poly and telemetry locations are plotted}
-  \item{\dots}{ other arguments passed to \code{\link{buffer.contour}}}
+  \item{\dots}{ other arguments passed to \code{\link{bufferContour}}}
 }
 
 \details{
   
   By default \code{poly} is obtained by applying
-  \code{\link{buffer.contour}} with arguments \dots to the traps
+  \code{\link{bufferContour}} with arguments \dots to the traps
   attribute of \code{CH}. Note that either a positive \code{buffer}
   argument or \code{convex = TRUE} is needed for the polygon to have
   area > 0.
 
-  If \code{plt = TRUE}, \code{buffer.contour} is used to plot
+  If \code{plt = TRUE}, \code{bufferContour} is used to plot
   \code{poly} and the points are overplotted (open circles outside,
   filled circles inside). To control the framing of the plot, create an
   initial plot (e.g., with plot.traps, setting the \code{border}
@@ -55,7 +55,7 @@ PG(CH, poly = NULL, includeNULL = FALSE, plt = FALSE, ...)
 
 \seealso{
   
- \code{\link{addTelemetry}},  \code{\link{buffer.contour}}, 
+ \code{\link{addTelemetry}},  \code{\link{bufferContour}}, 
 \code{\link{pointsInPolygon}}
 
 }
@@ -92,7 +92,7 @@ PGD <- function (CH, estimator = 'h2', ...) {
     pg <- PG(CH, ...)
     PGbar <- mean(pg)
     N <- closedN(CH, estimator)
-    A <- polyarea(buffer.contour(traps(CH), ...)[[1]])
+    A <- polyarea(bufferContour(traps(CH), ...)[[1]])
     Dhat <- N$Nhat / A * PGbar
     varDhat <- (N$Nhat^2 * var(pg) + PGbar^2 * N$seNhat^2) / A^2 
     c(Dhat = Dhat, seDhat = sqrt(varDhat))
@@ -123,7 +123,7 @@ randomPG <- function(CH, poly = NULL, mask, reorient = TRUE, nrepl = 1,
     set.seed(seed)
     if (!requireNamespace('sf')) stop ("requires package sf")
     if (is.null(poly)) {
-        poly <- buffer.contour (traps(CH), ...)
+        poly <- bufferContour (traps(CH), ...)
         poly <- lapply(poly, as.matrix)
         poly <- sf::st_sfc(sf::st_polygon(poly))
     }

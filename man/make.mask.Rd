@@ -106,7 +106,7 @@ computations. The default mask settings in \code{secr.fit} may be good
 enough, but it is preferable to use \code{make.mask} to construct a mask
 in advance and to pass that mask as an argument to \code{secr.fit}.
 
-The function \code{buffer.contour} displays the extent of one or more
+The function \code{bufferContour} displays the extent of one or more
 `trapbuffer' zones - i.e. the effect of buffering the detector array
 with varying strip widths. 
 
@@ -115,7 +115,7 @@ with varying strip widths.
 \seealso{
 
   \code{\link{mask}}, \code{\link{read.mask}}, \code{\link{subset.mask}},
-  \code{\link{pdot}}, \code{\link{buffer.contour}}, \code{\link{deleteMaskPoints}},
+  \code{\link{pdot}}, \code{\link{bufferContour}}, \code{\link{deleteMaskPoints}},
   \code{\link{as.mask}}
 
 }
