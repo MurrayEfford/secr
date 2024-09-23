@@ -3,6 +3,7 @@
 
 \alias{blackbear}
 \alias{blackbearCH}
+\alias{GSM}
 
 \title{ Black Bear Hair Snag Dataset }
 
@@ -44,7 +45,8 @@ unforested area outside the park on the northwestern boundary of the study area
 was not considered to be black bear habitat (F. van Manen pers. comm. 2012-05-18) 
 and should be excluded in analyses. The approximate boundary of the park is 
 included as a shapefile `GSMboundary.shp' in the `extdata' folder of the package 
-(see Examples).
+and as the \pkg{sf} sfc_POLYGON object \code{GSM}. The latter may be used in 
+\code{make.mask} (see Examples).
 
 }
 
@@ -65,21 +67,23 @@ Settlage, K. E., Van Manen, F. T., Clark, J. D., and King, T. L. (2008) Challeng
 summary(blackbearCH)
 
 \donttest{
-# read boundary of Great Smoky Mountains National Park
-library(sf)
-shpfilename <- system.file("extdata/GSMboundary.shp", package = "secr")
-GSM <- st_read(shpfilename)
-GSM <- st_geometry(GSM)
 
-# plot NP boundary, habitat mask and detections 
-msk <- make.mask(traps(blackbearCH), buffer = 6000, type = 'trapbuffer', poly = GSM)
+# GSM is the approximate boundary of Great Smoky Mountains National Park
+# Make a habitat mask restricted to the park
+
+tr <- traps(blackbearCH)
+msk <- make.mask(tr, buffer = 6000, type = 'trapbuffer', poly = GSM)
+
+# Plot
+
 plot(GSM)
 plot(msk, add = TRUE)
 plot(blackbearCH, tracks = TRUE, add = TRUE)
-plot(traps(blackbearCH), add = TRUE)
+plot(tr, add = TRUE)
 
-# fit model
+# Fit model
 # suppress fastproximity to allow learned response
+
 setNumThreads()   # as appropriate
 fit <- secr.fit(blackbearCH,  detectfn = 'EX', model = list(g0~bk+h2, sigma~h2), 
     hcov = 'sex', mask = msk, details = list(fastproximity = FALSE), 
