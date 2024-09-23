@@ -1,12 +1,12 @@
 Changes in version 5.0.0 (2024-09-23)
 
 New features or changed behaviour of old functions
-    o  detectpar() optionally returns values for each detector
-    o  pdot() accepts detector- and occasion-specific detection parameters
     o  MCgof() goodness-of-fit after Choo et al. (2024) DOI: 10.1111/2041-210X.14386
     o  blackbearCH new dataset of J. Laufenberg, F. van Manen and J. Clark
     o  default criterion for AIC and modelAverage changed from AICc to AIC
     o  score.table reports dAIC rather than dAICc
+    o  detectpar() optionally returns values for each detector
+    o  pdot() accepts detector- and occasion-specific detection parameters
     o  usage() method for traps objects acquires argument 'noccasions' to create from scratch
     o  fxi.secr() becomes S3 generic fxi() with method for secr objects
     o  other fxi.xxx functions renamed fxiXxx (old ones deprecated for now)
