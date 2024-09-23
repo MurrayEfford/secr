@@ -224,7 +224,7 @@ buffer.contour <- function (traps, buffer, nx = 64, convex = FALSE, ntheta = 100
     .Deprecated("bufferContour", package="secr", 
                 "buffer.contour has been renamed bufferContour",
                 old = as.character(sys.call(sys.parent()))[1L])
-    bufferContour <- function (traps, buffer, nx = 64, convex = FALSE, ntheta = 100,
+    bufferContour (traps, buffer, nx = 64, convex = FALSE, ntheta = 100,
                                plt = TRUE, add = FALSE, poly = NULL, poly.habitat = TRUE,
                                fill = NULL, ...) 
 }

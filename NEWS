@@ -10,7 +10,7 @@ New features or changed behaviour of old functions
     o  usage() method for traps objects acquires argument 'noccasions' to create from scratch
     o  fxi.secr() becomes S3 generic fxi() with method for secr objects
     o  other fxi.xxx functions renamed fxiXxx (old ones deprecated for now)
-    o  pdot.contour and buffer.contour renamed pdotContour and bufferContour (old namesdeprecated for now)
+    o  pdot.contour and buffer.contour renamed pdotContour and bufferContour (old names deprecated for now)
     o  esa.plot() renamed to esaPlot() to avoid clash with generic
 
 Other
