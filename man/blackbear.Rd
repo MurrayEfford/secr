@@ -17,6 +17,7 @@ snags in the Great Smoky Mountains National Park, Tennessee, in the summer of 20
 \usage{
 
 blackbearCH
+GSM
 
 }
 

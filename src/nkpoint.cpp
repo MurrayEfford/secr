@@ -144,8 +144,8 @@ NumericVector nkpointcpp (
     if (anypolygon(detect) || anytransect(detect)) {
         Rcpp::stop("nkpoint not for polygon or transect detectors");
     }
-    if (fn>20) {
-        Rcpp::stop("nkpointcpp requires detectfn < 21");
+    if (fn>19) {
+        Rcpp::stop("nkpointcpp requires detectfn < 20");
     }
     
     int ss = Tsk.ncol();

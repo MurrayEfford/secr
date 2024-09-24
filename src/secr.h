@@ -61,8 +61,6 @@ double pfnS (
         const std::vector<double> &miscparm,
         const double w2);
     
-int par3 (int fn);
-
 //--------------------------------------------------------------------------
 
 // not used 2021-10-17

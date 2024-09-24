@@ -141,7 +141,7 @@ getdfn <- function (detectfn) {
 
 #-------------------------------------------------------------------------------
 
-valid.detectfn <- function (detectfn, valid = c(0:3,5:19, 20)) {
+valid.detectfn <- function (detectfn, valid = c(0:3,5:19)) {
 # exclude 4 uniform: too numerically flakey
     if (is.null(detectfn))
         stop ("requires 'detectfn'")

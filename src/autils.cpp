@@ -187,7 +187,6 @@ double zrcpp (double r, int detectfn, NumericVector par)
                     2 / par(1)/ par(1)));
         }
         else if (detectfn == 18) {  // hazard cumulative gamma
-            // return (R::pgamma(r,par(2),par(1)/par(2),0,0)); 
             boost::math::gamma_distribution<> gam(par(2),par(1)/par(2));
             return (boost::math::cdf(complement(gam,r))); 
         }

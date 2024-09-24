@@ -9,6 +9,19 @@ using namespace Rcpp;
 // 2024-08-02 changed output order of 'value' to i,s,k
 //            not clear whether this requires new sortkey for poly, signal
 
+//--------------------------------------------------------------------
+// Which detection functions have third parameter z?
+
+int par3 (int fn) {
+    if ((fn==1) || (fn==3) || (fn == 5)  || (fn == 6)  || (fn == 7) || 
+        (fn == 8) || (fn==10) || (fn == 11)  || (fn == 12)  || (fn == 13) || 
+        (fn == 15) || (fn==17) || (fn == 18) || (fn == 19))
+        return(1);
+    else
+        return(0);
+}
+//--------------------------------------------------------------------
+
 NumericVector getpar (
         const int i, 
         const int s, 

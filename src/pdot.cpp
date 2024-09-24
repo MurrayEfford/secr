@@ -125,8 +125,8 @@ NumericVector pdotpointcpp (
     if (anypolygon(detect) || anytransect(detect)) {
         Rcpp::stop("pdotpoint not for polygon or transect detectors");
     }
-    if (fn>20) {
-        Rcpp::stop("pdotpointcpp requires detectfn < 21");
+    if (fn>19) {
+        Rcpp::stop("pdotpointcpp requires detectfn < 20");
     }
     
     int nxy = xy.nrow();
