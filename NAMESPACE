@@ -530,16 +530,17 @@ S3method(makeNewData, secr)    # makeNewData.Rd
 
 export (bias.D)                # suggest.buffer.Rd    
 
-export (add.cl)                # internal.Rd
 export (boundarytoSF)          # internal.Rd
-export (parnames)              # internal.Rd
-export (detectorcode)          # internal.Rd
-export (Dfn2)                  # internal.Rd
-export (gethazard)             # internal.Rd
-export (prepareSessionData)    # internal.Rd
-export (reparameterize)        # internal.Rd
-export (stdform)               # internal.Rd
-export (valid.detectfn)        # internal.Rd
+
+# export (add.cl)                # internal.Rd
+# export (parnames)              # internal.Rd
+# export (detectorcode)          # internal.Rd
+# export (Dfn2)                  # internal.Rd
+# export (gethazard)             # internal.Rd
+# export (prepareSessionData)    # internal.Rd
+# export (reparameterize)        # internal.Rd
+# export (stdform)               # internal.Rd
+# export (valid.detectfn)        # internal.Rd
 
 ## assume these internal fns not needed outside
 # export (group.levels)
