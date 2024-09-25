@@ -41,7 +41,6 @@ Imports:
     sf,
     stats, 
     stringr, 
-    terra (>= 1.5-12), 
     tools, 
     utils
 Suggests: 
@@ -56,6 +55,7 @@ Suggests:
     spatstat.random,
     spcosa,
     spsurvey (>= 5.3.0),
+    terra (>= 1.5-12), 
     testthat
 LinkingTo: 
     BH,

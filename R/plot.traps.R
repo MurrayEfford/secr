@@ -71,7 +71,7 @@ plot.traps <- function(x,
                 plot(boundarytoSF(frame), border = 'black')
             }
             else {
-                eqscplot (x$x, x$y, xlim=range(x$x)+buff, ylim=range(x$y)+buff,
+                MASS::eqscplot (x$x, x$y, xlim=range(x$x)+buff, ylim=range(x$y)+buff,
                     xlab='', ylab='', type='n', axes=F, ...)
             }
             if (!is.null(trappar$bty)) {

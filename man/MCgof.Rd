@@ -82,7 +82,7 @@ Invisibly returns an object of class `MCgof' with components -
   \item{nsim}{as input}
   \item{statfn}{as input or default}
   \item{testfn}{as input or default}
-  \item{all}{list of outputs for each statistic, a 3 x nsim matrix. Rows
+  \item{all}{list of outputs: for each statistic, a 3 x nsim matrix. Rows
    correspond to Tobs, Tsim, and a binary indicator for Tsim > Tobs}
   \item{proctime}{execution time in seconds}
 

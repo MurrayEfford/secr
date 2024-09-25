@@ -130,7 +130,7 @@ The neighborhood variance estimator is implemented in package \pkg{spsurvey} and
   estimates, the centre of each replicate must be provided in \code{xy},
   except where centres may be inferred from the data. It is unclear whether `local' can or should be used when clusters vary in size.
 
-\code{derivedSystematic} was an experimental function in earlier versions of \pkg{secr}.
+\code{derivedSystematic}, now defunct, was an experimental function in earlier versions of \pkg{secr}.
 
 }
 
@@ -296,9 +296,8 @@ derivedExternal (fit2, nj = nj, cluster = t1, buffer = 100,
     noccasions = 1)
 
 ## Review plots
-library(MASS)
 base.plot <- function() {
-    eqscplot( testregion, axes = FALSE, xlab = "",
+    MASS::eqscplot( testregion, axes = FALSE, xlab = "",
         ylab = "", type = "n")
     polygon(testregion)
 }

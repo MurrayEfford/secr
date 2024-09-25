@@ -8,15 +8,12 @@ New features or changed behaviour of old functions
     o  detectpar() optionally returns values for each detector
     o  pdot() accepts detector- and occasion-specific detection parameters
     o  usage() method for traps objects acquires argument 'noccasions' to create from scratch
-    o  fxi.secr() becomes S3 generic fxi() with method for secr objects
-    o  other fxi.xxx functions renamed fxiXxx (old ones deprecated for now)
-    o  pdot.contour and buffer.contour renamed pdotContour and bufferContour (old names deprecated for now)
-    o  esa.plot() renamed to esaPlot() to avoid clash with generic
 
 Other
     o  internal addzeroCH() ignores covariate dataframe with zero columns
     o  improved robustness of fxi.secr by setting occasional NaN to zero
     o  imports from mvtnorm
+    o  package terra now suggested, not imported
     o  list.secr.fit() now works with details$LLonly = TRUE
     o  trappingtransect, trappingtransectX revert to built-in integration
     o  some minor functions restricted to point detectors (i.e. not area search)
@@ -26,6 +23,11 @@ Other
     o  derived() uses nlme::fdHess for gradients
     o  esa(), fxTotal(), MCgof() become S3 generic
     o  unused HPX detectfn removed 
+    o  fxi.secr() becomes S3 generic fxi() with method for secr objects
+    o  other fxi.xxx functions renamed fxiXxx (old ones deprecated for now)
+    o  pdot.contour and buffer.contour renamed pdotContour and bufferContour (old names deprecated for now)
+    o  esa.plot() renamed to esaPlot() to avoid clash with generic
+    o  terra 'rast' method for mask objects no longer exported (see ?raster)
     
 Changes in version 4.6.10 (2024-08-21)
 

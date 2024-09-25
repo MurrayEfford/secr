@@ -6,9 +6,9 @@
 \alias{raster,mask-method}
 \alias{raster,Dsurface-method}
 
-\alias{rast}
-\alias{rast,mask-method}
-\alias{rast,Dsurface-method}
+% \alias{rast}
+% \alias{rast,mask-method}
+% \alias{rast,Dsurface-method}
 
 \title{Create a RasterLayer Object from Mask or Dsurface}
 
@@ -24,11 +24,8 @@
 \S4method{raster}{mask}(x, covariate, values = 1, crs = NA)
 
 \S4method{raster}{Dsurface}(x, covariate, values = 1, crs = NA)
-
-\S4method{rast}{mask}(x, covariate, values = 1, crs = "")
-
-\S4method{rast}{Dsurface}(x, covariate, values = 1, crs = "")
-
+% \S4method{rast}{mask}(x, covariate, values = 1, crs = "")
+% \S4method{rast}{Dsurface}(x, covariate, values = 1, crs = "")
 }
 
 \arguments{
@@ -65,7 +62,8 @@ virtual S4 classes. This enables these extensions to the list of S4
 methods defined in \pkg{raster}. % and \pkg{terra}
   
 Although these methods work `standalone', it is currently necessary to
-load the \pkg{terra} or \pkg{raster} package to do much with the result (e.g., plot it).
+load the %\pkg{terra} or
+\pkg{raster} package to do much with the result (e.g., plot it).
 
 }
 
@@ -107,6 +105,32 @@ tmp <- raster(shorePossums, "D.0", crs = "+proj=nzmg")
 ## check the projection
 proj4string(tmp)
      
+# It is also possible to generate 'terra' rast objects directly by defining this method:
+
+require(terra)
+setMethod("rast", signature(x = "mask"),
+    ## define internal function for coercing mask to SpatRaster
+    function(x,  covariate, values = 1, crs = "") {
+        if (missing(covariate)) {
+            covariate <- 'tempcov'
+            covariates(x) <- data.frame(tempcov = rep(values, length.out=nrow(x)))
+        }
+        mask <- rectangularMask(x)
+        tmp <- as.numeric(unlist(covariates(mask)[,covariate] ))
+        df <- cbind(mask, tmp)
+        rast(df, type = 'xyz', crs = crs)
+    }
+)
+
+# mask to rast
+dtsrast <- rast(possummask, covariate = 'd.to.shore')
+plot(dtsrast)
+
+# Dsurface to rast
+class(shorePossums) <- c('mask', 'data.frame') # or change "mask" to "Dsurface" above
+Drast <- rast(shorePossums, covariate = 'D.0')
+plot(Drast)
+
 }
 
 }

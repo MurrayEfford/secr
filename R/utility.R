@@ -41,8 +41,8 @@
 
 .localstuff <- new.env()
 
-.localstuff$packageType <- ' pre-release'
-##.localstuff$packageType <- ''
+##.localstuff$packageType <- ' pre-release'
+.localstuff$packageType <- ''
 
 .localstuff$validdetectors <- c('single','multi','proximity','count', 
     'polygonX', 'transectX', 'signal', 'polygon', 'transect', 
@@ -323,8 +323,7 @@ new.param <- function (details, model, CL) {
 }
 
 #-------------------------------------------------------------------------------
-# secr 3.0 2016-10-05
-## NEEDS MULTI-SESSION FORM
+## MULTI-SESSION FORM?
 
 detectorcode <- function (object, MLonly = TRUE, noccasions = NULL) {
     ## numeric detector code from a traps object

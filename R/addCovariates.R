@@ -42,11 +42,11 @@ addCovariates <- function (object, spatialdata, columns = NULL, strict = FALSE, 
     #---------------------------------------------------------------------------
     # single session
     else {
-        # if (inherits(spatialdata, c('SpatRaster','Rasterlayer', 'SpatialGridDataFrame'))) {   
-        #     if (!requireNamespace('terra')) {
-        #         stop ("package 'terra' >= 1.5-12 is required to add covariates from a raster data source")
-        #     }
-        # }
+        if (inherits(spatialdata, c('SpatRaster','Rasterlayer', 'SpatialGridDataFrame'))) {
+            if (!requireNamespace('terra', quietly = TRUE)) {
+                stop ("package 'terra' >= 1.5-12 is required to add covariates from a raster data source")
+            }
+        }
         # transform spatial data to sf, SpatRaster, traps or mask
         if (is.character(spatialdata)) {
             polyfilename <- spatialdata  

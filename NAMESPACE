@@ -100,11 +100,10 @@ importFrom (stringr,
     str_pad, 
     str_length)
 
-importFrom (terra, 
-    extract)
-
-importMethodsFrom (terra, rast)
-exportMethods     (rast)
+#importFrom (terra, 
+#    extract)
+#importMethodsFrom (terra, rast)
+#exportMethods     (rast)
 
 export (secr.fit)
 export (list.secr.fit)
@@ -173,8 +172,6 @@ export (esaPlot)
 export (suggest.buffer)
 export (mask.check)
 export (polyarea)
-export (pdotContour)
-export (bufferContour)
 export (distancetotrap)
 export (nearesttrap)
 export (secrlist)
@@ -195,18 +192,7 @@ export (read.DA)
 export (write.DA)
 export (logmultinom)
 
-# deprecated, still exported 5.0.0
-
-export (par.secr.fit)
-export (par.derived)
-export (par.region.N)
-export (esa.plot)
-export (fxi.contour)
-export (fxi.mode)
-export (fx.total)
-export (pdot.contour)
-export (buffer.contour)
-
+#---------------------------------------
 # new names 5.0.0 September 2024
 export (fxi)
 export (fxTotal)
@@ -218,6 +204,9 @@ S3method(esa, secr)
 
 export (fxiContour)
 export (fxiMode)
+export (pdotContour)
+export (bufferContour)
+#---------------------------------------
 
 export (pointsInPolygon)
 export (predictDsurface)
@@ -235,7 +224,8 @@ export (extractMoves)
 export (kfn)
 export (append.capthist)
 
-# new generics
+#---------------------------------------
+# new generics in secr
 export (reduce)
 export (rotate)
 export (shift)
@@ -508,13 +498,26 @@ S3method(print, Rsurface)
 S3method(print, secrtest)
 S3method(plot, secrtest)
 
-# defunct, still exported
-# =======================
+#---------------------------------------
+# deprecated, still exported 5.0.0
+
+export (par.secr.fit)
+export (par.derived)
+export (par.region.N)
+export (esa.plot)
+export (fxi.contour)
+export (fxi.mode)
+export (fx.total)
+export (pdot.contour)
+export (buffer.contour)
+
+#---------------------------------------
+# defunct, still exported 5.0.0
 export (model.average)
 export (ip.secr)
 
+#---------------------------------------
 # exported (mostly) internal functions
-# ====================================
 
 export (secr.design.MS)        # secr.design.MS.Rd
 export (make.lookup)           # secr.design.MS.Rd
@@ -532,22 +535,22 @@ export (bias.D)                # suggest.buffer.Rd
 
 export (boundarytoSF)          # internal.Rd
 
+#---------------------------------------
+# internal functions not exported
+
 # export (add.cl)                # internal.Rd
 # export (parnames)              # internal.Rd
 # export (detectorcode)          # internal.Rd
 # export (Dfn2)                  # internal.Rd
+# export (esaPlotsecr)           # esaPlot.Rd
 # export (gethazard)             # internal.Rd
+# export (group.factor)
+# export (group.levels)
 # export (prepareSessionData)    # internal.Rd
 # export (reparameterize)        # internal.Rd
+# export (secr.lpredictor)
 # export (stdform)               # internal.Rd
 # export (valid.detectfn)        # internal.Rd
-
-## assume these internal fns not needed outside
-# export (group.levels)
-# export (group.factor)
-# export (secr.lpredictor)
-# export (esaPlotsecr)         # esaPlot.Rd
-
 
 # ===========================
 useDynLib (secr)

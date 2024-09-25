@@ -24,7 +24,7 @@ plot.popn <- function (x, add = FALSE, frame = TRUE, circles = NULL, collapse = 
         vertices <- apply(temp,2,range)
         if (collapse) {
             if (!add)  {
-                eqscplot (0,0, xlab='', ylab='', xlim=vertices[,1],
+                MASS::eqscplot (0,0, xlab='', ylab='', xlim=vertices[,1],
                           ylim = vertices[,2], type='n', axes = FALSE)
             }
             if (frame) {    ## 2019-05-31, 2022-02-12
@@ -69,10 +69,10 @@ plot.popn <- function (x, add = FALSE, frame = TRUE, circles = NULL, collapse = 
         if (!add)
         {
             if (frame)
-                eqscplot (x$x, x$y, xlab='', ylab='', xlim=range(vertices$x),
+                MASS::eqscplot (x$x, x$y, xlab='', ylab='', xlim=range(vertices$x),
                           ylim=range(vertices$y), type='n', axes = FALSE, ...)
             else
-                eqscplot (x$x, x$y, xlab='', ylab='', type='n', axes = FALSE,
+                MASS::eqscplot (x$x, x$y, xlab='', ylab='', type='n', axes = FALSE,
                           ...)
         }
         if (is.null(circles) | (nrow(x) == 0))    ## second condition 2011-09-14
