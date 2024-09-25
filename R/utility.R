@@ -32,6 +32,7 @@
 ## 2023-09-17 im2mask converts spatstat im object
 ## 2024-03-19 rlnormCV
 ## 2024-07-31 addzeroCH tweaked to allow zero-row covariate df + drop = FALSE
+## 2024-09-25 purged a couple of unused fn, moved xy2CH to xy2CH.R
 ################################################################################
 
 # Global variables in namespace
@@ -555,40 +556,6 @@ get.nmix <- function (model, capthist, hcov) {
 
 #-------------------------------------------------------------------------------
 
-fixpmix <- function(x, nmix) {
-
-    ## x is a list with component pmix that is a matrix (dataframe)
-    ## with columns 'estimate' and 'se' (and possibly others)
-    ## referring to the linear predictor of pmix (i.e. on mlogit
-    ## scale) and rows corresponding to rows in newdata
-    ## (i.e. arbitrary combinations of predictors, including mixture
-    ## class h2 or h3)
-
-    ####################################################
-    ## It is necessary that newdata include all levels
-    ## of the mixture class.
-    ####################################################
-
-    ## 2013-10-29
-    ## assuming mixture is always last dimension...
-
-    ## previously used in collate, model.average and predict.secr
-    ## 2015-09-30 incorporated in secr.lpredictor
-
-    temp <- matrix(x$pmix[,'estimate'], ncol = nmix)
-    if (nmix==2) temp[,x$pmix[,'h2']] <- x$pmix[,'estimate']
-    if (nmix==3) temp[,x$pmix[,'h3']] <- x$pmix[,'estimate']
-    temp2 <- apply(temp, 1, clean.mlogit)
-    x$pmix[,'estimate'] <- as.numeric(t(temp2))
-    if (nmix==2)
-        x$pmix[as.numeric(x$pmix$h2)==1,'se'] <- x$pmix[as.numeric(x$pmix$h2)==2,'se']
-    else
-        x$pmix[,'se'] <- rep(NA, nrow(x$pmix))   ## don't know how
-    x
-}
-
-#-------------------------------------------------------------------------------
-
 add.cl <- function (df, alpha, loginterval, lowerbound = 0) {
 
 ## add lognormal or standard Wald intervals to dataframe with columns
@@ -1071,18 +1038,6 @@ getnmix <- function (details) {
 
 #-------------------------------------------------------------------------------
 
-## expand beta parameter vector using template of 'fixed beta'
-## fixed beta fb input is missing (NA) for estimated beta parameters
-fullbeta <- function (beta, fb) {
-    if (!is.null(fb)) {
-        fb[is.na(fb)] <- beta  ## partial beta (varying only)
-        beta <- fb             ## complete beta
-    }
-    beta
-}
-
-#-------------------------------------------------------------------------------
-
 ## inflate a convex outline along all radii by linear factor 'rmult'
 inflate <- function (xy, rmult = 1) {
     xy <- as.matrix(xy)
@@ -1114,47 +1069,6 @@ getbinomN <- function (binomN, detectr) {
 
 #-------------------------------------------------------------------------------
 
-## convert telemetryxy attribute of a combined dataset into a standalone capthist
-
-## TO DO: option of telemetry or polygon output
-
-xy2CH <- function (CH, inflation = 1e-8) {
-    if (ms(CH)) {
-        out <- lapply(CH, xy2CH, inflation)
-        class(out) <- c('capthist', 'list')
-        out
-    }
-    else {
-        xylist <- telemetryxy(CH)
-        if (is.null(xylist))
-            stop ("requires 'telemetryxy' attribute")
-        n <- length(xylist)
-        neach <- sapply(xylist, nrow)
-        allxy <- do.call(rbind, xylist)
-
-        trps <-  allxy[chull(allxy),]
-        trps <- rbind(trps, trps[1,,drop=F])
-        trps <- inflate(trps, 1 + inflation)  ## see also telemetry.R
-
-        trps <- as.data.frame(trps)
-        dimnames(trps) <- list(1:nrow(trps), c('x','y'))
-        class(trps) <- c("traps","data.frame")
-        detector(trps) <- "polygon"
-        polyID(trps) <- factor(rep(1,nrow(trps)))
-
-        rown <- rep(names(xylist), neach)
-        newCH <- array(neach, dim = c(n, 1, 1))
-        attr(newCH, "detectedXY") <- allxy
-        if (!is.null(covariates(CH))) {
-            rowlookup <- match(names(xylist), rownames(CH))
-            covariates(newCH) <- covariates(CH)[rowlookup,, drop=FALSE]
-        }
-        class(newCH) <- "capthist"
-        traps(newCH) <- trps
-        newCH
-    }
-}
-
 #-------------------------------------------------------------------------------
 
 inflatechull <- function (poly, r, ntheta = 60) {
@@ -1168,16 +1082,22 @@ inflatechull <- function (poly, r, ntheta = 60) {
 
 #-------------------------------------------------------------------------------
 
-complete.beta <- function (object) {
-    fb <- object$details$fixedbeta
-    # modified 2022-04-02 for consistency with ipsecr
-    beta <- if (inherits(object, 'secr')) object$fit$par else object$beta
+## expand beta parameter vector using template of 'fixed beta'
+## fixed beta fb input is missing (NA) for estimated beta parameters
+fullbeta <- function (beta, fb) {
     if (!is.null(fb)) {
-        nbeta <- length(fb)
-        fb[is.na(fb)] <- beta
-        beta <- fb
+        fb[is.na(fb)] <- beta  ## partial beta (varying only)
+        beta <- fb             ## complete beta
     }
     beta
+}
+
+#-------------------------------------------------------------------------------
+
+complete.beta <- function (object) {
+    fb <- object$details$fixedbeta
+    beta <- if (inherits(object, 'secr')) object$fit$par else object$beta
+    fullbeta(beta, fb)
 }
 
 #-------------------------------------------------------------------------------
@@ -1720,8 +1640,6 @@ check3D <- function (object) {
 updateCH <- function(object) {
     if (!inherits(object, 'capthist'))
         stop ("requires capthist object")
-    # following replaces this old code 2020-08-29
-    # reduce(object, dropunused = FALSE)
     if (ms(object)) {
         out <- lapply(object, updateCH)
         class (out) <- c("capthist", "list")
@@ -1760,17 +1678,6 @@ newstr <-function (strings) {
     paste(paste0(st, le), collapse = ', ')
 }
 # newstr(c("single", rep("proximity",4)))
-
-#-------------------------------------------------------------------------------
-
-outsidemask <- function(CH, mask, threshold = spacing(mask) / sqrt(2)) {
-    xylist <- telemetryxy(CH)
-    dfun <- function(xy) {
-        centres <- matrix(apply(xy, 2, mean), ncol = 2)
-        distancetotrap(centres, mask)
-    }
-    sapply(xylist, dfun) > threshold
-}
 
 #-------------------------------------------------------------------------------
 
@@ -2118,142 +2025,3 @@ im2mask <- function(im) {
     read.mask(data = df, spacing = im$xstep)
 }
 #-------------------------------------------------------------------------------
-
-# LIST 2023-03-10
-# detectionfunctionname (fn)
-# detectionfunctionnumber (detname)
-# parnames (detectfn)
-# getdfn (detectfn)
-# valid.detectfn (detectfn, valid = c(0:3,5:19, 20)) 
-# valid.detectpar (detectpar, detectfn) 
-# valid.model(model, CL, detectfn, hcov, userdist, sessioncovnames) 
-# getuserdistnames (userdist) 
-# valid.pnames (details, CL, detectfn, alltelem, sighting, nmix) 
-# valid.userdist (userdist, detector, xy1, xy2, mask, sessnum) 
-# new.param (details, model, CL) 
-# detectorcode (object, MLonly = TRUE, noccasions = NULL) 
-# expanddet(CH) 
-# ndetectpar (detectfn)
-# replacedefaults (default, user)
-# discreteN (n, N)
-# ndetector (traps)
-# memo (text, trace)
-# insertdim (x, dimx, dims)
-# pad1 (x, n) 
-# padarray (x, dims)
-# stdform (flist)
-# invlogit (y) 1/(1+exp(-y))   # plogis(y)
-# logit    (x) log(x/(1-x))    # qlogis(x), except for invalid argument
-# sine     (x) asin (x*2-1)
-# invsine  (y) (sin(y)+1) / 2
-# odds     (x) x / (1-x)
-# invodds  (y) y / (1+y)
-# lnbinomial (x,size,prob) 
-# model.string (model, userDfn)
-# fixed.string (fixed)
-# var.in.model(v,m)
-# get.nmix (model, capthist, hcov)
-# fixpmix(x, nmix)
-# add.cl (df, alpha, loginterval, lowerbound = 0)
-# spatialscale (object, detectfn, session = '')
-#     
-# # logical for whether object specifies userDfn
-# userD (object) 
-# # mean and SD if x numeric
-# getMeanSD(xy) 
-# nclusters (capthist)
-# leadingzero (x) 
-# HN  (r, pars, cutval)
-# HR  (r, pars, cutval)
-# EX  (r, pars, cutval)
-# UN  (r, pars, cutval)
-# CHN (r, pars, cutval)
-# WEX (r, pars, cutval)
-# ANN (r, pars, cutval)
-# CLN (r, pars, cutval)
-# CG  (r, pars, cutval)
-# CN  (r, pars, cutval)
-# BSS (r, pars, cutval)
-# SS  (r, pars, cutval)
-# SSS (r, pars, cutval)
-# SN  (r, pars, cutval)
-# SNS (r, pars, cutval)
-# HHN (r, pars, cutval)
-# HHR (r, pars, cutval)
-# HEX (r, pars, cutval)
-# HAN (r, pars, cutval)
-# HCG (r, pars, cutval)
-# HVP (r, pars, cutval)
-# gradient (pars, fun, eps=0.001, ...)
-
-# transform (x, link)
-# se.transform (real, sereal, link)
-# untransform (beta, link)
-# se.untransform (beta, sebeta, link)
-# Xtransform (real, linkfn, varnames)
-# se.Xtransform (real, sereal, linkfn, varnames)
-# Xuntransform (beta, linkfn, varnames)
-# se.Xuntransform (beta, sebeta, linkfn, varnames)
-# mlogit.untransform (beta, latentmodel)
-# clean.mlogit(x)
-# mlogit (x)
-
-# group.levels (capthist, groups, sep='.')
-# h.levels (capthist, hcov, nmix) 
-# n.occasion (capthist) 
-# group.factor (capthist, groups, sep='.')
-
-# getgrpnum (capthist, groups)
-# make.lookup (tempmat)
-# getknownclass(capthist, nmix, hcov)
-# getnmix (details)
-# fullbeta (beta, fb)
-# inflate (xy, rmult = 1)
-# getbinomN (binomN, detectr)
-# xy2CH (CH, inflation = 1e-8)
-# inflatechull (poly, r, ntheta = 60)
-# maskarea (mask, sessnum = 1)
-# masklength (mask, sessnum = 1)
-# masksize (mask, sessnum = 1)
-# complete.beta (object)
-# complete.beta.vcv (object)
-# smooths (formula)
-# polys (formula)
-# badsmooths (formula)
-# gamsetup(formula, data, ...)
-# general.model.matrix (formula, data, gamsmth = NULL, 
-# makerealparameters (design, beta, parindx, link, fixed)
-# secr.lpredictor (formula, newdata, indx, beta, field, beta.vcv=NULL,
-# edist (xy1, xy2)
-# nedist (xy1, xy2, mask, inf = Inf, ...)
-# getcellsize (mask)
-# updatemodel (model, detectfn, detectfns, oldvar, newvar, warn = FALSE)
-# deleteMaskPoints (mask, onebyone = TRUE, add = FALSE, poly = NULL,
-# nparameters (object)
-# mapbeta (parindx0, parindx1, beta0, betaindex)
-# xyinpoly (xy, trps)
-# addzerodf (df, oldCH, sess)
-# addzeroCH (CH, nzero, cov = NULL)
-# expandbinomN (binomN, detectorcodes)
-# check3D (object)
-# updateCH(object)
-# newstr <-function (strings)
-# outsidemask(CH, mask, threshold = spacing(mask) / sqrt(2))
-# shareFactorLevels (object, columns = NULL, stringsAsFactors = TRUE)
-# allzero (object)
-# primarysessions(intervals)
-# secondarysessions(intervals)
-# boundarytoSF (poly)
-# pointsInPolygon (xy, poly, logical = TRUE)
-# firstsk (PIAx)
-# maskboolean (ch, mask, threshold)
-# telemcode(object, ...)
-# uniquerownames (capthist)
-# selectCHsession(capthist, sessnum)
-# stringsAsFactors (DF)
-# getdistmat2 (traps, mask, userdist)
-# uniformusage(object, noccasions)
-# sfrotate (x, degrees, centrexy = NULL, usecentroid = FALSE)
-# snap_points(x, y, max_dist = 1000)
-# rtpois(n, lambda)
-    
