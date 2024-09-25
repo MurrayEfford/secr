@@ -17,31 +17,22 @@ fxi.contour <- function (
     .Deprecated("fxiContour", package="secr", 
                 "fxi.contour will soon be renamed fxiContour",
                 old = as.character(sys.call(sys.parent()))[1L])
-    fxiContour(object, i = 1, sessnum = 1, border = 100, nx = 64,
-               levels = NULL, p = seq(0.1,0.9,0.1), plt = TRUE, add = FALSE, 
-               fitmode = FALSE, plotmode = FALSE, fill = NULL, 
-               output = c('list','sf','SPDF'), ncores = NULL, ...)
+    fxiContour(object, i, sessnum, border, nx, levels, p, plt = TRUE, 
+               add, fitmode, plotmode, fill, output, ncores, ...)
 }
-
-# fxi.secr <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL) {
-#     .Deprecated("fxi", package="secr", 
-#                 "fxi.secr will soon be renamed fxi",
-#                 old = as.character(sys.call(sys.parent()))[1L])
-#     fxi (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL)
-# }
 
 fxi.mode <- function (object, i = 1, sessnum = 1, start = NULL, ncores = NULL, ...) {
     .Deprecated("fxiMode", package="secr", 
                 "fxi.mode will soon be renamed fxiMode",
                 old = as.character(sys.call(sys.parent()))[1L])
-    fxiMode (object, i = 1, sessnum = 1, start = NULL, ncores = NULL, ...)
+    fxiMode (object, i, sessnum, start, ncores, ...)
 }
 
 fx.total <- function (object, sessnum = 1, mask = NULL, ncores = NULL, ...) {
     .Deprecated("fxTotal", package="secr", 
                 "fx.total will soon be renamed fxTotal",
                 old = as.character(sys.call(sys.parent()))[1L])
-    fxTotal (object, sessnum = 1, mask = NULL, ncores = NULL, ...)
+    fxTotal (object, sessnum, mask, ncores, ...)
 }
 
 
