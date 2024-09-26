@@ -46,7 +46,7 @@ derived(object, ...)
   \item{beta}{ vector of fitted parameters on transformed (link) scale }
   \item{real}{ vector of `real' parameters } 
   \item{noccasions}{ integer number of sampling occasions (see Details) } 
-  \item{...}{other arguments passed to \code{\link{fdHess}} or ignored (esa)}
+  \item{...}{other arguments passed to \code{\link[nlme]{fdHess}} or ignored (esa)}
 }
 
 \details{
