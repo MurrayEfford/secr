@@ -13,6 +13,9 @@
   the model to each simulated dataset.
 
   The suitability of different test statistics has yet to be assessed. 
+  An alternative and possibly more informative set of tests is provided 
+  in function \code{\link{MCgof}} that implements the approach of 
+  Choo et al. (2024) for a range of models.
  
 }
 
@@ -101,9 +104,17 @@ raw data (object$capthist) and the fitted model.
     Print and plot methods are provided for `secrtest' objects.
   }
 
+\references{
+
+Choo, Y. R., Sutherland, C. and Johnston, A. (2024) A Monte Carlo resampling 
+framework for implementing goodness-of-fit tests in spatial capture-recapture model
+\emph{Methods in Ecology and Evolution} DOI: 10.1111/2041-210X.14386.
+
+}
 
 \seealso{
     
+  \code{\link{MCgof}},
   \code{\link{print.secrtest}},
   \code{\link{plot.secrtest}},
   \code{\link{simulate.secr}},
