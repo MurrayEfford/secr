@@ -53,7 +53,7 @@ New detections are simulated under the model for individuals at the simulated lo
 
 * Notation differs slightly from Choo et al. (2024), using \eqn{j} for occasion and \eqn{k} for detector to be consistent with usage in \pkg{secr} and elsewhere (e.g., Borchers and Fewster 2016).
 
-The default discrepancy (\code{testfn}) is the Freeman-Tukey statistic as in Choo et al. (2024). The statistic has this general form for \eqn{M} counts \eqn{y_m} with expected value \eqn{\mbox E(y_m)}:
+The default discrepancy (\code{testfn}) is the Freeman-Tukey statistic as in Choo et al. (2024) and Royle et al. (2014) (see also Brooks, Catchpole and Morgan 2000). The statistic has this general form for \eqn{M} counts \eqn{y_m} with expected value \eqn{\mbox E(y_m)}:
 \deqn{T = \sum_{m=1}^{m=M} \left(\sqrt {y_m} - \sqrt{E(y_m)}\right)^2.}
 
 The key output of \code{MCgof} is the proportion of replicates in which the simulated discrepancy exceeds the observed discrepancy. For perfect fit this will be about 0.5, and for poor fit it will approach zero.
@@ -98,6 +98,9 @@ explicit maximum likelihood methods for capture--recapture studies.
 
 Borchers, D. L. and Fewster, R. M. (2016) Spatial capture--recapture models.  
 \emph{Statistical Science} \bold{31}, 219--232.
+
+Brooks, S. P., Catchpole, E. A. and Morgan, B. J. T. (2000) Bayesian animal 
+survival estimation. \emph{Statistical Science} \bold{15}, 357--376.
 
 Choo, Y. R., Sutherland, C. and Johnston, A. (2024) A Monte Carlo resampling 
 framework for implementing goodness-of-fit tests in spatial capture-recapture model
@@ -152,6 +155,7 @@ Murray Efford and Yan Ru Choo
 \link{Parallel},
 \code{\link{secr.test}}, 
 \code{\link{plot.MCgof}}, 
+\code{\link{hist.MCgof}}, 
 \code{\link{summary.MCgof}}  
 
 }
@@ -159,11 +163,9 @@ Murray Efford and Yan Ru Choo
 \examples{
 
 \donttest{
-
 tmp <- MCgof(secrdemo.0)
 summary(tmp)
 plot(tmp)
-
 }
 
 }

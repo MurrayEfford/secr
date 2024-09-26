@@ -1,5 +1,6 @@
 \name{plot.MCgof}
 \alias{plot.MCgof}
+\alias{hist.MCgof}
 \alias{print.MCgof}
 \alias{summary.MCgof}
 
@@ -15,6 +16,9 @@ Plot, summary and print methods for MCgof objects.
 
 \method{plot}{MCgof}(x, counts = 'all', overlay = NULL, maxT = NULL, 
     main = NULL, cex = 0.9, ...)
+
+\method{hist}{MCgof}(x, counts = 'all', maxT = NULL, main = NULL, 
+    cex = 0.9, ...)
 
 \method{summary}{MCgof}(object, ...) 
 
@@ -52,6 +56,8 @@ If `overlay' is provided then the results are overlaid on the initial plot. Poin
 
 `main' is a vector of labels used as headers; the names should include all components of `statfn'. Setting main = "" suppresses headers.
 
+The hist method displays a histogram of the ratio Tobs/Tsim suggested by Fletcher et al. (2023) as a measure of overdispersion.
+
 }
 
 \value{
@@ -74,6 +80,10 @@ The summary method returns a matrix of values in which the columns correspond to
 }
 
 \references{
+
+Fletcher, D., Dillingham, P. W. and Parry, M. (2023) A simple and robust approach 
+to Bayesian modelling of overdispersed data. \emph{Environmental and Ecological 
+Statistics} DOI: 10.1007/s10651-023-00567-6.
 
 Gelman, A., Meng, X.-L., and Stern, H. (1996) Posterior predictive assessment of 
 model fitness via realized discrepancies. \emph{Statistica Sinica} \bold{6}, 733--807.

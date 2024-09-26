@@ -489,6 +489,7 @@ S3method(summary, Dsurface)
 
 S3method(print, MCgof)
 S3method(plot, MCgof)
+S3method(hist, MCgof)
 S3method(summary, MCgof)
 S3method(print, summary.MCgof)
 

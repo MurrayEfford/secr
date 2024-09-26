@@ -42,6 +42,36 @@ plot.MCgof <- function(x, counts = 'all', overlay = NULL, maxT = NULL, main = NU
 }
 ################################################################################
 
+hist.MCgof <- function(x, counts = 'all', maxT = NULL, main = NULL, cex = 0.9, ...) {
+    onestat <- function (count) {
+        xy <- x$all[[count]]    # dimensions c(Tsim, Tobs, p), 1:nreplicates)
+        if (!is.null(maxT)) xy[xy>maxT] <- NA
+        ratio <- xy['Tobs',] / xy['Tsim',]
+        if (any(main != "")) {
+            thismain <- paste(main[count], " p =", round(summ['p',count],3))
+        }
+        else {
+            thismain <- ""
+        }
+        hist(ratio, xlab = 'Tobs / Tsim', main = thismain)
+        abline(v=1, col = 'red')
+        
+    }
+    if (is.null(main)) {
+        # default vector of potential labels
+        main <- c(yik = 'yik individual x detector', 
+                  yi = 'yi individual', 
+                  yk = 'yk detector')
+    }
+    opar <- par(cex = cex)
+    on.exit(par(opar))
+    if (tolower(counts[1]) == 'all') counts <- names(x$all)
+    summ <- summary(x)
+    junk <- lapply(counts, onestat)
+    invisible()
+}
+################################################################################
+
 summary.MCgof <- function(object, ...) {
     summ <- sapply(object$all, apply, 1, median, na.rm = TRUE)
     summ['p',] <- sapply(object$all, function(x) mean(x['p',], na.rm = TRUE))
