@@ -123,7 +123,7 @@ For computing \code{derived} across multiple models in parallel see
 \code{\link{par.derived}}.
 
 From \pkg{secr} 5.0.0 the \dots argument may be used to control the step size 
-(.relStep) used by \code{\link{fdHess}} when estimating gradients for SE(D) and SE(esa).
+(.relStep) used by \code{\link[nlme]{fdHess}} when estimating gradients for SE(D) and SE(esa).
 
 }
 
