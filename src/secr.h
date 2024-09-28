@@ -15,7 +15,7 @@
 #include <Rcpp.h>
 #include <RcppParallel.h>
 
-#include <R.h>       // random numbers 
+// #include <R.h>       // random numbers 
 
 using namespace Rcpp;
 using namespace RcppParallel;
