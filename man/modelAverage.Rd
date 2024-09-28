@@ -143,5 +143,3 @@ modelAverage(secrdemo.0, secrdemo.b, betanames = c("D","g0","sigma"))
 
 }
 
-\keyword{ models }
-
