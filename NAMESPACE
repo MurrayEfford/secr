@@ -505,9 +505,6 @@ S3method(plot, secrtest)
 export (par.secr.fit)
 export (par.derived)
 export (par.region.N)
-export (esa.plot)
-export (fxi.contour)
-export (fxi.mode)
 export (fx.total)
 export (pdot.contour)
 export (buffer.contour)
@@ -516,6 +513,12 @@ export (buffer.contour)
 # defunct, still exported 5.0.0
 export (model.average)
 export (ip.secr)
+
+#---------------------------------------
+# defunct, not exported 5.0.0
+# export (esa.plot)
+# export (fxi.contour)
+# export (fxi.mode)
 
 #---------------------------------------
 # exported (mostly) internal functions
