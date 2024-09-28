@@ -1,4 +1,3 @@
-// #include <Rcpp.h>
 #include "secr.h"
 using namespace Rcpp;
 
