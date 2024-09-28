@@ -8,7 +8,6 @@
 // like 5 all sighting, n0 known
 // like 6 all sighting, n0 unknown
 
-#include <Rcpp.h>
 #include "secr.h"
 
 //==============================================================================

@@ -1,7 +1,6 @@
 // Simulate capture histories from fitted model
 // ******************* indicates weakness
 
-#include <Rcpp.h>
 #include "poly.h"
 using namespace Rcpp;
 //==============================================================================

@@ -1,6 +1,4 @@
-// #include <Rcpp.h>
 #include "secr.h"
-#include <RcppParallel.h>
 using namespace RcppParallel;
 
 //==============================================================================

@@ -1,6 +1,5 @@
-#include <Rcpp.h>
-#include <RcppParallel.h>
 #include "secr.h"
+#include <RcppParallel.h>
 
 //==============================================================================
 int discreteN (double N) {

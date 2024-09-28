@@ -1,4 +1,3 @@
-#include <Rcpp.h>
 #include "poly.h"
 using namespace std;
 using namespace Rcpp;
