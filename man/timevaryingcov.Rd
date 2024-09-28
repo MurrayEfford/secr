@@ -106,5 +106,4 @@ AIC(fit.tvc2, fit.t2, fit.tvc3)
 
 }
 
-\keyword{ manip }
 

@@ -79,5 +79,4 @@ t3 <- subset(temptrap, !as.logical(outer(1:8,1:8,'+')\%\%2))
 plot(t3)
 }
 
-\keyword{ manip }
 

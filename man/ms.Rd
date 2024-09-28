@@ -43,4 +43,3 @@ ms(ovenbird.model.1)
 ms(ovenCH[[1]])
 }
 
-\keyword{ manip }

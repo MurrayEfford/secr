@@ -176,4 +176,3 @@ plot(traps(possumCH), add = TRUE)
 
 }
 
-\keyword{ datagen }

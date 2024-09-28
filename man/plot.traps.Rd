@@ -75,5 +75,4 @@ None
     label = TRUE, offset = 7)
 }
 
-\keyword{ hplot }
 

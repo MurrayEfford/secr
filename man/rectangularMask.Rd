@@ -47,5 +47,4 @@ plot(rMask)
 plot(possummask, add = TRUE, col = "blue")
 
 }
-\keyword{ manip }
 

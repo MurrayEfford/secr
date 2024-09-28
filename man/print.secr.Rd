@@ -114,4 +114,3 @@ print(secrdemo.CL, deriv = TRUE)
 
 }
 
-\keyword{ print }

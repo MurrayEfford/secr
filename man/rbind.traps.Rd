@@ -63,4 +63,3 @@ nested <- rbind (hollow1, hollow2)
 plot(nested, gridlines = FALSE, label = TRUE)
 }
 
-\keyword{ manip }

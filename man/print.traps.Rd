@@ -23,5 +23,4 @@ Print method for \code{traps} objects.
 print(make.grid(nx = 5, ny = 3))
 }
 
-\keyword{ print }
 

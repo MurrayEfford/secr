@@ -129,4 +129,3 @@ if (interactive()) {
 
 }
 
-\keyword{ hplot }

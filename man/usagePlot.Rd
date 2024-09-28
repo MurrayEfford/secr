@@ -122,4 +122,3 @@ bubble(simgrid)
 }
 
 
-\keyword{ hplot }

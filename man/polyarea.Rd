@@ -33,4 +33,3 @@ polyarea(xy, ha = TRUE)
 polyarea(make.grid(hollow = TRUE))
 }
 
-\keyword{ manip }

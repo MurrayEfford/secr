@@ -135,6 +135,3 @@ plot(Drast)
 
 }
 
-\keyword{methods}
-\keyword{spatial}
-

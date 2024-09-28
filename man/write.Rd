@@ -66,4 +66,3 @@ None
   write.captures (captdata)
 
 }
-\keyword{ IO }

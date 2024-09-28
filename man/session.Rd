@@ -70,5 +70,4 @@ probability of capture. \emph{Journal of Wildlife Management} \bold{46},
   session(captdata)
 }
 
-\keyword{ models }
 

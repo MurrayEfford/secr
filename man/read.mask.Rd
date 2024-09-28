@@ -71,5 +71,4 @@ masks (e.g. \code{mask <- list(mask1, mask2, mask3)}).
 # ...
 }
 
-\keyword{ IO }
 

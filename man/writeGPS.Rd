@@ -120,6 +120,5 @@ NZTM <- paste("+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996",
 
 }
 
-\keyword{ IO }
 
 

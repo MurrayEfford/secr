@@ -139,4 +139,3 @@ timevaryingcov(ovenCHj)
 
 }
 
-\keyword{ manip }

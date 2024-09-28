@@ -50,4 +50,3 @@ occasionKey(captdata, rad = 8, cex = 0.8)
 
 }
 
-\keyword{ hplot }

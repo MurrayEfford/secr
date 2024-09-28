@@ -117,5 +117,4 @@ plot (temptr, add = TRUE,
     detpar = list (pch = 16, col = "green", cex = 2))  
 }
 
-\keyword{ classes }
 

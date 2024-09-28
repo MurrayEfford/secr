@@ -171,4 +171,3 @@ plot(test, main = '')
 
 }
 
-\keyword{ htest }

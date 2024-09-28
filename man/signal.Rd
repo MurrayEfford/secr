@@ -73,5 +73,4 @@ head(signalframe(signalCH))
 
 }
 
-\keyword{ manip }
 

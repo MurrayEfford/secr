@@ -163,5 +163,4 @@ collate(fit1)[,1,1,"D"] / sapply(fit2, function(x) predict(x)["D","estimate"])
 
 }
 
-\keyword{ manip }
 

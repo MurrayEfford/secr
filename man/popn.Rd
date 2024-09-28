@@ -33,5 +33,4 @@ on \code{Ndist} and \code{model2D}.
 
 \seealso{ \code{\link{sim.popn}}, \code{\link{plot.popn}}, \code{\link{transformations}} }
 
-\keyword{ classes }
 

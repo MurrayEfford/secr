@@ -177,4 +177,3 @@ par(opar)
 
 }
 
-\keyword{ datagen }

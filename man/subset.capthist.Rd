@@ -150,5 +150,4 @@ summary(ovenCH.males, terse = TRUE)
 
 }
 
-\keyword{ manip }
 

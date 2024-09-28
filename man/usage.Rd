@@ -96,5 +96,4 @@ usage(traps(ovenCH)) <- c(1,9,10,10,10,10)
 names(ovenCH) <- 2005:2009
 
 }
-\keyword{ manip }
 

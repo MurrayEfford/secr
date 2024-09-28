@@ -41,4 +41,3 @@ sapply(updateCH(ovenCH), dim)
 
 }
 
-\keyword{manip}

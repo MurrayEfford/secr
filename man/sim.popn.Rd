@@ -332,5 +332,4 @@ if (requireNamespace("spatstat") && requireNamespace("RandomFields")) {
 }
 
 
-\keyword{ datagen }
 

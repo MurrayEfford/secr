@@ -52,4 +52,3 @@ plotMaskEdge (possummask, add = TRUE)
 
 }
 
-\keyword{ hplot }

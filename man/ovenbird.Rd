@@ -169,6 +169,4 @@ AIC(ovenbird.model.1, ovenbird.model.D)
 
 }
 
-\keyword{datasets}
-
 %\figure{ovenbird.jpg}{options: width=1.5in}

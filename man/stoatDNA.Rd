@@ -137,4 +137,3 @@ collate(stoat.model.HN, stoat.model.EX,
 modelAverage(stoat.model.HN, stoat.model.EX, realnames = "D")
 
 }
-\keyword{datasets}

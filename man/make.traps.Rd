@@ -173,5 +173,4 @@ plot(tr, add = TRUE)
 
 }
 
-\keyword{ datagen }
 

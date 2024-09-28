@@ -52,4 +52,3 @@ sort(ovenCH, by = "Sex")
 covariates(ovenCH)[["2005"]]
 covariates(sort(ovenCH, by = "Sex"))[["2005"]]
 }
-\keyword{ manip }

@@ -70,5 +70,4 @@ Tn(object) <- value
   
 }
 
-\keyword{ manip }
 

@@ -130,4 +130,3 @@ FTHL14.fit <- secr.fit(hornedlizardCH.14, binomN = 14)
 
 }
 
-\keyword{datasets}

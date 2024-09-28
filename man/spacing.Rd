@@ -51,4 +51,3 @@ temptrap <- make.grid(nx = 6, ny = 8)
 spacing(temptrap)
 }
 
-\keyword{ models }

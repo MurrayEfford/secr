@@ -192,6 +192,3 @@ quantile(sims[,1], c(0.025, 0.975))
 }
 
 }
-\keyword{ datagen }
-\keyword{ models }
-

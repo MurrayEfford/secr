@@ -234,4 +234,3 @@ all(abs(A-B)/A < 1e-5)
 
 }
 
-\keyword{ manip }

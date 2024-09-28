@@ -166,5 +166,4 @@ if (interactive()) {
 
 }
 
-\keyword{ manip }
 

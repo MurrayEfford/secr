@@ -206,5 +206,4 @@ legend (x = "topright", fill = colourlev, legend =
 
 }
 
-\keyword{ hplot }
 

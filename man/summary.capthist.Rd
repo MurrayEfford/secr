@@ -85,5 +85,4 @@ summary(sim.capthist(temptrap))$counts["n",]
 summary(captdata, moves = TRUE)
 }
 
-\keyword{ models }
 

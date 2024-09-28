@@ -53,4 +53,3 @@ predictDlambda(fit)
 }
 
 }
-\keyword{ classes }

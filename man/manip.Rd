@@ -65,4 +65,3 @@ sessionlabels(singlesessionCH)
 
 }
 
-\keyword{ manip }

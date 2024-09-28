@@ -142,4 +142,3 @@ pop5 <- sim.popn (Nbuffer = 1000, core = grid, nsessions = 6,
 mean(do.call(rbind,extractMoves(pop5))$d)   # approx 50 * 0.5
 
 }
-\keyword{ datagen }

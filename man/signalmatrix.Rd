@@ -62,4 +62,3 @@ number of covariates (by default j = 0).
 signalmatrix(signalCH)
 
 }
-\keyword{ manip }

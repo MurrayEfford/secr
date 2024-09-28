@@ -46,5 +46,4 @@ covariates (tempmask) <- data.frame(x = tempmask$x)
 summary(tempmask)
 }
 
-\keyword{ models }
 

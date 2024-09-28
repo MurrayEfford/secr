@@ -164,4 +164,3 @@ countCH  <- make.capthist (captXY, counttraps, fmt = "XY")
 
 }
 
-\keyword{ manip }

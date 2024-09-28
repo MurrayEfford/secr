@@ -38,5 +38,4 @@ Invisibly returns a dataframe (condense = TRUE) or array in the format printed.
 print(sim.capthist(make.grid(nx=5,ny=3)))
 }
 
-\keyword{ print }
 

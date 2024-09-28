@@ -139,5 +139,4 @@ attr(temp, "newdata")
 detectpar(secrdemo.0)
 }
 
-\keyword{ models }
 

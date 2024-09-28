@@ -125,4 +125,3 @@ verify(tempmask)
 
 }
 
-\keyword{ manip }

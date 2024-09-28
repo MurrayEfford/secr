@@ -246,5 +246,4 @@ summary(temp, terse = TRUE)
 
 
 }
-\keyword{ datagen }
 

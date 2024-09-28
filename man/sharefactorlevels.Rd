@@ -41,4 +41,3 @@ An object of the same class as input. A single-session object is passed unchange
 
 }
 
-\keyword{ manip }

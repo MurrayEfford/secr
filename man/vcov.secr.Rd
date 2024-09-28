@@ -49,5 +49,4 @@ matrices, one for each `real' parameter.
 vcov(secrdemo.0)
 }
 
-\keyword{ models }
 

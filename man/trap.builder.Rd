@@ -274,4 +274,3 @@ if (requireNamespace("spsurvey", versionCheck = list(version = ">=5.3.0"))) {
 
 }
 
-\keyword{ manip }

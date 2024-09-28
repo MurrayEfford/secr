@@ -134,5 +134,4 @@ plot(nested, gridlines = FALSE, label = TRUE)
 
 }
 
-\keyword{ manip }
 

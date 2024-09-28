@@ -58,5 +58,4 @@ object.size(trim(secrlist(secrdemo.0, secrdemo.b)))
 
 }
 
-\keyword{ manip }
 

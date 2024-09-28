@@ -78,4 +78,3 @@ points(attr(trps, 'crossings'), pch = 16)
 
 }
 
-\keyword{ manip }

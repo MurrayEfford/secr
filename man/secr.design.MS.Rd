@@ -134,4 +134,3 @@ insertdim(1:6, 3, c(2,3,6))
 
 \seealso{ \code{\link{D.designdata}}, \code{\link{model.matrix}} }
 
-\keyword{ manip }

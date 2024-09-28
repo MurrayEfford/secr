@@ -46,4 +46,3 @@ pop <- do.call(rbind, list(p1,p2))
 
 }
 
-\keyword{ manip }

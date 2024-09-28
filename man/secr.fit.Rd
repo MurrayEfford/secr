@@ -376,5 +376,4 @@ AIC (secr0, secrb)
 }
 }
 
-\keyword{ models }
 

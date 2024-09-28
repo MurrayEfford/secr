@@ -68,4 +68,3 @@ xlab = 'Fixed pmix', ylab = 'Profile log-likelihood')
 }
 }
 
-\keyword{ model }

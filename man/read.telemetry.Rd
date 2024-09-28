@@ -64,4 +64,3 @@ secr.fit(gps2008CH, start = log(4000), detectfn = 'HHN',
 
 }
 
-\keyword{ IO }

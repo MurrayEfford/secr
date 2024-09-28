@@ -50,5 +50,4 @@ off the computation with \code{getspacing} = FALSE.
 demo.traps <- make.grid()
 summary(demo.traps)   ## uses print method for summary.traps object
 }
-\keyword{ models }
 

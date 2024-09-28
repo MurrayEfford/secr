@@ -115,5 +115,4 @@ attenuationplot (c(110, -0.3), spherical = TRUE, add = TRUE,
 
 }
 
-\keyword{ hplot }
 

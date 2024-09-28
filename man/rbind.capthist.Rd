@@ -157,5 +157,4 @@ plot(ch1); plot(pol2, add = TRUE); plot(ch2, add = TRUE)
 
 }
 
-\keyword{ manip }
 

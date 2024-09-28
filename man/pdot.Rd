@@ -117,5 +117,4 @@ The coefficient of variation is CV = \eqn{\sqrt{V}/\mu}{sqrt(V)/\mu}.
 
 }
 
-\keyword{ manip }
 

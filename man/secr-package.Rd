@@ -163,8 +163,6 @@ Tokyo.  Pp. 163--190.
  
 }
 
-\keyword{ package }
-
 \seealso{
 \code{\link{read.capthist}},
 \code{\link[secr]{secr.fit}},

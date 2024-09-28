@@ -185,4 +185,3 @@ plot(CH, type = 'centres', add = TRUE, rad = 0)
 
 }
 
-\keyword{ hplot }

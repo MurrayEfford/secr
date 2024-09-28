@@ -58,5 +58,4 @@ plot(temppopn, circles = 20, bg = "tan", fg = "white")
 plot(temppopn, pch = 16, cex = 0.5, add = TRUE)
 
 }
-\keyword{ hplot }
 

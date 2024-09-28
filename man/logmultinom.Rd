@@ -75,4 +75,3 @@ Demographic Processes in Marked Populations}. Springer. Pp. 255--269.
 logmultinom(stoatCH)
 
 }
-\keyword{models}

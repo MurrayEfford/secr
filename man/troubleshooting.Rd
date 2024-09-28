@@ -123,4 +123,3 @@ Conservation} \bold{27}, 561--572.
 
 }
 
-\keyword{ models }

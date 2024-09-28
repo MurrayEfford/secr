@@ -87,5 +87,4 @@ plot (hex, add = TRUE, detpar = list(pch = 16, cex = 1.4),
 
 }
 
-\keyword{ datagen }
 

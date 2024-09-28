@@ -120,4 +120,3 @@ ecological networks. \emph{Methods in Ecology and Evolution} \bold{6}, 169--177.
 
 }
 
-\keyword{ models }

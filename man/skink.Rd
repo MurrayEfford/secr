@@ -151,4 +151,3 @@ plot (LSmask, covariate = "habclass", dots = FALSE, axes = FALSE,
 plot(LStraps, add = TRUE, detpar = list(pch = 16))
 par(fg = "black")    ## default
 }
-\keyword{datasets}

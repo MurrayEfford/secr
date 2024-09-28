@@ -66,5 +66,4 @@ plot(temp)
  
 }
 
-\keyword{ manip }
 

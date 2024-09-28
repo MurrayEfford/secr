@@ -66,4 +66,3 @@ if (inherits(tmp, 'secrtest')) {
 
 }
 
-\keyword{ classes }

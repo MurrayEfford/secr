@@ -213,6 +213,3 @@ text(centr[,1]+2, centr[,2]+3, rownames(captdata), cex = 0.6,
     adj = 0)
 
 }
-
-\keyword{ models }
-

@@ -71,5 +71,4 @@ plot(tempmask)
 
 }
 
-\keyword{ models }
 

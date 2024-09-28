@@ -55,5 +55,4 @@ makeNewData(secrdemo.b)
 
 }
 
-\keyword{ models }
 

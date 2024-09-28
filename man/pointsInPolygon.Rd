@@ -64,4 +64,3 @@ lines(poly)
 
 }
 
-\keyword{ manip }

@@ -228,5 +228,4 @@ plot (attr(temp, "region"), type = "l")
 
 }
 
-\keyword{ models }
 %E.n         \tab expected number of individuals detected from region \cr

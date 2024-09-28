@@ -52,4 +52,3 @@ summary(pop, collapse = TRUE)
 
 }
 
-\keyword{ datagen }

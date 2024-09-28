@@ -104,4 +104,3 @@ collate(secrdemo.0, secrdemo.b)[1,,,]
 
 }
 
-\keyword{datasets}

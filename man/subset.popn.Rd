@@ -62,5 +62,4 @@ plot(temppops, add = TRUE, pch = 16)
 
 }
 
-\keyword{ manip }
 

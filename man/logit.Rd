@@ -38,5 +38,4 @@ logit(0.5)
 invlogit(logit(0.2))
 }
 
-\keyword{ manip }
 

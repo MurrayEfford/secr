@@ -146,4 +146,3 @@ attenuationplot(pars1, xval=0:150, spherical = TRUE, add = TRUE, lty=2)
 
 }
 
-\keyword{datasets}

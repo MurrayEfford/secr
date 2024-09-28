@@ -88,4 +88,3 @@ plot(snip(temptrans, length.out = 10), markvertices = 1)
 
 }
 
-\keyword{ manip }

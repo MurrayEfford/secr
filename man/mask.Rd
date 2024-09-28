@@ -71,5 +71,4 @@ appropriate.  }
   \code{\link{suggest.buffer}}, \code{\link{secr.fit}}
 }
 
-\keyword{ classes }
 
