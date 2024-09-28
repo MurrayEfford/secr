@@ -6,9 +6,9 @@
 
 .onAttach <- function (libname, pkgname) {
     version <- paste0(packageVersion('secr'), .localstuff$packageType)
-    packageStartupMessage( "This is secr ", version,
-                           ". For overview type ?secr\n", 
-                           "esa.plot and some fxi functions have new names; see ?version5" )
+    packageStartupMessage( 
+        "This is secr ", version, ". For overview type ?secr\n", 
+        "Functions 'esa.plot' and 'fxi.xxx' renamed; see ?version5" )
 }
 
 ## .onLoad is preferred if actions are required for single functions 
