@@ -1,6 +1,6 @@
-#include <Rcpp.h>
-#include <RcppParallel.h>
+// #include <Rcpp.h>
 #include "secr.h"
+#include <RcppParallel.h>
 
 //==============================================================================
 // 2019-08-10
