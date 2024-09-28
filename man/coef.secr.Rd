@@ -39,4 +39,3 @@ coef(secrdemo.0)
 
 }
 
-\keyword{ models }

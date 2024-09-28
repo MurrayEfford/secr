@@ -195,5 +195,4 @@ this case it corresponds to the mean of the threshold variable; the
 standard deviation of the threshold variable (z) determines the shape
 (roughly 1/max(slope)) of the detection function.  }
 
-\keyword{ models }
 

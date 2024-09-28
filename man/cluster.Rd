@@ -79,5 +79,4 @@ cluster.counts(tempCH)   ## distinct individuals
 
 }
 
-\keyword{ manip }
 

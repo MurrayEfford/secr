@@ -123,4 +123,3 @@ table(trap(deermouse.WSG), occasion(deermouse.WSG))
 
 }
 
-\keyword{datasets}

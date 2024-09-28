@@ -105,5 +105,4 @@ confint(secrdemo.0, "D")
 
 }
 
-\keyword{ models }
 

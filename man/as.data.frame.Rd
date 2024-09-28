@@ -64,4 +64,3 @@ The \code{as.array} method for capthist objects returns an object with the same 
   as.data.frame (traps(captdata))
   
 }
-\keyword{ IO }

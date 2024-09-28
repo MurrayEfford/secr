@@ -141,5 +141,4 @@ apply(pg, 1, mean)
 }
 }
 
-\keyword{ manip }
 

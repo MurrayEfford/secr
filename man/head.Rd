@@ -51,5 +51,4 @@ An object of the same class as x, but (usually) fewer rows.
 head(possummask)
 }
 
-\keyword{ manip }
 

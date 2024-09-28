@@ -73,4 +73,3 @@ ellipse.secr(secrdemo.0)
 
 }
 
-\keyword{ hplot }

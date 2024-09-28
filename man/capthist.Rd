@@ -79,4 +79,3 @@ Entries in the matrix corresponded to trap numbers. The function
 \code{\link{MS.capthist}},
 \code{\link{reduce.capthist}}, \code{\link{mask}} }
 
-\keyword{ classes }

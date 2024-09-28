@@ -45,4 +45,3 @@ Baddeley, A., Rubak, E., and Turner, R. 2015. Spatial Point Patterns: Methodolog
 
 }
 
-\keyword{manip}

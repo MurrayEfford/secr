@@ -156,5 +156,4 @@ Averaging}. Cambridge: Cambridge University Press.
 
 }
 
-\keyword{ manip }
 

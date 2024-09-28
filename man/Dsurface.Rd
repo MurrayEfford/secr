@@ -47,4 +47,3 @@ A virtual S4 class `Dsurface' is defined to allow the definition of a method for
 
 }
 
-\keyword{ classes }

@@ -53,5 +53,4 @@ covariates (temptrap) <- data.frame(halfnhalf =
 summary(covariates(temptrap))
 }
 
-\keyword{ manip }
 

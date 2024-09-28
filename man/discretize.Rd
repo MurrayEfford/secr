@@ -116,5 +116,4 @@ plot(msk, dots = FALSE, cov='usage', meshcol = 'green',
 
 }
 
-\keyword{ manip }
 

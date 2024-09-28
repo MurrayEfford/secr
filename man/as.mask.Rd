@@ -49,4 +49,3 @@ plot(traps(captdata), add = TRUE)
 
 }
 
-\keyword{manip}

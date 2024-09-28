@@ -145,4 +145,3 @@ legend (2.8, 0.3, legend = c("halfnormal","hazard-rate, z = 4", "exponential"),
 
 }
 
-\keyword{ models }

@@ -114,5 +114,4 @@ plot(fxsurface, covariate = 'D.sum')
 
 }
 
-\keyword{ model }
 

@@ -320,4 +320,3 @@ derivedSession(ovenbird.model.1, method = "R2")
 
 }
 
-\keyword{ models }

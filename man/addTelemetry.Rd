@@ -144,4 +144,3 @@ secr.fit(combinedCH, CL = FALSE, detectfn = "HHN", trace = FALSE)
 
 }
 
-\keyword{ manip }

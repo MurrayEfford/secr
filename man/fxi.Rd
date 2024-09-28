@@ -4,11 +4,11 @@
 \alias{fxi.secr}
 \alias{fxi}
 
-\title{ Probability Density of Home Range Centre }
+\title{ Probability Density of Activity Centre }
 
 \description{
   Display contours of the probability density function for the estimated
-  location of one or more range centres, compute values for
+  location of one or more activity centres (AC), compute values for
   particular points X, or compute mode of pdf. The pdf is given by
   \eqn{f(X_j|\omega_i) = \mbox{Pr}(\omega_i|X_j)\pi(X_j)}{f(X_j|\omega_i) =
   Pr(\omega_i|X)\pi(X_j)}, where \eqn{\pi(X)} is the probability density
@@ -55,18 +55,18 @@ fxiMode(object, i = 1, sessnum = 1, start = NULL, ncores = NULL, ...)
 
 \details{
 
-  \code{fxiContour} computes contours of probability density for one
+  \code{fxiContour} computes contours of AC probability density for one
   or more detection histories. Increase \code{nx} for smoother
   contours. If \code{levels} is not set, contour levels are set
   to approximate the confidence levels in \code{p}.
   
-  \code{fxi} computes the probability density for one or more
+  \code{fxi} computes the AC probability density for one or more
   detection histories; \code{X} may contain coordinates for one or
   several points; a dataframe or vector (x then y) will be coerced to a
   matrix.
 
   \code{fxiMode} attempts to find the x- and y-coordinates
-  corresponding to the maximum of the pdf for a single detection history
+  corresponding to the maximum of the AC pdf for a single detection history
   (i.e. \code{i} is of length 1). \code{fxiMode} calls
   \code{\link[stats]{nlm}}.
 
@@ -80,7 +80,7 @@ fxiMode(object, i = 1, sessnum = 1, start = NULL, ncores = NULL, ...)
   
   Values of the pdf are normalised by dividing by the
   integral of \eqn{\mbox{Pr}(\omega_i|X)\pi(X)}{Pr(\omega_i|X)\pi(X)}
-  over the habitat mask in \code{object}. (May differ in secr 4.0).
+  over the habitat mask in \code{object}. (In secr >= 4.0 may differ from previous versions).
   
   Setting \code{ncores = NULL} uses the existing value from the environment variable 
   RCPP_PARALLEL_NUM_THREADS (see \code{\link{setNumThreads}}).
@@ -195,5 +195,3 @@ points(data.frame(spdf))
 }
 
 }
-
-\keyword{ hplot }

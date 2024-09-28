@@ -92,4 +92,3 @@ AIC(housemouse.0, housemouse.ampm)
 
 }
 
-\keyword{datasets}

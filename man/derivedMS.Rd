@@ -203,7 +203,5 @@ esa(secrdemo.CL, real = c(0.2, 25))
 
 }
 
-\keyword{ models }
-
 %varcomp1    \tab variance due to variation in \eqn{n} (Huggins' \eqn{s^2}) \cr
 %varcomp2    \tab variance due to uncertainty in estimates of detection parameters \cr

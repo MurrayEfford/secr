@@ -89,5 +89,4 @@ df.residual(secrdemo.0)
 
 }
 
-\keyword{ models }
 

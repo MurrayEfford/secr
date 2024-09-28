@@ -93,4 +93,3 @@ used for this sort of data.
 \examples{
  closure.test(captdata)
 }
-\keyword{ htest }

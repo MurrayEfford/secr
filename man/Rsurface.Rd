@@ -124,4 +124,3 @@ if (interactive()) {
 }
 
 }
-\keyword{ manip }

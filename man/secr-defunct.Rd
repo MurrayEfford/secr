@@ -8,6 +8,9 @@
 \alias{read.SPACECAP}
 \alias{write.SPACECAP}
 \alias{derivedSystematic}
+\alias{fxi.contour}
+\alias{fxi.mode}
+\alias{esa.plot}
 
 \title{Defunct Functions in Package \pkg{secr}}
 
@@ -22,6 +25,10 @@ These functions are no longer available in \pkg{secr}.
 # Defunct in 5.0.0
 
 derivedSystematic()
+
+esa.plot()
+fxi.contour()
+fxi.mode()
 
 # Defunct in 4.6.2 (2023-09-30)
 
@@ -51,6 +58,11 @@ write.SPACECAP()
 
 Some of these have stubs which report that they are defunct, but most have been 
 removed completely (apart from being documented here). 
+
+\code{esa.plot} was renamed \code{\link{esaPlot}}.\cr
+\code{fxi.contour} was renamed \code{\link{fxiContour}}.\cr
+\code{fxi.mode} was renamed \code{\link{fxiMode}}. \cr
+See \link{secr-version5} for explanation.
 
 \code{model.average} is replaced by a method for `secr' and `secrlist' objects of the generic \code{\link{modelAverage}}. The internal code is essentially the same for \code{model.average} and \code{modelAverage.secrlist}. The generic avoids a name conflict with RMark and is also used in \pkg{openCR}.
 

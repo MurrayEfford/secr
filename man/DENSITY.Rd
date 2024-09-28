@@ -201,4 +201,3 @@ write.capthist(ovenCH)
 
 }
 
-\keyword{ IO }

@@ -161,4 +161,3 @@ par(xpd = FALSE, mar = c(5,4,4,2) + 0.1)    ## reset to default
 
 }
 
-\keyword{ hplot }

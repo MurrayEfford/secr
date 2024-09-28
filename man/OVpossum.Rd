@@ -137,4 +137,3 @@ lines(read.table(system.file("extdata/leftbank.txt", package = "secr")))
 
 }
 
-\keyword{datasets}

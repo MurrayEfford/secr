@@ -3,10 +3,7 @@
 \alias{par.secr.fit}
 \alias{par.region.N}
 \alias{par.derived}
-\alias{fxi.contour}
-\alias{fxi.mode}
 \alias{fx.total}
-\alias{esa.plot}
 \alias{pdot.contour}
 \alias{buffer.contour}
 
@@ -23,19 +20,7 @@ par.derived (secrlist, ncores = 1, ...)
 
 par.region.N (secrlist, ncores = 1, ...)
 
-fxi.contour (object, i = 1, sessnum = 1, border = 100, nx = 64, levels = NULL, 
-    p = seq(0.1,0.9,0.1), plt = TRUE, add = FALSE, fitmode = FALSE, plotmode = 
-    FALSE, fill = NULL, output = c('list','sf','SPDF'), ncores = NULL, ...) 
-
-fxi.mode (object, i = 1, sessnum = 1, start = NULL, ncores = NULL, ...)
-
 fx.total (object, sessnum = 1, mask = NULL, ncores = NULL, ...)
-
-esa.plot (object, max.buffer = NULL, spacing = NULL, max.mask = NULL, detectfn,
-      detectpar, noccasions, binomN = NULL, thin = 0.1, poly = NULL,
-      poly.habitat = TRUE, session = 1, plt = TRUE, type = c('density', 
-      'esa','meanpdot', 'CVpdot'), n = 1, add = FALSE, overlay = TRUE, 
-      conditional = FALSE, ...)
 
 buffer.contour (traps, buffer, nx = 64, convex = FALSE, ntheta = 100,
     plt = TRUE, add = FALSE, poly = NULL, poly.habitat = TRUE,
@@ -73,7 +58,7 @@ buffer.contour \tab \code{\link{bufferContour}} \cr
 
 \seealso{
 
-\code{\link{secr-defunct}}, \code{\link{list.secr.fit}}
+\code{\link{secr-defunct}}, \code{\link{list.secr.fit}}, \link{secr-version5}
 
 }
 

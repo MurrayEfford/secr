@@ -245,5 +245,3 @@ coef(fit)
 }
 
 }
-
-\keyword{ models }

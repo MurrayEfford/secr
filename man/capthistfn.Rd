@@ -95,5 +95,4 @@ cbind(ID = as.numeric(animalID(temp)), occ = occasion(temp),
 
 }
 
-\keyword{ manip }
 

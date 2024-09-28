@@ -78,5 +78,4 @@ detector(temptrap) <- "proximity"
 summary(temptrap)
 }
 
-\keyword{ models }
 

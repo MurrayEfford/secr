@@ -232,4 +232,3 @@ predict(fit.sextrend)[1:5]
 
 }
 
-\keyword{ models }

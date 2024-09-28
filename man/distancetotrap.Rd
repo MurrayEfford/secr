@@ -57,5 +57,4 @@ the function sf::st_distance is used internally(from \pkg{secr} 4.5.2).
 }
 
 
-\keyword{ manip }
 

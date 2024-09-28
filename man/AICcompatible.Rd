@@ -68,4 +68,3 @@ AICcompatible(ob1,ob3)
 
 }
 
-\keyword{ models }

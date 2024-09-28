@@ -82,4 +82,3 @@ clone(captdata, "truncatedpoisson", getlambda(3))
 
 }
 
-\keyword{ manip }

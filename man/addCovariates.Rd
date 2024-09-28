@@ -87,4 +87,3 @@ head(covariates(tempmask))
 
 }
 
-\keyword{ manip }

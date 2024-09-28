@@ -99,4 +99,3 @@ summary(MRCH2)
 
 }
 
-\keyword{ manip }

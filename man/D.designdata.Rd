@@ -57,4 +57,3 @@ existing model.
 
 \seealso{ \code{\link{secr.design.MS}} }
 
-\keyword{ manip }

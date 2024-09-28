@@ -152,4 +152,3 @@ secr.fit(tempcapt, trace = FALSE)
 
 }
 
-\keyword{ IO }

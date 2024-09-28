@@ -114,4 +114,3 @@ sum((y - En)^2 / En) / sum(y/En)
 
 }
 
-\keyword{ models }

@@ -94,4 +94,3 @@ if (interactive()) {
 }
 }
 
-\keyword{ hplot }

@@ -52,4 +52,3 @@ AIC (secrdemo.0, secrdemo.b)
 LR.test  (secrdemo.0, secrdemo.b)
 
 }
-\keyword{ htest }

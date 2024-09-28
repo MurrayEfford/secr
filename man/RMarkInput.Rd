@@ -126,4 +126,3 @@ cleanup(ask = FALSE)
 
 }
 
-\keyword{ manip }

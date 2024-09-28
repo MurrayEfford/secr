@@ -179,5 +179,4 @@ plotchat <- function(chat, head = '', breaks = seq(0.5,2.5,0.05)) {
 
 }
 
-\keyword{ manip }
 
