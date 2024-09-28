@@ -1,6 +1,3 @@
-// next two lines must be in order (RcppNumerical precedes secr.h)
-// #include <RcppNumerical.h>
-
 #include "secr.h"
 
 using namespace std;
