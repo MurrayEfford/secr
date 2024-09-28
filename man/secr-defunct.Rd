@@ -1,5 +1,6 @@
 \name{secr-defunct}
 \alias{secr-defunct}
+\alias{defunct}
 \alias{model.average}
 \alias{ip.secr}
 \alias{pfn}
