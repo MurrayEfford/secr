@@ -6,6 +6,7 @@
 \alias{fx.total}
 \alias{pdot.contour}
 \alias{buffer.contour}
+% \alias{esa.plot}
 
 \title{Deprecated Functions in Package \pkg{secr}}
 
@@ -31,6 +32,11 @@ pdot.contour (traps, border = NULL, nx = 64, detectfn = 0,
     binomN = NULL, levels = seq(0.1, 0.9, 0.1), poly = NULL, 
     poly.habitat = TRUE, plt = TRUE, add = FALSE, fill = NULL, ...)
     
+%esa.plot <- function (object, max.buffer = NULL, spacing = NULL, max.mask = NULL, 
+%    detectfn, detectpar, noccasions, binomN = NULL, thin = 0.1, poly = NULL,
+%    poly.habitat = TRUE, session = 1, plt = TRUE, type = c('density', 'esa',
+%    'meanpdot', 'CVpdot'), n = 1, add = FALSE, overlay = TRUE, 
+%    conditional = FALSE, ...) 
 }
 
 \details{
