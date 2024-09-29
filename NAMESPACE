@@ -100,10 +100,10 @@ importFrom (stringr,
     str_pad, 
     str_length)
 
-#importFrom (terra, 
-#    extract)
-#importMethodsFrom (terra, rast)
-#exportMethods     (rast)
+importFrom (terra, 
+    extract)
+importMethodsFrom (terra, rast)
+exportMethods     (rast)
 
 export (secr.fit)
 export (list.secr.fit)
@@ -538,23 +538,23 @@ S3method(makeNewData, secr)    # makeNewData.Rd
 export (bias.D)                # suggest.buffer.Rd    
 
 export (boundarytoSF)          # internal.Rd
+export (Dfn2)                  # internal.Rd
 
 #---------------------------------------
 # internal functions not exported
 
-# export (add.cl)                # internal.Rd
-# export (parnames)              # internal.Rd
-# export (detectorcode)          # internal.Rd
-# export (Dfn2)                  # internal.Rd
-# export (esaPlotsecr)           # esaPlot.Rd
-# export (gethazard)             # internal.Rd
+# export (add.cl)                
+# export (parnames)              
+# export (detectorcode)          
+# export (esaPlotsecr)           
+# export (gethazard)             
 # export (group.factor)
 # export (group.levels)
-# export (prepareSessionData)    # internal.Rd
-# export (reparameterize)        # internal.Rd
+# export (prepareSessionData)    
+# export (reparameterize)        
 # export (secr.lpredictor)
-# export (stdform)               # internal.Rd
-# export (valid.detectfn)        # internal.Rd
+# export (stdform)               
+# export (valid.detectfn)        
 
 # ===========================
 useDynLib (secr)

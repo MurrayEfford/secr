@@ -52,31 +52,31 @@ setMethod("raster", signature(x = "Dsurface"),
 ## plot(raster(predictDsurface(fit.Dforest), 'D.0'), useRaster = F)
 
 ## 2022-01-24 terra SpatRaster
-# setMethod("rast", signature(x = "mask"),
-#     ## define internal function for coercing mask to SpatRaster
-#     function(x,  covariate, values = 1, crs = "") {
-#         if (missing(covariate)) {
-#             covariate <- 'tempcov'
-#             covariates(x) <- data.frame(tempcov = rep(values, length.out=nrow(x)))
-#         }
-#         mask <- rectangularMask(x)
-#         tmp <- as.numeric(unlist(covariates(mask)[,covariate] ))
-#         df <- cbind(mask, tmp)
-#         rast(df, type = 'xyz', crs = crs)
-#     }
-# )
-# 
-# setMethod("rast", signature(x = "Dsurface"),
-#     ## define internal function for coercing Dsurface to SpatRaster
-#     function(x,  covariate, values = 1, crs = "") {
-#         if (missing(covariate)) {
-#             covariate <- 'tempcov'
-#             covariates(x) <- data.frame(tempcov = rep(values, length.out=nrow(x)))
-#         }
-#         mask <- rectangularMask(x)
-#         tmp <- as.numeric(unlist(covariates(mask)[,covariate] ))
-#         df <- cbind(mask, tmp)
-#         rast(df, type = 'xyz', crs = crs)
-#     }
-# )
+setMethod("rast", signature(x = "mask"),
+    ## define internal function for coercing mask to SpatRaster
+    function(x,  covariate, values = 1, crs = "") {
+        if (missing(covariate)) {
+            covariate <- 'tempcov'
+            covariates(x) <- data.frame(tempcov = rep(values, length.out=nrow(x)))
+        }
+        mask <- rectangularMask(x)
+        tmp <- as.numeric(unlist(covariates(mask)[,covariate] ))
+        df <- cbind(mask, tmp)
+        rast(df, type = 'xyz', crs = crs)
+    }
+)
+
+setMethod("rast", signature(x = "Dsurface"),
+    ## define internal function for coercing Dsurface to SpatRaster
+    function(x,  covariate, values = 1, crs = "") {
+        if (missing(covariate)) {
+            covariate <- 'tempcov'
+            covariates(x) <- data.frame(tempcov = rep(values, length.out=nrow(x)))
+        }
+        mask <- rectangularMask(x)
+        tmp <- as.numeric(unlist(covariates(mask)[,covariate] ))
+        df <- cbind(mask, tmp)
+        rast(df, type = 'xyz', crs = crs)
+    }
+)
 

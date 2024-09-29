@@ -6,9 +6,9 @@
 \alias{raster,mask-method}
 \alias{raster,Dsurface-method}
 
-% \alias{rast}
-% \alias{rast,mask-method}
-% \alias{rast,Dsurface-method}
+\alias{rast}
+\alias{rast,mask-method}
+\alias{rast,Dsurface-method}
 
 \title{Create a RasterLayer Object from Mask or Dsurface}
 
@@ -24,8 +24,9 @@
 \S4method{raster}{mask}(x, covariate, values = 1, crs = NA)
 
 \S4method{raster}{Dsurface}(x, covariate, values = 1, crs = NA)
-% \S4method{rast}{mask}(x, covariate, values = 1, crs = "")
-% \S4method{rast}{Dsurface}(x, covariate, values = 1, crs = "")
+\S4method{rast}{mask}(x, covariate, values = 1, crs = "")
+\S4method{rast}{Dsurface}(x, covariate, values = 1, crs = "")
+
 }
 
 \arguments{
@@ -59,23 +60,23 @@ further explanation and links.
 
 The S3 classes `mask' and `Dsurface' are defined in \pkg{secr} as
 virtual S4 classes. This enables these extensions to the list of S4
-methods defined in \pkg{raster}. % and \pkg{terra}
+methods defined in \pkg{raster} and \pkg{terra}.
   
 Although these methods work `standalone', it is currently necessary to
-load the %\pkg{terra} or
-\pkg{raster} package to do much with the result (e.g., plot it).
+load the \pkg{terra} or \pkg{raster} package to do much with the result (e.g., plot it).
 
 }
 
 \value{
   
-RasterLayer (raster) % or SpatRaster (rast)
+RasterLayer (raster) \cr
+SpatRaster (rast)
 
 }
 
 \seealso{
   
-\code{\link[raster]{raster}} %, \code{\link[terra]{rast}}
+\code{\link[raster]{raster}}, \code{\link[terra]{rast}}
 
 }
 
@@ -105,23 +106,6 @@ tmp <- raster(shorePossums, "D.0", crs = "+proj=nzmg")
 ## check the projection
 proj4string(tmp)
      
-# It is also possible to generate 'terra' rast objects directly by defining this method:
-
-require(terra)
-setMethod("rast", signature(x = "mask"),
-    ## define internal function for coercing mask to SpatRaster
-    function(x,  covariate, values = 1, crs = "") {
-        if (missing(covariate)) {
-            covariate <- 'tempcov'
-            covariates(x) <- data.frame(tempcov = rep(values, length.out=nrow(x)))
-        }
-        mask <- rectangularMask(x)
-        tmp <- as.numeric(unlist(covariates(mask)[,covariate] ))
-        df <- cbind(mask, tmp)
-        rast(df, type = 'xyz', crs = crs)
-    }
-)
-
 # mask to rast
 dtsrast <- rast(possummask, covariate = 'd.to.shore')
 plot(dtsrast)
