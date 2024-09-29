@@ -165,6 +165,7 @@ Murray Efford and Yan Ru Choo
 \donttest{
 tmp <- MCgof(secrdemo.0)
 summary(tmp)
+par(mfrow = c(1,3), pty = 's')
 plot(tmp)
 }
 
