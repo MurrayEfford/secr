@@ -88,7 +88,7 @@ and the power of the tests is limited.
 
 \section{Extended capability}{
 
-These overdue features were needed to extend the models covered by \code{MCgof}:
+These extensions allow \code{MCgof} to cover a wider range of models:
 
 \itemize{
 \item \code{\link{detectpar}} optionally returns values for each detector
@@ -101,8 +101,7 @@ These overdue features were needed to extend the models covered by \code{MCgof}:
 
 The code for area-search and transect-search models (detector types `polygonX',
 `polygon', `transectX', `transect') has been streamlined with a view to 
-removing it to another package. Some obscure internal functions are now exported
-to facilitate that future change. Simulation for these models (functions
+removing it to another package. Simulation for these models (functions
 \code{sim.capthist}, \code{sim.detect}) will remain in \pkg{secr}, but uses native R 
 functions rather than RcppNumerical of Qiu et al. (2023). 
 
