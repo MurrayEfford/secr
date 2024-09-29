@@ -168,7 +168,6 @@ export (derivednj)
 export (pdot)
 export (nk)
 export (Enk)
-export (esaPlot)
 export (suggest.buffer)
 export (mask.check)
 export (polyarea)
@@ -191,22 +190,6 @@ export (closedN)
 export (read.DA)
 export (write.DA)
 export (logmultinom)
-
-#---------------------------------------
-# new names 5.0.0 September 2024
-export (fxi)
-export (fxTotal)
-export (esa)
-
-S3method(fxi, secr)
-S3method(fxTotal, secr)
-S3method(esa, secr)
-
-export (fxiContour)
-export (fxiMode)
-export (pdotContour)
-export (bufferContour)
-#---------------------------------------
 
 export (pointsInPolygon)
 export (predictDsurface)
@@ -500,6 +483,22 @@ S3method(print, secrtest)
 S3method(plot, secrtest)
 
 #---------------------------------------
+# new names 5.0.0 September 2024
+export (fxi)
+export (fxTotal)
+export (esa)
+
+S3method(fxi, secr)
+S3method(fxTotal, secr)
+S3method(esa, secr)
+
+export (fxiContour)
+export (fxiMode)
+export (pdotContour)
+export (bufferContour)
+export (esaPlot)
+
+#---------------------------------------
 # deprecated, still exported 5.0.0
 
 export (par.secr.fit)
@@ -508,6 +507,7 @@ export (par.region.N)
 export (fx.total)
 export (pdot.contour)
 export (buffer.contour)
+# export (esa.plot)   # resurrect for testing 2024-09-30
 
 #---------------------------------------
 # defunct, still exported 5.0.0
