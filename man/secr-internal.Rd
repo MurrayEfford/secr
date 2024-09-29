@@ -1,7 +1,7 @@
 \name{Internal}
 
 \alias{boundarytoSF}
-% \alias{Dfn2}
+\alias{Dfn2}
 
 \title{Internal Functions}
 
@@ -15,16 +15,17 @@ Functions called internally by \pkg{secr} and exported but not usually called by
 
 boundarytoSF (poly)
 
-% Dfn2(designD, beta = NULL, ...)
+Dfn2(designD, beta = NULL, ...)
+
 }
 
 \arguments{
 
   \item{poly}{data to define one or more polygons}
 
-%  \item{designD}{dataframe of density design data (output from \code{\link{D.designdata}})}
-%  \item{beta}{numeric vector of beta values (see Details for NULL)}
-%  \item{...}{other arguments (not used)}
+  \item{designD}{dataframe of density design data (output from \code{\link{D.designdata}})}
+  \item{beta}{numeric vector of beta values (see Details for NULL)}
+  \item{...}{other arguments (not used)}
 
 }
 
@@ -47,11 +48,11 @@ boundarytoSF (poly)
   
   Matrix input defines a single polygon.
 
-%  \code{Dfn2} is supplied automatically as 'details' argument Dfn in 
-%  \code{\link{secr.fit}} when the switch Dlambda is set to TRUE for the 
-%  multi-session trend reparameterization of density. \code{Dfn2} 
-%  uses beta = NULL to return the required number of density coefficients 
-%  (beta parameters) in the model.
+  \code{Dfn2} is supplied automatically as 'details' argument Dfn in 
+  \code{\link{secr.fit}} when the switch Dlambda is set to TRUE for the 
+  multi-session trend reparameterization of density. \code{Dfn2} 
+  uses beta = NULL to return the required number of density coefficients 
+  (beta parameters) in the model.
 
 }
 
@@ -60,7 +61,7 @@ boundarytoSF (poly)
 \code{boundarytoSF} -- Spatial object of \pkg{sf} class sfc, containing 
 a geometry set of type POLYGON or MULTIPOLYGON. NULL input results in NULL output.
 
-%\code{Dfn2} -- Vector of density values on the link scale, suitable for the internal array (mask x groups x sessions).
+\code{Dfn2} -- Vector of density values on the link scale, suitable for the internal array (mask x groups x sessions).
 
 }
 
@@ -69,8 +70,8 @@ a geometry set of type POLYGON or MULTIPOLYGON. NULL input results in NULL outpu
 \code{\link{pointsInPolygon}}, 
 \href{https://www.otago.ac.nz/density/pdfs/secr-spatialdata.pdf}{secr-spatialdata.pdf},
 
-%\code{\link{predictDlambda}},
-%\href{https://www.otago.ac.nz/density/pdfs/secr-trend.pdf}{secr-trend.pdf},
+\code{\link{predictDlambda}},
+\href{https://www.otago.ac.nz/density/pdfs/secr-trend.pdf}{secr-trend.pdf},
 
 }
 
