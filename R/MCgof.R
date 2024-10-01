@@ -25,7 +25,7 @@ defaulttestfn <- function(realised, expected){
     sum((sqrt(realised) - sqrt(expected))^2)
 }
 
-simfxiAC <- function (object, bytrap, dN = TRUE) {
+simfxiAC <- function (object, bytrap) {
 
     # -----------------------------------
     # sample one location of each _observed_ animal from its pdf
@@ -43,57 +43,48 @@ simfxiAC <- function (object, bytrap, dN = TRUE) {
     
     # density of unobserved AC
     # this code is also in fxTotal
-    D <- predictDsurface(object)
-    D <- covariates(D)$D.0
+    Dstar <- predictDsurface(object)
+    Dstar <- covariates(Dstar)$D.0
     
     # make a null starting popn
     unobspop <- sim.popn(0, attr(obspop, 'boundingbox'), buffer = 0, covariates = NULL) 
     CH <- object$capthist
+    n <- nrow(CH)
     
-    if (dN) {
-        # conceptually, (sampling) variation in D affects only the N-n unobserved
+    Nstar <- sum(Dstar) * attr(mask, 'area')
+    if (object$details$distribution == 'poisson') {
+        Nstar <- rpois(1, Nstar)
+    }
+
+    if (Nstar < n) {
+        warning("resampled N less than number observed; unobserved not simulated")
+    }
+    else if (Nstar > n) {
         detpar <- detectpar(object, byclass = TRUE, bytrap = bytrap) 
         ## if bytrap, detpar[[i]] is trap x parameter dataframe for class i
-        if (is.na(detpar[[1]]['pmix'])) detpar <- list(c(detpar, pmix=1))
+        if (is.na(detpar[[1]]['pmix'])) detpar <- list(c(detpar, pmix = 1))
         for (i in 1:length(detpar)) {
             pd <- pdot(X = mask, traps = traps(CH), detectfn = object$detectfn,
-                       detectpar = detpar[[i]], noccasions = ncol(CH), ncores = NULL)
+                       detectpar = detpar[[i]], noccasions = ncol(CH))
             # sample locations of unobserved AC for i-th class
-            pop <- sim.popn (D = D * (1 - pd) * detpar[[i]]$pmix, core = mask, model2D = 'IHP', 
-                             Ndist = 'poisson', covariates = NULL)
+            pop <- sim.popn (
+                Nbuffer = (Nstar-n) * detpar[[i]]$pmix,  # number
+                D       = Dstar * (1 - pd),              # spatial distribution only
+                core    = mask, 
+                model2D = 'IHP', 
+                Ndist   = 'fixed', 
+                covariates = NULL
+            )
             if (nrow(pop)>0) unobspop <- rbind(unobspop, pop)
         }
-        if (nrow(unobspop)>0) {
-            rownames(unobspop) <- paste0('N', 1:nrow(unobspop))
-        }
+        rownames(unobspop) <- paste0('N', 1:nrow(unobspop))
     }
-    else {
-        N <- sum(D) * attr(mask, 'area')
-        if (N>nrow(CH)) {
-            detpar <- detectpar(object, byclass = TRUE, bytrap = bytrap) 
-            ## if bytrap, detpar[[i]] is trap x parameter dataframe for class i
-            if (is.na(detpar[[1]]['pmix'])) detpar <- list(c(detpar, pmix=1))
-            for (i in 1:length(detpar)) {
-                pd <- pdot(X = mask, traps = traps(CH), detectfn = object$detectfn,
-                           detectpar = detpar[[i]], noccasions = ncol(CH), ncores = NULL)
-                # sample locations of unobserved AC for i-th class
-                pop <- sim.popn (D = D * (1 - pd) * detpar[[i]]$pmix, core = mask, model2D = 'IHP', 
-                                 Ndist = 'fixed', covariates = NULL)
-                if (nrow(pop)>0) unobspop <- rbind(unobspop, pop)
-            }
-            rownames(unobspop) <- paste0('N', 1:nrow(unobspop))
-        }
-        else {
-            if (N<nrow(CH)) warning("proposed N less than number observed; unobserved not simulated")
-            else warning("proposed N equal to number observed; unobserved not simulated")
-        }
-    }
-    
+
     # -----------------------------------
     # combine observed, unobserved
     popn <- rbind(obspop, unobspop, renumber = FALSE)
     Nobs <- nrow(obspop)
-    Nunobs <- nrow(unobspop)  # varies because D varies
+    Nunobs <- nrow(unobspop)  # varies because Dstar varies
     covariates(popn) <- data.frame(obs = rep(c(TRUE,FALSE), c(Nobs, Nunobs)))
     
     # -----------------------------------
@@ -112,19 +103,19 @@ simfxiAC <- function (object, bytrap, dN = TRUE) {
 
 MCgof.secrlist <- function (object, nsim = 100, statfn = NULL, testfn = NULL,
                         seed = NULL, ncores = 1, clustertype = c("PSOCK","FORK"), 
-                        usefxi = TRUE, useMVN = TRUE, quiet = FALSE, ...)
+                        usefxi = TRUE, useMVN = TRUE, Ndist = NULL, quiet = FALSE, ...)
     
 {
     out <- lapply(object, MCgof, 
                   nsim = nsim, statfn = statfn, testfn = testfn,
                   seed = seed, ncores = ncores, clustertype = clustertype, 
-                  usefxi = usefxi, useMVN = useMVN, quiet = quiet)
+                  usefxi = usefxi, useMVN = useMVN, Ndist = NULL, quiet = quiet, ...)
     names(out) <- names(object)
 }
 
 MCgof.secr <- function (object, nsim = 100, statfn = NULL, testfn = NULL,
                    seed = NULL, ncores = 1, clustertype = c("PSOCK","FORK"), 
-                   usefxi = TRUE, useMVN = TRUE, quiet = FALSE, ...)
+                   usefxi = TRUE, useMVN = TRUE, Ndist = NULL, quiet = FALSE, ...)
     
 {
     #---------------------------------------------------------------------------
@@ -229,6 +220,14 @@ MCgof.secr <- function (object, nsim = 100, statfn = NULL, testfn = NULL,
         detector(traps(object$capthist)) <- 'multi'
     }
     #---------------------------------------------------------------------------
+    
+    # optionally override distribution
+    if (!is.null(Ndist)) {
+        Ndist <- match.arg(tolower(Ndist), c('poisson', 'fixed'))
+        object$details$distribution <- switch (Ndist, 
+                         poisson  = "poisson", 
+                         fixed    = "binomial")
+    }
     
     clustertype <- match.arg(clustertype)
     
