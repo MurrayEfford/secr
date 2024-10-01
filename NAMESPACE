@@ -507,6 +507,9 @@ export (par.region.N)
 export (fx.total)
 export (pdot.contour)
 export (buffer.contour)
+S3method(esa,plot)
+S3method(fxi,mode)
+S3method(fxi,contour)
 # export (esa.plot)   # resurrect for testing 2024-09-30
 
 #---------------------------------------

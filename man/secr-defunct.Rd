@@ -9,9 +9,9 @@
 \alias{read.SPACECAP}
 \alias{write.SPACECAP}
 \alias{derivedSystematic}
-\alias{fxi.contour}
-\alias{fxi.mode}
-\alias{esa.plot}
+%\alias{fxi.contour}
+%\alias{fxi.mode}
+%\alias{esa.plot}
 
 \title{Defunct Functions in Package \pkg{secr}}
 
@@ -27,9 +27,9 @@ These functions are no longer available in \pkg{secr}.
 
 derivedSystematic()
 
-esa.plot()
-fxi.contour()
-fxi.mode()
+%esa.plot()
+%fxi.contour()
+%fxi.mode()
 
 # Defunct in 4.6.2 (2023-09-30)
 

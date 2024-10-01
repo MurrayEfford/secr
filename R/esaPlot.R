@@ -5,20 +5,20 @@
 ## 2024-09-28 renamed
 ###############################################################################
 
-# esa.plot <- function (object, max.buffer = NULL, spacing = NULL, max.mask = NULL, detectfn,
-#                       detectpar, noccasions, binomN = NULL, thin = 0.1, poly = NULL,
-#                       poly.habitat = TRUE, session = 1,
-#                       plt = TRUE, type = c('density', 'esa','meanpdot', 'CVpdot'),
-#                       n = 1, add = FALSE, overlay = TRUE, conditional = FALSE, ...) {
-# 
-#     .Deprecated("esaPlot", package="secr", 
-#                 "esa.plot has been renamed esaPlot; the old version will be removed soon",
-#                 old = as.character(sys.call(sys.parent()))[1L])
-#     
-#     esaPlot (object, max.buffer, spacing, max.mask, detectfn, detectpar, 
-#              noccasions, binomN, thin, poly, poly.habitat, session,plt, 
-#              type, n, add, overlay, conditional, ...)    
-# }
+esa.plot <- function (object, max.buffer = NULL, spacing = NULL, max.mask = NULL, detectfn,
+                      detectpar, noccasions, binomN = NULL, thin = 0.1, poly = NULL,
+                      poly.habitat = TRUE, session = 1,
+                      plt = TRUE, type = c('density', 'esa','meanpdot', 'CVpdot'),
+                      n = 1, add = FALSE, overlay = TRUE, conditional = FALSE, ...) {
+
+    .Deprecated("esaPlot", package="secr",
+                "esa.plot has been renamed esaPlot; the old version will be removed soon",
+                old = as.character(sys.call(sys.parent()))[1L])
+
+    esaPlot (object, max.buffer, spacing, max.mask, detectfn, detectpar,
+             noccasions, binomN, thin, poly, poly.habitat, session,plt,
+             type, n, add, overlay, conditional, ...)
+}
 
 esaPlot <- function (object, max.buffer = NULL, spacing = NULL, max.mask = NULL, detectfn,
     detectpar, noccasions, binomN = NULL, thin = 0.1, poly = NULL,

@@ -6,7 +6,9 @@
 \alias{fx.total}
 \alias{pdot.contour}
 \alias{buffer.contour}
-% \alias{esa.plot}
+\alias{esa.plot}
+\alias{fxi.mode}
+\alias{fxi.contour}
 
 \title{Deprecated Functions in Package \pkg{secr}}
 

@@ -7,25 +7,25 @@
 ## 2024-09-21 fx functions renamed
 ###############################################################################
 
-# fxi.contour <- function (
-#         object, i = 1, sessnum = 1, border = 100, nx = 64,
-#         levels = NULL, p = seq(0.1,0.9,0.1), plt = TRUE, add = FALSE, 
-#         fitmode = FALSE, plotmode = FALSE, fill = NULL, 
-#         output = c('list','sf','SPDF'), ncores = NULL, ...) {
-#     
-#     .Deprecated("fxiContour", package="secr", 
-#                 "fxi.contour will soon be renamed fxiContour",
-#                 old = as.character(sys.call(sys.parent()))[1L])
-#     fxiContour(object, i, sessnum, border, nx, levels, p, plt = TRUE, 
-#                add, fitmode, plotmode, fill, output, ncores, ...)
-# }
-# 
-# fxi.mode <- function (object, i = 1, sessnum = 1, start = NULL, ncores = NULL, ...) {
-#     .Deprecated("fxiMode", package="secr", 
-#                 "fxi.mode will soon be renamed fxiMode",
-#                 old = as.character(sys.call(sys.parent()))[1L])
-#     fxiMode (object, i, sessnum, start, ncores, ...)
-# }
+fxi.contour <- function (
+        object, i = 1, sessnum = 1, border = 100, nx = 64,
+        levels = NULL, p = seq(0.1,0.9,0.1), plt = TRUE, add = FALSE,
+        fitmode = FALSE, plotmode = FALSE, fill = NULL,
+        output = c('list','sf','SPDF'), ncores = NULL, ...) {
+
+    .Deprecated("fxiContour", package="secr",
+                "fxi.contour will soon be renamed fxiContour",
+                old = as.character(sys.call(sys.parent()))[1L])
+    fxiContour(object, i, sessnum, border, nx, levels, p, plt = TRUE,
+               add, fitmode, plotmode, fill, output, ncores, ...)
+}
+
+fxi.mode <- function (object, i = 1, sessnum = 1, start = NULL, ncores = NULL, ...) {
+    .Deprecated("fxiMode", package="secr",
+                "fxi.mode will soon be renamed fxiMode",
+                old = as.character(sys.call(sys.parent()))[1L])
+    fxiMode (object, i, sessnum, start, ncores, ...)
+}
 
 fx.total <- function (object, sessnum = 1, mask = NULL, ncores = NULL, ...) {
     .Deprecated("fxTotal", package="secr", 
