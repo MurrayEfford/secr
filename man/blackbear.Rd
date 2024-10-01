@@ -3,6 +3,8 @@
 
 \alias{blackbear}
 \alias{blackbearCH}
+\alias{blackbear.0}
+\alias{blackbear.h2bk}
 \alias{GSM}
 
 \title{ Black Bear Hair Snag Dataset }
@@ -18,6 +20,8 @@ snags in the Great Smoky Mountains National Park, Tennessee, in the summer of 20
 
 blackbearCH
 GSM
+blackbear.0
+blackbear.h2bk
 
 }
 
@@ -48,6 +52,8 @@ and should be excluded in analyses. The approximate boundary of the park is
 included as a shapefile `GSMboundary.shp' in the `extdata' folder of the package 
 and as the \pkg{sf} sfc_POLYGON object \code{GSM}. The latter may be used in 
 \code{make.mask} (see Examples).
+
+Two models (blackbear.0 and blackbear.h2bk) were fitted as shown in the Examples.
 
 }
 
@@ -82,17 +88,25 @@ plot(msk, add = TRUE)
 plot(blackbearCH, tracks = TRUE, add = TRUE)
 plot(tr, add = TRUE)
 
-# Fit model
+# Fit models
 # suppress fastproximity to allow learned response
 
 setNumThreads()   # as appropriate
-fit <- secr.fit(blackbearCH,  detectfn = 'EX', model = list(g0~bk+h2, sigma~h2), 
-    hcov = 'sex', mask = msk, details = list(fastproximity = FALSE), 
-    trace = FALSE)
-summary(fit)   
+
+# null model
+blackbear.0 <- secr.fit(blackbearCH,  detectfn = 'EX', hcov = 'sex', 
+    mask = msk, details = list(fastproximity = FALSE), trace = FALSE)
+
+# sex differences and site-specific behavioural response
+blackbear.h2bk <- secr.fit(blackbearCH,  detectfn = 'EX', hcov = 'sex', 
+    model = list(g0~bk+h2, sigma~h2), mask = msk, 
+    details = list(fastproximity = FALSE), trace = FALSE)
+    
+AIC(blackbear.0, blackbear.h2bk)
+summary(blackbear.h2bk)   
 
 # How many if we extrapolate to GSM NP?
-region.N(fit, region = GSM)
+region.N(blackbear.h2bk, region = GSM)
 
 }
 
