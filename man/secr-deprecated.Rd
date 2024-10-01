@@ -34,11 +34,19 @@ pdot.contour (traps, border = NULL, nx = 64, detectfn = 0,
     binomN = NULL, levels = seq(0.1, 0.9, 0.1), poly = NULL, 
     poly.habitat = TRUE, plt = TRUE, add = FALSE, fill = NULL, ...)
     
-%esa.plot <- function (object, max.buffer = NULL, spacing = NULL, max.mask = NULL, 
-%    detectfn, detectpar, noccasions, binomN = NULL, thin = 0.1, poly = NULL,
-%    poly.habitat = TRUE, session = 1, plt = TRUE, type = c('density', 'esa',
-%    'meanpdot', 'CVpdot'), n = 1, add = FALSE, overlay = TRUE, 
-%    conditional = FALSE, ...) 
+esa.plot (object, max.buffer = NULL, spacing = NULL, max.mask = NULL, 
+    detectfn, detectpar, noccasions, binomN = NULL, thin = 0.1, poly = NULL,
+    poly.habitat = TRUE, session = 1, plt = TRUE, type = c('density', 'esa',
+    'meanpdot', 'CVpdot'), n = 1, add = FALSE, overlay = TRUE, 
+    conditional = FALSE, ...) 
+
+fxi.contour (object, i = 1, sessnum = 1, border = 100, nx = 64,
+        levels = NULL, p = seq(0.1,0.9,0.1), plt = TRUE, add = FALSE,
+        fitmode = FALSE, plotmode = FALSE, fill = NULL,
+        output = c('list','sf','SPDF'), ncores = NULL, ...) 
+        
+fxi.mode (object, i = 1, sessnum = 1, start = NULL, ncores = NULL, ...)
+        
 }
 
 \details{

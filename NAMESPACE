@@ -507,10 +507,12 @@ export (par.region.N)
 export (fx.total)
 export (pdot.contour)
 export (buffer.contour)
+export (esa.plot)
+export (fxi.contour)
+export (fxi.mode)
 S3method(esa,plot)
 S3method(fxi,mode)
 S3method(fxi,contour)
-# export (esa.plot)   # resurrect for testing 2024-09-30
 
 #---------------------------------------
 # defunct, still exported 5.0.0
@@ -518,10 +520,7 @@ export (model.average)
 export (ip.secr)
 
 #---------------------------------------
-# defunct, not exported 5.0.0
-# export (esa.plot)
-# export (fxi.contour)
-# export (fxi.mode)
+# deprecated, still exported 5.0.0
 
 #---------------------------------------
 # exported (mostly) internal functions

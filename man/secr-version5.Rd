@@ -29,10 +29,6 @@ with methods for generics.
 Where possible, the old names have been deprecated (tagged with a warning), and will
 continue to work for a while.
 
-However, \code{esa.plot}, \code{fxi.mode} and \code{fxi.contour} have been 
-renamed and their new names (\code{\link{esaPlot}}, \code{\link{fxiMode}}, 
-\code{\link{fxiContour}}) must be used immediately.
-
 \tabular{ll}{
 Old \tab New \cr
  \code{buffer.contour} \tab \code{\link{bufferContour}} \cr
