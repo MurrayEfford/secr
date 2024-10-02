@@ -143,8 +143,6 @@ This implementation extends the work of Choo et al. (2024) in these respects -
   \item 2-class finite mixture and hybrid mixture models are both allowed.
 }
 
-The formulation of Choo et al. (2024) could lead to simulations in which the simulated total population across the habitat mask \eqn{N_A} was less than the number detected \eqn{n}. We avoid this by treating \eqn{N_A - n} as a random variable rather than \eqn{N_A}. The test thereby conditions on \eqn{n}.
-
 }
 
 \author{

@@ -741,7 +741,7 @@ Here is an index of **secr** functions classified by use (some minor functions a
 | `LLsurface`* | compute likelihood surface and plot contours |
 | `logLik`*	| log-likelihood of fitted model |
 |	`LR.test`	| likelihood-ratio test of two models |
-|	`MCgof`	| Monte Carlo goodness-of-fit after Choo et al. 2024 |
+|	`MCgof`*	| Monte Carlo goodness-of-fit after Choo et al. 2024 |
 |	`modelAverage`*	| combine estimates using AIC or AICc weights |
 |	`plot`*		| plot detection functions with confidence bands |
 |	`predict`*	| 'real' parameters for arbitrary levels of predictor variables |
