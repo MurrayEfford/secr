@@ -32,14 +32,13 @@ continue to work for a while.
 \tabular{ll}{
 Old \tab New \cr
  \code{buffer.contour} \tab \code{\link{bufferContour}} \cr
- \code{esa.plot}* \tab \code{\link{esaPlot}} \cr
- \code{fxi.contour}* \tab \code{\link{fxiContour}} \cr
- \code{fxi.mode}* \tab \code{\link{fxiMode}} \cr
+ \code{esa.plot} \tab \code{\link{esaPlot}} \cr
+ \code{fxi.contour} \tab \code{\link{fxiContour}} \cr
+ \code{fxi.mode} \tab \code{\link{fxiMode}} \cr
  \code{fxi.secr} \tab \code{\link{fxi}} (generic) \cr
  \code{fx.total} \tab \code{\link{fxTotal}} (generic) \cr
  \code{pdot.contour} \tab \code{\link{pdotContour}} \cr
 }
-* defunct
 
 \code{fxi.secr} has been replaced by the generic \code{\link{fxi}}. Thus instead of \cr
 \code{fxi.secr(secrdemo.0, i = 1, X = c(365,605))} use \cr
