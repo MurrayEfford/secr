@@ -1,3 +1,15 @@
+Changes in version 5.0.1 (2024-10-04)
+
+New features or changed behaviour of old functions
+    o  none
+
+Bugs fixed
+    o  MCgof() stalled in model with trap covariates
+
+Other
+    o  predict.secr() speed up when se.fit = FALSE
+    o  detectpar() speedup (calls predict.secr with se.fit = FALSE)
+
 Changes in version 5.0.0 (2024-10-02)
 
 New features or changed behaviour of old functions
