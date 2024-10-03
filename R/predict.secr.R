@@ -10,9 +10,11 @@
 ## 2017-12-18 dots argument passed to secr.make.newdata
 ## 2018-02-23 revamp pmix code
 ## 2021-05-04 newdata method
-
+## 2024-10-03 speedup when se.fit = FALSE by setting beta.vcv = NULL in secr.lpredictor
 ############################################################################################
-predict.secr <- function (object, newdata = NULL, realnames = NULL, type = c("response", "link"), se.fit = TRUE,
+
+predict.secr <- function (object, newdata = NULL, realnames = NULL, 
+                          type = c("response", "link"), se.fit = TRUE,
                           alpha = 0.05, savenew = FALSE, ...) {
     if (is.null(object$fit)) {
         warning ("empty (NULL) object")
@@ -21,7 +23,6 @@ predict.secr <- function (object, newdata = NULL, realnames = NULL, type = c("re
     type <- match.arg(type)
 
     if (is.null(newdata)) {
-      # newdata <- secr.make.newdata (object, ...)
       newdata <- makeNewData (object, ...)
     }
     if (is.null(realnames)) {
@@ -102,7 +103,8 @@ predict.secr <- function (object, newdata = NULL, realnames = NULL, type = c("re
                 indx = parindices[[x]], 
                 beta = beta, 
                 field = x,
-                beta.vcv = beta.vcv, 
+                # beta.vcv = beta.vcv, 
+                beta.vcv = if (se.fit) beta.vcv else NULL, 
                 smoothsetup = smoothsetup[[x]],
                 contrasts = object$details$contrasts,
                 Dfn = Dfn
