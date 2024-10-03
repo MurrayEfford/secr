@@ -17,13 +17,14 @@ for the base levels of all predictors in an secr object.
 
 \usage{
 \method{makeNewData}{default}(object, all.levels = FALSE, ...)
-\method{makeNewData}{secr}(object, all.levels = FALSE, ...)
+\method{makeNewData}{secr}(object, all.levels = FALSE, bytrap = FALSE, ...)
 
 }
 
 \arguments{
   \item{object}{fitted secr model object}
   \item{all.levels}{logical; if TRUE then all levels of factors are included}
+  \item{bytrap}{logical; if TRUE then all detectors are included}
   \item{\dots}{other arguments (not used)}
 }
 
@@ -32,6 +33,9 @@ for the base levels of all predictors in an secr object.
 \code{makeNewData} is used by \code{predict} in lieu of
 user-specified `newdata'. There is seldom any need to call the function 
 \code{makeNewData} directly.
+
+With `bytrap' there is a row for each detector, with columns for 
+the corresponding levels of any detector covariates that appear in the model.
 
 }
 
