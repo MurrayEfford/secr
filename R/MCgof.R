@@ -8,6 +8,7 @@
 ## 2024-09-03 call sim.onepopn from simulate.R if !usefxi
 ## 2024-09-09 various edits
 ## 2024-09-11 use mvtnorm instead of MASS
+## 2024-10-04 improved detectpar for unobserved AC in simfxiAC
 
 # Murray Efford and Yan Ru Choo
 ################################################################################
@@ -26,7 +27,6 @@ defaulttestfn <- function(realised, expected){
 }
 
 simfxiAC <- function (object, bytrap) {
-
     # -----------------------------------
     # sample one location of each _observed_ animal from its pdf
     fxiList <- fxi(object)
@@ -38,38 +38,43 @@ simfxiAC <- function (object, bytrap) {
     attr(obspop, 'boundingbox') <- attr(mask, 'boundingbox')
     rownames(obspop) <- names(fxiList)
     
-    # -----------------------------------
-    # sample unobserved AC from their pdf
+    # --------------------------------------------
+    # sample _unobserved_ AC from their common pdf
     
     # density of unobserved AC
-    # this code is also in fxTotal
     Dstar <- predictDsurface(object)
     Dstar <- covariates(Dstar)$D.0
+
+    # number of unobserved AC
+    Nstar <- sum(Dstar) * attr(mask, 'area')
+    if (object$details$distribution == 'poisson') {
+        Nstar <- rpois(1, Nstar)
+    }
     
     # make a null starting popn
     unobspop <- sim.popn(0, attr(obspop, 'boundingbox'), buffer = 0, covariates = NULL) 
     CH <- object$capthist
     n <- nrow(CH)
     
-    Nstar <- sum(Dstar) * attr(mask, 'area')
-    if (object$details$distribution == 'poisson') {
-        Nstar <- rpois(1, Nstar)
-    }
-
     if (Nstar < n) {
         warning("resampled N less than number observed; unobserved not simulated")
     }
     else if (Nstar > n) {
-        detpar <- detectpar(object, byclass = TRUE, bytrap = bytrap) 
+        # detectpar0 is an internal function that gets naive detection parameters
+        # assume 1 session, no time variation
+        # returns dataframe
+        detpar <- detectpar0(object, bytrap = bytrap, byclass = TRUE) 
+        # split by class 
+        detpar <- split(detpar, detpar$class)
         ## if bytrap, detpar[[i]] is trap x parameter dataframe for class i
-        if (is.na(detpar[[1]]['pmix'])) detpar <- list(c(detpar, pmix = 1))
         for (i in 1:length(detpar)) {
+            pmix <- if (is.null(detpar[[i]]$pmix)) 1 else detpar[[i]]$pmix[1]
             pd <- pdot(X = mask, traps = traps(CH), detectfn = object$detectfn,
                        detectpar = detpar[[i]], noccasions = ncol(CH))
             # sample locations of unobserved AC for i-th class
             pop <- sim.popn (
-                Nbuffer = (Nstar-n) * detpar[[i]]$pmix,  # number
-                D       = Dstar * (1 - pd),              # spatial distribution only
+                Nbuffer = (Nstar-n) * pmix,    # number
+                D       = Dstar * (1 - pd),    # spatial distribution only
                 core    = mask, 
                 model2D = 'IHP', 
                 Ndist   = 'fixed', 
@@ -101,10 +106,10 @@ simfxiAC <- function (object, bytrap) {
     popn
 }
 
-MCgof.secrlist <- function (object, nsim = 100, statfn = NULL, testfn = NULL,
-                        seed = NULL, ncores = 1, clustertype = c("PSOCK","FORK"), 
-                        usefxi = TRUE, useMVN = TRUE, Ndist = NULL, quiet = FALSE, ...)
-    
+MCgof.secrlist <- function (
+        object, nsim = 100, statfn = NULL, testfn = NULL,
+        seed = NULL, ncores = 1, clustertype = c("PSOCK","FORK"), 
+        usefxi = TRUE, useMVN = TRUE, Ndist = NULL, quiet = FALSE, ...)
 {
     out <- lapply(object, MCgof, 
                   nsim = nsim, statfn = statfn, testfn = testfn,
@@ -113,9 +118,10 @@ MCgof.secrlist <- function (object, nsim = 100, statfn = NULL, testfn = NULL,
     names(out) <- names(object)
 }
 
-MCgof.secr <- function (object, nsim = 100, statfn = NULL, testfn = NULL,
-                   seed = NULL, ncores = 1, clustertype = c("PSOCK","FORK"), 
-                   usefxi = TRUE, useMVN = TRUE, Ndist = NULL, quiet = FALSE, ...)
+MCgof.secr <- function (
+        object, nsim = 100, statfn = NULL, testfn = NULL,
+        seed = NULL, ncores = 1, clustertype = c("PSOCK","FORK"), 
+        usefxi = TRUE, useMVN = TRUE, Ndist = NULL, quiet = FALSE, ...)
     
 {
     #---------------------------------------------------------------------------
@@ -142,6 +148,7 @@ MCgof.secr <- function (object, nsim = 100, statfn = NULL, testfn = NULL,
         }
         else {
             Darray <- getDensityArray (predictDsurface(object))
+            # sim.onepopn() is in simulate.R
             popn <- sim.onepopn(object, Darray)[[1]]
         }
         
@@ -249,7 +256,6 @@ MCgof.secr <- function (object, nsim = 100, statfn = NULL, testfn = NULL,
     ## action starts here
     
     ptm  <- proc.time()
-    
     ## Does model have differences in detection parameters between traps?
     ## this is conditional to save time in pdot
     bytrap <- length(unique(apply(object$design0$PIA, 4, mean)))>1
