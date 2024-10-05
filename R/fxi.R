@@ -5,6 +5,7 @@
 ## 2022-02-13 'sp' now in suggests
 ## 2024-09-09 allhistfxi NaN from cpp set to zero
 ## 2024-09-21 fx functions renamed
+## 2024-10-05 fxTotal extended to mixture models
 ###############################################################################
 
 fxi.contour <- function (
@@ -209,13 +210,13 @@ fxTotal.secr <- function (object, sessnum = 1, mask = NULL, ncores = NULL, ...)
   if (ms(object)) {
       n <- nrow(object$capthist[[sessnum]])
       if (is.null(mask)) mask <- object$mask[[sessnum]]
-      detectpar <- detectpar(object, ...)[[sessnum]]
+      detectpar <- detectpar(object, ..., byclass = TRUE)[[sessnum]]
       CH <- object$capthist[[sessnum]]
   }
   else {
       n <- nrow(object$capthist)
       if (is.null(mask)) mask <- object$mask
-      detectpar <- detectpar(object, ...)
+      detectpar <- detectpar(object, ..., byclass = TRUE)
       CH <- object$capthist
   }
   fxilocal <- fxi(object, sessnum = sessnum, X = mask, ncores = ncores)
@@ -224,7 +225,20 @@ fxTotal.secr <- function (object, sessnum = 1, mask = NULL, ncores = NULL, ...)
   fxt <- fxt/getcellsize(mask)
   D <- predictDsurface(object, mask = mask)
   D <- covariates(D)$D.0
-  pd <- pdot(X = mask, traps = traps(CH), detectfn = object$detectfn,
+  nclass <- object$details$nmix
+  if (nclass>1) {
+      # latent classes 2024-10-05
+      pd <- numeric(nrow(mask))
+      for (i in 1:nclass) {
+          pd <- pd + pdot(X = mask, 
+                          traps = traps(CH), 
+                          detectfn = object$detectfn,
+                          detectpar = detectpar[[i]],
+                          noccasions = ncol(CH), 
+                          ncores = ncores) * detectpar[[i]]$pmix
+      }
+  }
+  else pd <- pdot(X = mask, traps = traps(CH), detectfn = object$detectfn,
              detectpar = detectpar, noccasions = ncol(CH), ncores = ncores)
   nct <- D * (1 - pd)
   covariates(mask) <- data.frame(D.fx = fxt, D.nc = nct, D.sum = fxt + nct)

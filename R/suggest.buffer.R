@@ -297,7 +297,8 @@ suggest.buffer <- function (object, detectfn = NULL, detectpar = NULL, noccasion
         fn <- function (w) {
             suppressWarnings(bias.D(w, traps, detectfn, detectpar, noccasions, binomN, ...)$RB.D - RBtarget)
         }
-        temp <- try(round(uniroot (fn, interval)$root), silent = TRUE)
+        temp <- try(uniroot (fn, interval)$root, silent = TRUE)
+        temp <- signif(temp,3)
         if (inherits(temp, 'try-error')) {
             stop("buffer outside interval ",
                  formatC(interval[1],5),' to ', formatC(interval[2],5), " m")

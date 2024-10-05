@@ -19,11 +19,11 @@ bugs may be found. See Warning below for exclusions.
 
 \method{MCgof}{secr}(object, nsim = 100, statfn = NULL, testfn = NULL, seed = NULL, 
     ncores = 1, clustertype = c("PSOCK", "FORK"), usefxi = TRUE, 
-    useMVN = TRUE, Ndist = NULL, quiet = FALSE, ...)
+    useMVN = TRUE, Ndist = NULL, quiet = FALSE, debug = FALSE, ...)
 
 \method{MCgof}{secrlist}(object, nsim = 100, statfn = NULL, testfn = NULL, seed = NULL, 
     ncores = 1, clustertype = c("PSOCK", "FORK"), usefxi = TRUE, 
-    useMVN = TRUE, Ndist = NULL, quiet = FALSE, ...)
+    useMVN = TRUE, Ndist = NULL, quiet = FALSE, debug = FALSE, ...)
 
 }
 
@@ -42,6 +42,7 @@ bugs may be found. See Warning below for exclusions.
   than drawn from multivariate normal distribution}
   \item{Ndist}{character; distribution of number of unobserved AC (optional) }
   \item{quiet}{logical; if FALSE then a progress bar (ncores=1) and final timing are shown}
+  \item{debug}{integer; if >0 then the browser is started at one of 4 points in code}
   \item{\dots}{other arguments (not used)}
   
 }
@@ -73,6 +74,8 @@ Parallel processing is offered using multiple cores (CPUs) through the package \
 approach - they are provided for demonstration only.
 
 `Ndist' refers to the distribution of the number of unobserved AC, conditional on the expected number \eqn{q = D^*A - n} where \eqn{D^*} is the resampled density, \eqn{A} the mask area, and \eqn{n} the number of detected individuals. By default `Ndist' depends on the distribution component of the `details' argument of the fitted model (``poisson" for Poisson \eqn{n}, ``fixed"" for binomial \eqn{n}). 
+
+`debug' may be used to view intermediate data at certain points in MCgof() numbered 1 to 5. Examine the code of secr:::MCgof.secr or secr:::simfxiAC for these points. Debugging requires `ncores = 1'.
 
 The \code{\link{RNGkind}} of the random number generator is set internally for consistency across platforms.
 

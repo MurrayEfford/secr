@@ -23,11 +23,11 @@ makeNewData.default <- function (object, all.levels = FALSE, ...) {
 }
 
 makeNewData.secr <- function (object, all.levels = FALSE, bytrap = FALSE, ...) {
-        
     # Session treated separately later
     autovars <- c('g','x','y','x2','y2','xy','session',
                   't','T','ts','b','B','bk','Bk','bkc','Bkc','k','K','tcov','kcov','h2','h3')
     capthist <- object$capthist
+    trps <- traps(capthist)
     mask <- object$mask
     vars <- object$vars
     groups <- object$groups
@@ -81,6 +81,10 @@ makeNewData.secr <- function (object, all.levels = FALSE, bytrap = FALSE, ...) {
         ## 2021-07-30
         
         sessvars <- vars
+        if (ms(capthist)) 
+            trps <- traps(capthist[[session]])
+        else 
+            trps <- traps(capthist)
         
         basevars <- list(session = factor(sessions[session], levels=sessions))
         if (ngrp>1) basevars$g <- factor(grouplevels)
@@ -115,7 +119,7 @@ makeNewData.secr <- function (object, all.levels = FALSE, bytrap = FALSE, ...) {
                     basevars$tcov <- 0        # ideally use mean or standardize?
             }
             if (v=='kcov') {
-                kcov <- covariates(traps(object$capthist))[,1]
+                kcov <- covariates(trps)[,1]
                 if (is.factor(kcov)) {
                     basevars$kcov <- unique(kcov)
                 }
@@ -131,13 +135,13 @@ makeNewData.secr <- function (object, all.levels = FALSE, bytrap = FALSE, ...) {
         
         basevars <- findvars (basevars, timecov, 'time')
         if (bytrap) {
-            basevars <- c(basevars, list(trapID = 1:ndetector(traps(capthist))))
-            trapvars <- sessvars[sessvars %in% names(covariates(traps(capthist)))]
+            basevars <- c(basevars, list(trapID = 1:ndet[session]))
+            trapvars <- sessvars[sessvars %in% trapcovnames]
             sessvars <- sessvars[!(sessvars %in% trapvars)]
         }
         else {
             trapvars <- character(0)
-            basevars <- findvars (basevars, covariates(traps(capthist)), 'traps')
+            basevars <- findvars (basevars, covariates(trps), 'traps')
         }
         basevars <- findvars (basevars, covariates(mask), 'mask')
         
@@ -145,16 +149,32 @@ makeNewData.secr <- function (object, all.levels = FALSE, bytrap = FALSE, ...) {
         ## 2021-03-24 repaired in 4.3.4
         for (v in names(basevars)) {
             # if (length(v)>0) { 
-            if (!all.levels & !(v %in% c('session', 'g', 'h2','h3'))) {
+            if (!all.levels & !(v %in% c('session', 'g', 'h2','h3','trapID'))) {
                 basevars[[v]] <- basevars[[v]][1] 
             }
         }
         sessnewdat <- expand.grid(basevars)
-        if (bytrap && length(trapvars)>0) {
-            sessnewdat <- cbind(sessnewdat, covariates(traps(capthist))[sessnewdat$trapID, trapvars])
+        if (bytrap) {
+            if (length(trapvars)>0) {
+            # need to match by session
+            sessnewdat <- cbind(sessnewdat, covariates(trps)[sessnewdat$trapID, trapvars])
+            }
         }
         sessnewdat
+    }   # end of onesession
+
+    # some setup
+    if (bytrap) {
+        if (ms(capthist)) {
+            ndet <- sapply(traps(capthist), ndetector)
+            trapcovnames <- names(covariates(traps(capthist)[[1]]))
+        }
+        else {
+            ndet <- ndetector(trps)
+            trapcovnames <- names(covariates(traps(capthist)))
+        }
     }
+    
     newdata <- lapply(1:length(sessions), onesession)
     newdata <- do.call(rbind, newdata)
 

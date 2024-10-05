@@ -9,6 +9,7 @@
 ## 2024-09-09 various edits
 ## 2024-09-11 use mvtnorm instead of MASS
 ## 2024-10-04 improved detectpar for unobserved AC in simfxiAC
+## 2024-10-04 added debugging points
 
 # Murray Efford and Yan Ru Choo
 ################################################################################
@@ -26,7 +27,10 @@ defaulttestfn <- function(realised, expected){
     sum((sqrt(realised) - sqrt(expected))^2)
 }
 
-simfxiAC <- function (object, bytrap) {
+simfxiAC <- function (object, bytrap, debug) {
+    
+    if (debug == 1) browser()
+    
     # -----------------------------------
     # sample one location of each _observed_ animal from its pdf
     fxiList <- fxi(object)
@@ -40,7 +44,7 @@ simfxiAC <- function (object, bytrap) {
     
     # --------------------------------------------
     # sample _unobserved_ AC from their common pdf
-    
+
     # density of unobserved AC
     Dstar <- predictDsurface(object)
     Dstar <- covariates(Dstar)$D.0
@@ -55,22 +59,26 @@ simfxiAC <- function (object, bytrap) {
     unobspop <- sim.popn(0, attr(obspop, 'boundingbox'), buffer = 0, covariates = NULL) 
     CH <- object$capthist
     n <- nrow(CH)
-    
+
     if (Nstar < n) {
         warning("resampled N less than number observed; unobserved not simulated")
     }
     else if (Nstar > n) {
+        if (debug == 2) browser()
         # detectpar0 is an internal function that gets naive detection parameters
         # assume 1 session, no time variation
         # returns dataframe
         detpar <- detectpar0(object, bytrap = bytrap, byclass = TRUE) 
-        # split by class 
-        detpar <- split(detpar, detpar$class)
-        ## if bytrap, detpar[[i]] is trap x parameter dataframe for class i
+        # split dataframe by latent class, dropping 'class' column etc.
+        pnames <- parnames(object$detectfn[1])
+        if ('pmix' %in% names(detpar)) pnames <- c(pnames, 'pmix')
+        detpar <- split(subset(detpar, select = pnames), detpar$class)
         for (i in 1:length(detpar)) {
-            pmix <- if (is.null(detpar[[i]]$pmix)) 1 else detpar[[i]]$pmix[1]
+            ## if bytrap, dp is trap x parameter dataframe for class i
+            dp <- as.list(detpar[[i]])
+            pmix <- if (is.null(dp$pmix)) 1 else dp$pmix[1]
             pd <- pdot(X = mask, traps = traps(CH), detectfn = object$detectfn,
-                       detectpar = detpar[[i]], noccasions = ncol(CH))
+                       detectpar = dp, noccasions = ncol(CH))
             # sample locations of unobserved AC for i-th class
             pop <- sim.popn (
                 Nbuffer = (Nstar-n) * pmix,    # number
@@ -109,19 +117,22 @@ simfxiAC <- function (object, bytrap) {
 MCgof.secrlist <- function (
         object, nsim = 100, statfn = NULL, testfn = NULL,
         seed = NULL, ncores = 1, clustertype = c("PSOCK","FORK"), 
-        usefxi = TRUE, useMVN = TRUE, Ndist = NULL, quiet = FALSE, ...)
+        usefxi = TRUE, useMVN = TRUE, Ndist = NULL, quiet = FALSE,
+        debug = FALSE, ...)
 {
     out <- lapply(object, MCgof, 
                   nsim = nsim, statfn = statfn, testfn = testfn,
                   seed = seed, ncores = ncores, clustertype = clustertype, 
-                  usefxi = usefxi, useMVN = useMVN, Ndist = NULL, quiet = quiet, ...)
+                  usefxi = usefxi, useMVN = useMVN, Ndist = Ndist, quiet = quiet,
+                  debug = debug, ...)
     names(out) <- names(object)
 }
 
 MCgof.secr <- function (
         object, nsim = 100, statfn = NULL, testfn = NULL,
         seed = NULL, ncores = 1, clustertype = c("PSOCK","FORK"), 
-        usefxi = TRUE, useMVN = TRUE, Ndist = NULL, quiet = FALSE, ...)
+        usefxi = TRUE, useMVN = TRUE, Ndist = NULL, quiet = FALSE, 
+        debug = FALSE, ...)
     
 {
     #---------------------------------------------------------------------------
@@ -144,7 +155,7 @@ MCgof.secr <- function (
         # -----------------------------------------------
         # draw randomized AC
         if (usefxi) {
-            popn <- simfxiAC(object, bytrap)
+            popn <- simfxiAC(object, bytrap, debug)
         }
         else {
             Darray <- getDensityArray (predictDsurface(object))
@@ -172,6 +183,8 @@ MCgof.secr <- function (
         Tsim <- statfn(simCH)
         Texp <- statfn(expCH)
         
+        if (debug == 3) browser()
+        
         if (!quiet && ncores == 1) setTxtProgressBar(progressbar, i)
         list(Tsim = Tsim, Texp = Texp, par = object$fit$par, popn = popn)
         
@@ -188,6 +201,7 @@ MCgof.secr <- function (
         Tobs <- statfn(paddedCH)
         obs <- testfn(Tobs[[stat]],       capti$Texp[[stat]])
         sim <- testfn(capti$Tsim[[stat]], capti$Texp[[stat]])
+        if (debug == 4) browser()
         c(Tobs = obs, Tsim = sim, p = sim>obs)  
     }   # end of ft
     #---------------------------------------------------------------------------
@@ -268,6 +282,7 @@ MCgof.secr <- function (
     if (!quiet && ncores == 1) progressbar <- txtProgressBar(0, nsim, style = 3)
     
     if (ncores > 1) {
+        if (debug>0) stop ("debugging is enabled only when ncores = 1")
         if (.Platform$OS.type != "unix") clustertype <- "PSOCK"
         clust <- makeCluster(ncores, type = clustertype)
         if (clustertype == "PSOCK") {
@@ -301,6 +316,7 @@ MCgof.secr <- function (
         proctime = (proc.time() - ptm)[3])
     class(out) <- 'MCgof'
     
+    if (debug == 5) browser()
     if (!quiet) {
         if (ncores==1) close(progressbar)
         message ("MCgof for ", nsim, " simulations completed in ", 

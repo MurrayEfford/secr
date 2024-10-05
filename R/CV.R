@@ -73,10 +73,7 @@ CVa <- function (object, sessnum = 1, ...) {
         stop ("type CVa is available only for point detectors")
     }
     binomN <- getbinomN(binomN, detector(trps))
-    # temporary bug fix 2021-01-25
-    # dpar <-  detectpar(object, sessnum=sessnum, ..., byclass = TRUE)
     dpar <-  detectpar(object, ..., byclass = TRUE)
-    ## 2021-05-21 remove ncores = 1
     a1 <- pdot(masks, trps, object$detectfn, detectpar = dpar[[1]],
                noccasions = ncol(capthists), binomN)
     a2 <- pdot(masks, trps, object$detectfn, detectpar = dpar[[2]],

@@ -108,7 +108,7 @@ detectionfunctionnumber <- function (detname) {
 #-------------------------------------------------------------------------------
 
 parnames <- function (detectfn) {
-    parnames <- switch (detectfn+1,
+    switch (detectfn+1,
         c('g0','sigma'),   ## 0
         c('g0','sigma','z'),
         c('g0','sigma'),
@@ -590,6 +590,7 @@ spatialscale <- function (object, detectfn, session = '') {
         detpar <- object
         cutval <- object$cutval
     }
+    
     if (!is.null(detpar$sigma)) detpar$sigma
     else if (detectfn == 10) {
         (cutval - detpar$beta0) / detpar$beta1
