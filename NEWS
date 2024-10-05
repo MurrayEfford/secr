@@ -1,4 +1,4 @@
-Changes in version 5.0.1 (2024-10-05)
+Changes in version 5.0.1 (2024-10-06)
 
 New features or changed behaviour of old functions
     o  MCgof() acquires 'debug' argument
@@ -11,7 +11,7 @@ Bugs fixed
 Other
     o  predict.secr() speed up when se.fit = FALSE
     o  detectpar() speedup (calls predict.secr with se.fit = FALSE)
-    o  suggest.buffer() rounds to 3 sig.fig.
+    o  suggest.buffer() rounds to 3 sig.fig. and more robust
 
 Changes in version 5.0.0 (2024-10-02)
 

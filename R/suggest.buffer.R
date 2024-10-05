@@ -12,6 +12,7 @@
 ## 2019-12-16 minor changes to suggest.buffer: autoini thin=1; suppress warnings; fix multisession bug
 ## 2020-01-06 bias.D control$ncores defaults to 2 instead of NULL
 ## 2021-07-20 bias.D spurious warning of variable usage when uniformly >1
+## 2024-10-06 suggest.buffer nls control tol and minFactor tweaked for greater robustness
 
 bias.D <- function (buffer, traps, detectfn, detectpar, noccasions, binomN = NULL, control = NULL) {
     gr <- function (r) {
@@ -142,7 +143,9 @@ bias.D <- function (buffer, traps, detectfn, detectpar, noccasions, binomN = NUL
         temp3 <- pdot(temp2, traps, detectfn, detectpar, noccasions, binomN,
                       ncores = control$ncores)
         if (control$method == 1) {
-            tempfit <- nls ( temp3 ~ (1 - (1 - gr(buff))^ (noccasions*k) ), start=list(k=2))
+            tempfit <- nls ( temp3 ~ (1 - (1 - gr(buff))^ (noccasions*k) ),
+                             start=list(k=2), 
+                             control = list(tol = 1e-03, minFactor = 1/2048))
             if (tempfit$convInfo$isConv)
                k <- coef(tempfit)
             else
@@ -298,13 +301,14 @@ suggest.buffer <- function (object, detectfn = NULL, detectpar = NULL, noccasion
             suppressWarnings(bias.D(w, traps, detectfn, detectpar, noccasions, binomN, ...)$RB.D - RBtarget)
         }
         temp <- try(uniroot (fn, interval)$root, silent = TRUE)
-        temp <- signif(temp,3)
+        
         if (inherits(temp, 'try-error')) {
-            stop("buffer outside interval ",
+            stop("numerical error or buffer outside interval ",
                  formatC(interval[1],5),' to ', formatC(interval[2],5), " m")
         }
-        else
-            temp
+        else {
+            signif(temp,3)
+        }
     }
 }
 
