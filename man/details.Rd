@@ -62,10 +62,10 @@ density estimates. This can help to reconcile MLE with Bayesian
 estimates using data augmentation.
 
 \code{details$externalpdot} names a mask covariate that is substituted for 
-\eqn{p.(x|\theta)} when fitting a model for relative density (see \details$relativeD}. 
-The covariate may differ from \eqn{p.(x)} by a constant factor. This can be useful 
-in a two-phase study when phase two samples animals tagged in phase one, 
-with no further tagging (Bottoms et al. in prep.).
+\eqn{p.(x|\theta)} when fitting a model for relative density (see \code{details$relativeD}). 
+This can be useful in a two-phase study when animals are tagged 
+in phase one and sampled in phase two, with no further tagging (Bottoms et al. in prep.). 
+The covariate may differ from \eqn{p.(x)} by a constant factor. 
 
 \code{details$fastproximity} controls special handling of data from binary proximity and count detectors. If TRUE and other conditions are met (no temporal variation or groups) then a multi-occasion capthist is automatically reduced to a count for a single occasion and further compressed by storing only non-zero counts, which can greatly speed up computation of the likelihood (default TRUE).
 
