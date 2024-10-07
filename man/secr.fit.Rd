@@ -132,6 +132,7 @@ convexpolygon \tab allows non-convex polygons (slower) \cr
 Dfn \tab reparameterization of density model (seldom used directly) \cr
 Dlambda \tab switch density reparameterization to trend model \cr
 distribution \tab binomial vs Poisson N\cr
+externalpdot \tab name of mask covariate to substitute for \eqn{p.(x)} (relative density) \cr
 fastproximity \tab special handling of binary proximity detectors \cr
 fixedbeta \tab specify fixed beta parameter(s)\cr
 grain \tab grain argument of RcppParallel::parallelFor \cr

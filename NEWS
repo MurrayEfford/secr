@@ -12,6 +12,7 @@ Other
     o  predict.secr() speed up when se.fit = FALSE
     o  detectpar() speedup (calls predict.secr with se.fit = FALSE)
     o  suggest.buffer() rounds to 3 sig.fig. and more robust
+    o  expose 'externalpdot' details option
 
 Changes in version 5.0.0 (2024-10-02)
 
