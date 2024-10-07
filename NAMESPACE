@@ -510,9 +510,11 @@ export (buffer.contour)
 export (esa.plot)
 export (fxi.contour)
 export (fxi.mode)
+export (fxi.secr)
 S3method(esa,plot)
 S3method(fxi,mode)
 S3method(fxi,contour)
+S3method(fxi,secr)
 
 #---------------------------------------
 # defunct, still exported 5.0.0

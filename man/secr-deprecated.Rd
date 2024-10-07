@@ -25,6 +25,8 @@ par.region.N (secrlist, ncores = 1, ...)
 
 fx.total (object, sessnum = 1, mask = NULL, ncores = NULL, ...)
 
+fxi.secr (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL, ...) 
+
 buffer.contour (traps, buffer, nx = 64, convex = FALSE, ntheta = 100,
     plt = TRUE, add = FALSE, poly = NULL, poly.habitat = TRUE,
     fill = NULL, ...)

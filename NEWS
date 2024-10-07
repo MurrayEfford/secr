@@ -1,4 +1,4 @@
-Changes in version 5.0.1 (2024-10-06)
+Changes in version 5.0.1 (2024-10-07)
 
 New features or changed behaviour of old functions
     o  MCgof() acquires 'debug' argument
@@ -7,6 +7,7 @@ New features or changed behaviour of old functions
 
 Bugs fixed
     o  MCgof() stalled in model with trap covariates (detectpar problem)
+    o  direct calling of fxi.secr() disabled prematurely
 
 Other
     o  predict.secr() speed up when se.fit = FALSE
