@@ -1,12 +1,14 @@
-Changes in version 5.0.1 (2024-10-07)
+Changes in version 5.0.1 (2024-10-10)
 
 New features or changed behaviour of old functions
     o  MCgof() acquires 'debug' argument
     o  makeNewData.secr acquires 'bytrap' argument
     o  fxTotal extended to mixture models
+    o  split.capthist() acquires 'bysession' argument
 
 Bugs fixed
     o  MCgof() stalled in model with trap covariates (detectpar problem)
+    o  MCgof() error when zero unobserved AC
     o  direct calling of fxi.secr() disabled prematurely
 
 Other
@@ -14,6 +16,7 @@ Other
     o  detectpar() speedup (calls predict.secr with se.fit = FALSE)
     o  suggest.buffer() rounds to 3 sig.fig. and more robust
     o  expose 'externalpdot' details option
+    o  plot.capthist() warning when petal plot rad argument large
 
 Changes in version 5.0.0 (2024-10-02)
 
