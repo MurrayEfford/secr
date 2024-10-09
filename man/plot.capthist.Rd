@@ -84,7 +84,8 @@ These arguments are used only for petal plots: \code{rad},
 \code{tracks}, \code{varycol}, \code{randcol}, \code{lab1cap},
 \code{laboffset}, \code{ncap}, \code{splitocc}, \code{col2},
 \code{trkpar}, and \code{labpar}. Call \code{\link{occasionKey}} 
-to add a key to the petals.
+to add a key to the petals. From 5.0.1 a warning is issued if rad exceeds 
+3\% of the detector span in either x- or y-dimensions.
 
 If \code{icolours = NULL} and \code{varycol = TRUE} then a vector of
 colours is generated automatically as topo.colors((nrow(x)+1) * 1.5).

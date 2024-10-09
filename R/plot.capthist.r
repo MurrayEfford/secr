@@ -6,6 +6,8 @@
 ## 2016-10-08 secr 3.0
 ## 2016-12-08 type = "centres"
 ## 2022-05-11 type = "nontarget"
+## 2024-10-09 new rad warning
+
 ##############################################################################
 
 plot.capthist <- function(x, 
@@ -240,6 +242,13 @@ plot.capthist <- function(x,
         type <- match.arg(type)
         traps <- traps(x)
         detectr <- expanddet(x)
+        
+        ## 2024-10-09 new warning
+        trsp <- mean(span(traps(x)))
+        if (type == 'petal' && (rad > 0.03*trsp)) {
+            warning("rad argument ", rad, " exceeds 3% of detector span ", trsp)
+        }
+        
         ## if (is.null(rownames(x))) { 2020-09-09
         if (is.null(rownames(x)) && nrow(x)>0) {
                 warning ("capthist has no rownames; using 1:nrow", call. = FALSE)
