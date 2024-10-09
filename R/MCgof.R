@@ -90,7 +90,9 @@ simfxiAC <- function (object, bytrap, debug) {
             )
             if (nrow(pop)>0) unobspop <- rbind(unobspop, pop)
         }
-        rownames(unobspop) <- paste0('N', 1:nrow(unobspop))
+        if (nrow(unobspop)>0) {
+            rownames(unobspop) <- paste0('N', 1:nrow(unobspop))
+        }
     }
 
     # -----------------------------------
