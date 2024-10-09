@@ -33,6 +33,7 @@
 ## 2024-03-19 rlnormCV
 ## 2024-07-31 addzeroCH tweaked to allow zero-row covariate df + drop = FALSE
 ## 2024-09-25 purged a couple of unused fn, moved xy2CH to xy2CH.R
+## 2024-10-09 span()
 ################################################################################
 
 # Global variables in namespace
@@ -2026,3 +2027,21 @@ im2mask <- function(im) {
     read.mask(data = df, spacing = im$xstep)
 }
 #-------------------------------------------------------------------------------
+
+span <- function (object, ...) {
+    if (ms(object)) {
+        sapply(object, span, ...)
+    }
+    else {
+        if (is.null(object) || !('x' %in% names(object) && 'y' %in% names(object))) {
+            NULL
+        }
+        else {
+            rx <- range(object$x)
+            ry <- range(object$y)
+            max(diff(rx), diff(ry))
+        }
+    }
+}
+#-------------------------------------------------------------------------------
+
