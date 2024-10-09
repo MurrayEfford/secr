@@ -6,34 +6,47 @@
 ############################################################################################
 
 split.capthist <- function (x, f, drop = FALSE, prefix='S', bytrap = FALSE,
-    byoccasion = FALSE, ...) {
+    byoccasion = FALSE, bysession = FALSE, ...) {
     if (!inherits(x, 'capthist'))
         stop ("argument to 'split.capthist' should have class 'capthist'")
     if (ms(x)) {
-        # multi-session 'capthist' added 2021-04-24
-        if (inherits(f, 'list')) {
-            # make list of multisession capthists
-            out <- mapply(split, x, f, MoreArgs = list(drop=drop, prefix=prefix, 
-                bytrap = bytrap, byoccasion=byoccasion, ...), SIMPLIFY = FALSE)
-            # rearrange
-            out <- unlist(out, recursive = FALSE)
-            i <- unlist(sapply(f, levels))
-            if (!is.matrix(i)) stop ("levels of f should be the same over sessions")
-            out <- split(out, row(i))
-            names(out) <- i[,1]
-            reform <- function(y) {
-                y <- c(y) # combine component sessions of each split
-                class(y) <- c('capthist','list')
-                session(y) <- session(x)
-                y
+        if (bysession) {
+            if (length(f)!= length(x))
+                stop ("length of f should match number of sessions")
+            class(x) <- 'list'
+            out <- split(x, f)
+            sess <- split(session(x), f)
+            for (i in 1:length(out)) {
+                class(out[[i]]) <- c('capthist','list')
+                session(out[[i]]) <- sess[[i]]
             }
-            lapply(out, reform)   
+            out
+        }
+        # multi-session 'capthist' added 2021-04-24
+        else if (inherits(f, 'list')) {
+                # make list of multisession capthists
+                out <- mapply(split, x, f, MoreArgs = list(drop=drop, prefix=prefix, 
+                                                           bytrap = bytrap, byoccasion=byoccasion, ...), SIMPLIFY = FALSE)
+                # rearrange
+                out <- unlist(out, recursive = FALSE)
+                i <- unlist(sapply(f, levels))
+                if (!is.matrix(i)) stop ("levels of f should be the same over sessions")
+                out <- split(out, row(i))
+                names(out) <- i[,1]
+                reform <- function(y) {
+                    y <- c(y) # combine component sessions of each split
+                    class(y) <- c('capthist','list')
+                    session(y) <- session(x)
+                    y
+                }
+                lapply(out, reform)   
         }
         else {
             stop ("split of multisession capthist requires multisession (list-valued) f")
         }
     }
     else {
+        if (bysession) stop ("cannot split single session capthist by session")
         oldopt <- options(warn=-1)
         
         f <- as.factor(f)  # retains unused levels

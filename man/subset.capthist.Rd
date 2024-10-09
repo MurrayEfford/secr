@@ -14,7 +14,7 @@
     cutabssignal = TRUE, renumber = FALSE, ...)
 
 \method{split}{capthist}(x, f, drop = FALSE, prefix = "S", bytrap = FALSE, 
- byoccasion = FALSE, ...)
+ byoccasion = FALSE, bysession = FALSE, ...)
 }
 \arguments{
   \item{x}{ object of class \code{capthist} }
@@ -43,6 +43,7 @@
   to include }
   \item{byoccasion}{logical; if TRUE then each level of f identifies occasions
   to include }
+  \item{bysession}{logical; if TRUE then each level of f identifies sessions of a   multisession capthist to include }
   \item{...}{ other arguments passed to subset.capthist (split.capthist)
  or to optional subset function (subset.capthist) }
 }
