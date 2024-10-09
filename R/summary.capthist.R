@@ -19,13 +19,15 @@ summary.capthist <- function(object, terse = FALSE, moves = FALSE, tpa = FALSE, 
         object <- check3D(object)
         trps <- traps(object)
         nd <- ndetector(trps)
-        if (terse) {   ## 2017-11-06, 2019-01-22
-            c(Occasions = ncol(object),
+        if (terse) {   ## 2017-11-06, 2019-01-22, 2024-10-09
+            moves <-if (moves) sum(unlist(sapply(moves(object), function(y) y>0))) else NULL
+            animals2 <- if (tpa) sum(trapsPerAnimal(object)[-1]) else NULL
+            c(Occasions  = unname(ncol(object)),
               Detections = sum(abs(object)),
-              Animals = nrow(object),
-              Detectors = nd,
-              Moves = if (moves) sum(unlist(sapply(moves(object), function(y) y>0))) else NULL,
-              Animals2 = if (tpa) sum(trapsPerAnimal(object)[-1]) else NULL
+              Animals    = unname(nrow(object)),
+              Detectors  = nd,
+              Moves      = moves,
+              Animals2   = animals2
             )
         }
         else {
