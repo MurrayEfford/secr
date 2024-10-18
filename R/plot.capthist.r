@@ -244,12 +244,20 @@ plot.capthist <- function(x,
         detectr <- expanddet(x)
         
         ## 2024-10-09 new warning
+        if (!is.null(telemetryxy(x))) {
+            xyl <- telemetryxy(x)
+            xy <- do.call(rbind, xyl)
+            telesp <- max(diff(range(xy[,1])), diff(range(xy[,2])))
+        }
+        else {
+            telesp <- 0
+        }
         trsp <- mean(span(traps(x)))
-        if (type == 'petal' && (rad > 0.03*trsp)) {
-            warning("rad argument ", rad, " exceeds 3% of detector span ", trsp)
+        spn <- max(trsp, telesp)
+        if (type == 'petal' && (rad > 0.03*spn)) {
+            warning("rad argument ", rad, " exceeds 3% of detector span ", spn)
         }
         
-        ## if (is.null(rownames(x))) { 2020-09-09
         if (is.null(rownames(x)) && nrow(x)>0) {
                 warning ("capthist has no rownames; using 1:nrow", call. = FALSE)
             rownames(x) <- 1:nrow(x)

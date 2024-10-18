@@ -44,7 +44,7 @@ plotMCP(x, add = FALSE, col = "black", fill = NA, lab1cap = FALSE, laboffset = 4
   \item{cappar}{ list of named graphical parameters for detections (passed to \code{par}) }
   \item{trkpar}{ list of named graphical parameters for tracks (passed to \code{par}) }
   \item{labpar}{ list of named graphical parameters for labels (passed to \code{par}) }
-  \item{\dots}{ arguments to be passed to \code{plot.traps} }
+  \item{\dots}{ arguments passed to \code{plot.traps} }
   \item{col}{vector of line colour numbers or names (plotMCP only)}
   \item{fill}{vector of fill colour numbers or names (plotMCP only)}
 
@@ -124,6 +124,7 @@ University of Otago, Dunedin, New Zealand. \url{https://www.otago.ac.nz/density/
 
 \code{\link{capthist}}, 
 \code{\link{occasionKey}}, 
+\code{\link{plot.traps}}, 
 \code{\link{sightingPlot}} 
 
 }
