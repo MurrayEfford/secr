@@ -40,7 +40,7 @@ tile(popn, method = "reflect")
   \item{seed}{either NULL or an integer that will be used in a call to \code{set.seed}}
   \item{keep.mask}{logical; if TRUE and model2D \%in\% c('IHP','linear')
   then \code{core} is saved as the attribute "mask"}
-  \item{Nbuffer}{integer number of individuals to simulate}
+  \item{Nbuffer}{numeric number of individuals to simulate (possibly non-integer)}
   \item{age}{logical; if TRUE then age covariate added for multisession popn with turnover}
   \item{...}{ arguments passed to subset if poly is not NULL}
   \item{popn}{ popn object }
