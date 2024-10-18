@@ -49,17 +49,14 @@ simfxiAC <- function (object, bytrap, debug) {
     Dstar <- predictDsurface(object)
     Dstar <- covariates(Dstar)$D.0
 
-    # number of unobserved AC
-    Nstar <- sum(Dstar) * attr(mask, 'area')
-    if (object$details$distribution == 'poisson') {
-        Nstar <- rpois(1, Nstar)
-    }
-    
     # make a null starting popn
     unobspop <- sim.popn(0, attr(obspop, 'boundingbox'), buffer = 0, covariates = NULL) 
     CH <- object$capthist
     n <- nrow(CH)
-
+    
+    # number of unobserved AC
+    Nstar <- sum(Dstar) * attr(mask, 'area')
+    
     if (Nstar < n) {
         warning("resampled N less than number observed; unobserved not simulated")
     }
@@ -85,7 +82,7 @@ simfxiAC <- function (object, bytrap, debug) {
                 D       = Dstar * (1 - pd),    # spatial distribution only
                 core    = mask, 
                 model2D = 'IHP', 
-                Ndist   = 'fixed', 
+                Ndist   = if (object$details$distribution == 'poisson') 'poisson' else 'fixed', 
                 covariates = NULL
             )
             if (nrow(pop)>0) unobspop <- rbind(unobspop, pop)
