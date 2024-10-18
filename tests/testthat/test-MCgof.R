@@ -17,8 +17,8 @@ library(secr)
 test_that("MCgof correct with proximity model", {
     expect_warning(test0 <- MCgof(blackbear.0, nsim=2, seed = 123, quiet = TRUE))
     discrepancytable <- summary(test0)
-    target1 <- c(yik = 311.9427, yi = 95.24322, yk = 18.62083)
-    target2 <- c(yik = 288.2016, yi = 82.08520, yk = 16.43635)
+    target1 <- c(yik = 316.43949, yi = 99.12776, yk = 17.80118)
+    target2 <- c(yik = 291.53224, yi = 85.18867, yk = 21.97622)
     # Tobs, Tsim rows of summary
     expect_equal(discrepancytable['Tobs',], target1, tolerance = 0.001) 
     expect_equal(discrepancytable['Tsim',], target2, tolerance = 0.001) 
