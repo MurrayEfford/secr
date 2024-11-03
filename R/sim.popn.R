@@ -597,7 +597,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
         ## 2024-10-30 infer core from poly
         if (missing(core) && !missing(poly)) {
             poly <- boundarytoSF(poly)
-            bb <- matrix(st_bbox(GSM), byrow=T,nrow=2, dimnames = list(NULL,c('x','y')))
+            bb <- matrix(st_bbox(poly), byrow=T,nrow=2, dimnames = list(NULL,c('x','y')))
             core <- data.frame(bb)
         }
         
