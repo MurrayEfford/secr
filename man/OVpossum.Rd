@@ -113,17 +113,16 @@ ovtrap <- traps(OVpossumCH[[1]])
 
 ## retrieve and plot the forest map
 OVforest <- st_read(system.file("extdata/OVforest.shp", package = "secr"))
-OVforest <- as(OVforest, "Spatial")
-forestcol <- terrain.colors(6)[c(4,2,2)]
-sp::plot(OVforest, col = forestcol)
+## omit forest across the river by selecting only 1,2
+OVforest <- OVforest[1:2,]
+forestcol <- terrain.colors(6)[c(4,2)]
+plot(st_as_sfc(OVforest), col = forestcol)
 plot(ovtrap, add = TRUE)
 
 ## construct a mask
-## we omit forest across the river by selecting only
-## forest polygons 1 and 2 
 ovmask <- make.mask(ovtrap, buffer = 120, type = 'trapbuffer',
-    poly = OVforest[1:2,], spacing = 7.5, keep.poly = FALSE)
-ovmask <- addCovariates(ovmask, OVforest[1:2,])
+    poly = OVforest, spacing = 7.5, keep.poly = FALSE)
+ovmask <- addCovariates(ovmask, OVforest)
 
 ## display mask
 par(mar = c(0,0,0,8))

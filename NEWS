@@ -1,3 +1,14 @@
+Changes in version 5.1.1 (2024-11-04)
+
+New features or changed behaviour of old functions
+    o  none
+    
+Bugs fixed
+    o  none
+    
+Other
+    o  tweaked OVpossum Rd example to avoid 'sp'
+    
 Changes in version 5.1.0 (2024-11-04)
 
 New features or changed behaviour of old functions
