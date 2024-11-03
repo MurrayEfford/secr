@@ -19,7 +19,7 @@ simulated data.
 \usage{
 
 \method{simulate}{secr}(object, nsim = 1, seed = NULL, maxperpoly = 100,
-    chat = 1, ...)
+    chat = 1, poponly = FALSE, ...)
 
 sim.secr(object, nsim = 1, extractfn = function(x) c(deviance =
     deviance(x), df = df.residual(x)), seed = NULL, maxperpoly = 100,
@@ -38,6 +38,7 @@ sim.detect(object, popnlist, maxperpoly = 100, renumber = TRUE,
   \item{maxperpoly}{ integer maximum number of detections of an individual
   in one polygon or transect on any occasion }
   \item{chat}{real value for overdispersion parameter}
+  \item{poponly}{logical; if TRUE then only populations are simulated}
   
   \item{ncores}{integer number of threads used by \code{secr.fit}}
   \item{extractfn}{function to extract output values from fitted model}
@@ -61,7 +62,8 @@ the habitat mask(s) in \code{object}.  Group subpopulations are combined
 using \code{\link{rbind.popn}} within each session; information to
 reconstruct groups is retained in the individual-level factor
 covariate(s) of the resulting \code{popn} object (corresponding to
-\code{object$groups}).  Each population is then sampled using the fitted
+\code{object$groups}).  Unless `poponly = TRUE' each population is then sampled 
+using the fitted
 detection model and detector (trap) array(s) in \code{object}.
 
 The random number seed is managed as in \code{simulate.lm}.
@@ -114,9 +116,13 @@ called directly.
 }
 \value{
 
-For \code{simulate.secr}, a list of data sets (`capthist' objects). This
-list has class \code{c("secrdata", "list")}; the initial state of the random
-number generator (roughly, the value of .Random.seed) is stored as the
+For \code{simulate.secr}, 
+\itemize{
+\item if poponly = TRUE, a list of populations (`popn' objects)
+\item if poponly = FALSE, a list of data sets (`capthist' objects). This list has class \code{c("secrdata", "list")}
+}
+
+The initial state of the random number generator (roughly, the value of .Random.seed) is stored as the
 attribute `seed'.
 
 The value from \code{sim.secr} depends on \code{extractfn}: if that

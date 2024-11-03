@@ -43,7 +43,7 @@ bugs may be found. See Warning below for exclusions.
   \item{Ndist}{character; distribution of number of unobserved AC (optional) }
   \item{quiet}{logical; if FALSE then a progress bar (ncores=1) and final timing are shown}
   \item{debug}{integer; if >0 then the browser is started at one of 4 points in code}
-  \item{\dots}{other arguments (not used)}
+  \item{\dots}{other arguments passed to testfn}
   
 }
 
@@ -79,6 +79,7 @@ approach - they are provided for demonstration only.
 
 The \code{\link{RNGkind}} of the random number generator is set internally for consistency across platforms.
 
+The \dots argument may be used to pass 'np' and 'verbose' to `Fletcher.chat` used as 'testfn'.
 }
 
 \value{

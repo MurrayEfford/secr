@@ -6,6 +6,7 @@
 ## 2017-07-27 saved seed attribute from simulate, rather than just input value
 ## 2024-07-24 keep = 'mask'
 ## 2024-08-21 keep = c('mask','designD', 'design0') to cover region.N() for binomial
+## 2024-10-21 plot.secrtest tweaked to allow user-specified xlab
 ############################################################################################
 
 ## Monte Carlo goodness of fit tests
@@ -97,7 +98,10 @@ plot.secrtest <- function(x, stat, ...) {
         if (!all(stat %in% rown))
             stop ("error in stat name(s)")
         plotone <- function(i) {
-            out <- hist(y$simulated[i,], xlab = i, ...)
+            if ('xlab' %in% names(list(...)))
+                out <- hist(y$simulated[i,], ...)
+            else
+                out <- hist(y$simulated[i,], xlab = i, ...)
             abline (v = y$observed[i], col = 'red')
             out
         }

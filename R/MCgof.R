@@ -198,8 +198,8 @@ MCgof.secr <- function (
         # addzeroCH is internal secr function
         paddedCH <- addzeroCH(CH, N - n, prefix = 'N')
         Tobs <- statfn(paddedCH)
-        obs <- testfn(Tobs[[stat]],       capti$Texp[[stat]])
-        sim <- testfn(capti$Tsim[[stat]], capti$Texp[[stat]])
+        obs <- testfn(Tobs[[stat]],       capti$Texp[[stat]], ...)
+        sim <- testfn(capti$Tsim[[stat]], capti$Texp[[stat]], ...)
         if (debug == 4) browser()
         c(Tobs = obs, Tsim = sim, p = sim>obs)  
     }   # end of ft

@@ -33,14 +33,15 @@ sim.onepopn <- function (object, Darray, chat = 1) {
                 mod2D <- 'linear'                    ## linear Poisson or IHP
             }
             else {
-                if (object$model$D == ~1) {
-                    density <- Darray[1,g,sessnum]   ## scalar
-                    mod2D <- 'poisson'               ## homogeneous
-                }
-                else {
+                # 2024-10-30 suppress to enable masking
+                # if (object$model$D == ~1) {
+                #     density <- Darray[1,g,sessnum]   ## scalar
+                #     mod2D <- 'poisson'               ## homogeneous
+                # }
+                # else {
                     density <- Darray[,g,sessnum]    ## vector
                     mod2D <- 'IHP'                   ## inhomogeneous
-                }
+                # }
             }
             if (chat > 1)
                 density <- density / chat
@@ -92,7 +93,7 @@ sim.onepopn <- function (object, Darray, chat = 1) {
 }
 
 simulate.secr <- function (object, nsim = 1, seed = NULL, maxperpoly = 100, chat = 1,
-                           ...)
+                           poponly = FALSE, ...)
     ## if CL, condition on n? what about distribution of covariates over n?
     ## locate according to IHP with lambda(X) controlled by f(X|covar), assuming homog Poisson
     ## i.e. use f(X|covar)/max(f(X|covar)) to reject until meet quota n?
@@ -143,15 +144,24 @@ simulate.secr <- function (object, nsim = 1, seed = NULL, maxperpoly = 100, chat
     ## loop over replicates
     runone <- function() {
         sesspopn <- sim.onepopn(object, Darray, chat)
-        sim.detect(object, sesspopn, maxperpoly)
+        if (poponly) 
+            sesspopn
+        else
+            sim.detect(object, sesspopn, maxperpoly)
     }
     sesscapt <- replicate(nsim, runone(), simplify = FALSE)
-    
-    ## experimental
-    if (chat>1) sesscapt <- lapply(sesscapt, replicate, chat)
-    
-    attr(sesscapt,'seed') <- RNGstate   ## save random seed
-    class(sesscapt) <- c('secrdata', 'list')
-    sesscapt
+    if (poponly) {
+        attr(sesscapt,'seed') <- RNGstate   ## save random seed
+        class(sesscapt) <- c('popn', 'list')
+        sesscapt
+    }
+    else {
+        ## experimental
+        if (chat>1) sesscapt <- lapply(sesscapt, replicate, chat)
+        
+        attr(sesscapt,'seed') <- RNGstate   ## save random seed
+        class(sesscapt) <- c('secrdata', 'list')
+        sesscapt
+    }
 }
 ################################################################################

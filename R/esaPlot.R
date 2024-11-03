@@ -191,6 +191,9 @@ esaPlotsecr <- function (object, max.buffer = NULL, max.mask = NULL,
             n <- nrow(object$capthist[[session]])
             nocc <- ncol(object$capthist[[session]])
             spacg <- attr(object$mask[[session]], 'spacing')
+            if (!is.numeric(session)) {
+                session <- match(session, names(object$capthist))
+            }
             detpar <- detectpar(object)[[session]]
             spscale <- spatialscale(object, object$detectfn, session)
         }

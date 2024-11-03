@@ -579,10 +579,10 @@ add.cl <- function (df, alpha, loginterval, lowerbound = 0) {
 
 #-------------------------------------------------------------------------------
 
-spatialscale <- function (object, detectfn, session = '') {
+spatialscale <- function (object, detectfn, sessnum = 1) {
     if (inherits(object, 'secr')) {
         if (ms(object))
-            detpar <- detectpar(object)[[session]]
+            detpar <- detectpar(object)[[sessnum]]
         else
             detpar <- detectpar(object)
         cutval <- object$details$cutval
