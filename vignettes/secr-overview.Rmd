@@ -1,5 +1,5 @@
 ---
-title: '**secr** 5.0 - spatially explicit capture--recapture in R'
+title: '**secr** 5.1 - spatially explicit capture--recapture in R'
 author: "Murray Efford"
 date: "`r Sys.Date()`"
 output: 
@@ -16,7 +16,7 @@ vignette: >
 
 \vspace{12pt}
 
-This document provides an overview of **secr** 5.0, an R package for spatially explicit capture--recapture analysis (SECR).  It includes some background on SECR, an outline of the package, and a more detailed description of how models are implemented.  See [secr-tutorial.pdf] for an introductory tutorial.  For details of how to use **secr** see the help pages and vignettes. 
+This document provides an overview of **secr** 5.1, an R package for spatially explicit capture--recapture analysis (SECR).  It includes some background on SECR, an outline of the package, and a more detailed description of how models are implemented.  See [secr-tutorial.pdf] for an introductory tutorial.  For details of how to use **secr** see the help pages and vignettes. 
 
 NOTE: **secr** was extensively re-written between versions 3.2 and 4.0, but the interface remained unchanged. For many datasets version 4 is significantly faster. Other changes are described in [secr-version4.pdf][].
 
@@ -213,7 +213,7 @@ There is limited support in **secr** for the analysis of locational data from te
 The program DENSITY (Efford et al. 2004, Efford 2012) provides a graphical interface to SECR methods that was used by many
 biologists. However, DENSITY has significant drawbacks: it requires the Windows operating system, its algorithms are not always transparent or well-documented, it fits only homogeneous Poisson models, and it omits recent advances in SECR.
 
-The R package **secr** was written to address these weaknesses and allow for further development. It implements almost all the methods described by Borchers and Efford (2008), Efford et al. (2009), Efford (2011), Efford and Fewster (2013), Efford et al. (2013) and Efford and Mowat (2014). **secr** 5.0 uses external C++ code via package **Rcpp** for computationally intensive operations (Eddelbuettel and Francois 2011); Multi-threading on multiple CPUs with **RcppParallel** (Allaire et al. 2021) gives major speed gains. The most important functions of **secr** are listed in [Appendix 1](#appendix1).
+The R package **secr** was written to address these weaknesses and allow for further development. It implements almost all the methods described by Borchers and Efford (2008), Efford et al. (2009), Efford (2011), Efford and Fewster (2013), Efford et al. (2013) and Efford and Mowat (2014). **secr** 5.1 uses external C++ code via package **Rcpp** for computationally intensive operations (Eddelbuettel and Francois 2011); Multi-threading on multiple CPUs with **RcppParallel** (Allaire et al. 2021) gives major speed gains. The most important functions of **secr** are listed in [Appendix 1](#appendix1).
 
 # How **secr** works
 
@@ -283,7 +283,7 @@ Other documentation, in the form of pdf vignettes built with **knitr**,  will be
 
 \vspace{18pt}
 
-**Table 4.** Vignettes for **secr** 5.0.
+**Table 4.** Vignettes for **secr** 5.1.
 
 | Vignette            | Topic                                            |
 |---------------------|--------------------------------------------------|
@@ -320,7 +320,7 @@ By default, the parameters of SECR models are assumed to be constant. We specify
 Models are defined symbolically in **secr** using R formula notation. A separate linear predictor is used for each core parameter.  Core parameters are 'real' parameters in the terminology of MARK, and
 **secr** uses that term because it will be familiar to biologists.
 
-Three real parameters are commonly modelled in **secr** 5.0; these are denoted 'D' (for density), 'g0' (or 'lambda0') and 'sigma'. Only the last two real parameters, which jointly define the model for detection probability as a function of location, can be estimated directly when the model is fitted by maximizing the conditional likelihood (`CL = TRUE` in `secr.fit`).  D is then a derived parameter that is computed from an **secr** object with the function `derived` or one of its siblings (`derivedCluster` etc.). 
+Three real parameters are commonly modelled in **secr** 5.1; these are denoted 'D' (for density), 'g0' (or 'lambda0') and 'sigma'. Only the last two real parameters, which jointly define the model for detection probability as a function of location, can be estimated directly when the model is fitted by maximizing the conditional likelihood (`CL = TRUE` in `secr.fit`).  D is then a derived parameter that is computed from an **secr** object with the function `derived` or one of its siblings (`derivedCluster` etc.). 
 
 Here is a simple example of the model argument in use:
 ```{r, eval=FALSE}
@@ -499,7 +499,7 @@ See the separate document [secr-varyingeffort.pdf] and Efford et al. (2013) for 
 
 ## Mark--resight
 
-Mark--resight data include sampling occasions on which previously marked animals were recorded, but new animals were not distinguished from each other. **secr** 5.0 provides a suite of spatial models for these data, as documented in [secr-markresight.pdf]. Two general classes of spatial mark--resight model are included: those in which the marking process is modelled (we call these spatial capture--mark--resight models), and those in which the process is not modelled and pre-marked animals are assumed to follow some distribution (e.g., uniform across a known area) (sighting-only or mark--resight models). Mark--resight models in **secr** 5.0 discard some spatial information in the unmarked sightings -- information that is used in the models of Chandler and Royle (2013) and Sollmann et al. (2013). This results in some (probably small) loss of precision, and requires an adjustment for overdispersion to ensure confidence intervals have good coverage properties. The vignette [secr-markresight.pdf] should be consulted.
+Mark--resight data include sampling occasions on which previously marked animals were recorded, but new animals were not distinguished from each other. **secr** 5.1 provides a suite of spatial models for these data, as documented in [secr-markresight.pdf]. Two general classes of spatial mark--resight model are included: those in which the marking process is modelled (we call these spatial capture--mark--resight models), and those in which the process is not modelled and pre-marked animals are assumed to follow some distribution (e.g., uniform across a known area) (sighting-only or mark--resight models). Mark--resight models in **secr** 5.1 discard some spatial information in the unmarked sightings -- information that is used in the models of Chandler and Royle (2013) and Sollmann et al. (2013). This results in some (probably small) loss of precision, and requires an adjustment for overdispersion to ensure confidence intervals have good coverage properties. The vignette [secr-markresight.pdf] should be consulted.
 
 ## Detector clusters
 
@@ -526,11 +526,11 @@ their output density, SE, and confidence limits.
 
 ## Parallel processing
 
-On processors with multiple cores it is possible to speed up computation by using cores in parallel. In **secr** 5.0 this happens automatically in `secr.fit` and a few other functions using the multi-threading paradigm of **RcppParallel** (Allaire et al. 2021). The number of threads may be set directly with the function `setNumThreads`, or via the 'ncores' argument of several functions. 
+On processors with multiple cores it is possible to speed up computation by using cores in parallel. In **secr** 5.1 this happens automatically in `secr.fit` and a few other functions using the multi-threading paradigm of **RcppParallel** (Allaire et al. 2021). The number of threads may be set directly with the function `setNumThreads`, or via the 'ncores' argument of several functions. 
 
 Earlier versions of **secr** relied on parallel processing with the **parallel** package (invoked when the argument ncores was set greater than 1). The benefits of that form of parallel processing were variable (considerable with simulations in `sim.secr`, but otherwise unimpressive). 
 
-The functions `par.secr.fit`, `par.region.N` and `par.derived` allowed models to be fitted or analysed in parallel, one per core. The greater speed of `secr.fit` in **secr** 5.0 makes `par.secr.fit` redundant. All three functions now appear to run faster with ncores=1 than with ncores>1. They are deprecated and will be removed later in 2024. `list.secr.fit` replaces `par.secr.fit`.
+The functions `par.secr.fit`, `par.region.N` and `par.derived` allowed models to be fitted or analysed in parallel, one per core. The greater speed of `secr.fit` in **secr** 5.1 makes `par.secr.fit` redundant. All three functions now appear to run faster with ncores=1 than with ncores>1. They are deprecated and will be removed later in 2024. `list.secr.fit` replaces `par.secr.fit`.
 
 ## Regression splines
 
@@ -623,7 +623,7 @@ Stanley, T. R. and Burnham, K. P. (1999) A closure test for time-specific captur
 
 # Appendix 1. Core functions of **secr** {#appendix1}
 
-These are the core functions of **secr** 5.0 -- the ones that you are most likely to use. S3 methods are marked with an asterisk.
+These are the core functions of **secr** 5.1 -- the ones that you are most likely to use. S3 methods are marked with an asterisk.
 
 |  Function       | Purpose                                           |
 |-----------------|---------------------------------------------------|
