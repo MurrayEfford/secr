@@ -14,7 +14,7 @@
 
 \method{subset}{mask}(x, subset, ...)
 
-\method{split}{mask}(x, f, drop = FALSE, clusters = NULL, ...)
+\method{split}{mask}(x, f, drop = FALSE, clusters = NULL, na.rm = TRUE, ...)
 
 \method{rbind}{mask}(...)
 }
@@ -25,6 +25,7 @@
   \item{f}{ factor or object that may be coerced to a factor }
   \item{drop}{ logical indicating if levels that do not occur should be dropped (if f is a factor) }
   \item{clusters}{list of traps objects, each defining a cluster (alternative to f)}
+  \item{na.rm}{logical; if TRUE then cells with NA value of f are dropped }
   \item{\dots}{ two or more \code{mask} objects (rbind only) }
 }
 
@@ -36,6 +37,9 @@ logical as described in \code{\link{Extract}}.
 The \code{split} method may use either a factor f with one value for each row or a list of clusters, each a traps object. The output mask corresponding to each cluster is the subset of the original mask points that lie within buffer of a trap within the cluster; buffer is computed as the maximum distance between a mask point in \code{x} and any detector in \code{clusters}. Sub-masks specified with \code{clusters} may overlap.
 
 Covariates are ignored by \code{rbind.mask}.
+
+\code{na.rm} was introduced in 5.1.1. Previously NA cells were included. 
+\code{na.rm} is not used when \code{clusters} are defined.
 
 }
 

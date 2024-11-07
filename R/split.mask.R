@@ -4,7 +4,7 @@
 ## last changed 2018-12-18
 ############################################################################################
 
-split.mask <- function (x, f, drop = FALSE, clusters = NULL, ...) {
+split.mask <- function (x, f, drop = FALSE, clusters = NULL, na.rm = TRUE, ...) {
     if (ms(x))
         stop ("split not suitable for multi-session mask")
     
@@ -27,7 +27,8 @@ split.mask <- function (x, f, drop = FALSE, clusters = NULL, ...) {
             stop ("length of f should match number of rows in mask")
         out <- list()
         for (i in levels(f)) {
-            out[[i]] <- subset (x, subset = (f == i), ...)
+            OK <- !is.na(f) | !na.rm
+            out[[i]] <- subset (x, subset = (f == i & OK), ...)
         }
         names(out) <- levels(f)
     }
