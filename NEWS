@@ -1,7 +1,7 @@
-Changes in version 5.1.1 (2024-11-04)
+Changes in version 5.1.1 (2024-11-07)
 
 New features or changed behaviour of old functions
-    o  none
+    o  split.mask() acquires argument 'na.rm' and drops NA cells by default
     
 Bugs fixed
     o  none
