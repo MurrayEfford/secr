@@ -2,9 +2,10 @@
 ## package 'secr'
 ## split.mask.R
 ## last changed 2018-12-18
+## 2024-11-08 check for NA in f
 ############################################################################################
 
-split.mask <- function (x, f, drop = FALSE, clusters = NULL, na.rm = TRUE, ...) {
+split.mask <- function (x, f, drop = FALSE, clusters = NULL, ...) {
     if (ms(x))
         stop ("split not suitable for multi-session mask")
     
@@ -25,10 +26,12 @@ split.mask <- function (x, f, drop = FALSE, clusters = NULL, na.rm = TRUE, ...) 
         f <- if (drop) factor(f) else as.factor(f)
         if (length(f) != nrow(x))
             stop ("length of f should match number of rows in mask")
+        if (any(is.na(f))) {
+            stop ("f should not contain NA values")
+        }        
         out <- list()
         for (i in levels(f)) {
-            OK <- !is.na(f) | !na.rm
-            out[[i]] <- subset (x, subset = (f == i & OK), ...)
+            out[[i]] <- subset (x, subset = (f == i), ...)
         }
         names(out) <- levels(f)
     }

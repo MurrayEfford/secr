@@ -4,6 +4,7 @@
 ## last changed 
 ## 2012-12-18 (usage), 
 ## 2016-05-10 leadingzero in numeric 
+## 2024-11-08 check for NA in f
 ############################################################################################
 
 split.traps <- function (x, f, drop = FALSE, prefix='S', byoccasion = FALSE, ...) {
@@ -12,7 +13,9 @@ split.traps <- function (x, f, drop = FALSE, prefix='S', byoccasion = FALSE, ...
   if (ms(x)) {
       stop ("'split.traps' is not suitable for multi-session traps")
   }
-
+  if (any(is.na(f))) {
+        stop ("f should not contain NA values")
+  }
   oldopt <- options(warn=-1)
   f <- factor(f)
 

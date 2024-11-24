@@ -2,13 +2,16 @@
 ## package 'secr'
 ## split.capthist.R
 ## last changed 2009 06 11 2009 07 10 2009 10 05 2012 07 26 2012 09 04 2015-10-11
-## 2021-04-24, 2023-11-23
+## 2021-04-24, 2023-11-23, 2024-11-08
 ############################################################################################
 
 split.capthist <- function (x, f, drop = FALSE, prefix='S', bytrap = FALSE,
     byoccasion = FALSE, bysession = FALSE, ...) {
     if (!inherits(x, 'capthist'))
         stop ("argument to 'split.capthist' should have class 'capthist'")
+    if (any(is.na(unlist(f)))) {
+        stop ("f should not contain NA values")
+    }
     if (ms(x)) {
         if (bysession) {
             if (length(f)!= length(x))
