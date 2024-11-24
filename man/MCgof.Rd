@@ -68,7 +68,7 @@ By default, tests are performed separately for three types of count: the numbers
 \eqn{y_{k} = \sum_i \sum_j y_{ijk}}  \tab\tab detector \cr 
 }
 
-Parallel processing is offered using multiple cores (CPUs) through the package \pkg{parallel} when ncores > 1. This differs from the usual multithreading paradigm in \pkg{secr} and does not rely on the environment variable set by \code{\link{setNumThreads}} \emph{except} that, if ncores = NULL, ncores will be set to the value from \code{setNumThreads}. The cluster type "FORK" is available only on Unix-like systems; it can require large amounts of memory, but is generally fast. A small value of ncores>1 may be optimal, especially With cluster type "PSOCK".
+Parallel processing is offered using multiple cores (CPUs) through the package \pkg{parallel} when ncores > 1. This differs from the usual multithreading paradigm in \pkg{secr} and does not rely on the environment variable set by \code{\link{setNumThreads}} \emph{except} that, if ncores = NULL, ncores will be set to the value from \code{setNumThreads}. The cluster type "FORK" is available only on Unix-like systems; it can require large amounts of memory, but is generally fast. A small value of ncores>1 may be optimal, especially with cluster type "PSOCK".
 
 `usefxi' and `useMVN' may be used to drop key elements of the Choo et al. (2024) 
 approach - they are provided for demonstration only.
