@@ -994,6 +994,7 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
                     parindx = parindx,
                     model = model,
                     details = details,
+                    method = method,          # new 2024-11-25
                     vars = vars,
                     betanames = betanames,
                     realnames = realnames,
@@ -1005,7 +1006,7 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
                     starttime = starttime,
                     proctime = (proc.time() - ptm)[3]
     )
-    
+
     class(output) <- 'secr'
     
     if (usebuffer & !is.na(biasLimit)) {
