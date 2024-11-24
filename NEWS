@@ -1,13 +1,15 @@
-Changes in version 5.1.1 (2024-11-07)
+Changes in version 5.1.1 (2024-11-13)
 
 New features or changed behaviour of old functions
-    o  split.mask() acquires argument 'na.rm' and drops NA cells by default
+    o  none
     
 Bugs fixed
-    o  none
+    o  addCovariates() generated spurious sf warning "attribute variables are 
+       assumed to be spatially constant throughout all geometries "
     
 Other
     o  tweaked OVpossum Rd example to avoid 'sp'
+    o  split.xxxx() functions check for NA values in split factor
     
 Changes in version 5.1.0 (2024-11-04)
 
