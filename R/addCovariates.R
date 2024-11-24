@@ -11,7 +11,8 @@
 ## 2021-12-07 SpatRaster (terra)
 ## 2022-02-13 Revamped for sf, added tests
 ## 2022-08-28 extended to popn objects
-
+## 2024-11-13 fixed st_join() call to avoid spurious warning "attribute variables 
+#             are assumed to be spatially constant throughout all geometries"
 ###############################################################################
 
 addCovariates <- function (object, spatialdata, columns = NULL, strict = FALSE, replace = FALSE) {
@@ -73,7 +74,8 @@ addCovariates <- function (object, spatialdata, columns = NULL, strict = FALSE, 
             # POLYGON or MULTIPOLYGON
             xy <- as.data.frame(object)
             xy <- st_as_sf(xy, coords=1:2, crs = st_crs(spatialdata))
-            df <- st_join(xy, spatialdata, join = st_within, largest = TRUE)
+            # removed 'largest' argument 2024-11-13
+            df <- st_join(xy, spatialdata, join = st_within)
             df <- st_drop_geometry(df)
         }
         else if (inherits(spatialdata, "SpatRaster")) {
