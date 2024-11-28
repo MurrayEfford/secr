@@ -186,7 +186,8 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
         Dfn = NULL,              ## optional density reparameterization for trend etc.
         Dlambda = FALSE,
         relativeD = FALSE,
-        externalpdot = NULL
+        externalpdot = NULL,
+        externalqx = NULL
     )
     if (!is.null(attr(capthist,'cutval'))) {
         defaultdetails$cutval <- attr(capthist,'cutval')

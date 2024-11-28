@@ -362,6 +362,10 @@ generalsecrloglikfn <- function (
       }
       else
           pi.density <- sweep(density, MARGIN = 2, STATS = Dsum, FUN = '/')
+      if (!is.null(details$externalqx)) {
+          pi.density <- pi.density * data$externalqx
+          pi.density <- pi.density/sum(pi.density)
+      }
     }
     #---------------------------------------------------
     ## allow for scaling of detection
@@ -717,7 +721,7 @@ generalsecrloglikfn <- function (
   D.modelled <- !CL & is.null(fixed$D)
   if (!CL ) {
       D <- getD (designD, beta, sessmask, parindx, link, fixed,
-               grplevels, sessionlevels, parameter = 'D', details$relativeD)
+               grplevels, sessionlevels, parameter = 'D')
   }
   #--------------------------------------------------------------------
   # Non-Euclidean distance parameter

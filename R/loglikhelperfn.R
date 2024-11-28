@@ -123,8 +123,7 @@ getuserdist <- function (traps, mask, userdist, sessnum, noneuc, density, miscpa
 }
 #--------------------------------------------------------------------------------
 getD <- function (designD, beta, mask, parindx, link, fixed,
-                  grouplevels, sessionlevels, parameter = 'D',
-                  relativeD = FALSE) {
+                  grouplevels, sessionlevels, parameter = 'D') {
     ## apply to either 'D' or 'noneuc'
     if (!is.function(designD)) {
         if ((is.null(designD) || nrow(designD)==0) && (is.null(fixed[[parameter]]))) return(NULL)

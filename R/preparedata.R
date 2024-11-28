@@ -365,6 +365,17 @@ prepareSessionData <- function (capthist, mask, maskusage,
             externalpdot <- NULL
         }
         
+        if (!is.null(details$externalqx)) {
+            if (!(details$externalqx %in% names(covariates(mask)))) 
+                stop ("externalqx '", details$externalqx, "' not found in mask covariates")
+            externalqx <- covariates(mask)[, details$externalqx]
+            if (!is.null(externalpdot)) stop ("specify only one of externalqx, externalpdot")
+            message("using external q(x)")
+        }
+        else {
+            externalqx <- NULL
+        }
+        
         ## Groups
         grp  <- group.factor (capthist, groups)
         if (any(is.na(grp))) {
@@ -408,6 +419,7 @@ prepareSessionData <- function (capthist, mask, maskusage,
             usge = usge,
             mask = mask,
             externalpdot = externalpdot,
+            externalqx = externalqx,
             distmat2 = distmat2,
             knownclass = knownclass,
             n.distrib = n.distrib,

@@ -111,6 +111,10 @@ fastsecrloglikfn <- function (
         }
         else {
             pi.density <- density / sum(density)
+            if (!is.null(details$externalqx)) {
+                pi.density <- pi.density * data$externalqx
+                pi.density <- pi.density/sum(pi.density)
+            }
         }
         #---------------------------------------------------
         ## allow for scaling of detection
@@ -272,7 +276,7 @@ fastsecrloglikfn <- function (
         sessmask <- lapply(data, '[[', 'mask')
         grplevels <- unique(unlist(lapply(data, function(x) levels(x$grp))))
         D <- getD (designD, beta, sessmask, parindx, link, fixed,
-                   grplevels, sessionlevels, parameter = 'D', details$relativeD)
+                   grplevels, sessionlevels, parameter = 'D')
         if (!is.na(sumD <- sum(D)))
             if (sumD <= 0)
                 warning ("invalid density <= 0")
