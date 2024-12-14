@@ -1,7 +1,7 @@
-Changes in version 5.1.1 (2024-11-13)
+Changes in version 5.1.1 (2024-12-14)
 
 New features or changed behaviour of old functions
-    o  none
+    o  derivedDsurface() for relativeD models
     
 Bugs fixed
     o  addCovariates() generated spurious sf warning "attribute variables are 
@@ -10,6 +10,7 @@ Bugs fixed
 Other
     o  tweaked OVpossum Rd example to avoid 'sp'
     o  split.xxxx() functions check for NA values in split factor
+    o  externalqx undocumented details argument
     
 Changes in version 5.1.0 (2024-11-04)
 
