@@ -36,6 +36,9 @@ predictDsurface(object, mask = NULL, se.D = FALSE, cl.D = FALSE, alpha =
   Density is adjusted automatically for the number of clusters in
   `mashed' models (see \code{\link{mash}}).
 
+  If \code{object} is a relative density model then \code{\link{derivedDsurface}} 
+  first computes the intercept.
+  
 }
 
 \value{
@@ -55,7 +58,10 @@ predictDsurface(object, mask = NULL, se.D = FALSE, cl.D = FALSE, alpha =
 }
 
 \seealso{
-  \code{\link{plot.Dsurface}}, \code{\link{secr.fit}}, \code{\link{predict.secr}}
+  \code{\link{plot.Dsurface}}, 
+  \code{\link{secr.fit}}, 
+  \code{\link{predict.secr}}, 
+  \code{\link{derivedDsurface}}
 }
 
 \examples{

@@ -73,7 +73,7 @@ predictD <- function (object, regionmask, group, session,
     }
 
     ## user-defined density model
-    else if (userD(object) & (parameter == 'D')) {
+    else if (userD(object) && (parameter == 'D')) {
         designD <- object$details$userDfn
         if (!is.function(designD))
             stop ("details$userDfn must be a function")

@@ -154,8 +154,8 @@ sigmak ~ 1)
 compute sigma from D, then compute lambda0 from sigma).
 
 \code{details$relativeD} fits a density model conditional on \eqn{n} that describes
-relative density instead of absolute density. This describes the distribution of 
-tagged animals. See also \code{details$externalpdot}
+relative density instead of absolute density. A log link is assumed for density (D). 
+The intercept of the log-linear submodel for D as a function of covariates is fixed at zero.
 
 \code{details$savecall} determines whether the full call to \code{secr.fit} is 
 saved in the output object. The default is TRUE except when called by 
