@@ -261,7 +261,6 @@ predictDsurface <- function (object, mask = NULL, se.D = FALSE, cl.D = FALSE, al
     if (is.null(mask))
         mask <- object$mask
     densitylist <- vector('list')
-    ## 2015-12-04 to fix bug found by Rahel Sollmann
     if (ms(mask)) {
         if (is.null(names(mask)))
             names(mask) <- sessionlevels
