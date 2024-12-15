@@ -360,8 +360,9 @@ generalsecrloglikfn <- function (
               warning("invalid distribution for sighting at Eval ", .localstuff$iter)  # changed from stop() 2019-12-15
           }
       }
-      else
+      else {
           pi.density <- sweep(density, MARGIN = 2, STATS = Dsum, FUN = '/')
+      }
       if (!is.null(details$externalqx)) {
           pi.density <- pi.density * data$externalqx
           pi.density <- pi.density/sum(pi.density)

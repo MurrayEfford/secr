@@ -110,9 +110,11 @@ fastsecrloglikfn <- function (
             pi.density <- rep(1/data$m, data$m)  
         }
         else {
-            pi.density <- density / sum(density)
-            if (!is.null(details$externalqx)) {
-                pi.density <- pi.density * data$externalqx
+            if (is.null(details$externalqx)) {
+                pi.density <- density / sum(density)
+            }
+            else {
+                pi.density <- density * data$externalqx
                 pi.density <- pi.density/sum(pi.density)
             }
         }
@@ -271,7 +273,7 @@ fastsecrloglikfn <- function (
     
     #--------------------------------------------------------------------
     # Density
-    D.modelled <- !CL & is.null(fixed$D)
+    D.modelled <- !CL && is.null(fixed$D)
     if (!CL ) {
         sessmask <- lapply(data, '[[', 'mask')
         grplevels <- unique(unlist(lapply(data, function(x) levels(x$grp))))

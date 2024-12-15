@@ -123,7 +123,7 @@ mask.check <- function (object, buffers = NULL, spacings = NULL, poly = NULL,
                 realpar <- predicted[,'estimate']
                 names(realpar) <- rownames(predicted)
                 if (!is.null(newcall$CL))
-                    if (newcall$CL == T) {
+                    if (newcall$CL) {
                         realpar <- realpar[names(realpar) != 'D']
                     }
             }
