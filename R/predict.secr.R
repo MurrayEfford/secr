@@ -35,7 +35,7 @@ predict.secr <- function (object, newdata = NULL, realnames = NULL,
     
     ## unmashing 2012-07-24
     unmash <- object$details$unmash
-    if (object$CL | is.null(unmash)) unmash <- FALSE
+    if (object$CL || is.null(unmash)) unmash <- FALSE
 
     parindices <- object$parindx
     models <- object$model
