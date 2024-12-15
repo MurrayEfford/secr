@@ -10,6 +10,7 @@
 ## 2022-01-22 fixed bug in sumDpdot that ignored details$ignoreusage
 ## 2022-10-08 fixed bug in region.N when region is mask other than original
 ## 2023-02-06 sumDpdot tweaked for robustness to varying detectors/session
+## 2024-12-15 sumDpdot ignored varying relative density
 ############################################################################################
 
 region.N.secrlist <- function (object, region = NULL, spacing = NULL, session = NULL,
@@ -428,11 +429,13 @@ sumDpdot <- function (object, sessnum = 1, mask, D, noneuc, cellsize, constant =
                 K <- nrow(temptrap)
                 CH0 <- nullCH (c(n,s,K), object$design0$individual)
             }
+            D <- matrix(D, nrow = m, ncol = 1)
             pd <- integralprw1 (
                 cc0 = nrow(Xrealparval0), 
                 haztemp = if (nclust>1) haztempc else haztemp, 
                 gkhk = gkhk, 
-                pi.density = matrix(1/m, nrow = m, ncol = 1), 
+                # pi.density = matrix(1/m, nrow = m, ncol = 1), 
+                pi.density = D/sum(D), # bug fix 2024-12-15
                 PIA0 = PIA0, 
                 CH0 = CH0, 
                 binomNcode = binomNcode, 

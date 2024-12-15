@@ -6,6 +6,7 @@ New features or changed behaviour of old functions
 Bugs fixed
     o  addCovariates() generated spurious sf warning "attribute variables are 
        assumed to be spatially constant throughout all geometries "
+    o  region.N() computation of R.N ignored varying density
     
 Other
     o  tweaked OVpossum Rd example to avoid 'sp'
