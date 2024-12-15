@@ -110,13 +110,10 @@ fastsecrloglikfn <- function (
             pi.density <- rep(1/data$m, data$m)  
         }
         else {
-            if (is.null(details$externalqx)) {
-                pi.density <- density / sum(density)
+            if (!is.null(details$externalqx)) {
+                density <- density * data$externalqx
             }
-            else {
-                pi.density <- density * data$externalqx
-                pi.density <- pi.density/sum(pi.density)
-            }
+            pi.density <- density / sum(density)
         }
         #---------------------------------------------------
         ## allow for scaling of detection
