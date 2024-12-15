@@ -3,6 +3,7 @@
 
 derivedIntercept <- function (object, sessnum = 1) {
     D <- predictD(object, object$mask, group = NULL, session = sessnum, parameter = 'D')
+    # function from regionN.R
     a <- sumDpdot (
         object   = object, 
         sessnum  = sessnum, 
