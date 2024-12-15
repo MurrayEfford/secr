@@ -3,17 +3,18 @@
 
 derivedIntercept <- function (object, sessnum = 1) {
     D <- predictD(object, object$mask, group = NULL, session = sessnum, parameter = 'D')
+    ch <- object$capthist
+    n <- if (ms(object)) nrow(ch[[sessnum]]) else nrow(ch)
+    msk <- if (ms(object)) object$mask[[sessnum]] else object$mask
     # function from regionN.R
     a <- sumDpdot (
         object   = object, 
         sessnum  = sessnum, 
-        mask     = object$mask, 
+        mask     = msk, 
         D        = D,
         noneuc   = NULL,
-        cellsize = getcellsize(object$mask), 
+        cellsize = getcellsize(msk), 
         constant = FALSE)
-    ch <- object$capthist
-    n <- if (ms(object)) nrow(ch[[sessnum]]) else nrow(ch)
     log(n/a)
 }
 
