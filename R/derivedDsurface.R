@@ -15,7 +15,7 @@ derivedIntercept <- function (object, sessnum = 1) {
         noneuc   = NULL,
         cellsize = getcellsize(msk), 
         constant = FALSE)
-    log(n/a)
+    transform(n/a, object$link$D)
 }
 
 derivedDsurface <- function (object, mask = NULL, sessnum = 1) {
@@ -27,11 +27,14 @@ derivedDsurface <- function (object, mask = NULL, sessnum = 1) {
         warning ("derivedDsurface untested for multi-session models")
     if (!is.null(object$groups))
         stop ("derivedDsurface not enabled for groups")
-    if (object$link$D != "log")
-        stop ("derivedDsurface: requires log link")
+    if (!(object$link$D %in% c("log", "identity")))
+        warning ("derivedDsurface: requires log or identity link")
     
     intercept <- derivedIntercept(object, sessnum)
     object$details$fixedbeta[1] <- intercept
+    if (object$link$D == 'identity') {
+        object$fit$par <- object$fit$par * intercept
+    }
     out <- predictDsurface(object, mask, parameter = 'D')
     attr(out, "derivedIntercept") <- intercept
     out
