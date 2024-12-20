@@ -574,10 +574,10 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     memo ('Preparing detection design matrices', details$trace)
     design <- secr.design.MS (capthist, model, timecov, sessioncov, groups, hcov,
                               dframe, ignoreusage = details$ignoreusage, naive = FALSE,
-                              CL = CL, contrasts = details$contrasts)
+                              CL = CL || details$relativeD, contrasts = details$contrasts)
     design0 <- secr.design.MS (capthist, model, timecov, sessioncov, groups, hcov,
                                dframe, ignoreusage = details$ignoreusage, naive = TRUE,
-                               CL = CL, contrasts = details$contrasts)
+                               CL = CL || details$relativeD, contrasts = details$contrasts)
     ############################################
     # Prepare density design matrix
     ############################################
@@ -783,7 +783,12 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     fb <- details$fixedbeta
     if (details$relativeD) {
         if (is.null(fb)) fb <- rep(NA, NP)
-        fb[parindx$D[1]] <- 0
+        if (link$D == 'log')
+            fb[parindx$D[1]] <- 0
+        else if (link$D =='identity')
+            fb[parindx$D[1]] <- 1
+        else 
+            stop ("density link not implemented for relativeD")
         details$fixedbeta <- fb
     }
     if (!is.null(fb)) {
