@@ -36,7 +36,7 @@ in a small waxed-paper bag. Raspberry extract was used as a scent lure.
 Genotyping and non-spatial capture-recapture analysis of a data subset were
 described by Settlage et al. (2008). The sex of each genotyped bear was 
 determined subsequently and some additional samples were included (J. Laufenberg 
-pers. comm. 2012-05-09). 
+pers. comm. 2012-05-09; Laufenberg et al. 2013). 
 
 The dataset is a single-session capthist object with binary proximity 
 detector type. Snags were visited weekly, so there were 10 occasions 
@@ -64,6 +64,8 @@ The data were provided by Jared Laufenberg, Frank van Manen and Joe Clark.
 }
 
 \references{
+
+Laufenberg, J. S., van Manen, F. T., and Clark, J. D.  (2013)  Effects of sampling conditions on DNA-based estimates of American black bear abundance.  \emph{Journal of Wildlife Management} \bold{77}, 1010--1020. 
 
 Settlage, K. E., Van Manen, F. T., Clark, J. D., and King, T. L. (2008) Challenges of DNA-based mark--recapture studies of American black bears. \emph{Journal of Wildlife Management} \bold{72}, 1035--1042.
 
