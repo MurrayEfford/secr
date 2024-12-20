@@ -28,9 +28,9 @@ prepare <- function (secr, newmodel) {
     grouplevels  <- group.levels(capthist, groups)
 
     design <- secr.design.MS (capthist, newmodel, timecov, sessioncov, groups, hcov, dframe,
-                              ignoreusage = details$ignoreusage, CL = CL, contrasts = details$contrasts)
+                              ignoreusage = details$ignoreusage, CL = CL || details$relativeD, contrasts = details$contrasts)
     design0 <- secr.design.MS (capthist, newmodel, timecov, sessioncov, groups, hcov, dframe,
-                               ignoreusage = details$ignoreusage, CL = CL, contrasts = details$contrasts,
+                               ignoreusage = details$ignoreusage, CL = CL || details$relativeD, contrasts = details$contrasts,
                                naive = T)
     D.modelled <- !CL & is.null(fixed$D)
     NE.modelled <- is.function(details$userdist) & is.null(fixed$noneuc)           
