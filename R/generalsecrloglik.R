@@ -595,7 +595,6 @@ generalsecrloglikfn <- function (
       ## Adjust for undetected animals unless data includes all-zero histories
       ## (the case for allsighting data when knownmarks = TRUE)
       ## or density relative.
-      # if (!data$MRdata$sightmodel==5 && !all(data$dettype==13) && !details$relativeD) {
       if (!data$MRdata$sightmodel==5 && !all(data$dettype==13)) {
           comp[2,g] <- if (any(is.na(pdot)) || any(pdot<=0)) NA else -sum(log(pdot[ok]))
       }
