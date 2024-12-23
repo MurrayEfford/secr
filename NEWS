@@ -2,7 +2,7 @@ Changes in version 5.2.0 (2024-12-23)
 
 New features or changed behaviour of old functions
     o  conditional relativeD models fully integrated
-    o  derivedDsurface() for relativeD models
+    o  derivedIntercept() and derivedDsurface() for relativeD models
     
 Bugs fixed
     o  addCovariates() generated spurious sf warning "attribute variables are 

@@ -12,7 +12,10 @@
 
 The function \code{secr.fit} allows many options. Some of these are used
 infrequently and have been bundled as a single argument \code{details}
-to simplify the documentation. They are described here.
+to simplify the documentation. They are described here. Some components (param, 
+relativeD) are primarily used to record the type of model fitted that is an 
+indirect result of other settings.
+
 }
 
 \section{Detail components}{
@@ -62,7 +65,7 @@ density estimates. This can help to reconcile MLE with Bayesian
 estimates using data augmentation.
 
 \code{details$externalpdot} names a mask covariate that is substituted for 
-\eqn{p.(x|\theta)} when fitting a model for relative density (see \code{details$relativeD}). 
+\eqn{p.(x|\theta)} when fitting a model for relative density.
 This can be useful in a two-phase study when animals are tagged 
 in phase one and sampled in phase two, with no further tagging (Bottoms et al. in prep.). 
 The covariate may differ from \eqn{p.(x)} by a constant factor. 
@@ -153,9 +156,7 @@ sigmak ~ 1)
 \code{details$param = 5} combines parameterisations (3) and (4) (first
 compute sigma from D, then compute lambda0 from sigma).
 
-\code{details$relativeD} fits a density model conditional on \eqn{n} that describes
-relative density instead of absolute density. A log link is assumed for density (D). 
-The intercept of the log-linear submodel for D as a function of covariates is fixed at zero.
+\code{details$relativeD} indicates that a density model has been fitted conditional on \eqn{n} and hence describing relative density instead of absolute density. The intercept of the log-linear submodel for D as a function of covariates is fixed at zero for a log link or 1 for the identity link.
 
 \code{details$savecall} determines whether the full call to \code{secr.fit} is 
 saved in the output object. The default is TRUE except when called by 

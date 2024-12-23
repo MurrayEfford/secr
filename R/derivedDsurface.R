@@ -24,7 +24,6 @@ completeDbeta <- function(object, sessnum) {
     if (object$link$D == 'identity') {
         object$fit$par <- object$fit$par * intercept
     }
-    attr(object, 'derivedIntercept') <- intercept
     object
 }
 
@@ -39,6 +38,5 @@ derivedDsurface <- function (object, mask = NULL, sessnum = 1) {
         warning ("derivedDsurface relativeD requires log or identity link")
     object <- completeDbeta(object, sessnum)
     out <- predictDsurface(object, mask, parameter = 'D')
-    attr(out, "derivedIntercept") <- attr(object, 'derivedIntercept') 
     out
 }
