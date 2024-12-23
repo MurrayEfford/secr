@@ -28,11 +28,11 @@ prepare <- function (secr, newmodel) {
     grouplevels  <- group.levels(capthist, groups)
 
     design <- secr.design.MS (capthist, newmodel, timecov, sessioncov, groups, hcov, dframe,
-                              ignoreusage = details$ignoreusage, CL = CL || details$relativeD, contrasts = details$contrasts)
+                              ignoreusage = details$ignoreusage, CL = CL, contrasts = details$contrasts)
     design0 <- secr.design.MS (capthist, newmodel, timecov, sessioncov, groups, hcov, dframe,
-                               ignoreusage = details$ignoreusage, CL = CL || details$relativeD, contrasts = details$contrasts,
+                               ignoreusage = details$ignoreusage, CL = CL, contrasts = details$contrasts,
                                naive = T)
-    D.modelled <- !CL & is.null(fixed$D)
+    D.modelled <- (!CL || details$relativeD) && is.null(fixed$D)
     NE.modelled <- is.function(details$userdist) & is.null(fixed$noneuc)           
     sessionlevels <- session(capthist)
     grouplevels  <- group.levels(capthist, groups)
@@ -82,8 +82,8 @@ prepare <- function (secr, newmodel) {
        mask      = mask,
        CL        = CL,
        detectfn  = detectfn,
-       D.design  = D.designmatrix,
-       NE.design = NE.designmatrix,
+       designD   = D.designmatrix,
+       designNE  = NE.designmatrix,
        design    = design,
        design0   = design0,
        hcov      = hcov,
@@ -123,7 +123,7 @@ score.test <- function (secr, ..., betaindex = NULL, trace = FALSE, ncores = NUL
         model <- replace (secr$model, names(model), model)
 
         ## OBSOLETE: 2014-10-25, BUT DOES IT NEED REPLACING?
-        if (secr$CL) model$D <- NULL
+        # if (secr$CL) model$D <- NULL
         if (secr$detectfn!=1) model$z <- NULL
 
         #########################################################
@@ -142,12 +142,21 @@ score.test <- function (secr, ..., betaindex = NULL, trace = FALSE, ncores = NUL
         # construct essential parts of new secr model
         newsecr <- prepare (secr, model)
         newsecr$details <- replace (secr$details, 'trace', trace)  ## override
-        newsecr$details$ncores <- setNumThreads(ncores)  ## 2021-10-17
-        beta0 <- secr$fit$par
-        names(beta0) <- secr$betanames
+        newsecr$details$ncores <- setNumThreads(ncores)
+        beta0 <- complete.beta(secr) # secr$fit$par
+        names(beta0) <- fullbetanames(secr) # secr$betanames # 
         beta1 <- mapbeta(secr$parindx, newsecr$parindx, beta0, betaindex)
-        names(beta1) <- newsecr$betanames
-
+        
+        if (newsecr$details$relativeD) {
+            beta1 <- beta1[-1]  # drop intercept (fixed)
+            if (newsecr$link$D == 'log') 
+                D1 <- 0  # log
+            else 
+                D1 <- 1  # identity
+            # does not carry forward previous fixedbeta
+            newsecr$details$fixedbeta <- c(D1, rep(NA, length(beta1)))
+        }
+        
         allvars <- unlist(lapply(model, all.vars))
         learnedresponse <- any(.localstuff$learnedresponses %in% allvars) 
         
@@ -163,8 +172,8 @@ score.test <- function (secr, ..., betaindex = NULL, trace = FALSE, ncores = NUL
                parindx  = design$parindx,
                link     = design$link,
                fixed    = design$fixed,
-               designD  = design$D.design,
-               designNE = design$NE.design, 
+               designD  = design$designD,
+               designNE = design$designNE, 
                design   = design$design,
                design0  = design$design0,
                CL       = design$CL,
@@ -179,10 +188,10 @@ score.test <- function (secr, ..., betaindex = NULL, trace = FALSE, ncores = NUL
         data <- prepareSessionData(newsecr$capthist, newsecr$mask, newsecr$details$maskusage, 
                                    newsecr$design, newsecr$design0, newsecr$detectfn, newsecr$groups, 
                                    newsecr$fixed, newsecr$hcov, newsecr$details)
-        
+
         # cat('logLik',loglikfn(beta1, design=newsecr), '\n')   ## testing
         # cat('logmult', newsecr$logmult, '\n')
-        
+  
         ## fdHess is from package nlme
         grad.Hess <- nlme::fdHess(beta1, fun = loglikfn, design = newsecr,
                             .relStep = .relStep, minAbsPar = minAbsPar)

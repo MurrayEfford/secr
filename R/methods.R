@@ -2509,13 +2509,15 @@ vcov.secr <- function (object, realnames = NULL, newdata = NULL, byrow = FALSE, 
     else {
         ## average real parameters
         ## vcv among multiple rows
-
+        
+        beta <- complete.beta(object)
+        beta.vcv <- complete.beta.vcv(object)
+        if (is.null(newdata)) {
+            newdata <- makeNewData (object)
+        }
+        
         if (byrow) {
             ## need delta-method variance of reals given object$beta.vcv & newdata
-            if (is.null(newdata)) {
-              # newdata <- secr.make.newdata (object)
-              newdata <- makeNewData (object)
-            }
             nreal <- length(realnames)
             nbeta <- length(object$fit$par)
 
@@ -2534,8 +2536,8 @@ vcov.secr <- function (object, realnames = NULL, newdata = NULL, byrow = FALSE, 
                 grad <- matrix(nrow = nreal, ncol = nbeta)
                 dimnames(grad) <- list(realnames, object$betanames)
                 for (rn in realnames)
-                    grad[rn,] <- fdHess (pars = object$fit$par, fun = reali, rn = rn)$gradient
-                vcv <- grad %*% object$beta.vcv %*% t(grad)
+                    grad[rn,] <- fdHess (pars = beta, fun = reali, rn = rn)$gradient
+                vcv <- grad %*% beta.vcv %*% t(grad)
                 vcv
             }
 
@@ -2559,7 +2561,7 @@ vcov.secr <- function (object, realnames = NULL, newdata = NULL, byrow = FALSE, 
                     data = newdata,
                     gamsmth = object$smoothsetup[[rn]],
                     contrasts = object$details$contrasts)
-                lp <- mat %*% matrix(object$fit$par[par.rn], ncol = 1)
+                lp <- mat %*% matrix(beta[par.rn], ncol = 1)
                 real <- untransform (lp, object$link[[rn]])
                 real <- as.vector(real)
                 ## from Jeff Laake's 'compute.real' in RMark...
@@ -2568,7 +2570,7 @@ vcov.secr <- function (object, realnames = NULL, newdata = NULL, byrow = FALSE, 
                     log = mat * real,
                     identity = mat,
                     sin = mat * cos(asin(2*real-1))/2)
-                vcvlist[[rn]] <- deriv.real %*% object$beta.vcv[par.rn, par.rn] %*% t(deriv.real)
+                vcvlist[[rn]] <- deriv.real %*% beta.vcv[par.rn, par.rn] %*% t(deriv.real)
                 dimnames(vcvlist[[rn]]) <- list(rownames, rownames)
             }
             names (vcvlist) <- realnames

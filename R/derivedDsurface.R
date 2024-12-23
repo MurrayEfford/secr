@@ -18,24 +18,27 @@ derivedIntercept <- function (object, sessnum = 1) {
     transform(n/a, object$link$D)
 }
 
-derivedDsurface <- function (object, mask = NULL, sessnum = 1) {
-    if (object$CL || !object$details$relativeD) 
-        stop ("derivedDsurface is for relativeD models")
-    if (is.null(object$details$fixedbeta) || is.na(object$details$fixedbeta[1])) 
-        stop ("derivedDsurface fixedbeta[1] not found")
-    if (ms(object))
-        warning ("derivedDsurface untested for multi-session models")
-    if (!is.null(object$groups))
-        stop ("derivedDsurface not enabled for groups")
-    if (!(object$link$D %in% c("log", "identity")))
-        warning ("derivedDsurface: requires log or identity link")
-    
+completeDbeta <- function(object, sessnum) {
     intercept <- derivedIntercept(object, sessnum)
     object$details$fixedbeta[1] <- intercept
     if (object$link$D == 'identity') {
         object$fit$par <- object$fit$par * intercept
     }
+    attr(object, 'derivedIntercept') <- intercept
+    object
+}
+
+derivedDsurface <- function (object, mask = NULL, sessnum = 1) {
+    if (!object$details$relativeD) 
+        stop ("derivedDsurface is for relativeD models")
+    if (is.null(object$details$fixedbeta) || is.na(object$details$fixedbeta[1])) 
+        stop ("derivedDsurface fixedbeta[1] expected for relativeD but not found")
+    if (ms(object))
+        warning ("derivedDsurface is not for multi-session models")
+    if (!(object$link$D %in% c("log", "identity")))
+        warning ("derivedDsurface relativeD requires log or identity link")
+    object <- completeDbeta(object, sessnum)
     out <- predictDsurface(object, mask, parameter = 'D')
-    attr(out, "derivedIntercept") <- intercept
+    attr(out, "derivedIntercept") <- attr(object, 'derivedIntercept') 
     out
 }

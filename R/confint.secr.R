@@ -31,11 +31,14 @@ confint.secr <- function (object, parm, level = 0.95, newdata = NULL,
 
         predicted <- function (beta) {
             temp <- secr.lpredictor (
-                formula = object$model[[parm]], newdata = newdata,
-                indx = object$parindx[[parm]], beta = beta, field = parm,
+                formula     = object$model[[parm]], 
+                newdata     = newdata,
+                indx        = object$parindx[[parm]], 
+                beta        = beta, 
+                field       = parm,
                 smoothsetup = object$smoothsetup[[parm]], 
-                contrasts = object$details$contrasts,
-                Dfn = attr(object$designD, 'Dfn')
+                contrasts   = object$details$contrasts,
+                Dfn         = attr(object$designD, 'Dfn')
             )[1,'estimate']
             untransform(temp, object$link[[parm]])
         }
@@ -73,7 +76,7 @@ confint.secr <- function (object, parm, level = 0.95, newdata = NULL,
           }
           
           ## maximize for fixed gamma (equivalent to fixed 'parm')
-          lagrange.fit <- optim (par = object$fit$par, fn = lagrange, gamma = gamma,
+          lagrange.fit <- optim (par = complete.beta(object), fn = lagrange, gamma = gamma,
                                    hessian = FALSE)
             .localstuff$beta <- lagrange.fit$par
             lp <- -generalsecrloglikfn (
@@ -106,16 +109,24 @@ confint.secr <- function (object, parm, level = 0.95, newdata = NULL,
             if (is.null(fb)) fb <- rep(NA, np)
             fb[parm] <- x
             details$fixedbeta <- fb
-            fit <- secr.fit (capthist = object$capthist, mask = object$mask,
-                buffer = object$buffer, CL = object$CL, detectfn = object$detectfn,
-                start = object$fit$par, binomN= details$binomN,
-## link = object$link, fixed = object$fixed,  model = object$model,
-## timecov = object$timecov, sessioncov = object$sessioncov,
-## 2015-12-05
-                link = object$link, fixed = object$fixed, model = object$model,
-                timecov = object$timecov, sessioncov = object$sessioncov, hcov = object$hcov,
-                groups = object$groups, dframe = object$dframe,
-                details = details, verify = FALSE, ...)$fit
+            fit <- secr.fit (
+                capthist   = object$capthist, 
+                mask       = object$mask,
+                buffer     = object$buffer, 
+                CL         = object$CL, 
+                detectfn   = object$detectfn,
+                start      = object$fit$par, 
+                binomN     = details$binomN,
+                link       = object$link, 
+                fixed      = object$fixed, 
+                model      = object$model,
+                timecov    = object$timecov, 
+                sessioncov = object$sessioncov, 
+                hcov       = object$hcov,
+                groups     = object$groups, 
+                dframe     = object$dframe,
+                details    = details, 
+                verify     = FALSE, ...)$fit
             - fit$value - targetLL
         }
 
@@ -263,8 +274,8 @@ confint.secr <- function (object, parm, level = 0.95, newdata = NULL,
                     object$groups))
 
             ## reconstruct density design matrix
-            D.modelled <- !object$CL & is.null(object$fixed$D)
-            NE.modelled <- is.function(object$details$userdist) & is.null(object$fixed$noneuc)           
+            D.modelled <- (!object$CL || object$details$relativeD) && is.null(object$fixed$D)
+            NE.modelled <- is.function(object$details$userdist) && is.null(object$fixed$noneuc)           
             sessionlevels <- session(object$capthist)
             grouplevels <- group.levels(object$capthist, object$groups)
             smoothsetup <- object$smoothsetup

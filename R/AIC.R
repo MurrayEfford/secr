@@ -50,9 +50,6 @@ AIC.secr <- function (object, ..., sort = TRUE, k = 2, dmax = 10,
                        as.character(match.call(expand.dots=FALSE)$...) ))
     allargs <- secrlist(object, allargs)
     names(allargs) <- modelnames
-    if (!all(AICcompatible(allargs))) {
-        warning ("models not compatible for AIC", call. = FALSE)
-    }
     AIC(allargs, sort=sort, k=k, dmax=dmax, criterion=criterion, chat=chat)
 }
 ############################################################################################
@@ -80,6 +77,9 @@ AIC.secrlist <- function (object, ..., sort = TRUE, k = 2, dmax = 10,
     allargs <- object
     if (any(sapply(allargs,class) != 'secr'))
         stop ("components of 'object' must be 'secr' objects")
+    if (!all(AICcompatible(allargs))) {
+        warning ("models not compatible for AIC", call. = FALSE)
+    }
     
     output <- data.frame(t(sapply(allargs, oneline.secr, k = k, chat = chat)), 
                          stringsAsFactors = FALSE)
@@ -113,7 +113,7 @@ AICcompatible.secrlist <- function(object, ...) {
     }
     stopifnot(inherits(allargs, "secrlist"))
     if (length(allargs)==1) {
-        dataOK <- groupsOK <- CLOK <- hcovOK <- binomNOK <- relativeDOK <- TRUE   
+        dataOK <- groupsOK <- CLOK <- hcovOK <- binomNOK <- TRUE
     }
     else {
         identicalNF <- function(a,b) {
@@ -127,10 +127,9 @@ AICcompatible.secrlist <- function(object, ...) {
         CLOK <- sapply(allargs[-1], function(x) identical(x$CL, allargs[[1]]$CL))
         hcovOK <- sapply(allargs[-1], function(x) identical(x$hcov, allargs[[1]]$hcov))
         binomNOK <- sapply(allargs[-1], function(x) identical(x$details$binomN, allargs[[1]]$details$binomN))
-        relativeDOK <- sapply(allargs[-1], function(x) identicalNF(x$details$relativeD, allargs[[1]]$details$relativeD))
     }
     c(data = all(dataOK),  CL = all(CLOK), groups = all(groupsOK), hcov = all(hcovOK), 
-      binomN = all(binomNOK), relativeD = all(relativeDOK) ) 
+      binomN = all(binomNOK) ) 
 }
 ############################################################################################
 

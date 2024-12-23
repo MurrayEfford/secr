@@ -2,6 +2,7 @@
 ## package 'secr'
 ## modelAverage.R
 ## replacing model.average
+## 2024-12-23 more robust: allows for fixed and fixedbeta parameters (calls complete.beta)
 ############################################################################################
 
 MATA <- function (wt, est, se, alpha) {
@@ -53,7 +54,7 @@ modelAverage.secr <- function (object, ..., realnames = NULL, betanames = NULL,
         chat = NULL)
 }
 
- modelAverage.secrlist <- function (object, ..., realnames = NULL, betanames = NULL,
+modelAverage.secrlist <- function (object, ..., realnames = NULL, betanames = NULL,
     newdata = NULL, alpha = 0.05, dmax = 10, covar = FALSE, average =
         c('link', 'real'), criterion = c('AIC','AICc'), CImethod =
         c('Wald', 'MATA'), chat = NULL) 
@@ -180,17 +181,17 @@ modelAverage.secr <- function (object, ..., realnames = NULL, betanames = NULL,
         getLP <- function (object1) {  ## predicted values of real parameters
             getfield <- function (x) {
                 secr.lpredictor (
-                    formula = object1$model[[x]], 
-                    newdata = newdata,
-                    indx = object1$parindx[[x]], 
-                    beta = object1$fit$par,
-                    beta.vcv = object1$beta.vcv, field = x,
+                    formula     = object1$model[[x]], 
+                    newdata     = newdata,
+                    indx        = object1$parindx[[x]], 
+                    beta        = complete.beta(object1),     # 2024-12-23
+                    beta.vcv    = complete.beta.vcv(object1), 
+                    field       = x,
                     smoothsetup = object1$smoothsetup[[x]], 
-                    contrasts = object1$details$contrasts,
-                    Dfn = attr(object1$designD, 'Dfn')
+                    contrasts   = object1$details$contrasts,
+                    Dfn         = attr(object1$designD, 'Dfn')
                 )
             }
-            ## check added 2016-06-16, fixed 2016-11-08
             if (any(unlist(nclusters(object1$capthist))>1))
                 warning("model.average is ignoring n.mashed", call. = FALSE)
             sapply (names(object1$model), getfield, simplify = FALSE)

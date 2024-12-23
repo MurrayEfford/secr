@@ -111,7 +111,7 @@ summary.secr <- function (object, newdata = NULL, alpha = 0.05, deriv = FALSE, .
                                    fixed = fixed.string(object$fixed),
                                    distribution = if (!object$CL) object$details$distribution else '',
                                    hcov = if (!is.null(object$hcov)) object$hcov else '',
-                                   relativeD = if(!is.null(object$details$relativeD)) as.character(object$details$relativeD) else 'FALSE')
+                                   relativeD = as.character(relativeD(object)))
 
     out$AICtable <- AIC(object)
 

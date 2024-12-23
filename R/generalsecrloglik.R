@@ -345,9 +345,9 @@ generalsecrloglikfn <- function (
     ## unmodelled beta parameters, if needed
     miscparm <- getmiscparm(details$miscparm, detectfn, beta, parindx, details$cutval)
     #---------------------------------------------------
-    density <- getmaskpar(!CL, D, data$m, sessnum, details$unmash, 
+    density <- getmaskpar(D.modelled, D, data$m, sessnum, details$unmash, 
                           attr(data$capthist, 'n.mash'))
-    if (CL) {
+    if (!D.modelled) {
       pi.density <- matrix(1/data$m, nrow=data$m, ncol=1)  
     }
     else {
@@ -601,7 +601,7 @@ generalsecrloglikfn <- function (
       
       #----------------------------------------------------------------------
       
-      if (!CL && !data$MRdata$allsighting && !details$relativeD) {
+      if (!CL && !data$MRdata$allsighting) {
           ng <- sum(ok)
           if (any(data$dettype==13))
               nonzero <- sum(apply(data$CH[,data$dettype!=13,,drop=FALSE] != 0,1,sum)[ok]>0)
@@ -718,8 +718,8 @@ generalsecrloglikfn <- function (
   grplevels <- unique(unlist(lapply(data, function(x) levels(x$grp))))
   #---------------------------------
   # Density
-  D.modelled <- !CL & is.null(fixed$D)
-  if (!CL ) {
+  D.modelled <- (!CL || details$relativeD) && is.null(fixed$D)
+  if (D.modelled) {
       D <- getD (designD, beta, sessmask, parindx, link, fixed,
                grplevels, sessionlevels, parameter = 'D')
   }

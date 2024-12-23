@@ -177,7 +177,6 @@ valid.detectpar <- function (detectpar, detectfn) {
 #-------------------------------------------------------------------------------
 
 valid.model <- function(model, CL, detectfn, hcov, userdist, sessioncovnames) {
-    ## 2014-08-25
     if (any(sapply(model, badsmooths)))
         warning ("smooth term may be unsuitable for secr: ",
                  "does not specify k or fx where required")
@@ -235,10 +234,13 @@ valid.pnames <- function (details, CL, detectfn, alltelem, sighting, nmix) {
         pnames <- c(pnames, 'c')
         pnames <- c(pnames, 'd')
     }
-    if (!CL)
-      pnames <- c('D', pnames)
-    if ('noneuc' %in% getuserdistnames(details$userdist))
+    if (!CL || details$relativeD) {
+        # include density D if needed
+        pnames <- c('D', pnames)
+    }
+    if ('noneuc' %in% getuserdistnames(details$userdist)) {
       pnames <- c(pnames, 'noneuc')
+    }
     if (sighting)
       pnames <- c(pnames, 'pID')
     # if (alltelem) {
@@ -1094,11 +1096,40 @@ fullbeta <- function (beta, fb) {
     beta
 }
 
+fullbetanames <- function (object) {
+    # 2024-12-23
+    betanames <- unlist(sapply(object$design$designMatrices, colnames))
+    names(betanames) <- NULL
+    if(!is.null(attr(object$designD, 'Dfn'))) {
+        nDbeta <- attr(object$designD, 'Dfn')(object$designD)
+        Dnames <- paste0('D', 1:nDbeta)
+    }
+    else {
+        Dnames <- colnames(object$designD)
+    }
+    ## coefficients for D precede all others
+    D.modelled <- (!object$CL || object$details$relativeD) && is.null(object$fixed$D)
+    # NULL happens when no density beta (relativeD with D~1)
+    if (D.modelled && !is.null(Dnames)) {
+        betanames <- c(paste('D', Dnames, sep='.'), betanames)
+    }
+    NE.modelled <- ('noneuc' %in% getuserdistnames(object$details$userdist)) &
+        is.null(object$fixed$noneuc)
+    if (NE.modelled) {
+        NEnames <- colnames(object$designNE)
+        betanames <- c(betanames, paste('noneuc', NEnames, sep='.'))
+    }
+    betanames <- sub('..(Intercept))','',betanames)
+    betanames
+}
 #-------------------------------------------------------------------------------
 
 complete.beta <- function (object) {
     fb <- object$details$fixedbeta
-    beta <- if (inherits(object, 'secr')) object$fit$par else object$beta
+    if (inherits(object, 'secr')) 
+        beta <- setNames(object$fit$par, object$betanames) 
+    else 
+        beta <- object$beta
     fullbeta(beta, fb)
 }
 
@@ -1503,7 +1534,6 @@ mapbeta <- function (parindx0, parindx1, beta0, betaindex)
 {
     ## list of zeroed vectors, one per real parameter
     beta1 <- lapply(parindx1, function (x) {x[]<-0; x})
-
     if (!is.null(betaindex)) {
         beta1 <- unlist(beta1)
         if (sum(betaindex>0) != length(beta0))
@@ -2045,3 +2075,18 @@ span <- function (object, ...) {
 }
 #-------------------------------------------------------------------------------
 
+relativeD <- function(object, CL) {
+    if (inherits(object, 'secr')) {
+        model <- object$model
+        CL <- object$CL
+        rD <- !is.null(model$D) && CL
+        if (rD != object$details$relativeD) stop ("inconsistent relativeD")
+        rD
+    }
+    else {
+        # object is named model list
+        # assume model in std form (named list)
+        !is.null(object$D) && CL
+    }
+}
+#-------------------------------------------------------------------------------
