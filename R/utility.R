@@ -2074,19 +2074,3 @@ span <- function (object, ...) {
     }
 }
 #-------------------------------------------------------------------------------
-
-relativeD <- function(object, CL) {
-    if (inherits(object, 'secr')) {
-        model <- object$model
-        CL <- object$CL
-        rD <- !is.null(model$D) && CL
-        if (rD != object$details$relativeD) stop ("inconsistent relativeD")
-        rD
-    }
-    else {
-        # object is named model list
-        # assume model in std form (named list)
-        !is.null(object$D) && CL
-    }
-}
-#-------------------------------------------------------------------------------
