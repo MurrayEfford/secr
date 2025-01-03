@@ -15,7 +15,7 @@ These functions infer the value of \emph{k} and use this in a call to \code{\lin
 
 \usage{
 
-derivedIntercept(object, sessnum = 1)
+derivedIntercept(object, sessnum = 1, groups = NULL)
 
 derivedDsurface(object, mask = NULL, sessnum = NULL, groups = NULL)
 
