@@ -4,7 +4,7 @@
 ## 2025-01-01 fork from fxi.R
 ###############################################################################
 
-sharedData <- function (object, i, sessnum, X, ncores) {
+sharedData <- function (object, i, sessnum, X, ncores, naive = FALSE) {
     ## temporary fix for lack of fastproximity code
     object$details$fastproximity <- FALSE 
     
@@ -18,8 +18,7 @@ sharedData <- function (object, i, sessnum, X, ncores) {
     beta <- fullbeta(beta, object$details$fixedbeta)
     detparindx <- object$parindx[!(names(object$parindx) %in% c('D', 'noneuc'))]
     detlink <- object$link[!(names(object$link) %in% c('D', 'noneuc'))]
-    realparval  <- makerealparameters (object$design, beta, detparindx,
-                                       detlink, object$fixed)
+
     data <- data[[sessnum]]
     reusemask <- is.null(X)
     if (reusemask) {
@@ -98,10 +97,21 @@ sharedData <- function (object, i, sessnum, X, ncores) {
     #---------------------------------------------------
     ## allow for scaling of detection
     Dtemp <- if (D.modelled) mean(D) else NA
-    Xrealparval <- reparameterize (realparval, object$detectfn, object$details,
-                                   data$mask, data$traps, Dtemp, data$s)
-    PIA <- object$design$PIA[sessnum, ok, 1:data$s, 1:data$K, ,drop=FALSE]
-    PIA0 <- object$design0$PIA[sessnum, ok, 1:data$s, 1:data$K, ,drop=FALSE]
+    if (naive) {
+        realparval  <- makerealparameters (object$design0, beta, detparindx,
+                                            detlink, object$fixed)
+        Xrealparval <- reparameterize (realparval, object$detectfn, object$details,
+                                       data$mask, data$traps, Dtemp, data$s)
+        PIA <- object$design0$PIA[sessnum, ok, 1:data$s, 1:data$K, ,drop=FALSE]
+    }
+    else {
+        realparval  <- makerealparameters (object$design, beta, detparindx,
+                                           detlink, object$fixed)
+        Xrealparval <- reparameterize (realparval, object$detectfn, object$details,
+                                       data$mask, data$traps, Dtemp, data$s)
+        PIA <- object$design$PIA[sessnum, ok, 1:data$s, 1:data$K, ,drop=FALSE]
+    }
+    
     pmix <- getpmix (data$knownclass[ok], PIA, Xrealparval)  ## membership prob by animal
     
     ## unmodelled beta parameters, if needed
@@ -110,7 +120,7 @@ sharedData <- function (object, i, sessnum, X, ncores) {
     
     gkhk <- makegk (data$dettype, object$detectfn, data$traps, data$mask, object$details, sessnum, 
                     NE, D, miscparm, Xrealparval, grain, ncores)
-    haztemp <- gethazard (data$m, data$binomNcode, nrow(realparval), gkhk$hk, PIA, data$usge)
+    haztemp <- gethazard (data$m, data$binomNcode, nrow(Xrealparval), gkhk$hk, PIA, data$usge)
     
     # return a list
     
@@ -133,8 +143,8 @@ sharedData <- function (object, i, sessnum, X, ncores) {
 pxi <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL, ...) {
     
     # compute required objects
-    sD <- sharedData(object, i, sessnum, X, ncores)
-    
+    sD <- sharedData(object, i, sessnum, X, ncores, naive = TRUE)
+
     with(sD, {
         # null object
         CH[] <- 0
@@ -151,12 +161,3 @@ pxi <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL, ...) {
         1-prmat
     })
 }
-
-# px <- secr:::pxi(secrdemo.0)
-# par(mfrow=c(3,4), mar=c(1,1,1,1))
-# 
-# for (i in 1:10) {
-#     covariates(msk)$one <- px[i,]
-#     plot(msk,cov='one', legend=F)
-#     plot(traps(captdata), add=T)
-# }
