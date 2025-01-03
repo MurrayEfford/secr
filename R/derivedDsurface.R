@@ -1,43 +1,63 @@
+#############################################################################
+## package 'secr'
+## derived density from conditional (relativeD) models
+## 2025-01-01
+## 2025-01-03 derivedIntercept groups
+#############################################################################
+
 # session-specific
-# not initially for groups
+
+derivedIntercept <- function (object, sessnum = 1, groups = NULL) {
+    if (is.null(object$model$D) || is.null(object$link$D) || !object$CL) {
+        warning ("not relative density model")
+        return(NULL)
+    }
+    else {
+        D <- predictD(object, object$mask, group = NULL, session = sessnum, parameter = 'D')
+        cellsize <- getcellsize(object$mask)
+        px <- pxi(object, sessnum = sessnum, X = object$mask)   # dim n x m
+        D <- matrix(D, ncol = 1)                                # dim m x 1
+        capthist <- object$capthist
+        if (ms(capthist)) capthist <- capthist[[sessnum]]
+        grp <- group.factor(capthist, groups)
+        individuals <- split (1:nrow(capthist), grp)
+        ngrp <- length(individuals)   ## number of groups
+        pxk <- function (px) {
+            px <- as.matrix(px)
+            intDp <- px %*% D * cellsize                        # dim n x 1
+            sum(1/intDp)
+        }
+        if ( ngrp > 1) {
+            px <- split(as.data.frame(px), grp)
+            k <- sapply(px, pxk)
+        }
+        else {    
+            k <- pxk(px)
+        }
+        transform(k, object$link$D)
+    }
+}
+
+completeDbeta <- function(object, sessnum) {
+    intercept <- derivedIntercept(object, sessnum)
+    object$details$fixedbeta[1] <- intercept
+    if (object$link$D == 'identity') {
+        object$fit$par <- object$fit$par * intercept
+    }
+    object
+}
 
 Dx <- function(object, mask, sessnum, selection) {
     D <- predictD(object, mask, group = NULL, session = sessnum, parameter = 'D')
     cellsize <- getcellsize(mask)
-    px <- pxi(object, sessnum = sessnum, X = mask)              # dim N x m
-    D <- matrix(D, ncol = 1)       # dim m x 1
-    intDp <- px %*% D * cellsize   # dim N x 1
+    px <- pxi(object, sessnum = sessnum, X = mask)   # dim N x m
+    D <- matrix(D, ncol = 1)                         # dim m x 1
+    intDp <- px %*% D * cellsize                     # dim N x 1
     out <- mask
     covariates(out)$D.0 <- D * sum(1/intDp[selection])
     class(out) <- c("Dsurface", "mask", "data.frame")
     out
 }
-
-derivedIntercept <- function (object, sessnum = 1) {
-    D <- predictD(object, object$mask, group = NULL, session = sessnum, parameter = 'D')
-    ch <- object$capthist
-    n <- if (ms(object)) nrow(ch[[sessnum]]) else nrow(ch)
-    msk <- if (ms(object)) object$mask[[sessnum]] else object$mask
-    # function from regionN.R
-    a <- sumDpdot (
-        object   = object, 
-        sessnum  = sessnum, 
-        mask     = msk, 
-        D        = D,
-        noneuc   = NULL,
-        cellsize = getcellsize(msk), 
-        constant = FALSE)
-    transform(n/a, object$link$D)
-}
-
-# completeDbeta <- function(object, sessnum) {
-#     intercept <- derivedIntercept(object, sessnum)
-#     object$details$fixedbeta[1] <- intercept
-#     if (object$link$D == 'identity') {
-#         object$fit$par <- object$fit$par * intercept
-#     }
-#     object
-# }
 
 derivedDsurface <- function (object, mask = NULL, sessnum = NULL, groups = NULL) {
     if (ms(object) && is.null(sessnum)) {
@@ -57,13 +77,12 @@ derivedDsurface <- function (object, mask = NULL, sessnum = NULL, groups = NULL)
         if (!(object$link$D %in% c("log", "identity")))
             warning ("derivedDsurface relativeD requires log or identity link")
         if (is.null(sessnum)) sessnum <- 1
+        if (is.null(mask)) mask <- object$mask
         
         # object <- completeDbeta(object, sessnum)
         # # inefficient but reliable
         # predictDsurface(object, mask, parameter = 'D')[[sessnum]]
-        
-        if (is.null(mask)) mask <- object$mask
-        
+
         capthist <- object$capthist
         if (ms(capthist)) capthist <- capthist[[sessnum]]
         grp <- group.factor(capthist, groups)
@@ -73,7 +92,6 @@ derivedDsurface <- function (object, mask = NULL, sessnum = NULL, groups = NULL)
         else
             individuals <-  split (numeric(0), grp) ## list of empty grp levels
         ngrp <- length(individuals)   ## number of groups
-        browser()
         if ( ngrp > 1)
             out <- mapply (
                 Dx, 
@@ -90,7 +108,5 @@ derivedDsurface <- function (object, mask = NULL, sessnum = NULL, groups = NULL)
             }
         }
         out
-    
-        
     }
 }
