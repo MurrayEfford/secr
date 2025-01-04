@@ -15,7 +15,7 @@ These functions infer the value of \emph{k} and use this in a call to \code{\lin
 
 \usage{
 
-derivedIntercept(object, sessnum = 1, groups = NULL)
+derivedIntercept(object, sessnum = 1, groups = NULL, Dweight = TRUE)
 
 derivedDsurface(object, mask = NULL, sessnum = NULL, groups = NULL)
 
@@ -27,6 +27,7 @@ derivedDsurface(object, mask = NULL, sessnum = NULL, groups = NULL)
   \item{mask}{new mask for which to compute densities}
   \item{sessnum}{integer session number}
   \item{groups}{character vector of covariate names to define groups (optional)}
+  \item{Dweight}{logical; FALSE for testing}
 
 }
 
