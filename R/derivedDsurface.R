@@ -13,7 +13,7 @@ derivedIntercept <- function (object, sessnum = 1, groups = NULL, Dweight = TRUE
         return(NULL)
     }
     else {
-        if (Dweight) {
+        if (!Dweight) {
             D <- rep(1,nrow(object$mask))    
         }
         else {
