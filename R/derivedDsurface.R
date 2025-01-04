@@ -7,24 +7,30 @@
 
 # session-specific
 
-derivedIntercept <- function (object, sessnum = 1, groups = NULL) {
+derivedIntercept <- function (object, sessnum = 1, groups = NULL, Dweight = TRUE) {
     if (is.null(object$model$D) || is.null(object$link$D) || !object$CL) {
         warning ("not relative density model")
         return(NULL)
     }
     else {
-        D <- predictD(object, object$mask, group = NULL, session = sessnum, parameter = 'D')
+        if (Dweight) {
+            D <- rep(1,nrow(object$mask))    
+        }
+        else {
+            D <- predictD(object, object$mask, group = NULL, session = sessnum, parameter = 'D')
+        }
+        D <- matrix(D, ncol = 1)                                # dim m x 1
         cellsize <- getcellsize(object$mask)
         px <- pxi(object, sessnum = sessnum, X = object$mask)   # dim n x m
-        D <- matrix(D, ncol = 1)                                # dim m x 1
         capthist <- object$capthist
         if (ms(capthist)) capthist <- capthist[[sessnum]]
+        
         grp <- group.factor(capthist, groups)
         individuals <- split (1:nrow(capthist), grp)
         ngrp <- length(individuals)   ## number of groups
         pxk <- function (px) {
             px <- as.matrix(px)
-            intDp <- px %*% D * cellsize                        # dim n x 1
+            intDp <- px %*% D * cellsize                 # dim n x 1
             sum(1/intDp)
         }
         if ( ngrp > 1) {
