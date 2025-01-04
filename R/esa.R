@@ -4,9 +4,11 @@
 ## 2020-05-13 fixed bug that ignored individual covariates by providing only single-row CH0
 ## 2022-01-22 fixed bug that ignored details$ignoreusage
 ## 2024-09-22 S3 method
+## 2025-01-04 experimental includes density if model$D && Dweight
 ############################################################################################
 
-esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL, noccasions = NULL, ncores = NULL, ...)
+esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL, 
+                      noccasions = NULL, ncores = NULL, Dweight = FALSE, ...)
 
 # Return vector of 'a' for given g0, sigma, [z (if hazard fn) ] and session
 # detectfn is integer code for detection function 0 = halfnormal, 1 = hazard, 2 = exponential
@@ -64,6 +66,15 @@ esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL, noccasions 
     binomN <- object$details$binomN
     m      <- length(mask$x)            ## need session-specific mask...
     cellsize <- getcellsize(mask)       ## length or area
+    
+    if (is.null(object$model$D) || !Dweight) {
+        D <- rep(1,m)
+    }
+    else {
+        D <- predictD(object, object$mask, group = NULL, session = sessnum, 
+                             parameter = 'D')
+    }
+    pi.density <- matrix(D/sum(D), ncol = 1)       # dim m x 1
     #----------------------------------------------------------------------
     if (constant) {
         ## assume constant
@@ -78,7 +89,7 @@ esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL, noccasions 
             realparval0 <- as.list(realparval0[1,])
             realparval0$cutval <- attr(object$capthist,'cutval')  ## 2016-05-22 may be NULL
         }
-        a <- cellsize * sum(pdot(X = mask, traps = trps, detectfn = object$detectfn,
+        a <- cellsize * sum(pi.density * pdot(X = mask, traps = trps, detectfn = object$detectfn,
                              detectpar = realparval0, noccasions = noccasions, 
                              ncores = ncores))
         return(rep(a,n))
@@ -99,7 +110,7 @@ esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL, noccasions 
                 ## should be constant over sessions
                 PIA0 <- object$design0$PIA[sessnum,,1:s,1:K,,drop = FALSE]
                 ## fill array with PI appropriate to grouping of i-th animal
-                PIA0 <- PIA0[1,group.factor(capthists, object$groups),,,,drop = FALSE]
+                PIA0 <- PIA0[1, group.factor(capthists, object$groups),,,,drop = FALSE]
             }
 
             realparval0 <- makerealparameters (object$design0, beta,
@@ -134,17 +145,16 @@ esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL, noccasions 
         }
         else {
           NE <- NULL   ## no NE covariates (yet)
-          pi.density <- matrix(1/m, nrow=m, ncol=1)
+          # pi.density <- matrix(1/m, nrow=m, ncol=1)
           ncores <- setNumThreads(ncores)  
           grain <- if (ncores==1) 0 else 1
-          gkhk <- makegk (dettype, object$detectfn, trps, mask, object$details, sessnum, NE, 
-                          pi.density, miscparm, Xrealparval0, grain, ncores)
+          gkhk <- makegk (dettype, object$detectfn, trps, mask, 
+                                 object$details, sessnum, NE, pi.density, 
+                                 miscparm, Xrealparval0, grain, ncores)
           if (any(dettype==0)) {
-              ## CH0 <- nullCH (c(n,s), FALSE)
               CH0 <- nullCH (c(n,s), object$design0$individual)
           }
           else {
-              ## CH0 <- nullCH (c(n,s,K), FALSE)
               CH0 <- nullCH (c(n,s,K), object$design0$individual)
           }
           binomNcode <- recodebinomN(dettype, binomN, telemcode(trps))
@@ -166,7 +176,8 @@ esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL, noccasions 
               pID = pID,
               grain = grain,
               ncores = ncores)
-          pdot * cellsize * m
+          
+          pdot * cellsize * sum(D)
         }
     }
 }
