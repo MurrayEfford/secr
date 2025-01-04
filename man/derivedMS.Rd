@@ -20,14 +20,14 @@ derived(object, ...)
 
 \method{derived}{secr}(object, sessnum = NULL, groups = NULL, alpha = 0.05, 
     se.esa = FALSE, se.D = TRUE, loginterval = TRUE, distribution = NULL, 
-    ncores = NULL, bycluster = FALSE, ...)
+    ncores = NULL, bycluster = FALSE, Dweight = FALSE, ...)
 
 \method{derived}{secrlist}(object, sessnum = NULL, groups = NULL, alpha = 0.05, 
     se.esa = FALSE, se.D = TRUE, loginterval = TRUE, distribution = NULL, 
-    ncores = NULL, bycluster = FALSE, ...)
+    ncores = NULL, bycluster = FALSE, Dweight = FALSE, ...)
 
 \method{esa}{secr}(object, sessnum = 1, beta = NULL, real = NULL, noccasions = NULL, 
-    ncores = NULL, ...)
+    ncores = NULL, Dweight = FALSE, ...)
 
 }
 
@@ -43,6 +43,7 @@ derived(object, ...)
   \item{distribution}{ character string for distribution of the number of individuals detected }
   \item{ncores}{integer number of threads used for parallel processing}
   \item{bycluster}{logical; if TRUE results are reported separately for each cluster of detectors}
+  \item{Dweight}{logical; if TRUE and a (relative) density model has been fitted then the effective sampling area uses density weights}
   \item{beta}{ vector of fitted parameters on transformed (link) scale }
   \item{real}{ vector of `real' parameters } 
   \item{noccasions}{ integer number of sampling occasions (see Details) } 

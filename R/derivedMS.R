@@ -13,16 +13,17 @@
 ## 2018-12-18 derived new argument bycluster
 ## 2024-09-20 delete CLtotalD, CLtotalesa (unused)
 ## 2024-09-20 fdHess for gradients
+## 2025-01-04 Dweight argument
 ############################################################################################
 
 
-CLdensity <- function (beta, object, individuals, sessnum)
+CLdensity <- function (beta, object, individuals, sessnum, Dweight)
 ## object is a fitted secr object (CL=T)
 ## individuals is vector indexing the subset of a to be used
 # Return the density for given g0, sigma, z in beta
 # Only 1 session
 {
-    sum(1 / esa (object, sessnum, beta)[individuals])
+    sum(1 / esa (object, sessnum, beta, Dweight = Dweight)[individuals])
 }
 ############################################################################################
 
@@ -34,7 +35,7 @@ CLgradient <- function (object, individuals, sessnum, ...)
 }
 ############################################################################################
 
-CLmeanesa <- function (beta, object, individuals, sessnum, noccasions = NULL)
+CLmeanesa <- function (beta, object, individuals, sessnum, noccasions = NULL, Dweight = FALSE)
 ## object is a fitted secr object (CL=T)
 ## individuals is vector indexing the subset of a to be used
 # Return the weighted mean esa for given g0, sigma, z in beta
@@ -45,7 +46,7 @@ CLmeanesa <- function (beta, object, individuals, sessnum, noccasions = NULL)
 
 ## noccasions = NULL added 2011-04-04
 
-    a <- esa (object, sessnum, beta, noccasions=noccasions)[individuals]
+    a <- esa (object, sessnum, beta, noccasions=noccasions, Dweight = Dweight)[individuals]
     length(a) / sum (1/a)
 }
 ############################################################################################
@@ -61,14 +62,14 @@ esagradient <- function (object, individuals, sessnum, noccasions = NULL, ...)
 
 derived.secrlist <- function (object, sessnum = NULL, groups=NULL, alpha=0.05, se.esa = FALSE,
                           se.D = TRUE, loginterval = TRUE, distribution = NULL, ncores = NULL, 
-                          bycluster = FALSE, ...) {
+                          bycluster = FALSE, Dweight = FALSE, ...) {
     lapply(object, derived, sessnum, groups, alpha, se.esa, se.D,
-           loginterval, distribution, ncores, bycluster)
+           loginterval, distribution, ncores, bycluster, Dweight)
 }
     
 derived.secr <- function (object, sessnum = NULL, groups=NULL, alpha=0.05, se.esa = FALSE,
                      se.D = TRUE, loginterval = TRUE, distribution = NULL, ncores = NULL, 
-                     bycluster = FALSE, ...) {
+                     bycluster = FALSE, Dweight = FALSE, ...) {
 
 ## Generate table of derived parameters from fitted secr object
 
@@ -101,7 +102,7 @@ derived.secr <- function (object, sessnum = NULL, groups=NULL, alpha=0.05, se.es
             output <- lapply(jj, derived, object = object, groups = groups,
                              alpha = alpha, se.esa = se.esa, se.D = se.D,
                              loginterval = loginterval, distribution = distribution, 
-                             ncores = ncores, bycluster = bycluster, ...)
+                             ncores = ncores, bycluster = bycluster, Dweight = Dweight, ...)
             names(output) <- sessnames
             output
         }
@@ -111,12 +112,12 @@ derived.secr <- function (object, sessnum = NULL, groups=NULL, alpha=0.05, se.es
             s2 <- switch (tolower(object$details$distribution),
                           poisson  = sum (1/selected.a^2),
                           binomial = sum (( 1 - selected.a / A) / selected.a^2))
-            CLg  <- CLgradient (object, selection, asess, ...)
+            CLg  <- CLgradient (object, selection, asess, Dweight = Dweight, ...)
             varDn <- CLg %*% object$beta.vcv %*% CLg
             list(SE=sqrt(s2 + varDn), s2=s2, varDn=varDn)
         }
         se.deriveesa <- function (selection, object, asess) {
-            CLesa  <- esagradient (object, selection, asess, ...)
+            CLesa  <- esagradient (object, selection, asess, Dweight = Dweight, ...)
             sqrt(CLesa %*% object$beta.vcv %*% CLesa)
         }
         weighted.mean <- function (a) {
@@ -131,7 +132,7 @@ derived.secr <- function (object, sessnum = NULL, groups=NULL, alpha=0.05, se.es
             derivedmean <- derivedSE <- varcomp1 <- varcomp2 <- c(NA, NA)
             if (length(selection) > 0) 
             {
-                selected.a <- esa(object, sessnum)[selection]
+                selected.a <- esa(object, sessnum, Dweight = Dweight)[selection]
                 derivedmean <- c(weighted.mean(selected.a), sum(1/selected.a) )
                 if (se.esa) derivedSE[1] <- se.deriveesa(selection, object, sessnum)
                 if (se.D) {
@@ -143,7 +144,7 @@ derived.secr <- function (object, sessnum = NULL, groups=NULL, alpha=0.05, se.es
             }
             else {
                 ## 2018-12-19 allow n = 0
-                selected.a <- esa(object, sessnum)[1]
+                selected.a <- esa(object, sessnum, Dweight = Dweight)[1]
                 derivedmean <- c(weighted.mean(selected.a), 0 )
                 if (se.esa) derivedSE[1] <- se.deriveesa(1, object, sessnum)
             }
