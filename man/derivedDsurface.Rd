@@ -11,7 +11,7 @@ a zero intercept for density on the default log scale (the intercept is 1.0 for 
 
 These functions infer the value of \emph{k} and use this to construct the predicted density surface (\code{\link{predictDsurface}} is the equivalent function for full-likelihood models).
 
-The \code{\link{derived}} method for `secr' objects performs the same calculation as \code{derivedDbeta0} and also back-transforms the intercept and computes a delta method estimate of its variance and confidence limits. \code{derivedDbeta0} is mostly for internal use.
+The \code{\link{derived}} method for `secr' objects performs the same calculation as \code{derivedDbeta0} and also back-transforms the intercept and computes a delta-method estimate of its variance and confidence limits. \code{derivedDbeta0} is mostly for internal use.
 
 }
 
