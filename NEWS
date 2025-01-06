@@ -1,13 +1,15 @@
-Changes in version 5.2.0 (2024-12-23)
+Changes in version 5.2.0 (2025-01-07)
 
 New features or changed behaviour of old functions
-    o  conditional relativeD models fully integrated
-    o  derivedIntercept() and derivedDsurface() for relativeD models
+    o  allows models for relative density with CL = TRUE
+    o  derivedDbeta0() and derivedDsurface() for conditional D models
     
 Bugs fixed
     o  addCovariates() generated spurious sf warning "attribute variables are 
        assumed to be spatially constant throughout all geometries "
     o  region.N() computation of R.N ignored varying density
+    o  derived() miscounted number of individuals when animal with exactly one 
+       capture was lost on another occasion, hence error in D-hat
     
 Other
     o  tweaked OVpossum Rd example to avoid 'sp' package
