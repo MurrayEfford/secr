@@ -2,12 +2,12 @@
 ## package 'secr'
 ## derived density from conditional (relativeD) models
 ## 2025-01-01
-## 2025-01-03 derivedIntercept groups
+## 2025-01-03 derivedDbeta0 groups
 #############################################################################
 
 # session-specific
 
-derivedIntercept <- function (object, sessnum = 1, groups = NULL, Dweight = TRUE) {
+derivedDbeta0 <- function (object, sessnum = 1, groups = NULL, Dweight = TRUE) {
     if (is.null(object$model$D) || is.null(object$link$D) || !object$CL) {
         warning ("not relative density model")
         return(NULL)
@@ -45,7 +45,7 @@ derivedIntercept <- function (object, sessnum = 1, groups = NULL, Dweight = TRUE
 }
 
 completeDbeta <- function(object, sessnum) {
-    intercept <- derivedIntercept(object, sessnum)
+    intercept <- derivedDbeta0(object, sessnum)
     object$details$fixedbeta[1] <- intercept
     if (object$link$D == 'identity') {
         Dpar <- object$parindx$D
