@@ -9,9 +9,9 @@
 A relative density model (one fitted by maximising the conditional likelihood) has 
 a zero intercept for density on the default log scale (the intercept is 1.0 for the identity link). The constant \emph{k} that relates absolute density to relative density \eqn{D^\prime = k^{-1} D} is obtained as described in Efford (2025).
 
-These functions infer the value of \emph{k} and use this to constructed the predicted density surface (\code{\link{predictDsurface}} is the equivalent function for full-likelihood models).
+These functions infer the value of \emph{k} and use this to construct the predicted density surface (\code{\link{predictDsurface}} is the equivalent function for full-likelihood models).
 
-The \code{\link{derived}} method for `secr' objects performs the same calculation as \code{derivedDbeta0} and also untransforms the intercept and computes a delta method estimate of its variance and confidence limits.
+The \code{\link{derived}} method for `secr' objects performs the same calculation as \code{derivedDbeta0} and also back-transforms the intercept and computes a delta method estimate of its variance and confidence limits. \code{derivedDbeta0} is mostly for internal use.
 
 }
 
