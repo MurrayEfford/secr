@@ -51,9 +51,9 @@ CLmeanesa <- function (beta, object, individuals, sessnum, noccasions = NULL, Dw
 }
 ############################################################################################
 
-esagradient <- function (object, individuals, sessnum, noccasions = NULL, ...)
+esagradient <- function (object, individuals, sessnum, noccasions = NULL, Dweight = FALSE, ...)
 {
-  nlme::fdHess(object$fit$par, CLmeanesa, object, individuals, sessnum, noccasions, ...)$gradient
+  nlme::fdHess(object$fit$par, CLmeanesa, object, individuals, sessnum, noccasions, Dweight, ...)$gradient
 }
 
 ############################################################################################
@@ -70,7 +70,6 @@ derived.secrlist <- function (object, sessnum = NULL, groups=NULL, alpha=0.05, s
 derived.secr <- function (object, sessnum = NULL, groups=NULL, alpha=0.05, se.esa = FALSE,
                      se.D = TRUE, loginterval = TRUE, distribution = NULL, ncores = NULL, 
                      bycluster = FALSE, Dweight = FALSE, ...) {
-
 ## Generate table of derived parameters from fitted secr object
 
 ## modified 2009 07 21 for multiple sessions
@@ -180,7 +179,6 @@ derived.secr <- function (object, sessnum = NULL, groups=NULL, alpha=0.05, se.es
         ## mainline
 
         setNumThreads(ncores)
-        
         if (is.null(sessnum)) {
             capthist <- object$capthist
             mask <- object$mask
