@@ -34,6 +34,7 @@
 ## 2024-07-31 addzeroCH tweaked to allow zero-row covariate df + drop = FALSE
 ## 2024-09-25 purged a couple of unused fn, moved xy2CH to xy2CH.R
 ## 2024-10-09 span()
+## 2025-01-07 allzero bug fixed
 ################################################################################
 
 # Global variables in namespace
@@ -1762,7 +1763,8 @@ allzero <- function (object) {
     }
     else {
         telemocc <- detector(traps(object))=='telemetry'
-        apply(object[,!telemocc,,drop=FALSE],1,sum)==0
+        # abs() applied 2025-01-07
+        apply(abs(object[,!telemocc,,drop=FALSE]),1,sum)==0
     }
 }
 
