@@ -14,7 +14,7 @@ derivedIntercept <- function (object, sessnum = 1, groups = NULL, Dweight = TRUE
     }
     else {
         if (!Dweight) {
-            D <- rep(1,nrow(object$mask))    
+            D <- rep(1, nrow(object$mask))    
         }
         else {
             D <- predictD(object, object$mask, group = NULL, session = sessnum, parameter = 'D')
@@ -48,7 +48,8 @@ completeDbeta <- function(object, sessnum) {
     intercept <- derivedIntercept(object, sessnum)
     object$details$fixedbeta[1] <- intercept
     if (object$link$D == 'identity') {
-        object$fit$par <- object$fit$par * intercept
+        Dpar <- object$parindx$D
+        object$fit$par[Dpar] <- object$fit$par[Dpar] * intercept
     }
     object
 }
