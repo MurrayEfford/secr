@@ -11,6 +11,8 @@ a zero intercept for density on the default log scale (the intercept is 1.0 for 
 
 These functions infer the value of \emph{k} and use this in a call to \code{\link{predictDsurface}}.
 
+The \code{\link{derived}} method for `secr' objects performs the same calculation as \code{derivedIntercept} and also untransforms the intercept and computes a delta method estimate of its variance and confidence limits.
+
 }
 
 \usage{
@@ -34,8 +36,6 @@ derivedDsurface(object, mask = NULL, sessnum = NULL, groups = NULL)
 \details{
 
 The theory is provided by Efford in prep. 
-
-\code{derivedIntercept} is defined for detection models lacking individual covariates.
 
 }
 
