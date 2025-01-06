@@ -4,12 +4,18 @@
 \title{ Predict Density Surface }
 
 \description{
-Predict density at each point on a raster mask from a fitted secr model.
+
+Predict density at each point on a raster mask from an secr model fitted by 
+maximising the full likelihood. \code{\link{derivedDsurface}} is the equivalent 
+function for models fitted by maximising the conditional likelihood.
+
 }
 
 \usage{
+
 predictDsurface(object, mask = NULL, se.D = FALSE, cl.D = FALSE, alpha =
 0.05, parameter = c('D', 'noneuc'))
+
 }
 
 \arguments{
