@@ -54,19 +54,18 @@ completeDbeta <- function(object, sessnum) {
     object
 }
 
-Dx <- function(object, mask, sessnum, selection) {
-    D <- predictD(object, mask, group = NULL, session = sessnum, parameter = 'D')
-    cellsize <- getcellsize(mask)
-    px <- pxi(object, sessnum = sessnum, X = mask)   # dim N x m
-    D <- matrix(D, ncol = 1)                         # dim m x 1
-    intDp <- px %*% D * cellsize                     # dim N x 1
-    out <- mask
-    covariates(out)$D.0 <- D * sum(1/intDp[selection])
-    class(out) <- c("Dsurface", "mask", "data.frame")
-    out
-}
-
 derivedDsurface <- function (object, mask = NULL, sessnum = NULL, groups = NULL) {
+    Dx <- function(object, mask, sessnum, selection) {
+        D <- predictD(object, mask, group = NULL, session = sessnum, parameter = 'D')
+        cellsize <- getcellsize(mask)
+        px <- pxi(object, sessnum = sessnum, X = mask)   # dim N x m
+        D <- matrix(D, ncol = 1)                         # dim m x 1
+        intDp <- px %*% D * cellsize                     # dim N x 1
+        out <- mask
+        covariates(out)$D.0 <- D * sum(1/intDp[selection])
+        class(out) <- c("Dsurface", "mask", "data.frame")
+        out
+    }
     if (ms(object) && is.null(sessnum)) {
         if (is.null(mask)) mask <- object$mask
         if (ms(mask)) mask <- mask[[sessnum]]
