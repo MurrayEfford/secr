@@ -1,4 +1,4 @@
-Changes in version 5.2.0 (2025-01-07)
+Changes in version 5.2.0 (2025-01-09)
 
 New features or changed behaviour of old functions
     o  allows models for relative density with CL = TRUE
@@ -17,6 +17,7 @@ Other
     o  externalqx undocumented details argument
     o  AICcompatible check moved from AIC.secr to AIC.secrlist
     o  many minor edits to allow relativeD
+    o  added tests for relativeD
     
 Changes in version 5.1.0 (2024-11-04)
 
