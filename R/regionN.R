@@ -11,6 +11,7 @@
 ## 2022-10-08 fixed bug in region.N when region is mask other than original
 ## 2023-02-06 sumDpdot tweaked for robustness to varying detectors/session
 ## 2024-12-15 sumDpdot ignored varying relative density
+## 2025-01-09 relativeD tweaks
 
 ################################################################################
 
@@ -187,7 +188,6 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
         else {
             if (is.null(object$model$D) || is.null(object$link$D))
                 stop ("model or link function not found in object")
-
             if ((object$model$D == ~1) && !userD(object)) {
                 predicted <- predict(object)
                 if (!is.data.frame(predicted))
@@ -208,12 +208,19 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
                 }
                 EN <- sum(D) * cellsize
                 if (!se.N) return (EN)    ## and stop here
-                indx <- object$parindx$D
-                dENdphi <- nlme::fdHess (object$fit$par[indx],
-                    betaEN, object = object, region = regionmask, group = group,
-                    session = session)$gradient
-                beta.vcv <- object$beta.vcv[indx,indx]
-                seEN <- (dENdphi %*% beta.vcv %*% dENdphi)^0.5
+
+                if (object$CL) {
+                    warning("SE not currently available for CL density model")
+                    seEN <- NA
+                }
+                else{
+                    indx <- object$parindx$D
+                    dENdphi <- nlme::fdHess (object$fit$par[indx],
+                                             betaEN, object = object, region = regionmask, group = group,
+                                             session = session)$gradient
+                    beta.vcv <- object$beta.vcv[indx,indx, drop = FALSE]
+                    seEN <- (dENdphi %*% beta.vcv %*% dENdphi)^0.5
+                }
             }
         }
 
@@ -252,7 +259,10 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
                 seRN <- (seEN^2 - EN)^0.5
             }
         }
-        else { RN <- NA; seRN <- NA }
+        else { 
+            RN <- NA
+            seRN <- NA 
+        }
 
         #######################################################################
         temp <- data.frame(
