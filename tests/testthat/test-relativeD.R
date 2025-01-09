@@ -19,5 +19,5 @@ test_that("relativeD estimates correct", {
 
 test_that("region.N correct with relativeD", {
     expect_warning(Nhat <- region.N(fitrD)[1,1:2])
-    expect_equal(Nhat, c(116.3148,NA), tolerance = 1e-4, check.attributes = FALSE)
+    expect_equal(Nhat, c(116.314763,NA), tolerance = 1e-4, check.attributes = FALSE)
 })
