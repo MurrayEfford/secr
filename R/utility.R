@@ -35,6 +35,7 @@
 ## 2024-09-25 purged a couple of unused fn, moved xy2CH to xy2CH.R
 ## 2024-10-09 span()
 ## 2025-01-07 allzero bug fixed
+## 2025-01-10 completeDbeta
 ################################################################################
 
 # Global variables in namespace
@@ -1150,6 +1151,42 @@ complete.beta.vcv <- function (object) {
 }
 
 #-------------------------------------------------------------------------------
+
+# function to convert fitted single-session CL relative D model to a full model
+# used by region.N
+# variances not reliable
+
+completeDbeta <- function(object, vcv = TRUE) {
+    if (ms(object)) stop ("completeDbeta is not ready for multisession secr")
+    if (vcv) {
+        intercept <- derived(object, Dweight=TRUE)[2,1:2]
+        intercept[2] <- se.transform(intercept[1], intercept[2], object$link$D)
+        intercept[1] <- transform(intercept[1], object$link$D)
+    }
+    else {
+        intercept <- derivedDbeta0(object) # faster  
+    }
+    intercept <- unlist(intercept)
+    Dpar <- object$parindx$D
+    Dpar1 <- Dpar[-length(Dpar)]
+    if (vcv) {
+        beta.vcv <- complete.beta.vcv (object)        
+        if (object$link$D == 'identity') {
+            beta.vcv[Dpar,Dpar] <- beta.vcv[Dpar,Dpar] * intercept[1]^2
+        }
+        beta.vcv[is.na(beta.vcv)] <- 0    # assume zero covariances for now
+        beta.vcv[1,1] <- intercept[2]^2
+        object$beta.vcv <- beta.vcv
+    }
+    if (object$link$D == 'identity') {
+        object$fit$par[Dpar1] <- object$fit$par[Dpar1] * intercept
+    }
+    object$fit$par <- c(intercept[1], object$fit$par)
+    object$details$fixedbeta[1] <- NA  # inferred, not fixed
+    object$betanames <- c('D', object$betanames)
+    object$CL <- FALSE
+    object
+}
 
 smooths <- function (formula) {
     ## which terms in formula are smooths?

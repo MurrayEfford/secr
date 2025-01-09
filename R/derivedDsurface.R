@@ -44,16 +44,6 @@ derivedDbeta0 <- function (object, sessnum = 1, groups = NULL, Dweight = TRUE) {
     }
 }
 
-completeDbeta <- function(object, sessnum) {
-    intercept <- derivedDbeta0(object, sessnum)
-    object$details$fixedbeta[1] <- intercept
-    if (object$link$D == 'identity') {
-        Dpar <- object$parindx$D
-        object$fit$par[Dpar] <- object$fit$par[Dpar] * intercept
-    }
-    object
-}
-
 derivedDsurface <- function (object, mask = NULL, sessnum = NULL, groups = NULL) {
     Dx <- function(object, mask, sessnum, selection) {
         D <- predictD(object, mask, group = NULL, session = sessnum, parameter = 'D')
@@ -85,10 +75,6 @@ derivedDsurface <- function (object, mask = NULL, sessnum = NULL, groups = NULL)
         if (is.null(sessnum)) sessnum <- 1
         if (is.null(mask)) mask <- object$mask
         
-        # object <- completeDbeta(object, sessnum)
-        # # inefficient but reliable
-        # predictDsurface(object, mask, parameter = 'D')[[sessnum]]
-
         capthist <- object$capthist
         if (ms(capthist)) capthist <- capthist[[sessnum]]
         grp <- group.factor(capthist, groups)
