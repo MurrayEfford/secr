@@ -39,6 +39,10 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
         ## assume single session
         ## indx identifies beta parameters for density D
         object$fit$par[indx] <- betaD
+        if (object$CL) {
+            object <- completeDbeta (object, sessnum)
+            object$CL <- FALSE  # for this call
+        }
         region.N(object, regionmask, spacing = NULL, session = session,
             group = group, se.N = FALSE, keep.region = FALSE,
             pooled.RN = FALSE)
@@ -208,19 +212,18 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
                 }
                 EN <- sum(D) * cellsize
                 if (!se.N) return (EN)    ## and stop here
-
+                indx <- object$parindx$D
+                
                 if (object$CL) {
-                    warning("SE not currently available for CL density model")
-                    seEN <- NA
+                    warning("using approximate conversion of conditional to full", 
+                            " model for variances")
+                    object <- completeDbeta(object, sessnum, vcv = TRUE)
                 }
-                else{
-                    indx <- object$parindx$D
-                    dENdphi <- nlme::fdHess (object$fit$par[indx],
-                                             betaEN, object = object, region = regionmask, group = group,
-                                             session = session)$gradient
-                    beta.vcv <- object$beta.vcv[indx,indx, drop = FALSE]
-                    seEN <- (dENdphi %*% beta.vcv %*% dENdphi)^0.5
-                }
+                dENdphi <- nlme::fdHess (object$fit$par[indx],
+                                         betaEN, object = object, region = regionmask, group = group,
+                                         session = session)$gradient
+                beta.vcv <- object$beta.vcv[indx,indx, drop = FALSE]
+                seEN <- (dENdphi %*% beta.vcv %*% dENdphi)^0.5
             }
         }
 
