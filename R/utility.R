@@ -1179,7 +1179,7 @@ completeDbeta <- function(object, vcv = TRUE) {
         object$beta.vcv <- beta.vcv
     }
     if (object$link$D == 'identity') {
-        object$fit$par[Dpar1] <- object$fit$par[Dpar1] * intercept
+        object$fit$par[Dpar1] <- object$fit$par[Dpar1] * intercept[1]
     }
     object$fit$par <- c(intercept[1], object$fit$par)
     object$details$fixedbeta[1] <- NA  # inferred, not fixed
