@@ -1,4 +1,4 @@
-Changes in version 5.2.0 (2025-01-09)
+Changes in version 5.2.0 (2025-01-11)
 
 New features or changed behaviour of old functions
     o  allows models for relative density with CL = TRUE
@@ -10,6 +10,7 @@ Bugs fixed
     o  region.N() computation of R.N ignored varying density
     o  derived() miscounted number of individuals when animal with exactly one 
        capture was lost on another occasion, hence error in D-hat
+    o  sim.capthist() generated captures at some 'unused' multi-catch traps
     
 Other
     o  tweaked OVpossum Rd example to avoid 'sp' package
