@@ -7,32 +7,34 @@
 
 # session-specific
 
-derivedDbeta0 <- function (object, sessnum = 1, groups = NULL, Dweight = TRUE) {
+derivedDbeta0 <- function (object, sessnum = 1, groups = NULL, se.beta0 = FALSE) {
     if (is.null(object$model$D) || is.null(object$link$D) || !object$CL) {
         warning ("not relative density model")
         return(NULL)
     }
     else {
-        if (!Dweight) {
-            D <- rep(1, nrow(object$mask))    
-        }
-        else {
-            D <- predictD(object, object$mask, group = NULL, session = sessnum, parameter = 'D')
-        }
-        D <- matrix(D, ncol = 1)                                # dim m x 1
         cellsize <- getcellsize(object$mask)
         px <- pxi(object, sessnum = sessnum, X = object$mask)   # dim n x m
         capthist <- object$capthist
         if (ms(capthist)) capthist <- capthist[[sessnum]]
-        
-        grp <- group.factor(capthist, groups)
+                grp <- group.factor(capthist, groups)
         individuals <- split (1:nrow(capthist), grp)
         ngrp <- length(individuals)   ## number of groups
+        
+        # next: modify to get delta method SE
         pxk <- function (px) {
             px <- as.matrix(px)
             intDp <- px %*% D * cellsize                 # dim n x 1
             sum(1/intDp)
         }
+
+        if (se.beta0) {
+            stop("variance of beta0 not yet available")
+        }  
+        
+        D <- predictD(object, object$mask, group = NULL, session = sessnum, parameter = 'D')
+        D <- matrix(D, ncol = 1)                                # dim m x 1
+        
         if ( ngrp > 1) {
             px <- split(as.data.frame(px), grp)
             k <- sapply(px, pxk)
@@ -40,7 +42,12 @@ derivedDbeta0 <- function (object, sessnum = 1, groups = NULL, Dweight = TRUE) {
         else {    
             k <- pxk(px)
         }
-        transform(k, object$link$D)
+        sek <- NA    # placeholder
+        c(
+            beta0 = transform(k[1], object$link$D),
+            se.beta0 = se.transform(k[1], sek[1], object$link$D)
+        )
+        
     }
 }
 
