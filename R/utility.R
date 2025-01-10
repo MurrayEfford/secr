@@ -1156,31 +1156,24 @@ complete.beta.vcv <- function (object) {
 # used by region.N
 # variances not reliable
 
-completeDbeta <- function(object, vcv = TRUE) {
+completeDbeta <- function(object, vcv = FALSE) {
     if (ms(object)) stop ("completeDbeta is not ready for multisession secr")
-    if (vcv) {
-        intercept <- derived(object, Dweight=TRUE)[2,1:2]
-        intercept[2] <- se.transform(intercept[1], intercept[2], object$link$D)
-        intercept[1] <- transform(intercept[1], object$link$D)
-    }
-    else {
-        intercept <- derivedDbeta0(object) # faster  
-    }
-    intercept <- unlist(intercept)
+    intercept <- derivedDbeta0(object, se.beta0 = vcv)
     Dpar <- object$parindx$D
     Dpar1 <- Dpar[-length(Dpar)]
+    beta.vcv <- complete.beta.vcv (object)        
     if (vcv) {
-        beta.vcv <- complete.beta.vcv (object)        
         if (object$link$D == 'identity') {
             beta.vcv[Dpar,Dpar] <- beta.vcv[Dpar,Dpar] * intercept[1]^2
         }
         beta.vcv[is.na(beta.vcv)] <- 0    # assume zero covariances for now
         beta.vcv[1,1] <- intercept[2]^2
-        object$beta.vcv <- beta.vcv
     }
     if (object$link$D == 'identity') {
+        # rescale density coefficients
         object$fit$par[Dpar1] <- object$fit$par[Dpar1] * intercept[1]
     }
+    object$beta.vcv <- beta.vcv
     object$fit$par <- c(intercept[1], object$fit$par)
     object$details$fixedbeta[1] <- NA  # inferred, not fixed
     object$betanames <- c('D', object$betanames)
