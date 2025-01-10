@@ -207,18 +207,19 @@ List trappingmulti (
         gsb[0] = g0[gi];
         gsb[1] = sigma[si];
         gsb[2] = z[s];
-        p = pfnS(fn,  dist2(k, i), gsb, miscparm, w2); 
         Tski = Tsk(k,s);
-        //Rprintf("fabs(Tski) %8.6f p %8.6f\n", fabs(Tski), p);
-        if (fabs(Tski) > 1e-10) {         
-          h(i,k) = -Tski * log(1 - p);
-          hsum(i) += h(i,k);
+        if (Tski > 1e-10) {  
+            p = pfnS(fn,  dist2(k, i), gsb, miscparm, w2); 
+            h(i,k) = -Tski * log(1 - p);
+            hsum(i) += h(i,k);
+        }
+        else {
+            h(i,k) = 0.0;   // added to fix usage bug 2025-01-10
         }
       }
-      
       for (k=0; k<kk; k++) {
         cump(k+1) = cump(k) + h(i,k)/hsum(i);
-        //Rprintf("cump %8.6f\n", cump(k+1));        
+        // if (i>25 && i<29)Rprintf("i %6d k %6d cump %8.6f\n", i, k, cump(k+1));        
       }
       
       if (unif_rand() < (1-exp(-hsum(i))))
@@ -233,7 +234,7 @@ List trappingmulti (
         runif = unif_rand();
         k = 0;
         while ((runif > cump(k)) && (k<kk)) k++;  // pick a trap 
-        // Rprintf("k %6d\n", k);        
+        // Rprintf("i %6d s %6d k %6d runif %10.8f \n", i,s,k,runif);        
         lastcapt[i] = s+1;
         at(i,k-1) = 1;
         value[ss * (caught[i]-1) + s] = k;
