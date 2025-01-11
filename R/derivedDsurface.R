@@ -3,9 +3,30 @@
 ## derived density from conditional (relativeD) models
 ## 2025-01-01
 ## 2025-01-03 derivedDbeta0 groups
+## 2025-01-11 se.beta0
 #############################################################################
 
 # session-specific
+
+onek <- function (beta, object, individuals, sessnum)
+    ## object is a fitted secr object 
+    ## individuals is vector indexing the subset of animals to be used
+    # Return k-hat for given beta
+    # Only 1 session
+{
+    out <- sum(1 / esa (object, sessnum, beta, Dweight = TRUE)[individuals])
+    # cat('beta ', beta, ' out ', out, '\n')
+    out
+}
+############################################################################################
+
+kgradient <- function (object, individuals, sessnum, ...)
+    ## object is a fitted secr object 
+    ## individuals is vector indexing the subset of a to be used
+{
+    nlme::fdHess(object$fit$par, onek, object, individuals, sessnum, ...)$gradient
+}
+############################################################################################
 
 derivedDbeta0 <- function (object, sessnum = 1, groups = NULL, se.beta0 = FALSE) {
     if (is.null(object$model$D) || is.null(object$link$D) || !object$CL) {
@@ -13,39 +34,53 @@ derivedDbeta0 <- function (object, sessnum = 1, groups = NULL, se.beta0 = FALSE)
         return(NULL)
     }
     else {
-        cellsize <- getcellsize(object$mask)
-        px <- pxi(object, sessnum = sessnum, X = object$mask)   # dim n x m
         capthist <- object$capthist
         if (ms(capthist)) capthist <- capthist[[sessnum]]
-                grp <- group.factor(capthist, groups)
+        grp <- group.factor(capthist, groups)
         individuals <- split (1:nrow(capthist), grp)
         ngrp <- length(individuals)   ## number of groups
         
-        # next: modify to get delta method SE
-        pxk <- function (px) {
-            px <- as.matrix(px)
-            intDp <- px %*% D * cellsize                 # dim n x 1
-            sum(1/intDp)
+        se.derivedk <- function (selection, object, selected.a, sessnum) {
+            A <-  masksize(object$mask)
+            s2 <- switch (tolower(object$details$distribution),
+                          poisson  = sum (1/selected.a^2),
+                          binomial = sum (( 1 - selected.a / A) / selected.a^2))
+            kgrad  <- kgradient (object, selection, sessnum)
+            vark <- kgrad %*% object$beta.vcv %*% kgrad
+            sqrt(vark + s2)
         }
 
-        if (se.beta0) {
-            stop("variance of beta0 not yet available")
-        }  
-        
+        getbeta0 <- function (selection) {
+            selected.a <- esa (object, sessnum, Dweight = TRUE)[selection]
+            k <- sum(1 / selected.a)
+            if (se.beta0) {
+                se.k <- se.derivedk (selection, object, selected.a, sessnum)
+            }
+            else {
+                se.k <- NA
+            }
+            c(k, se.k)
+        }
+
         D <- predictD(object, object$mask, group = NULL, session = sessnum, parameter = 'D')
         D <- matrix(D, ncol = 1)                                # dim m x 1
         
+        # NB getbeta0() gives same (estimate, SE.estimate) as derived(object, Dweight=T), 
+        # and takes about the same time
+        # May later switch to derived()
+        
         if ( ngrp > 1) {
-            px <- split(as.data.frame(px), grp)
-            k <- sapply(px, pxk)
+            # multiple groups
+            kse <- sapply(individuals, getbeta0)
         }
         else {    
-            k <- pxk(px)
+            # one group
+            kse <- getbeta0(individuals[[1]])
         }
-        sek <- NA    # placeholder
+        
         c(
-            beta0 = transform(k[1], object$link$D),
-            se.beta0 = se.transform(k[1], sek[1], object$link$D)
+            beta0 = transform(kse[1], object$link$D),
+            se.beta0 = se.transform(kse[1], kse[2], object$link$D)
         )
         
     }

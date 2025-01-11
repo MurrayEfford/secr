@@ -37,13 +37,15 @@ derivedDsurface(object, mask = NULL, sessnum = NULL, groups = NULL)
 
 The theory is provided by Efford in prep. 
 
+\code{derivedDbeta0(object, se.beta0 = TRUE)} is equivalent to \code{derived(object, Dweight = TRUE)}, although \code{derivedDbeta0} returns estimates on the link scale.
+
 }
 
 \value{
 
 For derivedDbeta0 -- 
 
-The derived intercept of the density model on the link scale i.e. \eqn{f(k)} where \eqn{f} is the link function.
+The derived intercept (and optionally the SE) of the density model on the link scale i.e. \eqn{f(k)} where \eqn{f} is the link function.
 
 For derivedDsurface --
 
