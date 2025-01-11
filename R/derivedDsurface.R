@@ -54,12 +54,17 @@ derivedDbeta0 <- function (object, sessnum = 1, groups = NULL, se.beta0 = FALSE)
             selected.a <- esa (object, sessnum, Dweight = TRUE)[selection]
             k <- sum(1 / selected.a)
             if (se.beta0) {
+                warning ("derivedDbeta currently underestimates se.beta0")
                 se.k <- se.derivedk (selection, object, selected.a, sessnum)
             }
             else {
                 se.k <- NA
             }
-            c(k, se.k)
+            # return on link scale
+            c(
+                beta0 = transform(k, object$link$D),
+                se.beta0 = se.transform(k, se.k, object$link$D)
+            )
         }
 
         D <- predictD(object, object$mask, group = NULL, session = sessnum, parameter = 'D')
@@ -71,17 +76,13 @@ derivedDbeta0 <- function (object, sessnum = 1, groups = NULL, se.beta0 = FALSE)
         
         if ( ngrp > 1) {
             # multiple groups
-            kse <- sapply(individuals, getbeta0)
+            lapply(individuals, getbeta0)
         }
         else {    
             # one group
-            kse <- getbeta0(individuals[[1]])
+            getbeta0(individuals[[1]])
         }
         
-        c(
-            beta0 = transform(kse[1], object$link$D),
-            se.beta0 = se.transform(kse[1], kse[2], object$link$D)
-        )
         
     }
 }
