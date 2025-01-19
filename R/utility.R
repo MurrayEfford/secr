@@ -1158,7 +1158,7 @@ complete.beta.vcv <- function (object) {
 
 completeDbeta <- function(object, vcv = FALSE) {
     if (ms(object)) stop ("completeDbeta is not ready for multisession secr")
-    intercept <- derivedDbeta0(object, se.beta0 = vcv)
+    intercept <- unlist(derivedDcoef(object, se = vcv)[1,1:2])
     Dpar <- object$parindx$D
     Dpar1 <- Dpar[-length(Dpar)]
     beta.vcv <- complete.beta.vcv (object)        
@@ -1175,6 +1175,7 @@ completeDbeta <- function(object, vcv = FALSE) {
     }
     object$beta.vcv <- beta.vcv
     object$fit$par <- c(intercept[1], object$fit$par)
+    object$fit$estimate <- object$fit$par
     object$details$fixedbeta[1] <- NA  # inferred, not fixed
     object$betanames <- c('D', object$betanames)
     object$CL <- FALSE

@@ -192,7 +192,7 @@ export (write.DA)
 export (logmultinom)
 
 export (pointsInPolygon)
-export (derivedDbeta0)
+export (derivedDcoef)
 export (derivedDsurface)
 export (predictDsurface)
 export (rectangularMask)

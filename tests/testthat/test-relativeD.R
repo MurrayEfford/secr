@@ -13,8 +13,8 @@ fitrDi <- secr.fit(captdata, CL = TRUE, mask = msk, model= D~x, trace = FALSE,
 
 test_that("relativeD estimates correct", {
     expect_equal(coef(fitrD)[1,1], 0.01261994, tolerance = 1e-4, check.attributes = FALSE)
-    expect_equal(derivedDbeta0(fitrD)[1], 1.700941, tolerance = 1e-4, check.attributes = FALSE)
-    expect_equal(derivedDbeta0(fitrDi)[1], 5.479395, tolerance = 1e-4, check.attributes = FALSE)
+    expect_equal(derivedDcoef(fitrD)[1,1], 1.700941, tolerance = 1e-4, check.attributes = FALSE)
+    expect_equal(derivedDcoef(fitrDi)[1,1], 5.479395, tolerance = 1e-4, check.attributes = FALSE)
 })
 
 test_that("region.N correct with relativeD", {

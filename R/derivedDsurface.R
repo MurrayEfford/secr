@@ -4,6 +4,7 @@
 ## 2025-01-01
 ## 2025-01-03 derivedDbeta0 groups
 ## 2025-01-11 se.beta0
+## 2025-01-20 replaced derivedDbeta0 by derivedDcoef
 #############################################################################
 
 # session-specific
@@ -28,7 +29,7 @@ kgradient <- function (object, individuals, sessnum, ...)
 }
 ############################################################################################
 
-derivedDbeta0 <- function (object, sessnum = 1, groups = NULL, se.beta0 = FALSE) {
+derivedDcoef <- function (object, sessnum = 1, groups = NULL, se = FALSE) {
     if (is.null(object$model$D) || is.null(object$link$D) || !object$CL) {
         warning ("not relative density model")
         return(NULL)
@@ -49,38 +50,39 @@ derivedDbeta0 <- function (object, sessnum = 1, groups = NULL, se.beta0 = FALSE)
             vark <- kgrad %*% object$beta.vcv %*% kgrad
             sqrt(vark + s2)
         }
-
-        getbeta0 <- function (selection) {
+        
+        getcoef <- function (selection) {
             selected.a <- esa (object, sessnum, Dweight = TRUE)[selection]
             k <- sum(1 / selected.a)
-            if (se.beta0) {
-                warning ("derivedDbeta currently underestimates se.beta0")
+            if (se) {
+                warning ("derivedDcoef currently underestimates se(beta0)")
                 se.k <- se.derivedk (selection, object, selected.a, sessnum)
             }
             else {
                 se.k <- NA
             }
             # return on link scale
-            c(
-                beta0 = transform(k, object$link$D),
-                se.beta0 = se.transform(k, se.k, object$link$D)
-            )
+            beta0 <- transform(k, object$link$D)
+            se.beta0 <- se.transform(k, se.k, object$link$D)
+            tmp <- rbind(D = c(beta0, se.beta0,NA,NA), coef(object))
+            if (object$link$D == 'identity') {
+                tmp[grepl('D.', rownames(tmp)),] <- tmp[grepl('D.', rownames(tmp)),] * tmp[1,1]
+            }
+            tmp
+            
         }
-
-        D <- predictD(object, object$mask, group = NULL, session = sessnum, parameter = 'D')
-        D <- matrix(D, ncol = 1)                                # dim m x 1
         
-        # NB getbeta0() gives same (estimate, SE.estimate) as derived(object, Dweight=T), 
+        # NB getcoef() gives same (estimate, SE.estimate) as derived(object, Dweight=T), 
         # and takes about the same time
         # May later switch to derived()
         
         if ( ngrp > 1) {
             # multiple groups
-            lapply(individuals, getbeta0)
+            lapply(individuals, getcoef)
         }
         else {    
             # one group
-            getbeta0(individuals[[1]])
+            getcoef(individuals[[1]])
         }
         
         
