@@ -215,9 +215,8 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
                 indx <- object$parindx$D
                 
                 if (object$CL) {
-                    warning("using approximate conversion of conditional to full", 
-                            " model for variances")
-                    object <- completeDbeta(object, vcv = FALSE)   # temporary - vcv not available
+                    # using approximate conversion of conditional to full model for variances
+                    object <- completeDbeta(object, vcv = TRUE)   # vcv unreliable
                 }
                 dENdphi <- nlme::fdHess (object$fit$par[indx],
                                          betaEN, object = object, region = regionmask, group = group,
