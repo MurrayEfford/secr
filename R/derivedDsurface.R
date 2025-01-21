@@ -55,7 +55,7 @@ derivedDcoef <- function (object, sessnum = 1, groups = NULL, se = FALSE) {
             selected.a <- esa (object, sessnum, Dweight = TRUE)[selection]
             k <- sum(1 / selected.a)
             if (se) {
-                warning ("derivedDcoef currently underestimates se(beta0)")
+                warning ("derivedDcoef() underestimates se(beta0)", call. = FALSE)
                 se.k <- se.derivedk (selection, object, selected.a, sessnum)
             }
             else {
@@ -64,7 +64,11 @@ derivedDcoef <- function (object, sessnum = 1, groups = NULL, se = FALSE) {
             # return on link scale
             beta0 <- transform(k, object$link$D)
             se.beta0 <- se.transform(k, se.k, object$link$D)
-            tmp <- rbind(D = c(beta0, se.beta0,NA,NA), coef(object))
+            oldcoef <- coef(object)
+            alpha <- attr(oldcoef, 'alpha')
+            z <- abs(qnorm(1 - alpha/2))
+            Dcoef <- c(beta0, se.beta0, beta0 - z * se.beta0, beta0 + z * se.beta0)
+            tmp <- rbind(D = Dcoef, oldcoef)
             if (object$link$D == 'identity') {
                 tmp[grepl('D.', rownames(tmp)),] <- tmp[grepl('D.', rownames(tmp)),] * tmp[1,1]
             }
