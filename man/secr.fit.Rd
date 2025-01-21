@@ -120,8 +120,8 @@ The default with these detectors is to fit a Poisson distribution.
 %The `size' parameter of the negative binomial is not estimated: it must be
 %supplied. \code{binomN} should be an integer unless negative.
 
-\code{details} is used for various specialized settings listed below. These are
-described separately - see \code{\link{details}}.
+\code{details} is used for various specialized settings. An incomplete list follows; 
+see \code{\link{details}} for the full list and description.
 \tabular{ll}{
 autoini \tab session to use for starting values (default 1) \cr
 centred \tab centre x-y coordinates\cr
@@ -129,7 +129,6 @@ chat \tab overdispersion of sighting counts Tu, Tm \cr
 chatonly \tab compute overdispersion for Tu and Tm, then exit \cr
 contrasts \tab coding of factor predictors \cr
 convexpolygon \tab allows non-convex polygons (slower) \cr
-Dfn \tab reparameterization of density model (seldom used directly) \cr
 Dlambda \tab switch density reparameterization to trend model \cr
 distribution \tab binomial vs Poisson N\cr
 externalqx \tab name of mask covariate as offset for relative density \cr
@@ -138,19 +137,15 @@ fixedbeta \tab specify fixed beta parameter(s)\cr
 grain \tab grain argument of RcppParallel::parallelFor \cr
 hessian \tab variance method\cr
 ignoreusage \tab override usage in traps object of capthist\cr
-intwidth2 \tab controls optimise when only one parameter\cr
 knownmarks \tab known or unknown number of marked animals in sighting-only model \cr
 LLonly \tab compute one likelihood for values in \code{start} \cr
 maxdistance \tab distance threshold for selective mask \cr
 miscparm \tab starting values for extra parameters fitted via userdist function \cr
 newdetector \tab detector type to override detector(traps(capthist)) \cr
-nsim \tab number of simulations to compute overdispersion \cr
+nsim \tab number of simulations to compute mark-resight overdispersion \cr
 param \tab optional parameterisation code\cr
-relativeD \tab optional relative density conditional on \eqn{n} \cr
 savecall \tab optionally suppress saving of call\cr
 telemetrytype \tab treat telemetry data as independent, dependent or concurrent\cr
-normalize \tab rescale detection to individual range use \cr
-usecov \tab spatial covariate of use for normalization \cr
 userdist \tab user-provided distance function or matrix \cr
 %maxcallsize \tab limit to size of saved call \cr
 }

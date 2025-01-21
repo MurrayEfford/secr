@@ -34,24 +34,37 @@ numbers. The default is not to centre coordinates.
 \code{details$chat} optionally specifies the overdispersion 
 of unmarked sightings Tu and unidentified marked sightings Tm. It is used only 
 for mark-resight models, and is usually computed within \code{secr.fit} 
-(\code{details$nsim > 0}), but may be provided by the user. For a single session `chat` is a vector of length 2; for multiple sessions it is a 2-column matrix. 
+(\code{details$nsim > 0}), but may be provided by the user. For a single session
+`chat` is a vector of length 2; for multiple sessions it is a 2-column matrix. 
 
 \code{details$chatonly} = TRUE used with \code{details$nsim > 0} causes the 
 overdispersion statistics for sighting counts Tu and Tm to be estimated and 
 returned as a vector or 2-column matrix (multi-session models), with no further
 model fitting.
 
-\code{details$contrasts} may be used to specify the coding of factor predictors. The value should be suitable for the 'contrasts.arg' argument of \code{\link[stats]{model.matrix}}. See `Trend across sessions' in \href{https://www.otago.ac.nz/density/pdfs/secr-multisession.pdf}{secr-multisession.pdf} for an example.
+\code{details$contrasts} may be used to specify the coding of factor predictors. 
+The value should be suitable for the 'contrasts.arg' argument of 
+\code{\link[stats]{model.matrix}}. See `Trend across sessions' in
+\href{https://www.otago.ac.nz/density/pdfs/secr-multisession.pdf}{secr-multisession.pdf} 
+for an example.
 
-\code{details$convexpolygon} may be set to FALSE for searches of non-convex polygons. This is slower than the default which requires poygons to be convex east-west (\href{https://www.otago.ac.nz/density/pdfs/secr-polygondetectors.pdf}{secr-polygondetectors.pdf}).
+\code{details$convexpolygon} may be set to FALSE for searches of non-convex polygons. 
+This is slower than the default which requires poygons to be convex east-west 
+(\href{https://www.otago.ac.nz/density/pdfs/secr-polygondetectors.pdf}{secr-polygondetectors.pdf}).
 
 \code{details$debug} is an integer code used to control the printing of intermediate 
 values (1,2) and to switch on the R code browser (3). In ordinary use it should not be 
 changed from the default (0).
 
-\code{details$Dfn} is a function for reparameterizing density models; this is set internally when Dlambda = TRUE. Exotic variations may be specified directly by the user when Dlambda = FALSE. The defaults (Dfn = NULL, Dlambda = FALSE) leave the original density model unchanged. Note there is no connection to userDfn (except that the two are incompatible).
+\code{details$Dfn} is a function for reparameterizing density models; this is set 
+internally when Dlambda = TRUE. Exotic variations may be specified directly by 
+the user when Dlambda = FALSE. The defaults (Dfn = NULL, Dlambda = FALSE) leave
+the original density model unchanged. Note there is no connection to userDfn 
+(except that the two are incompatible).
 
-\code{Dlambda} if TRUE causes reparameterization of density as the session-on-session finite rate of increase \eqn{lambda}. Details at (\href{https://www.otago.ac.nz/density/pdfs/secr-trend.pdf}{secr-trend.pdf}).
+\code{Dlambda} if TRUE causes reparameterization of density as the 
+session-on-session finite rate of increase \eqn{lambda}. Details at 
+(\href{https://www.otago.ac.nz/density/pdfs/secr-trend.pdf}{secr-trend.pdf}).
 
 \code{details$distribution} specifies the distribution of the number of
 individuals detected \eqn{n}; this may be conditional on the number in the
@@ -69,7 +82,11 @@ relative density. This can be useful in a two-phase study when animals are tagge
 in phase one and sampled in phase two, with no further tagging (Efford in prep.). 
 The covariate may differ from \eqn{p.(x)} by a constant factor. 
 
-\code{details$fastproximity} controls special handling of data from binary proximity and count detectors. If TRUE and other conditions are met (no temporal variation or groups) then a multi-occasion capthist is automatically reduced to a count for a single occasion and further compressed by storing only non-zero counts, which can greatly speed up computation of the likelihood (default TRUE).
+\code{details$fastproximity} controls special handling of data from binary 
+proximity and count detectors. If TRUE and other conditions are met (no temporal 
+variation or groups) then a multi-occasion capthist is automatically reduced to 
+a count for a single occasion and further compressed by storing only non-zero 
+counts, which can greatly speed up computation of the likelihood (default TRUE).
 
 \code{details$fixedbeta} may be used to fix values of beta
 parameters. It should be a numeric vector of length equal to the total
@@ -79,8 +96,9 @@ the link scale and will be substituted during likelihood
 maximisation. Check the order of beta parameters in a previously fitted
 model.
 
-\code{details$grain} sets the grain argument for multithreading in RcppParallel parallelFor (default 1). 
-\code{details$grain = 0} suppresses multithreading (equivalent to \code{ncores = 1}).
+\code{details$grain} sets the grain argument for multithreading in RcppParallel 
+parallelFor (default 1). \code{details$grain = 0} suppresses multithreading 
+(equivalent to \code{ncores = 1}).
 
 \code{details$hessian} is a character string controlling the computation
 of the Hessian matrix from which variances and covariances are obtained.
@@ -104,7 +122,11 @@ rather than inferring it from the number of rows in the capthist object.
 \code{details$LLonly} = TRUE causes the function to returns a single
 evaluation of the log likelihood at the `start' values.
 
-\code{details$maxdistance} sets a limit to the centroid-to-mask distances considered. The centroid is the geometric mean of detection locations for each individual. If no limit is specified then summation is over all mask points. Specifying \code{maxdistance} can speed up computation; it is up to the user to select a limit that is large enough not to affect the likelihood (\eqn{5\sigma}?).
+\code{details$maxdistance} sets a limit to the centroid-to-mask distances 
+considered. The centroid is the geometric mean of detection locations for each 
+individual. If no limit is specified then summation is over all mask points. 
+Specifying \code{maxdistance} can speed up computation; it is up to the user to 
+select a limit that is large enough not to affect the likelihood (\eqn{5\sigma}?).
 
 \code{details$miscparm} (default NULL) is an optional numeric vector of
 starting values for additional parameters used in a user-supplied
@@ -122,8 +144,10 @@ coefficients appear in the output from \code{\link{coef.secr}} and
 replacing the previous \code{detector(traps(capthist))}. The value may be 
 a vector (one value per occasion) or for multi-session data, a list of vectors. 
 A scalar value (e.g. "proximity") is otherwise used for all occasions and sessions. 
-The true detector type is usually known and will be specified in the 'traps' attribute; 
-\code{newdetector} is useful in simulation studies that examine the effect of misspecification. The capthist component of the output from secr.fit has the new type.
+The true detector type is usually known and will be specified in the 'traps' 
+attribute; \code{newdetector} is useful in simulation studies that examine the 
+effect of misspecification. The capthist component of the output from secr.fit 
+has the new type.
 
 \code{details$nsim} specifies the number of replicate simulations to 
 perform to estimate the overdispersion statistics for the sighting counts 
@@ -155,7 +179,11 @@ sigmak ~ 1)
 \code{details$param = 5} combines parameterisations (3) and (4) (first
 compute sigma from D, then compute lambda0 from sigma).
 
-\code{details$relativeD} indicates that a density model has been fitted conditional on \eqn{n} and hence describing relative density instead of absolute density. The intercept of the log-linear submodel for D as a function of covariates is fixed at zero for a log link or 1 for the identity link.
+\code{details$relativeD} indicates that a density model has been fitted conditional 
+on \eqn{n} and hence describing relative density instead of absolute density. 
+The intercept of the submodel for D as a function of covariates is 
+fixed at zero for a log link or 1 for the identity link. 
+Not set by the user in secr >= 5.2.0.
 
 \code{details$savecall} determines whether the full call to \code{secr.fit} is 
 saved in the output object. The default is TRUE except when called by 
