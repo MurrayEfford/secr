@@ -7,7 +7,7 @@
 sharedData <- function (object, i, sessnum, X, ncores, naive = FALSE) {
     ## temporary fix for lack of fastproximity code
     object$details$fastproximity <- FALSE 
-    
+
     ## data for a single session
     data <- prepareSessionData(object$capthist, object$mask, object$details$maskusage, 
                                object$design, object$design0, object$detectfn, object$groups, 
@@ -25,7 +25,11 @@ sharedData <- function (object, i, sessnum, X, ncores, naive = FALSE) {
         X <- data$mask
     }
     else {
-        X <- matrix(unlist(X), ncol = 2)
+        X <- as.data.frame(matrix(unlist(X), ncol = 2))
+        names(X) <- c('x','y')
+        X <- read.mask(data = X)
+        data$mask <- X
+        data$m <- nrow(X)
     }
     #----------------------------------------
     # restrict to selected individuals
@@ -51,7 +55,7 @@ sharedData <- function (object, i, sessnum, X, ncores, naive = FALSE) {
     
     ncores <- setNumThreads(ncores)
     grain <- if (ncores==1) 0 else 1;
-    
+
     #----------------------------------------
     # Density
     if (is.null(object$model$D))
@@ -63,7 +67,7 @@ sharedData <- function (object, i, sessnum, X, ncores, naive = FALSE) {
             D.modelled <- (object$model$D != ~1)
     }
     if (D.modelled) {
-        predD <- predictDsurface (object)
+        predD <- predictDsurface (object, mask = X)
         if (ms(object))
             predD <- predD[[sessnum]]
         D <- covariates(predD)$D.0  ## does not apply if groups
@@ -80,6 +84,7 @@ sharedData <- function (object, i, sessnum, X, ncores, naive = FALSE) {
     else
         covariates(data$mask) <- data.frame(pi = pimask)
     ## does this work for linearmask?
+    
     tmpmask <- suppressWarnings(addCovariates(X, data$mask, strict = TRUE))
     piX <- covariates(tmpmask)$pi
     piX[is.na(piX)] <- 0
@@ -117,7 +122,7 @@ sharedData <- function (object, i, sessnum, X, ncores, naive = FALSE) {
     ## unmodelled beta parameters, if needed
     miscparm <- getmiscparm(object$details$miscparm, object$detectfn, object$beta, 
                             object$parindx, object$details$cutval)
-    
+
     gkhk <- makegk (data$dettype, object$detectfn, data$traps, data$mask, object$details, sessnum, 
                     NE, D, miscparm, Xrealparval, grain, ncores)
     haztemp <- gethazard (data$m, data$binomNcode, nrow(Xrealparval), gkhk$hk, PIA, data$usge)
