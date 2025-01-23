@@ -1,8 +1,8 @@
-Changes in version 5.2.0 (2025-01-11)
+Changes in version 5.2.0 (2025-01-24)
 
 New features or changed behaviour of old functions
     o  allows models for relative density with CL = TRUE
-    o  derivedDbeta0() and derivedDsurface() for conditional D models
+    o  derivedDcoef() and derivedDsurface() for conditional D models
     
 Bugs fixed
     o  addCovariates() generated spurious sf warning "attribute variables are 

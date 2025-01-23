@@ -734,9 +734,9 @@ Here is an index of **secr** functions classified by use (some minor functions a
 |	`df.residual`*	| degrees of freedom for deviance |
 | `derivednj` | variance from replicated sampling units |
 | `derivedCluster` | variance from replicated sampling units |
-| `derivedDsurface` | generate absolute density from relative density model |
+| `derivedDcoef` | derive intercept and other coefficients from relative density model |
+| `derivedDsurface` | derive absolute density surface from relative density model |
 | `derivedExternal` | variance from replicated sampling units |
-| `derivedIntercept` | infer intercept of relative density model |
 | `ellipse.secr` | confidence ellipses for estimated parameters |
 | `esa`* | effective sampling area by individual |
 | `fxi`*       | probability density of home-range centre |
