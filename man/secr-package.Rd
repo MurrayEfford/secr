@@ -19,8 +19,8 @@
 \tabular{ll}{
 Package: \tab secr\cr
 Type: \tab Package\cr
-Version: \tab 5.2.0\cr
-Date: \tab 2025-01-24\cr
+Version: \tab 5.2.1\cr
+Date: \tab 2025-01-26\cr
 License: \tab GNU General Public License Version 2 or later\cr
 }
 
