@@ -63,8 +63,8 @@ done on the link scale before back-transformation
 Models for which dAIC > \code{dmax} (or dAICc > \code{dmax}) are given a
 weight of zero and effectively are excluded from averaging.
 
-Also, \deqn{\mbox{var} (\hat{\theta}) = \sum\limits _{k} { w_{k}
-( \mbox{var}(\hat{\theta}_{k} | \beta _k) + \beta _k ^2)}
+Also, \deqn{\mathrm{var} (\hat{\theta}) = \sum\limits _{k} { w_{k}
+( \mathrm{var}(\hat{\theta}_{k} | \beta _k) + \beta _k ^2)}
 }{var(theta-hat) = sum(w_k (var(theta-hat_k) + beta_k^2))}
 
 where \eqn{\hat{\beta} _k = \hat{\theta}_k - \hat{\theta}}{beta-hat_k =

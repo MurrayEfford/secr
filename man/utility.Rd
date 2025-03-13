@@ -73,9 +73,9 @@ rlnormCV(n, mean, cv)
   \code{rlnormCV} is a wrapper for \code{\link{rlnorm}} that computes its 
   meanlog and sdlog arguments from the mean and CV on the natural scale:
   
-  \eqn{\mbox{sdlog} = \sqrt{\log(\mbox{CV}^2 + 1)}}, and  
+  \eqn{\mathrm{sdlog} = \sqrt{\log(\mathrm{CV}^2 + 1)}}, and  
   
-  \eqn{\mbox{meanlog} = \log(\mbox{mean}) - \mbox{sdlog}^2/2}.
+  \eqn{\mathrm{meanlog} = \log(\mathrm{mean}) - \mathrm{sdlog}^2/2}.
   
 }
 

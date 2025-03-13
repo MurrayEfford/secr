@@ -86,7 +86,7 @@ For \code{MS.capthist}, a multi-session object of class `capthist' with
 number of sessions equal to the number of sessions in the objects in
 \dots.
 
-For \code{append.capthist}, a single-session of class `capthist'. When `synchronous' the dimensions are (\eqn{\sum n_i, \mbox{max}~ S_i, \sum K_i}) where (\eqn{n_i, S_i, K_i}) are the numbers of individuals, occasions and detectors in the i-th input. Otherwise the dimensions are (\eqn{\sum n_i, \sum S_i, \sum K_i}). An index to the original component is saved in the traps covariate `sub'.
+For \code{append.capthist}, a single-session of class `capthist'. When `synchronous' the dimensions are (\eqn{\sum n_i, \mathrm{max}~ S_i, \sum K_i}) where (\eqn{n_i, S_i, K_i}) are the numbers of individuals, occasions and detectors in the i-th input. Otherwise the dimensions are (\eqn{\sum n_i, \sum S_i, \sum K_i}). An index to the original component is saved in the traps covariate `sub'.
 
 For \code{rbind.capthist}, either an object of class `capthist' with one 
 session formed by pooling the sessions in the input objects, or a 

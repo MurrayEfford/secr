@@ -47,13 +47,13 @@ issued if \code{\link{AICcompatible}} reveals a problem.
 
 AIC is given by
 
-\deqn{ \mbox{AIC} = -2\log(L(\hat{\theta})) + 2K}{AIC = -2log(L(theta-hat)) + 2K}
+\deqn{ \mathrm{AIC} = -2\log(L(\hat{\theta})) + 2K}{AIC = -2log(L(theta-hat)) + 2K}
 
 where \eqn{K} is the number of "beta" parameters estimated. 
 
 AIC with small sample adjustment is given by
 
-\deqn{ \mbox{AIC}_c = -2\log(L(\hat{\theta})) + 2K +
+\deqn{ \mathrm{AIC}_c = -2\log(L(\hat{\theta})) + 2K +
 \frac{2K(K+1)}{n-K-1}.}{AICc = -2log(L(theta-hat)) + 2K +
 2K(K+1)/(n-K-1).}
 
@@ -80,7 +80,7 @@ secrlists. If secr components are named the model names will be retained unless 
 
 If chat (\eqn{\hat c}) is provided then quasi-AIC values are computed (\pkg{secr} >= 4.6.0):
 
-\deqn{ \mbox{QAIC} = -2\log(L(\hat{\theta}))/ \hat c + 2K.}{AICc = -2log(L(theta-hat))/ \hat c + 2K.}
+\deqn{ \mathrm{QAIC} = -2\log(L(\hat{\theta}))/ \hat c + 2K.}{AICc = -2log(L(theta-hat))/ \hat c + 2K.}
 
 
 }

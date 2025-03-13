@@ -54,11 +54,11 @@ exponential function.
    [1 - \{1 - exp(-d^2 / (2 \sigma^2))]^z\} } \cr
 
 4  UN \tab uniform  \tab g0, sigma \tab \eqn{ g(d) = g_0, d <= \sigma;
-  g(d) = 0, \mbox{otherwise}  }{ g(d) = g0, d\le \sigma; g(d) = 0,
+  g(d) = 0, \mathrm{otherwise}  }{ g(d) = g0, d\le \sigma; g(d) = 0,
   otherwise } \cr
 
 5 WEX \tab w exponential  \tab g0, sigma, w \tab \eqn{ g(d) = g_0, d < w;
-  g(d) = g_0  \exp \left( -\frac{d-w}{\sigma} \right), \mbox{otherwise}
+  g(d) = g_0  \exp \left( -\frac{d-w}{\sigma} \right), \mathrm{otherwise}
   }{ g(d) = g0, d < w; g(d) = g0 exp(- (d - w) / \sigma), otherwise }
  \cr
  

@@ -102,7 +102,7 @@ for the circular error probable; this is equivalent to setting
 
 Closed-form expressions are used for the normal and uniform cases; in
 the circular bivariate normal case, the relationship is \eqn{r =
-\sigma \sqrt{-2\mbox{ln}(1-p)} }{r = (-2*log(1-p))^0.5 * sigma}. Otherwise,
+\sigma \sqrt{-2\mathrm{ln}(1-p)} }{r = (-2*log(1-p))^0.5 * sigma}. Otherwise,
 the probability is computed numerically by integrating the radial
 distribution. Numerical integration is not foolproof, so check
 suspicious or extreme values.

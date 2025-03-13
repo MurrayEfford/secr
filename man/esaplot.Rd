@@ -60,7 +60,7 @@ esaPlot (object, max.buffer = NULL, spacing = NULL, max.mask = NULL,
   extent of the region; points (cells) within this mask are sorted by
   their distance \eqn{d_k}{dk} from the nearest detector. esa(buffer) is
   defined as the cumulative sum of \eqn{cp.(\mathbf{X})}{c * p.(X)} for
-  \eqn{d_k(\mathbf{X}) <= \mbox{buffer}}{dk(X) <= buffer}, where \eqn{c}
+  \eqn{d_k(\mathbf{X}) <= \mathrm{buffer}}{dk(X) <= buffer}, where \eqn{c}
   is the area associated with each cell.
 
   The default (\code{type = 'density'}) is to plot the reciprocal of esa
