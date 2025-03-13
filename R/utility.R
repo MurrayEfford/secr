@@ -1985,7 +1985,14 @@ getdistmat2 <- function (traps, mask, userdist) {
         NULL   ## compute dynamically later
     }
     else {
-        if (any(detector(traps) %in% .localstuff$polydetectors)) {
+        if (is.matrix(userdist)) {
+            if (nrow(userdist) != nrow(traps) || 
+                ncol(userdist) != nrow(mask))
+                stop("dimensions of userdist matrix should be c(nrow(traps), nrow(mask))")
+            userdist
+            
+        }
+        else if (any(detector(traps) %in% .localstuff$polydetectors)) {
             ## do not use result if detector is one of
             ## polygonX, polygon, transectX, transect, OR telemetry?
             matrix(0, nrow = nrow(traps), ncol = nrow(mask))

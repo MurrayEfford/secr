@@ -72,7 +72,6 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
         unsupported <- paste(unsupported, collapse = ', ')
         stop("detector type ', unsupported, ' is not supported in sim.detect")
     }
-    
     ## --------------------------------------------------------------------
     ## process behavioural responses
     Markov <- any(c('B','Bk','K') %in% object$vars)
@@ -97,7 +96,9 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
     if (!ms(sessmask)) sessmask <- list(sessmask)  ## always a list
     grplevels <- group.levels(object$capthist, object$groups, sep=".")
     beta <- object$fit$par
-    userd <- is.null(object$details$userdist)
+    #2025-03-13
+    # userd <- is.null(object$details$userdist)
+    userd <- !is.null(object$details$userdist) && is.function(object$details$userdist)
     
     ncores <- setNumThreads()
     grain <- if (ncores==1) 0 else 1
@@ -152,7 +153,6 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
     }
     realparval0 <- makerealparameters (design0, beta, object$parindx, object$link,
                                        object$fixed)
-    
     ##----------------------------------------
     ## real parameter  values for 'caughtbefore'  animals or detectors
     ## -- this  definition of  design1 differs  from that in secr.fit()
