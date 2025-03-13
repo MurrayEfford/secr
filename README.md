@@ -9,12 +9,16 @@ Spatially Explicit Capture-Recapture
 
 This is the development version of the R package distributed on [CRAN](https://CRAN.R-project.org/package=secr). 
 
-It may be installed using
+It may be installed directly from GitHub with the following code 
+(tools for the compilation of C++ code etc. are required):
 ```
 devtools::install_github("MurrayEfford/secr")
 ```
 
-Compilation of C++ code is required.
+Alternatively, the development version may be installed with
+```
+install.packages("secr", repos = "https://MurrayEfford.r-universe.dev")
+```
 
 Please report bugs as Issues on this GitHub page. 
 
