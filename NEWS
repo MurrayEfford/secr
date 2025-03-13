@@ -1,7 +1,10 @@
-Changes in version 5.2.1 (2025-01-26)
+Changes in version 5.2.1 (2025-03-14)
 
 New features or changed behaviour of old functions
     o  none
+
+Bugs fixed
+    o  sim.detect() mishandled miscparm (as used by userdist fn etc.)
 
 Changes in version 5.2.0 (2025-01-24)
 
