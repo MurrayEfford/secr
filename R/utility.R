@@ -1098,6 +1098,13 @@ fullbeta <- function (beta, fb) {
     beta
 }
 
+partbeta <- function (beta, fb) {
+    if (!is.null(fb)) {
+        beta <- beta[is.na(fb)] ## partial beta (varying only)
+    }
+    beta
+}
+
 fullbetanames <- function (object) {
     # 2024-12-23
     betanames <- unlist(sapply(object$design$designMatrices, colnames))
