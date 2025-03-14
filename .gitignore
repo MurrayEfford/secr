@@ -12,3 +12,4 @@ knownbugs.txt
 secr.Rproj
 extracpp/*.*
 .gitignore
+progress.RDS

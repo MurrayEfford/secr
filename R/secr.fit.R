@@ -46,10 +46,10 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     
     #################################################
     ## Remember start time
-    ptm  <- proc.time()
+    ptm       <- proc.time()
     starttime <- format(Sys.time(), "%H:%M:%S %d %b %Y")
-    # gc(verbose = FALSE) ## garbage collection 2019-09-02
-    
+    desc      <- packageDescription("secr")  ## for version number
+
     if (is.character(capthist)) {
         capthistname <- capthist; rm(capthist)
         capthist <- get(capthistname, pos=-1)
@@ -188,7 +188,9 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
         Dlambda = FALSE,
         relativeD = FALSE,
         externalpdot = NULL,
-        externalqx = NULL
+        externalqx = NULL,
+        saveprogress = FALSE,
+        progressfilename = 'progress.RDS'
     )
     if (!is.null(attr(capthist,'cutval'))) {
         defaultdetails$cutval <- attr(capthist,'cutval')
@@ -848,6 +850,31 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     betaw <- max(max(nchar(betanames)),8)   # for 'trace' formatting
     names(start) <- betanames
     
+    if (!is.null(details$saveprogress) && details$saveprogress > 0) {
+        
+        if (!grepl('rds', tolower(tools::file_ext(details$progressfilename))))
+            stop ("progress file should have extension .RDS")
+        memo(paste0("Saving progress to ", details$progressfilename, 
+                    " after each ", details$saveprogress, " evaluation(s)"), TRUE)
+        .localstuff$savedinputs <- list(
+            capthist     = capthist,
+            mask         = mask,
+            detectfn     = detectfn,
+            CL           = CL,
+            timecov      = timecov,
+            sessioncov   = sessioncov,
+            hcov         = hcov,
+            groups       = groups,
+            start        = start,
+            link         = link,
+            fixed        = fixed,
+            model        = model,
+            details      = details,
+            method       = method,          
+            version      = desc$Version,
+            starttime    = starttime
+        )
+    }
     ############################################
     # Maximize likelihood
     ############################################
@@ -979,7 +1006,6 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     ############################################
     ## form output list
     ############################################
-    desc <- packageDescription("secr")  ## for version number
 
     ## if density modelled then smoothsetup already contains D,noneuc
     ## otherwise an empty list; now add detection parameters from
