@@ -5,6 +5,7 @@
 \alias{param}
 \alias{miscparm}
 \alias{maxdistance}
+\alias{saveprogress}
 
 \title{ Detail Specification for secr.fit }
 
@@ -189,6 +190,20 @@ Not set by the user in secr >= 5.2.0.
 saved in the output object. The default is TRUE except when called by 
 \code{list.secr.fit} as names in the call are then evaluated, causing the 
 output to become unwieldy.
+
+\code{details$saveprogress} is a non-negative integer indicating the frequency
+with which progress is saved to the RDS file named in details$progressfilename 
+(overwritten each time).
+Logical values FALSE and TRUE correspond to 0 (never) and 1 (after each likelihood 
+evaluation). Less frequent saving is advised, as the operation is slow. If fitting
+is terminated early it may be resumed from the saved file with function 
+\code{\link{secr.refit}}. The value saved to the RDS file is a list of inputs 
+for 'secr.fit'. The list has attribute 'log' that is a dataframe in which each 
+row is a vector with the iteration number, log likelihood, time, and current 
+values of the coefficients.
+
+\code{details$progressfilename} must be specified to save progress. Ignored when 
+saveprogress = 0. Default "progress.RDS".
 
 \code{details$splitmarked} determines whether the home range centre of marked 
 animals is allowed to move between the marking and sighting phases of a spatial 

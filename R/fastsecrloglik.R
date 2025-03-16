@@ -289,6 +289,11 @@ fastsecrloglikfn <- function (
                 levels(data$grp[[1]]), sessionlevels, parameter = 'noneuc')
     #--------------------------------------------------------------------
     # typical likelihood evaluation
+    if (!is.null(details$saveprogress) && details$saveprogress>0 &&
+        .localstuff$iter == 0) {
+        saveprogress(beta, NA, details$progressfilename)
+    }
+    
     loglik <- sum(mapply (sessionLL, data, 1:nsession))
     .localstuff$iter <- .localstuff$iter + 1   ## moved outside loop 2011-09-28
     beta <- partbeta(beta, details$fixedbeta)  ## varying only
@@ -300,16 +305,9 @@ fastsecrloglikfn <- function (
         flush.console()
     }
     #--------------------------------------------------------------------
-    if (!is.null(details$saveprogress) && details$saveprogress>0) {
-        if (.localstuff$iter %% details$saveprogress == 0) {
-            args <- c(.localstuff$savedinputs, 
-                      list(
-                          iter       = .localstuff$iter,
-                          beta       = beta,
-                          proctime   = proc.time()[3] - .localstuff$savedinputs$ptm[3])
-            )
-            saveRDS(args, file = details$progressfilename)
-        }
+    if (!is.null(details$saveprogress) && details$saveprogress>0 &&
+        .localstuff$iter %% details$saveprogress == 0) {
+        saveprogress(beta, loglik, details$progressfilename)
     }
     
     #--------------------------------------------------------------------

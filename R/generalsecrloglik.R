@@ -741,6 +741,10 @@ generalsecrloglikfn <- function (
   #--------------------------------------------------------------------
   # (ii) typical likelihood evaluation
   else {
+      if (!is.null(details$saveprogress) && details$saveprogress>0 &&
+          .localstuff$iter == 0) {
+          saveprogress(beta, NA, details$progressfilename)
+      }
       loglik <- sum(sapply (data, sessionLL)) 
       .localstuff$iter <- .localstuff$iter + 1  
       beta <- partbeta(beta, details$fixedbeta)  ## varying only
@@ -751,16 +755,9 @@ generalsecrloglikfn <- function (
               '\n')
           flush.console()
       }
-      if (!is.null(details$saveprogress) && details$saveprogress>0) {
-          if (.localstuff$iter %% details$saveprogress == 0) {
-              args <- c(.localstuff$savedinputs, 
-                        list(
-                            iter       = .localstuff$iter,
-                            beta       = beta,
-                            proctime   = proc.time()[3] - .localstuff$savedinputs$ptm[3])
-              )
-              saveRDS(args, file = details$progressfilename)
-          }
+      if (!is.null(details$saveprogress) && details$saveprogress>0 &&
+          .localstuff$iter %% details$saveprogress == 0) {
+          saveprogress(beta, loglik, details$progressfilename)
       }
       loglik <- ifelse(is.finite(loglik), loglik, -1e10)
       ifelse (neglik, -loglik, loglik)

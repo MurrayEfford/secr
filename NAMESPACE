@@ -106,6 +106,7 @@ importMethodsFrom (terra, rast)
 exportMethods     (rast)
 
 export (secr.fit)
+export (secr.refit)
 export (list.secr.fit)
 export (expected.n)
 export (read.traps)

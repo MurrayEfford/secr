@@ -1,7 +1,8 @@
-Changes in version 5.2.1 (2025-03-14)
+Changes in version 5.2.1 (2025-03-17)
 
 New features or changed behaviour of old functions
-    o  none
+    o  secr.fit() saveprogress details option
+    o  secr.refit() new function
 
 Bugs fixed
     o  sim.detect() mishandled miscparm (as used by userdist fn etc.)

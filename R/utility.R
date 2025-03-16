@@ -2121,3 +2121,14 @@ span <- function (object, ...) {
     }
 }
 #-------------------------------------------------------------------------------
+
+saveprogress <- function (beta, loglik, filename) {
+    log <- data.frame(
+        eval = .localstuff$iter,
+        loglik = loglik,
+        time = format(Sys.time(), "%H:%M:%S %d %b %Y"))
+    names(beta) <- names(.localstuff$savedinputs$start)
+    log <- cbind(log, as.list(beta))
+    attr(.localstuff$savedinputs, 'log') <- rbind(attr(.localstuff$savedinputs, 'log'), log)
+    saveRDS(.localstuff$savedinputs, file = filename)
+}

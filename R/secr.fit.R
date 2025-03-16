@@ -190,7 +190,7 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
         externalpdot = NULL,
         externalqx = NULL,
         saveprogress = FALSE,
-        progressfilename = 'progress.RDS'
+        progressfilename = "progress.RDS"
     )
     if (!is.null(attr(capthist,'cutval'))) {
         defaultdetails$cutval <- attr(capthist,'cutval')
@@ -851,7 +851,9 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     names(start) <- betanames
     
     if (!is.null(details$saveprogress) && details$saveprogress > 0) {
-        
+        if (is.null(details$progressfilename) || !is.character(details$progressfilename)) {
+            stop("saveprogress requires that you name the progress RDS file (details$progressfilename)")
+        }
         if (!grepl('rds', tolower(tools::file_ext(details$progressfilename))))
             stop ("progress file should have extension .RDS")
         memo(paste0("Saving progress to ", details$progressfilename, 
@@ -870,9 +872,10 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
             fixed        = fixed,
             model        = model,
             details      = details,
-            method       = method,          
-            version      = desc$Version,
-            starttime    = starttime
+            method       = method
+            # ,         
+            # version      = desc$Version,
+            # starttime    = starttime
         )
     }
     ############################################

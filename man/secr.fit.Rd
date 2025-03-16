@@ -145,6 +145,7 @@ newdetector \tab detector type to override detector(traps(capthist)) \cr
 nsim \tab number of simulations to compute mark-resight overdispersion \cr
 param \tab optional parameterisation code\cr
 savecall \tab optionally suppress saving of call\cr
+saveprogress \tab save results to RDS file at given frequency \cr
 telemetrytype \tab treat telemetry data as independent, dependent or concurrent\cr
 userdist \tab user-provided distance function or matrix \cr
 %maxcallsize \tab limit to size of saved call \cr
