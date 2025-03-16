@@ -165,10 +165,11 @@ likelihood); otherwise \code{\link[stats]{optim}} is used with the
 chosen method ("BFGS", "Nelder-Mead", etc.).  If maximization fails a
 warning is given appropriate to the method.
 
-From secr 2.5.1, \code{method = "none"} may be used to skip likelihood
+\code{method = "none"} may be used to skip likelihood
 maximization and compute only the hessian for the current dataset at the
 values in start, and the corresponding variance-covariance matrix of
-beta parameters. The computation uses fdHess from \pkg{nlme}.
+beta parameters. The computation uses fdHess from \pkg{nlme}. 
+See also \code{\link{secr.refit}} (secr >= 5.2.1).
 
 If \code{verify} = TRUE then \code{\link{verify}} is called to check
 capthist and mask; analysis is aborted if "errors" are found. Some
@@ -335,6 +336,7 @@ setting \code{verify = FALSE}. This is now done by setting
   \code{\link{predict.secr}},
   \code{\link{print.secr}},
   \code{\link{region.N}},
+  \code{\link{secr.refit}},
   \link{Speed tips}
   \link{Troubleshooting}
   \link{userdist}

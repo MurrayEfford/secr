@@ -41,7 +41,7 @@ A fitted secr model.
 
 \seealso{
 
-\code{\link{secr.fit}}
+\code{\link{secr.fit}},
 \link{saveprogress}
 
 }
@@ -54,11 +54,12 @@ secr.refit(secrdemo.0, method = "none")
 
 \donttest{
 
-# Save data and coefficients after every 10 evaluations to file prog.RDS
+# Save data and coefficients after every 10 evaluations to a file
+# with the default name 'progress.RDS'.
 fit1 <- secr.fit(captdata, CL = TRUE, details = list(saveprogress = 10))
 
-# Review progress. In this example fit1 ran to completion, 
-# but the log stops at a multiple of 10.
+# Review progress. In this example, fit1 ran to completion, 
+# but the log stops at a multiple of 10 evaluations.
 attr(readRDS('progress.RDS'), 'log')
 
 # Restart at last line in log, suppressing overwrite of progress log

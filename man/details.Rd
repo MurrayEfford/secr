@@ -105,7 +105,7 @@ parallelFor (default 1). \code{details$grain = 0} suppresses multithreading
 of the Hessian matrix from which variances and covariances are obtained.
 Options are "none" (no variances), "auto" (the default) or "fdhess" (use
 the function fdHess in \pkg{nlme}).  If "auto" then the Hessian from the
-optimisation function is used. See also method = "none" below.
+optimisation function is used.
 
 \code{details$ignoreusage} = TRUE causes the function to ignore
 usage (varying effort) information in the traps component. The default
