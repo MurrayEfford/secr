@@ -285,16 +285,22 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     }
     else {
         if (MS & !ms(mask)) {
-            if (inherits(mask, 'linearmask'))
+            ## inefficiently replicate mask for each session!
+            mask <- lapply(sessionlevels, function(x) mask)
+        }
+    }
+    if (MS) {
+        # fix class of multi-session mask 2025-03-17
+        if (!inherits(mask, c('linearmask','mask'))) {
+            if (inherits(mask[[1]], 'linearmask'))
                 newclass <- c('linearmask', 'mask', 'list')
             else
                 newclass <- c('mask', 'list')
-            ## inefficiently replicate mask for each session!
-            mask <- lapply(sessionlevels, function(x) mask)
             class (mask) <- newclass
             names(mask) <- sessionlevels
         }
     }
+    
     #################################################
     
     nc <- ifelse (MS, sum(sapply(capthist, nrow)), nrow(capthist))
