@@ -36,6 +36,7 @@
 ## 2024-10-09 span()
 ## 2025-01-07 allzero bug fixed
 ## 2025-01-10 completeDbeta
+## 2025-03-18 saveprogress()
 ################################################################################
 
 # Global variables in namespace
@@ -45,8 +46,8 @@
 
 .localstuff <- new.env()
 
-.localstuff$packageType <- ' pre-release'
-## .localstuff$packageType <- ''
+# .localstuff$packageType <- ' pre-release'
+.localstuff$packageType <- ''
 
 .localstuff$validdetectors <- c('single','multi','proximity','count', 
     'polygonX', 'transectX', 'signal', 'polygon', 'transect', 

@@ -202,8 +202,8 @@ for 'secr.fit'. The list has attribute 'log' that is a dataframe in which each
 row is a vector with the iteration number, log likelihood, time, and current 
 values of the coefficients.
 
-\code{details$progressfilename} must be specified to save progress. Ignored when 
-saveprogress = 0. Default "progress.RDS".
+\code{details$progressfilename} is the name of an RDS file for 'saveprogress' 
+(see previous). Ignored when saveprogress = 0. Default "progress.RDS".
 
 \code{details$splitmarked} determines whether the home range centre of marked 
 animals is allowed to move between the marking and sighting phases of a spatial 

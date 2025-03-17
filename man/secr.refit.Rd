@@ -48,11 +48,11 @@ A fitted secr model.
 
 \examples{
 
+\donttest{
+
 # Repeat variance step using nlme::fdHess
 # method = "none" skips likelihood maximization
 secr.refit(secrdemo.0, method = "none")
-
-\donttest{
 
 # Save data and coefficients after every 10 evaluations to a file
 # with the default name 'progress.RDS'.

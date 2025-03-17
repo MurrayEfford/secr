@@ -706,6 +706,7 @@ generalsecrloglikfn <- function (
   nsession <- length(sessionlevels)
   #--------------------------------------------------------------------
   # Fixed beta
+  pbeta <- beta   # save varying beta, for trace etc.
   beta <- fullbeta(beta, details$fixedbeta)
   #--------------------------------------------------------------------
   # Detection parameters
@@ -743,21 +744,20 @@ generalsecrloglikfn <- function (
   else {
       if (!is.null(details$saveprogress) && details$saveprogress>0 &&
           .localstuff$iter == 0) {
-          saveprogress(beta, NA, details$progressfilename)
+          saveprogress(pbeta, NA, details$progressfilename)
       }
       loglik <- sum(sapply (data, sessionLL)) 
       .localstuff$iter <- .localstuff$iter + 1  
-      beta <- partbeta(beta, details$fixedbeta)  ## varying only
       if (details$trace) {
           cat(format(.localstuff$iter, width=4),
               formatC(round(loglik,dig), format='f', digits=dig, width=10),
-              formatC(beta, format='f', digits=dig+1, width=betaw),
+              formatC(pbeta, format='f', digits=dig+1, width=betaw),
               '\n')
           flush.console()
       }
       if (!is.null(details$saveprogress) && details$saveprogress>0 &&
           .localstuff$iter %% details$saveprogress == 0) {
-          saveprogress(beta, loglik, details$progressfilename)
+          saveprogress(pbeta, loglik, details$progressfilename)
       }
       loglik <- ifelse(is.finite(loglik), loglik, -1e10)
       ifelse (neglik, -loglik, loglik)

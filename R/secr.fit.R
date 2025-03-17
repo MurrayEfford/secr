@@ -863,7 +863,7 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
         if (!grepl('rds', tolower(tools::file_ext(details$progressfilename))))
             stop ("progress file should have extension .RDS")
         memo(paste0("Saving progress to ", details$progressfilename, 
-                    " after each ", details$saveprogress, " evaluation(s)"), TRUE)
+                    " after each ", as.integer(details$saveprogress), " evaluation(s)"), TRUE)
         .localstuff$savedinputs <- list(
             capthist     = capthist,
             mask         = mask,
