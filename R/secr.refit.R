@@ -45,6 +45,13 @@ secr.refit <- function (object, ...) {
         newargs$details <- NULL
     }
         
+    # check for change in structure
+    structargs <- c("model","CL","detectfn","link", "fixed", "hcov", "groups")
+    newstructure <- any(sapply(structargs, function(a) {
+        !is.null(newargs[[a]]) && args[[a]] != newargs[[a]]
+        }
+    ))
+    
     # update arguments
     args <- replace (args, names(newargs), newargs)
     
@@ -53,8 +60,23 @@ secr.refit <- function (object, ...) {
     
     ## start at exact beta coefficients
     args$start  <- object$fit$par  
+    if (newstructure) {
+        
+        if(!is.null(object$details$relativeD) && object$details$relativeD) {
+            stop ("cannot change structure of relative density model in secr.refit")
+        }
+            
+        if (inherits(object, 'secr')) {
+            # rely on makeStart() in secr.fit()
+            args$start <- object
+            warning("model structure has changed")
+        }
+        else {
+            stop ("cannot change model structure in secr.refit when input is a list")
+        }
+    }
     
-    ## relativeD requires beta0 (overwritten later, but must be present)
+    ## relativeD requires beta0 (overwritten later, but must be present in start vector)
     if (!is.null(object$details$relativeD) && object$details$relativeD) {
         args$start <- c(NA, args$start)
     }
@@ -73,3 +95,6 @@ secr.refit <- function (object, ...) {
     out
 }
 
+# note
+# tmp <- mapply(secr.refit, MoreArgs = list(object = secrdemo.0), detectfn = c('HEX','HHN'), SIMPLIFY = FALSE)
+# lapply(tmp, predict)

@@ -31,6 +31,12 @@ There are two common uses for the function.
 
 2. To recompute variances of a fitted model. The numerical method is fdHess from package \pkg{nlme}. Often this delivers variance estimates when the default algorithm failed.
 
+The \dots argument is used to override previous settings (arguments of \code{\link{secr.fit}}); commonly method = "none" to recompute variances. A new 'details' argument may be incomplete: specified components replace those in the original (see example resetting 'saveprogress' below). 
+
+The 'start' argument may not be overridden: it is set by \code{secr.refit} from the previous fit. The 'binomN' argument is elevated automatically from details$binomN if required.
+
+A third use of \code{secr.refit} is to vary the model structure. This requires that 'object' is a fitted model. A change in model structure is implied when the \dots argument replaces any of 'model', 'CL', 'detectfn', 'link', 'fixed', 'hcov', or 'groups'. New starting values are then determined in \code{secr.fit} by a call to \code{\link{makeStart}}, and may not precisely follow the previous fit.
+
 }
 
 \value{
@@ -43,6 +49,14 @@ A fitted secr model.
 
 \code{\link{secr.fit}},
 \link{saveprogress}
+
+}
+
+\note{
+
+In the case of a relative density model (i.e. a model was specified for D 
+when CL = TRUE), a warning will be generated "overriding provided fixedbeta[1] for D". 
+This can be ignored.
 
 }
 
