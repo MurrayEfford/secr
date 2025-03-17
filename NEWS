@@ -6,6 +6,8 @@ New features or changed behaviour of old functions
 
 Bugs fixed
     o  sim.detect() mishandled miscparm (as used by userdist fn etc.)
+    o  secr.fit() auto-generated multisession mask had class 'list'; 
+       class should have been c('mask','list') to pass verify() downstream
 
 Changes in version 5.2.0 (2025-01-24)
 
