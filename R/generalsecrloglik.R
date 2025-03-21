@@ -634,23 +634,11 @@ generalsecrloglikfn <- function (
           nb <- details$nmix + 1
           nm <- tabulate(data$knownclass[ok], nbins = nb)
           pmix <- attr(pmixn, 'pmix')
-          
-          # for (x in 1:details$nmix) {
-          #     # need group-specific pmix
-          #     # comp[4,g] <- comp[4,g] + nm[x+1] * log(pmix[x]) 
-          # }
-          
-          ## 2022-01-16 bug fix
-          # firstx <- match ((1:details$nmix)+1, data$knownclass[ok])
-          # tempsum <- sum(pdot[ok][firstx] * pmix)
-          # comp[4,g] <- sum(nm[-1] * log(pdot[ok][firstx] * pmix / tempsum))
-          
           ## 2022-10-25 bug fix
           firstx <- match ((1:details$nmix)+1, data$knownclass)
           pdpmix <- pdot[firstx] * pmix
           pdpmix <- pdpmix[!is.na(pdpmix)]
           comp[4,1] <- sum(nm[-1] * log(pdpmix / sum(pdpmix)))
-          
       }
    
       #----------------------------------------------------------------------
