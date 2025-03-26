@@ -108,7 +108,7 @@ raw data (object$capthist) and the fitted model.
 
 Choo, Y. R., Sutherland, C. and Johnston, A. (2024) A Monte Carlo resampling 
 framework for implementing goodness-of-fit tests in spatial capture-recapture model
-\emph{Methods in Ecology and Evolution} DOI: 10.1111/2041-210X.14386.
+\emph{Methods in Ecology and Evolution} \bold{15}, 1653--1666. \doi{10.1111/2041-210X.14386}.
 
 }
 

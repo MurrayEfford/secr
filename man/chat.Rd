@@ -147,7 +147,9 @@ overdispersion (Efford and Fletcher unpubl.).
   
 \references{
 
-Bischof, R., P. Dupont, C. Milleret, J. Chipperfield, and J. A. Royle. 2020. Consequences of ignoring group association in spatial capture--recapture analysis. \emph{Wildlife Biology} wlb.00649. DOI 10.2981/wlb.00649
+Bischof, R., P. Dupont, C. Milleret, J. Chipperfield, and J. A. Royle. 2020. 
+Consequences of ignoring group association in spatial capture--recapture analysis. 
+\emph{Wildlife Biology} wlb.00649. \doi{10.2981/wlb.00649}
 
 Cooch, E. and White, G. (eds) (2022) \emph{Program MARK: A Gentle Introduction}. 
   22nd edition. Most recent edition available online at www.phidot.org/software/mark/docs/book/.

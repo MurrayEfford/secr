@@ -112,9 +112,9 @@ The undocumented detection function `HPX' has been removed.
 
 \references{
 
-Choo, Y. R., Sutherland, C. and Johnston, A. (2024) \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14386}{A Monte Carlo resampling 
-framework for implementing goodness-of-fit tests in spatial capture-recapture models}
-\emph{Methods in Ecology and Evolution} DOI: 10.1111/2041-210X.14386.
+Choo, Y. R., Sutherland, C. and Johnston, A. (2024) A Monte Carlo resampling 
+framework for implementing goodness-of-fit tests in spatial capture-recapture models.
+\emph{Methods in Ecology and Evolution} \bold{15}, 1653--1666. \doi{10.1111/2041-210X.14386}.
 
 Efford, M. G. (2024) secr: Spatially explicit capture-recapture models. R package version 5.0.0.  \url{https://CRAN.R-project.org/package=secr}
 
@@ -134,6 +134,6 @@ Royle, J. A., Chandler, R. B., Sollmann, R. and Gardner, B. (2014)
 
 Turek, D. and Fletcher, D. (2012) Model-averaged Wald confidence
 intervals. \emph{Computational statistics and data analysis} \bold{56},
-2809--2815.
+2809--2815. \doi{10.1002/ecs2.3385}
 
 }

@@ -83,7 +83,7 @@ The summary method returns a matrix of values in which the columns correspond to
 \references{
 %Fletcher, D., Dillingham, P. W. and Parry, M. (2023) A simple and robust approach 
 %to Bayesian modelling of overdispersed data. \emph{Environmental and Ecological 
-%Statistics} DOI: 10.1007/s10651-023-00567-6.
+%Statistics} \doi{10.1007/s10651-023-00567-6}.
 
 Gelman, A., Meng, X.-L., and Stern, H. (1996) Posterior predictive assessment of 
 model fitness via realized discrepancies. \emph{Statistica Sinica} \bold{6}, 733--807.

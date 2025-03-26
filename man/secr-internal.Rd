@@ -80,7 +80,7 @@ a geometry set of type POLYGON or MULTIPOLYGON. NULL input results in NULL outpu
 Hijmans, R. J. (2022) terra: Spatial Data Analysis. R package version 1.5-14. https://rspatial.org/terra/
 
 Pebesma, E. (2018) Simple features for R: standardized support for spatial vector data. \emph{The R Journal} \bold{10(1)}, 439--446.
-  https://doi.org/10.32614/RJ-2018-009
+  \doi{10.32614/RJ-2018-009}
 
 Pebesma, E.J. and Bivand, R. S. (2005) Classes and methods for spatial data in R. \emph{R News} \bold{5(2)}, 9--13.
   https://cran.r-project.org/doc/Rnews/Rnews_2005-2.pdf.

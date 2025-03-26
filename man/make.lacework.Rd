@@ -65,7 +65,8 @@ An \pkg{secr} traps object. The attribute `crossings' is a 2-column matrix with 
 
 \references{
 
-Efford, M. G. (2019) Non-circular home ranges and the estimation of population density. \emph{Ecology} \bold{100}, e02580. https://esajournals.onlinelibrary.wiley.com/doi/10.1002/ecy.2580
+Efford, M. G. (2019) Non-circular home ranges and the estimation of population density. 
+\emph{Ecology} \bold{100}, e02580. \doi{10.1002/ecy.2580}
 
 }
 

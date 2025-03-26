@@ -101,17 +101,17 @@ For secrlist input the value returned is a list of `MCgof' objects.
 
 Borchers, D. L. and Efford, M. G. (2008) Spatially
 explicit maximum likelihood methods for capture--recapture studies.
-\emph{Biometrics} \bold{64}, 377--385.
+\emph{Biometrics} \bold{64}, 377--385. \doi{10.1111/j.1541-0420.2007.00927.x}
 
 Borchers, D. L. and Fewster, R. M. (2016) Spatial capture--recapture models.  
-\emph{Statistical Science} \bold{31}, 219--232.
+\emph{Statistical Science} \bold{31}, 219--232. \doi{10.1214/16-sts557}
 
 Brooks, S. P., Catchpole, E. A. and Morgan, B. J. T. (2000) Bayesian animal 
 survival estimation. \emph{Statistical Science} \bold{15}, 357--376.
 
 Choo, Y. R., Sutherland, C. and Johnston, A. (2024) A Monte Carlo resampling 
 framework for implementing goodness-of-fit tests in spatial capture-recapture model
-\emph{Methods in Ecology and Evolution} DOI: 10.1111/2041-210X.14386.
+\emph{Methods in Ecology and Evolution} \bold{15}, \doi{10.1111/2041-210X.14386}.
 
 Gelman, A., Meng, X.-L., and Stern, H. (1996) Posterior predictive assessment of 
 model fitness via realized discrepancies. \emph{Statistica Sinica} \bold{6}, 733--807.
