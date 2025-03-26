@@ -1,3 +1,11 @@
+Changes in version 5.2.2 (2025-03-26)
+
+New features or changed behaviour of old functions
+    o  none
+
+Other
+    o  test using suggested package 'spsurvey' now conditional
+
 Changes in version 5.2.1 (2025-03-18)
 
 New features or changed behaviour of old functions
