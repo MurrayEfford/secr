@@ -38,6 +38,7 @@
 ## 2023-11-04 save parents rThomas
 ## 2023-11-08 pre-check details$eps
 ## 2024-02-25 assign lastnumber in .local environment
+## 2025-04-07 rLGCP conditional (n.cond argument) when Ndist = 'fixed'
 ###############################################################################
 
 toroidal.wrap <- function (pop) {
@@ -269,10 +270,10 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
         warning ('Ndist is coerced to fixed when model2D even')
         Ndist <- 'fixed'
     }
-    if (model2D %in% c("rLGCP", "rThomas") && Ndist == 'fixed') {
-        warning ('Ndist is coerced to "poisson" when model2D rLGCP, rThomas')
-        Ndist <- 'poisson'
-    }
+    # if (model2D %in% c("rThomas") && Ndist == 'fixed') {
+    #     warning ('Ndist is coerced to "poisson" when model2D rThomas')
+    #     Ndist <- 'poisson'
+    # }
     .local <- new.env()
     .local$lastnumber <- number.from-1
     if (nsessions > 1) {
@@ -593,10 +594,12 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
         }
         ##########################
 
+        ## 2025-04-20 moved outside following block
+        ##            returns NULL for NULL input
+        poly <- boundarytoSF(poly)  
         
         ## 2024-10-30 infer core from poly
         if (missing(core) && !missing(poly)) {
-            poly <- boundarytoSF(poly)
             bb <- matrix(st_bbox(poly), byrow=T,nrow=2, dimnames = list(NULL,c('x','y')))
             core <- data.frame(bb)
         }
@@ -666,7 +669,6 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
             xl <- range(core$x) + buff
             yl <- range(core$y) + buff
             area <- diff(xl) * diff(yl) * 0.0001  # ha not sq metres
-
             bufferpoly <- switch(buffertype,
                                  rect = NA,
                                  convex = bufferContour(core, buffer = buffer,
@@ -855,41 +857,80 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                 # possibly save grid?
             }
             else  if (model2D %in% c("rLGCP", "rThomas")) {
-                if (requireNamespace("spatstat.geom", quietly = TRUE) && 
+                if (requireNamespace("spatstat", quietly = TRUE) &&
+                    requireNamespace("spatstat.geom", quietly = TRUE) && 
                     requireNamespace("spatstat.random", quietly = TRUE)) {
                     if (!is.numeric(D) || length(D)>1) {
                         stop ("for model2D in (rLGCP, rThomas) D should be a scalar")
                     }
                     if (is.null(details$saveLambda)) details$saveLambda <- FALSE
-                    # spatstat window
-                    ow <- spatstat.geom::owin(xl, yl)  
+                    
+                    # spatstat observation window
+                    # 2025-04-23 allow poly, mask
+                    if (!is.null(details$mask) && inherits(details$mask, "mask")) {
+                        ow <- spatstat.geom::owin(mask = details$mask)  
+                    }
+                    else if (!is.null(poly)) {
+                        # but poly may not coincide with burred area...
+                        xycoord <- sf::st_coordinates(poly)[,1:2]
+                        if (all(xycoord[1,] == tail(xycoord,1))) 
+                            xycoord <- xycoord[-1,]
+                        xycoord[,] <- as.numeric(xycoord)  # in case integer
+                        ow <- spatstat.geom::owin(poly = xycoord)  
+                    }
+                    else {
+                        # easy when it's rectangular
+                        ow <- spatstat.geom::owin(xl, yl)  
+                    }
+                    # conditional option available from spatstat.random v3.3-3.006
+                    if (Ndist == "fixed") {
+                        if (is.null(details$verbose)) details$verbose <- FALSE
+                        n.cond <- discreteN(1, area(ow)/10000 * D )
+                    }
+                    else {
+                        details$verbose <- NULL
+                        n.cond <- NULL
+                    }
+                    
                     if (model2D == 'rLGCP') {
                         # D, var, scale
                         # mu for rLGCP is derived from D, var
                         mu <- log(D/1e4) - details$var/2    # mean density / m^2 on log scale
-                        pts <- spatstat.random::rLGCP(
-                            model      = "exp",
-                            mu         = mu,
-                            var        = details$var,
-                            scale      = details$scale,
-                            win        = ow,
-                            saveLambda = details$saveLambda,
-                            eps        = details$eps,
-                            rule.eps   = 'shrink.frame')
+                        args <- list(
+                                model      = "exp",
+                                mu         = mu,
+                                var        = details$var,
+                                scale      = details$scale,
+                                n.cond     = n.cond,
+                                win        = ow,
+                                saveLambda = details$saveLambda,
+                                eps        = details$eps,
+                                rule.eps   = 'shrink.frame')
+                        if (Ndist == 'fixed') {
+                            args$verbose <- details$verbose
+                        }
+                        pts <- do.call(spatstat.random::rLGCP, args)
                     }
                     else if (model2D == 'rThomas') {
                         # kappa for rThomas is D/mu
                         kappa <- D/1e4/details$mu   # parent mean density / m^2
-                        pts <- spatstat.random::rThomas(
+                        args <- list(
                             kappa       = kappa,
                             scale       = details$scale,
                             mu          = details$mu,
+                            n.cond      = n.cond,
                             win         = ow,
                             nonempty    = FALSE,         # include parents with no offspring
                             saveparents = TRUE,
                             saveLambda  = details$saveLambda,
                             eps         = details$eps,       # spacing of Lambda mask
-                            rule.eps    = 'shrink.frame')    # 2023-11-07
+                            rule.eps    = 'shrink.frame')
+                        if (Ndist == 'fixed') args$verbose <- details$verbose
+                        pts <- do.call(spatstat.random::rThomas, args)
+                    }
+                    # check valid pts...
+                    if (Ndist == 'fixed' && (is.null(pts$n) || pts$n != n.cond)) {
+                        stop("conditional ", model2D, " failed to deliver ", n.cond, " points")  
                     }
                     animals <- spatstat.geom::coords(pts)
                     animals <- as.data.frame(animals)
