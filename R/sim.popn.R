@@ -885,7 +885,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                     # conditional option available from spatstat.random v3.3-3.006
                     if (Ndist == "fixed") {
                         if (is.null(details$verbose)) details$verbose <- FALSE
-                        n.cond <- discreteN(1, area(ow)/10000 * D )
+                        n.cond <- discreteN(1, spatstat.geom::area(ow)/10000 * D )
                     }
                     else {
                         details$verbose <- NULL
