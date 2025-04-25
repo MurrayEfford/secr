@@ -896,6 +896,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                         # D, var, scale
                         # mu for rLGCP is derived from D, var
                         mu <- log(D/1e4) - details$var/2    # mean density / m^2 on log scale
+                        argstr <- paste (" var = ", details$var, " and scale = ", details$scale)
                         args <- list(
                                 model      = "exp",
                                 mu         = mu,
@@ -914,6 +915,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                     else if (model2D == 'rThomas') {
                         # kappa for rThomas is D/mu
                         kappa <- D/1e4/details$mu   # parent mean density / m^2
+                        argstr <- paste (" scale = ", details$scale, " and mu = ", details$mu)
                         args <- list(
                             kappa       = kappa,
                             scale       = details$scale,
@@ -930,7 +932,8 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                     }
                     # check valid pts...
                     if (Ndist == 'fixed' && (is.null(pts$n) || pts$n != n.cond)) {
-                        stop("conditional ", model2D, " failed to deliver ", n.cond, " points")  
+                        stop("conditional ", model2D, " failed to deliver ", 
+                             n.cond, " points with ", argstr)  
                     }
                     animals <- spatstat.geom::coords(pts)
                     animals <- as.data.frame(animals)
