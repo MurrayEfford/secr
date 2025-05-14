@@ -186,7 +186,7 @@ sim.capthist <- function (
                 }
             }
             
-            if (availability != 'complete') {
+            if (availability != 'complete' && nrow(temppop) > 0) {
                 ##-------------------------------------------------------------
                 ## update availability in preparation for next session
                 if (availability == 'random') {
@@ -197,10 +197,9 @@ sim.capthist <- function (
                     available <- runif(nrow(temppop)) < p.vect
                 }
                 #--------------------------------------------------------------
+                temppop <- subset(temppop, available)
             }
 
-            temppop <- subset(temppop, available)
-            
             ## select session-specific traps if necessary
             trps <- if (ms(traps)) traps[[t]] else traps
 
@@ -461,6 +460,7 @@ sim.capthist <- function (
         ##-----------------------------------------------------------------
         
         N <- nrow(popn)
+        
         animals <- as.matrix(popn)
         K <- ndetector(traps)
         dettype <- detectorcode(traps, noccasions = noccasions)
