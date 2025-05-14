@@ -99,7 +99,10 @@ cell-specific densities (animals / hectare),
 \item a constant. 
 }
 
-If a function, \code{D} should take two arguments, a habitat mask and a list of parameter values ('core' and 'details' are passed internally as these arguments).
+If a function, \code{D} should take two arguments, a habitat mask and a list of 
+parameter values ('core' and 'details' are passed internally as these arguments). 
+A function may be given by name (i.e. as a character value); this is required 
+when nsessions>1.
 
 The number
 of individuals in each cell is either (i) Poisson-distributed with mean
