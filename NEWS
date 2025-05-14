@@ -1,12 +1,18 @@
-Changes in version 5.2.2 (2025-04-24)
+Changes in version 5.2.2 (2025-05-14)
 
 New features or changed behaviour of old functions
     o  sim.popn() can now simulate fixed population size (Ndist = 'fixed') 
        with model 'rLGCP' and 'rThomas' using the conditional algorithms in 
        spatstat.random v3.3.3.6. 
 
+Bugs fixed
+    o  sim.capthist() with multi-session popn input failed when the first 
+       popn had zero rows
+
 Other
     o  test using suggested package 'spsurvey' now conditional
+    o  sim.popn() allows a function used to specify density (argument D) to 
+       be given by name (i.e. as a character value).
 
 Changes in version 5.2.1 (2025-03-18)
 
