@@ -270,10 +270,6 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
         warning ('Ndist is coerced to fixed when model2D even')
         Ndist <- 'fixed'
     }
-    # if (model2D %in% c("rThomas") && Ndist == 'fixed') {
-    #     warning ('Ndist is coerced to "poisson" when model2D rThomas')
-    #     Ndist <- 'poisson'
-    # }
     .local <- new.env()
     .local$lastnumber <- number.from-1
     if (nsessions > 1) {
@@ -639,6 +635,9 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
             cellsize <- attr(core, "area")
             
             ## 2022-11-24 function D
+            if (is.character(D)) {
+                D <- get(D)
+            }
             if (is.function(D)) {
                 D <- D(mask = core, parm = details)
                 covariates(core)$D <- D 
