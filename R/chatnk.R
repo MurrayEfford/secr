@@ -3,6 +3,7 @@
 ## chatnk.R
 ## 2022-11-18, 29
 ## 2023-04-26 to 2023-05-13
+## 2025-05-20 adjustVarD moved to separate file
 ###############################################################################
 
 chat.nk.sess <- function(object, D, capthist, mask, detpar, nsim, 
@@ -56,8 +57,8 @@ chat.nk.sess <- function(object, D, capthist, mask, detpar, nsim,
             clust <- parallel::makeCluster(ncores, type = clustertype)
             if (clustertype == "PSOCK") {
                 clusterExport(clust, c("sim.popn", "sim.capthist",
-                    "onesimnk", "D", "mask", "traps", "detectfn", 
-                    "detpar", "noccasions", "binomN"
+                                       "onesimnk", "D", "mask", "traps", "detectfn", 
+                                       "detpar", "noccasions", "binomN"
                 ), environment())
             }
             parallel::clusterSetRNGStream(clust, seed)
@@ -91,6 +92,8 @@ chat.nk <- function(object, nsim = NULL, ...) {
     if (!all(det %in% c('multi','proximity','count'))) {
         stop("chat.nk available only for multi, proximity and count detectors")
     }
+    warning ("chat.nk was shown by Efford and Fletcher (2025) to be an inadequate",
+             " variance inflation factor. Consider using chat.nj")
     
     if (ms(object)) {
         if (object$CL) {
@@ -108,12 +111,12 @@ chat.nk <- function(object, nsim = NULL, ...) {
         }
         detparlist <- lapply(predict(object), getdet)
         mapply(chat.nk.sess, 
-            D = Dlist, 
-            capthist = object$capthist,   # 2023-04-23 previously object$capthist[[1]] 
-            mask = object$mask, 
-            detpar = detparlist, 
-            MoreArgs = list(object = object, nsim = nsim, ...), 
-            SIMPLIFY = FALSE)
+               D = Dlist, 
+               capthist = object$capthist,   # 2023-04-23 previously object$capthist[[1]] 
+               mask = object$mask, 
+               detpar = detparlist, 
+               MoreArgs = list(object = object, nsim = nsim, ...), 
+               SIMPLIFY = FALSE)
         
     }
     else {
@@ -153,56 +156,4 @@ chat.nk <- function(object, nsim = NULL, ...) {
         chat.nk.sess (object, D, capthist, mask, detpar, nsim = nsim, ...)
         
     }
-}
-
-# 2022-11-20
-# experimental adjustment of SE and CL
-# apply to density linear predictor (on link scale)
-# include in predict.secr?
-
-adjustVarD <- function(object, chatmin = 1.0, alpha = 0.05, chat = NULL) {
-    adjustonesession <- function (pred, chat, chatmin = 1.0, alpha = 0.05) {
-        link <- pred['D', 'link']
-        if (is.null(link)) link <- 'log'
-        D    <- pred['D', 'estimate']
-        seD  <- pred['D', 'SE.estimate']
-        selinkD <- se.transform(D, seD, link) 
-        linkD   <- transform(D, link)
-        chat <- max(chatmin, chat)
-        z <- abs(qnorm(1-alpha/2))  
-        pred['D', c('lcl','ucl')] <- untransform(linkD + z*selinkD*c(-1,1)*chat^0.5, link)
-        pred['D', c('lcl','ucl')] <- untransform(linkD + z*selinkD*c(-1,1)*chat^0.5, link)
-        pred['D', 'SE.estimate']  <- se.untransform(linkD, selinkD*chat^0.5, link)
-        pred['D', 'c-hat'] <- chat
-        pred
-    }
-    if (!inherits(object, 'secr')) {
-        # expect dataframe input
-        pred <- list(object['D',])  
-        if (is.null(chat)) stop ("specify chat for data.frame input")
-    }
-    else {
-        if ('D' %in% names(object$model)) {
-            pred <- predict(object)
-        }
-        else {
-            pred <- derived(object, se.esa = FALSE, se.D = TRUE)
-        }
-        
-        # chat should be vector with one element per session
-        if (is.null(chat)) {
-            chat <- unlist(chat.nk(object, verbose = FALSE, type = 'Fletcher')) 
-        }
-        # pred should be list with one component per session
-        if (ms(object)) {
-            pred <- lapply(pred, '[', 'D',)
-        }
-        else {
-            pred <- list(pred['D',])
-        }
-    }
-    # if (length(pred) != length(chat)) stop ("mismatch of chat vector and predicted values")
-    do.call(rbind, mapply(adjustonesession, pred, chat, 
-        MoreArgs = list(chatmin = chatmin, alpha = alpha),
-        SIMPLIFY = FALSE))
 }
