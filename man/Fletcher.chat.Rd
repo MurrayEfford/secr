@@ -32,7 +32,17 @@ Fletcher.chat (observed, expected, np, verbose = TRUE,
 
 \code{Fletcher.chat} applies the overdispersion formula of Fletcher (2012) or computes 
 the conventional (Wedderburn 1974) variance inflation factor \eqn{X^2/df}. 
-It is used by \code{\link{chat.nk}} and \code{\link{adjustVarD}}. 
+It is used by \code{\link{chat.nj}}. 
+
+A conventional variance inflation factor due to Wedderburn (1974) is
+\eqn{\hat c_X = X^2/(K-p)} where \eqn{K} is the number of detectors,  \eqn{p} is 
+the number of estimated parameters, and 
+\deqn{X^2 = \sum_k (n_k - E (n_k))^2/  E(n_k).} 
+
+Fletcher's \eqn{\hat c} is an improvement on \eqn{\hat c_X} that is less affected 
+by small expected counts. It is defined by
+\deqn{\hat c = c_X / (1+ \bar s),} 
+where \eqn{\bar s = \sum_k s_k / K} and \eqn{s_k = (n_k - E(n_k)) / E(n_k)}.
 
 The inputs `observed' and `expected' are vectors of counts (e.g., number of 
 distinct individuals per detector); `observed' may also be a list of such vectors, 
@@ -59,7 +69,7 @@ For \code{verbose = FALSE}, a single estimate of \eqn{\hat c} is returned when
 
 \seealso{
 
-\code{\link{chat.nk}},
+\code{\link{chat.nj}},
 \code{\link{adjustVarD}}
 
 }

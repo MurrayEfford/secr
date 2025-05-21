@@ -56,7 +56,7 @@ points, 1 = terminal vertices only, 2 = all vertices).
 From 4.4.0, polygon detectors are shaded with detpar$col and outlined (border) with detpar$fg. Use detpar$col = NA for no shading (transparent polygons).
 
 \code{labelclusters} requires \code{x} to have attributes `clusterID' and
-`clustertrap'.
+`clustertrap'. The label is placed near the first detector in each cluster.
 
 A boundary polygon is plotted in black if \code{frame} is not NULL.
 

@@ -42,7 +42,8 @@ clustertrap(object) <- value
   must match exactly the number of detectors in \code{object}.
 
   `clusterID' and `clustertrap' are assigned automatically by
-  \code{\link{trap.builder}}.
+  \code{\link{trap.builder}}. They may also be assigned to the traps object 
+  post hoc.
 
 }
 
