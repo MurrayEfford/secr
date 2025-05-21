@@ -1,4 +1,4 @@
-Changes in version 5.2.2 (2025-05-21)
+Changes in version 5.2.2 (2025-05-22)
 
 New features or changed behaviour of old functions
     o  sim.popn() can now simulate fixed population size (Ndist = 'fixed') 
@@ -17,6 +17,7 @@ Other
     o  sim.popn() allows a function used to specify density (argument D) to 
        be given by name (i.e. as a character value).
     o  adjustVarD() chat does not default to chat.nk
+    o  derivedCluster(), derivedSession() esa, se.esa imputed when nj = 0
 
 Changes in version 5.2.1 (2025-03-18)
 

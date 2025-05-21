@@ -13,6 +13,7 @@
 ## 2018-12-17 derivedStratified moved to its own file
 ## 2018-12-20 derivednj and derivedSessions allow weighted option R2
 ## 2021-10-18 localvar suspended owing to changes in spsurvey package
+## 2025-05-22 derivedCluster(), derivedSession() protected against nj = 0
 
 ################################################################################
 
@@ -101,7 +102,6 @@ derivedCluster <- function (object, method = c('SRS', 'R2', 'R3','local',
 
     ## 2018-12-17 allow different cluster geometry
     ## assume single session 
-
     method <- match.arg(method)
     capthist <- object$capthist
     tr <- traps(capthist)
@@ -120,6 +120,11 @@ derivedCluster <- function (object, method = c('SRS', 'R2', 'R3','local',
     der <- derived(object, se.esa = TRUE, se.D = FALSE, bycluster = TRUE)    
     der <- do.call(rbind, der)
     der <- der[grepl('esa', rownames(der)), 1:2]
+    
+    if (any(nj==0)) {
+        warning("esa imputed for nj = 0")
+        der[nj==0,] <- rep(apply(der,2,mean, na.rm=TRUE), each = sum(nj==0))
+    }
     
     # pass nj, esa, se.esa vectors to generic function
     # esa-hat are almost certainly non-independent
@@ -192,17 +197,19 @@ derivedSession <- function ( object, method = c('SRS','R2', 'R3','local','poisso
     if (('session' %in% object$vars) | ('Session' %in% object$vars) |
         (!is.null(object$sessioncov)))
         stop ("derivedSession assumes detection model constant over sessions")
+    nj <- sapply(object$capthist, nrow)    ## animals per session
     der <-  derived(object, se.esa = TRUE, se.D = FALSE)
     der <- do.call(rbind, der)
     der <- der[grepl('esa', rownames(der)),1:2]
-    nj <- sapply(object$capthist, nrow)    ## animals per session
+    if (any(nj==0)) {
+        warning("esa imputed for nj = 0")
+        der[nj==0,] <- rep(apply(der,2,mean, na.rm=TRUE), each = sum(nj==0))
+    }
     if (is.null(area)) 
         area <- sum(sapply(object$mask, masksize))  ## assumes non-overlap
     derivednj(nj, der[,'estimate'], der[,'SE.estimate'], 
         method, xy, alpha, loginterval, area, independent.esa)
 }
-############################################################################
-
 ############################################################################
 
 derivednj <- function ( nj, esa, se.esa = NULL, 
