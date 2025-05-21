@@ -2,6 +2,7 @@
 ## package 'secr'
 ## pxi.R
 ## 2025-01-01 fork from fxi.R
+## 2025-05-17 addCovariates from mask if needed
 ###############################################################################
 
 sharedData <- function (object, i, sessnum, X, ncores, naive = FALSE) {
@@ -25,9 +26,14 @@ sharedData <- function (object, i, sessnum, X, ncores, naive = FALSE) {
         X <- data$mask
     }
     else {
-        X <- as.data.frame(matrix(unlist(X), ncol = 2))
-        names(X) <- c('x','y')
-        X <- read.mask(data = X)
+        if (!inherits(X, 'mask')) {
+            X <- as.data.frame(matrix(unlist(X), ncol = 2))
+            names(X) <- c('x','y')
+            X <- read.mask(data = X)
+            if (!is.null(covariates(data$mask))) {
+                X <- addCovariates(X, data$mask)
+            }
+        }
         data$mask <- X
         data$m <- nrow(X)
     }
@@ -98,7 +104,6 @@ sharedData <- function (object, i, sessnum, X, ncores, naive = FALSE) {
     #             levels(data$grp[[1]]), sessionlevels, parameter = 'noneuc')
     # 
     NE <- NULL
-    
     #---------------------------------------------------
     ## allow for scaling of detection
     Dtemp <- if (D.modelled) mean(D) else NA
