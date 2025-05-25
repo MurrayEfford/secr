@@ -23,6 +23,9 @@ Empirical Variance of H-T Density Estimate
   Horvitz-Thompson-like estimates, but it assumes a Poisson or binomial
   distribution of total number when computing the sampling variance.
 
+  An alternative and probably more general solution is got by 
+  combining \code{\link{chat.nj}} and \code{\link{adjustVarD}}.
+  
 }
 
 \usage{
@@ -174,7 +177,12 @@ Thompson, S. K. (2002) \emph{Sampling}. 2nd edition. Wiley, New York.
 }
 
 \seealso{
-\code{\link{derived}}, \code{\link{esa}} 
+
+\code{\link{derived}}, 
+\code{\link{esa}},
+\code{\link{chat.nj}},
+\code{\link{adjustVarD}}
+
 }
 
 \note{
