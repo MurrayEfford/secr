@@ -109,6 +109,8 @@ or \eqn{1 / R(s)}{1 / R(s)} as determined by \code{scale}.
 
 \examples{
 
+\donttest{
+
 ## create binary covariate (0 outside habitat)
 msk <- make.mask(traps(possumCH), buffer = 800)
 covariates(msk) <- data.frame(z = as.numeric(pointsInPolygon
@@ -121,6 +123,8 @@ lines(possumarea)
 
 if (interactive()) {
     spotHeight(Rs, dec = 2)
+}
+
 }
 
 }
