@@ -331,9 +331,9 @@ plot(attr(pop, 'mask'), cov = 'D', dots = FALSE)
 plot(pop, add = TRUE)
 
 ## rLGCP demonstration
-## - assumes spatstat and RandomFields have been installed
+## - assumes spatstat has been installed
 
-if (requireNamespace("spatstat") && requireNamespace("RandomFields")) {
+if (requireNamespace("spatstat")) {
     msk <- make.mask(traps(captdata))
     # details argument 'spacing' ensures core matches Lambda below
     pop <- sim.popn(D = 20, core = msk, buffer = 0, 
