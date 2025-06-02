@@ -634,10 +634,12 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
             }
             cellsize <- attr(core, "area")
             
-            ## 2022-11-24 function D
+            ## 2025-06-03 modified
             if (is.character(D)) {
-                D <- get(D)
+                Dtry <- try(get(D), silent = TRUE)
+                if (!inherits(Dtry, 'try-error')) D <- Dtry
             }
+            ## 2022-11-24 function D
             if (is.function(D)) {
                 D <- D(mask = core, parm = details)
                 covariates(core)$D <- D 
