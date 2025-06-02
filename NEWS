@@ -1,9 +1,9 @@
-Changes in version 5.2.2 (2025-05-22)
+Changes in version 5.2.2 (2025-06-02)
 
 New features or changed behaviour of old functions
     o  sim.popn() can now simulate fixed population size (Ndist = 'fixed') 
        with model 'rLGCP' and 'rThomas' using the conditional algorithms in 
-       spatstat.random v3.3.3.11. 
+       spatstat 3.3-3. 
     o  chat.nj() computes a variance inflation factor for a density model 
        fitted to replicate spatial samples
 
