@@ -77,7 +77,7 @@ Gleeson, D. M., Byrom, A. E. and Howitt, R. L. J. (2010) Non-invasive
 methods for genotyping of stoats (\emph{Mustela erminea}) in New
 Zealand: potential for field applications. \emph{New Zealand Journal of
 Ecology} \bold{34}, 356--359. Available on-line at
-\url{https://newzealandecology.org/nzje/2936/}.
+\url{https://newzealandecology.org/nzje/2936}.
 
 }
 
