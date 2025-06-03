@@ -1,7 +1,10 @@
-Changes in version 5.2.3 (2025-06-02)
+Changes in version 5.2.3 (2025-06-03)
 
 New features or changed behaviour of old functions
     o  none
+
+Bugs fixed
+    o  sim.popn() sometimes failed if D was a character value
 
 Changes in version 5.2.2 (2025-06-02)
 
