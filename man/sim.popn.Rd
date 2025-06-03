@@ -324,11 +324,15 @@ plot(traps(possumCH), add = TRUE)
 # a new habitat map each time sim.popn is called. The `details' argument
 # of sim.popn is passed to randomDensity as the `parm' argument.
 
+if (requireNamespace("igraph")) {
+
 tempmask <- make.mask(nx = 100, ny = 100, spacing = 20)
 pop <- sim.popn(D = randomDensity, core = tempmask, model2D = "IHP",
     details = list(D = 10, p = 0.4, A = 0.5))
 plot(attr(pop, 'mask'), cov = 'D', dots = FALSE)
 plot(pop, add = TRUE)
+
+}
 
 ## rLGCP demonstration
 ## - assumes spatstat has been installed
