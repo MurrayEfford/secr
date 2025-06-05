@@ -152,9 +152,8 @@ derived.secr <- function (object, sessnum = NULL, groups=NULL, alpha=0.05, se.es
                 row.names = c('esa','D'),
                 estimate = derivedmean + c(0,NT/A),  ## NT in 'telemetry' below
                 SE.estimate = derivedSE)
-            
             temp <- add.cl(temp, alpha, loginterval)
-            if (temp$estimate[2] > 0) {
+            if (!is.na(temp$estimate[2]) && temp$estimate[2] > 0) {
                 temp <- add.cl(temp, alpha, loginterval)
                 temp$CVn <- varcomp1^0.5 / temp$estimate
                 temp$CVa <- varcomp2^0.5 / temp$estimate
