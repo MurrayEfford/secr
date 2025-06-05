@@ -111,7 +111,8 @@ general learned trap response. For `single' and `multi' detector types
 the probability of detection changes by this factor for all occasions
 after the occasion of first capture. Attempted use with other detector
 types causes an error. If recapfactor x g(d) > 1.0, g(d) is truncated at
-1.0. Other types of response (site-specific bk, Markovian B) are not
+1.0. A site-specific response (bk) is indicated by setting 
+detectpar$bk = TRUE. Other types of response (e.g. Markovian B) are not
 allowed.
 
 If \code{popn} is specified by an object of class `popn' then any
