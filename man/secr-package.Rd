@@ -19,8 +19,8 @@
 \tabular{ll}{
 Package: \tab secr\cr
 Type: \tab Package\cr
-Version: \tab 5.2.4\cr
-Date: \tab 2025-06-03\cr
+Version: \tab 5.2.5\cr
+Date: \tab 2025-06-16\cr
 License: \tab GNU General Public License Version 2 or later\cr
 }
 
@@ -41,39 +41,27 @@ nonhabitat with an object of class `mask'.
 
 Models are fitted in \pkg{secr} by maximizing either the full likelihood
 or the likelihood conditional on the number of individuals observed
-(\eqn{n}). Conditional likelihood models are limited to homogeneous
-Poisson density, but allow continuous individual covariates for
+(\eqn{n}). Conditional likelihood models allow continuous individual covariates for
 detection. A model fitted with \code{\link{secr.fit}} is an object
 of class \code{secr}. Generic methods (plot, print, summary, etc.) are
 provided for each object class.
 
-A link at the bottom of each help page takes you to the
-help index. Several vignettes complement the help pages:
+A link at the bottom of each help page takes you to the help index. 
+Some vignettes complement the help pages:
 
 \tabular{ll}{
-General interest \tab \cr
   \href{https://www.otago.ac.nz/density/pdfs/secr-overview.pdf}{secr-overview.pdf} \tab general introduction \cr
   \href{https://www.otago.ac.nz/density/pdfs/secr-datainput.pdf}{secr-datainput.pdf} \tab data formats and input functions \cr
   \href{https://www.otago.ac.nz/density/pdfs/secr-version4.pdf}{secr-version4.pdf} \tab changes in secr 4.0 \cr
   \href{https://www.otago.ac.nz/density/pdfs/secr-manual.pdf}{secr-manual.pdf} \tab consolidated help pages \cr
-  \href{https://www.otago.ac.nz/density/pdfs/secr-tutorial.pdf}{secr-tutorial.pdf} \tab introductory tutorial \cr
-  \href{https://www.otago.ac.nz/density/pdfs/secr-habitatmasks.pdf}{secr-habitatmasks.pdf} \tab buffers and habitat masks \cr
-  \href{https://www.otago.ac.nz/density/pdfs/secr-spatialdata.pdf}{secr-spatialdata.pdf} \tab using spatial data \cr   
-  \href{https://www.otago.ac.nz/density/pdfs/secr-models.pdf}{secr-models.pdf} \tab linear models in \pkg{secr} \cr
-  \href{https://www.otago.ac.nz/density/pdfs/secr-troubleshooting.pdf}{secr-troubleshooting.pdf}  \tab problems with secr.fit, including speed issues \cr
-\cr
-\cr
-More specialised topics \tab \cr
-  \href{https://www.otago.ac.nz/density/pdfs/secr-densitysurfaces.pdf}{secr-densitysurfaces.pdf} \tab modelling density surfaces \cr
-  \href{https://www.otago.ac.nz/density/pdfs/secr-finitemixtures.pdf}{secr-finitemixtures.pdf} \tab mixture models for individual heterogeneity \cr
-  \href{https://www.otago.ac.nz/density/pdfs/secr-markresight.pdf}{secr-markresight.pdf} \tab mark-resight data and models \cr
-    \href{https://www.otago.ac.nz/density/pdfs/secr-multisession.pdf}{secr-multisession.pdf} \tab multi-session capthist objects and models \cr
-  \href{https://www.otago.ac.nz/density/pdfs/secr-noneuclidean.pdf}{secr-noneuclidean.pdf} \tab non-Euclidean distances \cr
-  \href{https://www.otago.ac.nz/density/pdfs/secr-parameterisations.pdf}{secr-parameterisations.pdf} \tab alternative parameterisations sigmak, a0 \cr
-  \href{https://www.otago.ac.nz/density/pdfs/secr-polygondetectors.pdf}{secr-polygondetectors.pdf} \tab using polygon and transect detector types \cr
   \href{https://www.otago.ac.nz/density/pdfs/secr-sound.pdf}{secr-sound.pdf} \tab analysing data from microphone arrays\cr
-  \href{https://www.otago.ac.nz/density/pdfs/secr-varyingeffort.pdf}{secr-varyingeffort.pdf} \tab variable effort in SECR models\cr
 }
+
+This reference includes material previously covered in separate vignettes:
+
+Efford, M. G. (2025) The SECR book. A handbook of spatially explicit 
+capture–recapture methods. Version 1.0. \url{https://murrayefford.github.io/SECRbook/} and 
+Zenodo \url{https://doi.org/10.5281/zenodo.15109937}.
 
 The datasets \code{\link{captdata}} and \code{\link{ovenbird}} include examples of fitted
 models. For models fitted to other datasets see \href{https://www.otago.ac.nz/density/pdfs/secr-version4.pdf}{secr-version4.pdf} Appendix 2.
