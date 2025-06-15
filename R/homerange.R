@@ -582,6 +582,96 @@ centroids <- function (capthist) {
 }
 ############################################################################################
 
+## 2025-06-16
+
+t2r2 <- function (capthist)
+{
+    individualdetectors <- c('single','multi','proximity','count',
+                             'polygonX', 'transectX', 'signal', 'signalnoise', 'polygon', 'transect',
+                             'telemetry', 'capped')
+    polydetectors <- c('polygon','transect','polygonX','transectX')
+    getID <- function (det, capthist) {
+        if (all(det %in% polydetectors)) {
+            ID <- animalID(capthist, names = TRUE, sortorder = "ksn")
+        }
+        else {
+            ID <- animalID(capthist, names = TRUE, sortorder = "snk")
+        }
+        factor(ID, levels = rownames(capthist))
+    }
+    
+    if (inherits (capthist, 'list')) {
+        lapply(capthist, t2r2)   ## recursive
+    }
+    else {
+        squares <- function(x,y,n) {
+            ssx <- sum(x^2) - (sum(x))^2/n
+            ssy <- sum(y^2) - (sum(y))^2/n
+            ssdx <- sum(diff(x)^2)
+            ssdy <- sum(diff(y)^2)
+            c(n = n-1, ssx = ssx, ssy = ssy, ssdx = ssdx, ssdy = ssdy)
+        }        
+        t2r2x <- function (cx) {
+            cx <- abs(cx)  # no special trt for deads
+            x <- traps$x[cx]
+            y <- traps$y[cx]
+            n <- length(x)
+            squares(x,y,n)
+        }
+        t2r2xy <- function (xy) {
+            x <- xy[,1]
+            y <- xy[,2]
+            n <- length(x)
+            squares(x,y,n)
+        }
+        if (nrow(capthist) < 1) return(NA)
+        traps <- traps(capthist)
+        det <- secr:::expanddet(capthist)
+        if (!all(det %in% individualdetectors))
+            stop ("require individual detector type for t2r2")
+        IDfactor <- getID(det, capthist)
+        
+        if (all(det %in% 'telemetry')) {
+            lxy <- telemetryxy(capthist)
+            if (is.null(lxy))
+                temp <- NA
+            else {
+                temp <- lapply (lxy, t2r2xy)
+            }
+        }
+        else if (all(det %in% polydetectors)) {
+            if (is.null(xy(capthist)))
+                temp <- NA
+            else {
+                lxy <- split ( xy(capthist), IDfactor)
+                temp <- lapply (lxy, t2r2xy)
+            }
+        }
+        else {
+            if (any(det %in% 'telemetry')) {
+                capthist <- subset(capthist, 
+                                   occasions = det != 'telemetry', 
+                                   traps = 1:(nrow(traps(capthist)-1)))
+                IDfactor <- factor(animalID(capthist, names = TRUE), 
+                                   levels = rownames(capthist))
+            }
+            w <- split(trap(capthist, names = FALSE), IDfactor)
+            temp <- lapply(w,t2r2x)
+        }
+        temp <- matrix(unlist(temp), nrow = 5)
+        temp <- apply(temp,1,sum, na.rm=T)
+        if (any(is.na(temp) | temp<0)) {
+            temp <- NA   ## protected 2021-03-31
+        }
+        else {
+            temp <- sum(temp[4:5])/sum(temp[2:3])
+        }
+        attr(temp,'names') <- NULL
+        temp
+    }
+}
+############################################################################################
+
 ## 2017-02-06 not exported
 RPSVxy <- function (xy, CC = F) {
     x <- xy[,1]

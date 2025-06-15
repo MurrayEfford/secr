@@ -6,6 +6,7 @@
 \alias{moves}
 \alias{centroids}
 \alias{ORL}
+\alias{t2r2}
 \alias{trapsPerAnimal}
 
 \title{ Home Range Statistics }
@@ -38,6 +39,9 @@ pooled over individuals (cf Calhoun and Casby 1958, Slade and Swihart 1983).
 \code{ORL} reports the observed range length of each animal, the maximum 
 distance between any two detections.
 
+\code{t2r2} computes Schoener's measure of serial correlation 
+(Swihart and Slade 1985, 1987).
+
 \code{trapsPerAnimal} tabulates the number of animals recorded at 1, 2, ..., K detectors
 
 }
@@ -49,6 +53,7 @@ ARL(capthist, min.recapt = 1, plt = FALSE, full = FALSE, userdist = NULL, mask =
 moves(capthist, userdist = NULL, mask = NULL, names = FALSE)
 RPSV(capthist, CC = FALSE)
 ORL(capthist, userdist = NULL, mask = NULL)
+t2r2(capthist)
 centroids(capthist)
 trapsPerAnimal(capthist)
 }
@@ -170,6 +175,12 @@ Otis, D. L., Burnham, K. P., White, G. C. and Anderson, D. R. (1978)
 Slade, N. A. and Swihart, R. K. (1983) Home range indices for the hispid
 cotton rat (\emph{Sigmodon hispidus}) in Northeastern Kansas. \emph{Journal of
 Mammalogy} \bold{64}, 580--590.
+
+Swihart, R. K. and Slade, N. A. (1985) Testing for independence of 
+observations in animal movements. \emph{Ecology} \bold{66}, 1176--1184.
+
+Swihart, R. K. and Slade, N. A. (1987) A test for independence of movements as 
+shown by live trapping. \emph{American Midland Naturalist} \bold{117}, 204--207.
 
 }
 
