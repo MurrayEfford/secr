@@ -1,15 +1,12 @@
-Changes in version 5.2.4 (2025-06-03)
+Changes in version 5.2.5 (2025-06-16)
 
 New features or changed behaviour of old functions
     o  none
 
-Bugs fixed
-    o  sim.popn() sometimes failed if D was a character value
-
 Other
-    o  remove problematic url for NZ J Ecology paper
+    o  update secr-package.Rd
 
-Changes in version 5.2.2 (2025-06-02)
+Changes in version 5.2.4 (2025-06-03)
 
 New features or changed behaviour of old functions
     o  sim.popn() can now simulate fixed population size (Ndist = 'fixed') 
@@ -22,6 +19,7 @@ Bugs fixed
     o  sim.capthist() with multi-session popn input failed when the first 
        popn had zero rows
     o  derivedDsurface() had trouble with mask covariates
+    o  sim.popn() sometimes failed if D was a character value
 
 Other
     o  test using suggested package 'spsurvey' now conditional
@@ -29,6 +27,7 @@ Other
        be given by name (i.e. as a character value).
     o  adjustVarD() chat does not default to chat.nk
     o  derivedCluster(), derivedSession() esa, se.esa imputed when nj = 0
+    o  remove problematic url for NZ J Ecology paper
 
 Changes in version 5.2.1 (2025-03-18)
 

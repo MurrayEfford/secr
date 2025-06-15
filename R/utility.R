@@ -46,8 +46,8 @@
 
 .localstuff <- new.env()
 
-# .localstuff$packageType <- ' pre-release'
-.localstuff$packageType <- ''
+.localstuff$packageType <- ' pre-release'
+##.localstuff$packageType <- ''
 
 .localstuff$validdetectors <- c('single','multi','proximity','count', 
     'polygonX', 'transectX', 'signal', 'polygon', 'transect', 
