@@ -235,6 +235,16 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
         details$chat <- rep(details$chat,3)[1:3]  ## duplicate scalar
     
     #################################################
+    # 2025-06-17 experimental 
+    # passing temporal and spatial scale of behavioural response
+    if (!is.null(details$window)) {  
+        .localstuff$window <- details$window  
+    }
+    if (!is.null(details$neighbourhood)) { 
+        .localstuff$neighbourhood <- details$neighbourhood  
+    }
+    
+    #################################################
     ## MS - indicator TRUE if multi-session (logical)
 
     ## sessionlevels - names of sessions (character)

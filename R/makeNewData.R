@@ -25,7 +25,7 @@ makeNewData.default <- function (object, all.levels = FALSE, ...) {
 makeNewData.secr <- function (object, all.levels = FALSE, bytrap = FALSE, ...) {
     # Session treated separately later
     autovars <- c('g','x','y','x2','y2','xy','session',
-                  't','T','ts','b','B','bk','Bk','bkc','Bkc','k','K','tcov','kcov','h2','h3')
+                  't','T','ts','b','B','bk','Bk','Br','bkc','Bkc','k','K','tcov','kcov','h2','h3')
     capthist <- object$capthist
     trps <- traps(capthist)
     mask <- object$mask
@@ -104,6 +104,7 @@ makeNewData.secr <- function (object, all.levels = FALSE, bytrap = FALSE, ...) {
             if (v=='B')  basevars$B <- factor(0:1)
             if (v=='bk') basevars$bk <- factor(0:1)
             if (v=='Bk') basevars$Bk <- factor(0:1) 
+            if (v=='Br') basevars$Br <- 0:1
             if (v=='k')  basevars$k <- factor(0:1)
             if (v=='K')  basevars$K <- factor(0:1)
             NSOB <- c('None','Self','Other','Both')

@@ -37,6 +37,7 @@
 ## 2025-01-07 allzero bug fixed
 ## 2025-01-10 completeDbeta
 ## 2025-03-18 saveprogress()
+## 2025-06-17 filterw(), captinhood()
 ################################################################################
 
 # Global variables in namespace
@@ -90,7 +91,8 @@
   'BSS', 'SS', 'SSS', 'SN', 'SNS',
   'HHN', 'HHR', 'HEX', 'HAN', 'HCG', 'HVP')
 
-.localstuff$learnedresponses <- c('b', 'bk', 'B', 'k', 'Bk') ## Bk added 2020-02-26
+## Bk added 2020-02-26; Br added 2025-06-17
+.localstuff$learnedresponses <- c('b', 'bk', 'B', 'k', 'Bk', 'Br') 
 
 #-------------------------------------------------------------------------------
 
@@ -2133,3 +2135,57 @@ saveprogress <- function (beta, loglik, filename) {
     attr(.localstuff$savedinputs, 'log') <- rbind(attr(.localstuff$savedinputs, 'log'), log)
     saveRDS(.localstuff$savedinputs, file = filename)
 }
+#-------------------------------------------------------------------------------
+
+# captinhood and filterw are used for novel Br behavioural response 2025-06-18
+
+captinhood <- function (CH, maxd = NULL) {
+    oneisk  <- function (isk) {
+        # which detectors are in neighbourhood?
+        nhood <- adj[[isk[3]]]  
+        # did any detect animal i on occasions s?
+        out <- CH[cbind(isk[1], isk[2], nhood)]
+        # if (inherits(out, 'try-error')) browser() else
+        any(out>0)
+    }
+    if (ms(CH)) {
+        stop (" captinhood not ready for multi-session capthist")
+    }
+    else {
+        tr <- traps(CH)
+        dmat <- as.matrix(dist(tr))
+        if (is.null(maxd)) maxd <- 1.5 * spacing(tr)  # kings's move on square grid
+        dmat[dmat>maxd] <- 0
+        if (!requireNamespace("igraph", quietly = TRUE)) {
+            stop ("captinhood requires package igraph")
+        }
+        g <- igraph::graph_from_adjacency_matrix(dmat, weighted = TRUE, mode = "undirected")
+        adj <- igraph::adjacent_vertices(g, 1:nrow(tr))
+        # include focal detector in each list of adjacent indices
+        adj <- mapply(c, 1:nrow(tr), adj)
+        dimCH <- dim(CH)
+        linearIndices <- 1:length(CH)
+        # each row of isk has indices of one cell in CH
+        isk <- arrayInd(linearIndices, dimCH)
+        ch2 <- array(apply(isk,1,oneisk), dim = dimCH)
+        dimnames(ch2)[[1]] <- dimnames(CH)[[1]]
+        # artificially define as a capthist object for plotting
+        class(ch2) <- 'capthist'
+        traps(ch2) <- tr
+        ch2
+    }
+}
+#-------------------------------------------------------------------------------
+
+# exponentially weight past, with padding
+filterw <- function (x, w = 5, lambda = 0.6) {
+    if (lambda==1)
+        weights <- rep(1,w)
+    else
+        weights <- (1 - lambda) * lambda^(0:(w - 1))
+    weights <- weights / sum(weights)
+    xp <- c(rep(0,w), x)
+    filter(xp, filter = weights, sides = 1)[-(1:w)]
+}
+
+#-------------------------------------------------------------------------------

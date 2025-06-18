@@ -74,6 +74,7 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
     }
     ## --------------------------------------------------------------------
     ## process behavioural responses
+    # 2025-06-17 Br unclear
     Markov <- any(c('B','Bk','K') %in% object$vars)
     btype <- which (c("b", "bk", "k") %in% tolower(object$vars))
     if (length(btype) > 1)
