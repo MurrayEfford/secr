@@ -40,7 +40,8 @@ pooled over individuals (cf Calhoun and Casby 1958, Slade and Swihart 1983).
 distance between any two detections.
 
 \code{t2r2} computes Schoener's measure of serial correlation 
-(Swihart and Slade 1985, 1987).
+(Swihart and Slade 1985, 1987). The expected value of t2r2 for independent 
+detections is about 2.0.
 
 \code{trapsPerAnimal} tabulates the number of animals recorded at 1, 2, ..., K detectors
 
@@ -112,6 +113,21 @@ values for maximum likelihood estimation.
 \code{MMDM} and \code{ARL} discard data from detection histories
 containing fewer than \code{min.recapt}+1 detections.
 
+Schoener's measure (\code{t2r2}) is defined as \eqn{t^2/r^2} where
+\deqn{
+ t^2 = 
+    \frac {\sum\limits _{i=1}^{n} \sum\limits _{j=1}^{n_i - 1} [
+	    (x_{i,j} - x_{i,j+1})^2 + (y_{i,j} - y_{i,j+1})^2
+		]}{\sum\limits _{i=1}^{n} (n_i-1)}
+	  ,\;\; r^2 = \frac {\sum\limits _{i=1}^{n} \sum\limits _{j=1}^{n_i} [
+	    (x_{i,j} - \overline x_i)^2 + (y_{i,j} - \overline y_i)^2
+		]}{\sum\limits _{i=1}^{n} (n_i-1)},
+}
+
+where \eqn{(\bar x_i, \bar y_i)} is the arithmetic mean location of individual \eqn{i}.
+
+
+
 The \code{userdist} option is included for exotic non-Euclidean cases
 (see e.g. \code{secr.fit} \link{details}). RPSV is not defined for
 non-Euclidean distances.
@@ -121,7 +137,10 @@ then calculations are performed on the telemetry coordinates. If \code{capthist}
 combines telemetry data and conventional detections (`multi', `proximity' etc.) 
 then only the conventional data are summarised.
 
-Movements are reliably reported by \code{moves} only if there is a maximum of one detection per animal per occasion. The sequence of detections within any occasion is not known; where these occur the sequence used by \code{moves} is arbitrary (sequence follows detector index).
+Movements are reliably reported by \code{moves} only if there is a maximum of 
+one detection per animal per occasion. The sequence of detections within any 
+occasion is not known; where these occur the sequence used by \code{moves} is 
+arbitrary (sequence follows detector index).
 
 }
 

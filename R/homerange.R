@@ -9,6 +9,7 @@
 ## 2017-02-06 updated for telemetry (completing job started last month)
 ## 2020-08-31 ORL, centroids
 ## 2021-05-18 sortorder
+## 2025-06-16 t2r2
 ############################################################################################
 
 getID <- function (det, capthist) {
