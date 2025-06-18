@@ -1,9 +1,10 @@
 ###############################################################################
-## package 'secr' 4.5
+## package 'secr' 5.2
 ## secr.design.MS.R
 
 ## 2019-12-03 replaced bygroup with CL
 ## 2023-03-10 individualcovariates() moved from utility.R
+## 2025-06-17 tweaks to dframe output
 
 ################################################################################
 
@@ -227,7 +228,7 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
     dims <- c(R,n,S,K,nmix)    # 'virtual' dimensions
     dframenrow <- prod(dims)   # number of rows
     autovars <- c('session','Session','g','t','T', 'ts', 'tt',
-                  'b','bn','B','bk','bkn','Bk', 'k', 'K', 'bkc', 'Bkc',
+                  'b','bn','B','bk','bkn','Bk', 'Br', 'k', 'K', 'bkc', 'Bkc',
                   'kcov','tcov', 'h2', 'h3')
     #--------------------------------------------------------------------------
     # user-specified dframe
@@ -334,7 +335,7 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
 
     ## behavioural response fields
 
-    if (sum(c('b','bn','B','bk','bkn','Bk','bkc','Bkc', 'k', 'K') %in% vars) > 1)
+    if (sum(c('b','bn','B','bk','bkn','Bk', 'Br','bkc','Bkc', 'k', 'K') %in% vars) > 1)
     stop ("model should not use more than one type of behavioural response")
 
     ## assume sessions are same type
@@ -444,7 +445,7 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
             dframe$bk <- insertdim(as.vector(unlist(temp)), c(2,3,4,1), dims)
         }
     }
-
+    
     #------------------------------------------------
     if ('bkn' %in% vars) {
         if (naive) dframe$bkn <- rep(0, dframenrow)
@@ -472,6 +473,30 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
             dframe$Bk <- insertdim(as.vector(unlist(temp)), c(2,3,4,1), dims)
        }
     }
+    #------------------------------------------------
+    if ('Br' %in% vars) {
+        if (naive) dframe$Br <- rep(0, dframenrow)
+        else {
+            # see utility.R for captinhood
+            chr <- captinhood(capthist, maxd = .localstuff$neighbourhood)
+            if (!is.null(.localstuff$window)) {
+                w <- min(.localstuff$window, S-1)
+            }
+            else {
+                w <- S-1
+            }
+            prevcapt <- function(x) {
+                c(0, filterw(x[-S], w = w, lambda = 1))
+            }
+            if (MS) {
+                temp <- lapply(chr, makebk)
+                temp <- lapply(temp, padarray, c(n,S,K))
+            }
+            else temp <- makebk(chr)  # one session
+            dframe$Br <- insertdim(as.vector(unlist(temp)), c(2,3,4,1), dims)
+        }
+    }
+    
     #--------------------------------------------------------------------------
 
     if ('bkc' %in% vars) {
@@ -707,7 +732,7 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
     }
     
     #--------------------------------------------------------------------
-        individual <- individualcovariates(PIA)
+    individual <- individualcovariates(PIA)
     #--------------------------------------------------------------------
     if (keep.dframe) {
         ## 2013-03-11
@@ -720,7 +745,7 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
                 names(inddf) <- c('animal','occasion','detector','mixture')
                 ind <- as.matrix(inddf)
                 x <- x[as.vector(ia[ind]),]
-                x <- cbind(inddf, x)
+                x <- cbind(inddf, session = x)
                 row.names(x) <- 1:nrow(x)
                 x
             }
@@ -746,9 +771,8 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
             names(inddf) <- c('animal','occasion','detector','mixture')
             dframe <- cbind(inddf,dframe)
         }
-        ## 2014-08-22
-        ## dframe <- dframe[,c(5,1:4,6:ncol(dframe))]
-        dframe[,1:5] <- dframe[,c(5,1:4)]
+        ## 2025-06-17 session in first column
+        dframe <- cbind(dframe[,5], dframe[,-5])
         list(designMatrices = designMatrices, parameterTable = parameterTable, PIA = PIA, R = R,
              dframe = dframe, validdim = validdim, smoothsetup = smoothsetup,
              individual = individual)
