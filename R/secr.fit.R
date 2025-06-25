@@ -143,7 +143,7 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
         else if (allpresence)
             detectfn <- valid.detectfn(detectfn, 0:8)
         else  if (anypoly | anytrans)
-            detectfn <- valid.detectfn(detectfn, 14:20)  ## 2017-04-04, 2021-03-30
+            detectfn <- valid.detectfn(detectfn, 14:19)  ## 2017-04-04, 2021-03-30, 2025-06-25
         else
             detectfn <- valid.detectfn(detectfn)
     }

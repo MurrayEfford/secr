@@ -17,7 +17,7 @@ may also be used (as a quoted string).
 Choice of detection function is usually not critical, and the default
 `HN' is usually adequate.
 
-Functions (14)--(20) are parameterised in terms of the expected number
+Functions (14)--(19) are parameterised in terms of the expected number
 of detections \eqn{\lambda}, or cumulative hazard, rather than
 probability. `Exposure' (e.g. Royle and Gardner 2011) is another term
 for cumulative hazard. This parameterisation is natural for the `count'
@@ -108,6 +108,8 @@ exponential function.
 19 HVP \tab hazard variable power \tab lambda0, sigma, z \tab \eqn{ \lambda(d)
   = \lambda_0 \exp \{ -(^d/_\sigma)^{z} \} }{ \lambda(d) =
   \lambda0 exp(- (d / \sigma)^z) }; \eqn{g(d) = 1-\exp(-\lambda(d))}{g(d) = 1-exp(-\lambda(d))} \cr
+  
+20 OU \tab Ornstein-Uhlenbeck movement \tab epsilon, sigma, tau \tab See \code{\link{simOU}} \cr
  
 }
 
@@ -149,9 +151,12 @@ Functions (12) and (13) are undocumented methods for sound attenuation.
 Function (19) has been used in some published papers and is included for 
 comparison (see e.g. Ergon and Gardner 2014).
 
-Function (20) assigns positive probability of detection only to points within a 
-square pixel (cell) with side 2 sigma that is centred on the detector. 
-(Typically used with fixed sigma = detector spacing / 2).
+Function (20) defines a detection model based on a bivariate Ornstein-Uhlenbeck 
+movement model (mean-reverting random walk). Like the uniform (4), it is used 
+in \pkg{secr} only for simulation. The three parameters are epsilon (radius of a 
+detector within which detection occurs), sigma (asymptotic bivariate normal 
+scale, as in HHN) and tau (serial correlation parameter \eqn{\tau = 1/\beta}). 
+See \code{\link{simOU}}.
 
 }
 

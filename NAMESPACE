@@ -212,6 +212,9 @@ export (extractMoves)
 export (kfn)
 export (append.capthist)
 
+export (simOU)
+export (simOU.capthist)
+
 #---------------------------------------
 # new generics in secr
 export (reduce)

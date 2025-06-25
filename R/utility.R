@@ -38,6 +38,7 @@
 ## 2025-01-10 completeDbeta
 ## 2025-03-18 saveprogress()
 ## 2025-06-17 filterw(), captinhood()
+## 2025-06-25 detectfn 20 OU
 ################################################################################
 
 # Global variables in namespace
@@ -85,11 +86,11 @@
     'hazard annular normal',
     'hazard cumulative gamma',
     'hazard variable power',
-    'hazard pixelar')
+    'Ornstein-Uhlenbeck')
 
 .localstuff$DFN <- c('HN', 'HR', 'EX', 'CHN', 'UN', 'WEX', 'ANN', 'CLN', 'CG',
   'BSS', 'SS', 'SSS', 'SN', 'SNS',
-  'HHN', 'HHR', 'HEX', 'HAN', 'HCG', 'HVP')
+  'HHN', 'HHR', 'HEX', 'HAN', 'HCG', 'HVP', 'OU')
 
 ## Bk added 2020-02-26; Br added 2025-06-17
 .localstuff$learnedresponses <- c('b', 'bk', 'B', 'k', 'Bk', 'Br') 
@@ -135,7 +136,7 @@ parnames <- function (detectfn) {
         c('lambda0','sigma','w'),
         c('lambda0','sigma','z'),
         c('lambda0','sigma','z'),
-        c('lambda0')    ## 20
+        c('epsilon','sigma','tau')    ## 20   2025-06-25
     )
 }
 
@@ -143,7 +144,7 @@ parnames <- function (detectfn) {
 
 getdfn <- function (detectfn) {
     switch (detectfn+1, HN, HR, EX, CHN, UN, WEX, ANN, CLN, CG, BSS, SS, SSS,
-                       SN, SNS, HHN, HHR, HEX, HAN, HCG, HVP)
+                       SN, SNS, HHN, HHR, HEX, HAN, HCG, HVP, HHN)
 }
 
 #-------------------------------------------------------------------------------
@@ -228,7 +229,7 @@ valid.pnames <- function (details, CL, detectfn, alltelem, sighting, nmix) {
         c('lambda0','sigma','w'),  # 17
         c('lambda0','sigma','z'),  # 18
         c('lambda0','sigma','z'),  # 19
-        c('lambda0','sigma'))      # 20 hazard pixelar 2021-03-25    
+        c('epsilon','sigma','tau'))  # 20 OU 2025-06-25
 
     if (details$param %in% c(2,6))
         pnames[1] <- 'esa'
