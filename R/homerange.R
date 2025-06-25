@@ -627,7 +627,7 @@ t2r2 <- function (capthist)
         }
         if (nrow(capthist) < 1) return(NA)
         traps <- traps(capthist)
-        det <- secr:::expanddet(capthist)
+        det <- expanddet(capthist)
         if (!all(det %in% individualdetectors))
             stop ("require individual detector type for t2r2")
         IDfactor <- getID(det, capthist)
