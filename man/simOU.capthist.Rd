@@ -109,15 +109,21 @@ points(0,0, pch = 16, col = 'red')
 set.seed(123)
 grid <- make.grid(8, 8, spacing = 2)
 pop <- sim.popn(D = 1000, core = grid, buffer = 4)
-ch <- simOU.capthist(grid, pop, detectpar=list(tau = 50, sigma = 1, epsilon = 0.25), 
-   noccasions = 100, savepath = TRUE)
+ch <- simOU.capthist(grid, pop, detectpar=list(tau = 50, sigma = 1, 
+    epsilon = 0.25), noccasions = 100, savepath = TRUE)
 
-# plot simulated capthist with overlay of movements and AC
-plot(ch, rad = 0.1, tracks = TRUE, varycol = FALSE, border = 4)
+# plot simulated capthist (blue dots), movements (grey), and AC (triangles)
+plot(pop, pch = 2, cex = 1, border = 4)
+plot(ch, rad = 0.2, tracks = TRUE, varycol = FALSE, add = TRUE,
+    gridlines = FALSE)
+symbols(grid$x, grid$y, circles = rep(0.25,64), inches = FALSE, fg = 'red', 
+    add = TRUE)
 sapply(attr(ch, 'path'), lines, col = 'grey')
-plot(pop, add = TRUE, pch = 16, cex = 0.6)
 
-# fit a model
+# fit a misspecified HHN model
+# density estimates show a small negative bias 
+# sigma estimates show a large negative bias 
+# lambda0 cannot be compared
 fit <- secr.fit(capthist = ch, buffer = 8, detectfn = 14, trace = FALSE)
 predict(fit)
 
