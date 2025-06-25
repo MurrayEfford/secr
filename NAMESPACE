@@ -12,7 +12,7 @@ importFrom (grDevices, chull, contourLines, grey, palette,
     terrain.colors, topo.colors, rainbow)
 importFrom (methods, as, is, Ops, Math)
 importFrom (stats, AIC, approx, approxfun, as.formula, chisq.test, coef,
-    cutree, deviance, df.residual, dist, dpois,  formula, hclust,
+    cutree, deviance, df.residual, dist, dpois, filter, formula, hclust,
     integrate, lm, logLik, median, model.matrix, nlm, nls, optim,
     optimise, optimize, pchisq, pgamma, plnorm, pnorm, poisson,
     predict, qchisq, qnorm, qpois, rbeta, rbinom, rexp, rgamma, rlnorm, 
