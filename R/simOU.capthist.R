@@ -64,9 +64,10 @@ simOU.capthist <- function (
         popn,
         detectpar,     # list of epsilon, sigma, tau
         noccasions,    # effective "duration"
-        seed = NULL,
+        seed     = NULL,
         savepopn = FALSE,
         savepath = FALSE,
+        verify   = TRUE,
         ...)
 {
     ##################
@@ -83,7 +84,7 @@ simOU.capthist <- function (
     }
     ##################
     
-    captfn <- function (xy) secr::edist(xy,traps) <= detectpar$epsilon   
+    captfn <- function (xy) edist(xy,traps) <= detectpar$epsilon   
     N <- nrow(popn)
     locs <- apply(popn, 1, simOU, detectpar$tau, detectpar$sigma, noccasions, simplify = FALSE)
     capt <- lapply(locs, captfn)
@@ -95,10 +96,13 @@ simOU.capthist <- function (
     class(ch) <- 'capthist'
     traps(ch) <- traps
     # cast as required detector type
-    ch <- reduce(ch, outputdetector = detector(traps)[1], dropunused = FALSE, ...)
+    if (detector(traps)[1] != "multi" || length(list(...))>0) {
+        ch <- reduce(ch, outputdetector = detector(traps)[1], dropunused = FALSE, ...)
+    }
     attr(ch, 'seed')      <- RNGstate      ## save random seed
     attr(ch, 'detectpar') <- detectpar
     if (savepopn) attr(ch, 'popn') <- popn
     if (savepath) attr(ch, 'path') <- locs
+    if (verify) verify(ch)
     ch
 }

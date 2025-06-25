@@ -11,11 +11,13 @@ its home range. Movement models predict serial correlation of detections in spac
 The Ornstein-Uhlenbeck (OU) model is a convenient example that over long 
 durations leads to a bivariate normal distribution of locations.
 
-Movements of a single animal according to the OU model are simulated in discrete time with \code{simOU}. 
+Movements of a single animal according to the OU model are simulated in discrete 
+time with \code{simOU}. 
 
 Detections of a population of individuals with pre-defined activity centres are 
 simulated with \code{simOU.capthist}. Detection happens when the location of an 
-individual at time \eqn{t} (occasion \eqn{t}) is within distance epsilon \eqn{\epsilon} of a detector.
+individual at time \eqn{t} (occasion \eqn{t}) is within distance epsilon 
+\eqn{\epsilon} of a detector.
 
 }
 
@@ -24,7 +26,7 @@ individual at time \eqn{t} (occasion \eqn{t}) is within distance epsilon \eqn{\e
 simOU(xy, tau, sigma, noccasions, start = NULL)
 
 simOU.capthist(traps, popn, detectpar, noccasions, seed = NULL,
-    savepopn = FALSE, savepath = FALSE, ...)
+    savepopn = FALSE, savepath = FALSE, verify = TRUE, ...)
 
 }
 
@@ -42,6 +44,7 @@ simOU.capthist(traps, popn, detectpar, noccasions, seed = NULL,
   \item{seed}{either NULL or an integer that will be used in a call to \code{set.seed}}
   \item{savepopn}{logical; if TRUE the population is saved as an attribute}
   \item{savepath}{logical; if TRUE the movement paths are saved as an attribute}
+  \item{verify}{logical; if TRUE verify() is called on result}
   \item{\dots}{other arguments passed to \code{\link[secr]{reduce.capthist}}}
 }
 
@@ -58,6 +61,8 @@ tau \tab serial correlation parameter 1/beta \cr
 }
 In a final step, `simOU.capthist' uses the reduce method for capthist objects to 
 coerce the simulated capthist object to the detector type of the traps argument. 
+This step is skipped to save time if `traps' has detector type ``multi'' and 
+\dots is empty.
 
 The \dots argument may be used to pass the 'by' argument to reduce.capthist. For
 example, 'by = "ALL"' collapses the initially binary data for a single detector 
