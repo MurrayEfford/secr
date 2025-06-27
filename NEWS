@@ -2,6 +2,8 @@ Changes in version 5.2.5 (2025-06-16)
 
 New features or changed behaviour of old functions
     o  t2r2() index of serial correlation
+    o  simOU() and simOU.capthist() moved from secrdesign
+
 
 Other
     o  update secr-package.Rd
