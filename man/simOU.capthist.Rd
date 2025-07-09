@@ -32,7 +32,7 @@ simOU.capthist(traps, popn, detectpar, noccasions, seed = NULL,
 
 \arguments{
 
-  \item{xy}{numeric vector of x,y coordinates for one animal}
+  \item{xy}{numeric vector of x,y coordinates for one animal, or 2-column matrix}
   \item{tau}{numeric parameter of serial correlation = \eqn{1 / \beta}}
   \item{sigma}{numeric spatial scale parameter}
   \item{noccasions}{integer number of time steps}
@@ -87,7 +87,7 @@ by \eqn{\sigma} as usual. Steps are implicitly of length 1 occasion so
 
 \value{
 
-simOU - matrix of locations dim = c(noccasions, 2)
+simOU - matrix of locations dim = c(noccasions, 2), or a list of these, one per row of xy
 
 simOU.capthist - single-session capthist object for \pkg{secr}
 
