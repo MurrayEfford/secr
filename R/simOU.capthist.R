@@ -7,27 +7,33 @@ simOU <- function(xy, tau, sigma, noccasions, start = NULL){
     # noccasions: number of simulation steps
     # start: initial position (optional, defaults to stationary distribution)
     
-    xy <- as.numeric(xy)   # dodge issue with dataframe
-    
-    # If start is not provided, initialize from the stationary distribution
-    if (is.null(start)) {
-        start <- rnorm(2, mean = xy, sd = sigma)
+    if (!is.null(dim(xy)) && nrow(xy)>1) {
+        apply(xy, 1, simOU, simplify = FALSE,
+              tau = tau, sigma = sigma, noccasions = noccasions, start = start)
     }
-    
-    # Calculate the standard deviation for the discrete time step
-    # assuming Delta t = 1 for each step in this discrete simulation
-    beta <- 1/tau
-    step_sd <- sigma * sqrt((1 - exp(-2*beta)))
-    
-    out <- matrix(0, nrow = noccasions, ncol = 2)
-    out[1, ] <- start
-    for (i in 2:noccasions){
-        # Mean calculation for the current step (from analytical solution)
-        current_mean <- (1 - exp(-beta)) * xy + exp(-beta) * out[i - 1, ]
-        # Draw 2 independent normal random variates for the x and y dimensions
-        out[i, ] <- rnorm(2, mean = current_mean, sd = step_sd)
+    else {
+        xy <- as.numeric(xy)   # dodge issue with dataframe
+        
+        # If start is not provided, initialize from the stationary distribution
+        if (is.null(start)) {
+            start <- rnorm(2, mean = xy, sd = sigma)
+        }
+        
+        # Calculate the standard deviation for the discrete time step
+        # assuming Delta t = 1 for each step in this discrete simulation
+        beta <- 1/tau
+        step_sd <- sigma * sqrt(1 - exp(-2*beta))
+        
+        out <- matrix(0, nrow = noccasions, ncol = 2)
+        out[1, ] <- start
+        for (i in 2:noccasions){
+            # Mean calculation for the current step (from analytical solution)
+            current_mean <- (1 - exp(-beta)) * xy + exp(-beta) * out[i - 1, ]
+            # Draw 2 independent normal random variates for the x and y dimensions
+            out[i, ] <- rnorm(2, mean = current_mean, sd = step_sd)
+        }
+        out
     }
-    out
 }
 
 # verify 2025-06-13
@@ -67,7 +73,6 @@ simOU.capthist <- function (
         seed     = NULL,
         savepopn = FALSE,
         savepath = FALSE,
-        verify   = TRUE,
         ...)
 {
     ##################
