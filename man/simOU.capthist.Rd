@@ -26,7 +26,7 @@ individual at time \eqn{t} (occasion \eqn{t}) is within distance epsilon
 simOU(xy, tau, sigma, noccasions, start = NULL)
 
 simOU.capthist(traps, popn, detectpar, noccasions, seed = NULL,
-    savepopn = FALSE, savepath = FALSE, verify = TRUE, ...)
+    savepopn = FALSE, savepath = FALSE, ...)
 
 }
 
@@ -44,7 +44,6 @@ simOU.capthist(traps, popn, detectpar, noccasions, seed = NULL,
   \item{seed}{either NULL or an integer that will be used in a call to \code{set.seed}}
   \item{savepopn}{logical; if TRUE the population is saved as an attribute}
   \item{savepath}{logical; if TRUE the movement paths are saved as an attribute}
-  \item{verify}{logical; if TRUE verify() is called on result}
   \item{\dots}{other arguments passed to \code{\link[secr]{reduce.capthist}}}
 }
 
