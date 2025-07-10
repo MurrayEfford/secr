@@ -108,6 +108,5 @@ simOU.capthist <- function (
     attr(ch, 'detectpar') <- detectpar
     if (savepopn) attr(ch, 'popn') <- popn
     if (savepath) attr(ch, 'path') <- locs
-    if (verify) verify(ch)
     ch
 }
