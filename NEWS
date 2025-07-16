@@ -1,9 +1,12 @@
-Changes in version 5.2.5 (2025-07-10)
+Changes in version 5.2.5 (2025-07-16)
 
 New features or changed behaviour of old functions
     o  t2r2() index of serial correlation
     o  simOU() and simOU.capthist() moved from secrdesign
-    o  simOU() allows matrix etc. input (e.g. popn) 
+    o  simOU() allows matrix or dataframe input (e.g. popn) 
+
+Bugs fixed
+    o  print method failed for Dsurface generated from 'nonueuc' parameter
 
 Other
     o  update secr-package.Rd
