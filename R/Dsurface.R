@@ -260,7 +260,6 @@ predictDsurface <- function (object, mask = NULL, se.D = FALSE, cl.D = FALSE, al
     parameter <- match.arg(parameter)
     sessionlevels <- session(object$capthist)
     grouplevels <- group.levels(object$capthist, object$groups)
-    
     if (is.null(mask))
         mask <- object$mask
     densitylist <- vector('list')
@@ -368,12 +367,12 @@ plot.Dsurface <- function (x, covariate, group = NULL, plottype = 'shaded',
 }
 ############################################################################################
 
+# re-written for noneuc 2025-07-16
 Dsurface.as.data.frame <- function (x, scale = 1) {
     covnames <- names(covariates(x))
-    prefix <- attr(x, 'parameter')
-    if (is.null(prefix)) prefix <- 'D'    ## for backwards compatibility
-    prefix <- paste(prefix, '.', sep='')
-    OK <- (substring(covnames,1,2) == prefix) |
+    parameter <- attr(x, 'parameter')
+    if (is.null(parameter)) parameter <- 'D'    ## for backwards compatibility
+    OK <- grepl(parameter, covnames) |
         (substring(covnames,1,3) == 'SE.') |
         (substring(covnames,1,4) %in% c('lcl.', 'ucl.'))
     covnames <- covnames[OK]
