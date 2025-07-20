@@ -1,5 +1,5 @@
 ###############################################################################
-## package 'secr' 5.2
+## package 'secr' 5.3
 ## secr.design.MS.R
 
 ## 2019-12-03 replaced bygroup with CL
@@ -158,6 +158,7 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
 
     models$D <- NULL                          # drop density model
     models$noneuc <- NULL                     # drop non-Euclidean parameter model
+    models$sigmaxy <- NULL                    # drop sigmaxy model
     npar     <- length(models)                # real parameters
     grouplevels  <- group.levels(capthist,groups)
     ngrp    <- max(1,length(grouplevels))

@@ -266,8 +266,8 @@ fastsecrloglikfn <- function (
 
     #--------------------------------------------------------------------
     # Detection parameters
-    detparindx <- parindx[!(names(parindx) %in% c('D', 'noneuc'))]
-    detlink <- link[!(names(link) %in% c('D', 'noneuc'))]
+    detparindx <- parindx[!(names(parindx) %in% c('D', 'noneuc','sigmaxy'))]
+    detlink <- link[!(names(link) %in% c('D', 'noneuc','sigmaxy'))]
     realparval  <- makerealparameters (design, beta, detparindx, detlink, fixed)
     
     #--------------------------------------------------------------------
@@ -286,8 +286,9 @@ fastsecrloglikfn <- function (
     #--------------------------------------------------------------------
     # Non-Euclidean distance parameter
     sessmask <- lapply(data, '[[', 'mask')
+    param <- if ('sigmaxy' %in% names(parindx)) 'sigmaxy' else 'noneuc'
     NE <- getD (designNE, beta, sessmask, parindx, link, fixed,
-                levels(data$grp[[1]]), sessionlevels, parameter = 'noneuc')
+                levels(data$grp[[1]]), sessionlevels, parameter = param)
     #--------------------------------------------------------------------
     # typical likelihood evaluation
     if (!is.null(details$saveprogress) && details$saveprogress>0 &&

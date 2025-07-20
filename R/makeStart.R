@@ -9,7 +9,6 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
     ############################################
     # Optionally start from previous fit
     ############################################
-
     if (inherits(start, c('ipsecr', 'secr'))) {
         
         oldbeta <- coef(start)$beta
@@ -139,6 +138,7 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
             w       = 10,
             pID     = 0.7,
             noneuc  = 50,
+            sigmaxy = ifelse (is.na(start3$sigma), rpsv, start3$sigma),
             beta0   = details$cutval + 30,
             beta1   = -0.2,
             sdS     = 2,
@@ -186,7 +186,7 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
             default <- replace(default, startnames, start)
         }
         else startnames <- NULL
-        
+     
         #########################################
         start <- rep(0, NP)
         for ( i in 1:length(parindx) ) {

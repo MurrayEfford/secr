@@ -329,12 +329,11 @@ fxi.secr <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL, ..
     data <- prepareSessionData(object$capthist, object$mask, object$details$maskusage, 
                              object$design, object$design0, object$detectfn, object$groups, 
                              object$fixed, object$hcov, object$details)
-    
+
   sessionlevels <- session(object$capthist)
-  beta <- coef(object)$beta
-  beta <- fullbeta(beta, object$details$fixedbeta)
-  detparindx <- object$parindx[!(names(object$parindx) %in% c('D', 'noneuc'))]
-  detlink <- object$link[!(names(object$link) %in% c('D', 'noneuc'))]
+  beta <- complete.beta(object)
+  detparindx <- object$parindx[!(names(object$parindx) %in% c('D', 'noneuc','sigmaxy'))]
+  detlink <- object$link[!(names(object$link) %in% c('D', 'noneuc','sigmaxy'))]
   realparval  <- makerealparameters (object$design, beta, detparindx,
                                      detlink, object$fixed)
   data <- data[[sessnum]]
@@ -403,15 +402,13 @@ fxi.secr <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL, ..
   piX[is.na(piX)] <- 0
   #----------------------------------------
   
-  ## TO BE FIXED
-   
-  # NE <- getD (object$designNE, beta, object$mask, object$parindx, object$link, object$fixed,
-  #             levels(data$grp[[1]]), sessionlevels, parameter = 'noneuc')
-  # NEX <- getD (object$designNE, beta, X, object$parindx, object$link, object$fixed,
-  #             levels(data$grp[[1]]), sessionlevels, parameter = 'noneuc')
-  # 
-  NE <- NULL
- 
+  # 2025-07-18
+  param <- if ('sigmaxy' %in% names(object$parindx)) 'sigmaxy' else 'noneuc'
+  session <- sessionlevels[sessnum]
+  grp <- data$grp[i]
+  NE <- predictD(object, object$mask, grp, session, parameter = param)
+  NEX <- predictD(object, X, grp, session, parameter = param)
+  
   #---------------------------------------------------
   ## allow for scaling of detection
   Dtemp <- if (D.modelled) mean(D) else NA
@@ -450,7 +447,7 @@ fxi.secr <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL, ..
   else {
     nX <- nrow(X)
     gkhkX <- makegk (data$dettype, object$detectfn, data$traps, X, object$details, 
-        sessnum, NE, D, miscparm, Xrealparval, grain, ncores)
+        sessnum, NEX, D, miscparm, Xrealparval, grain, ncores)
     haztempX <- gethazard (nX, data$binomNcode, nrow(Xrealparval), gkhkX$hk, PIA, data$usge)
     
     if (data$dettype[1] %in% c(0,1,2,5,8,13)) {

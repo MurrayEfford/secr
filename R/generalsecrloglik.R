@@ -344,6 +344,7 @@ generalsecrloglikfn <- function (
     PIA0 <- design0$PIA[sessnum, 1:nc1, 1:data$s, 1:data$K, ,drop = FALSE]
     ## unmodelled beta parameters, if needed
     miscparm <- getmiscparm(details$miscparm, detectfn, beta, parindx, details$cutval)
+    
     #---------------------------------------------------
     density <- getmaskpar(D.modelled, D, data$m, sessnum, details$unmash, 
                           attr(data$capthist, 'n.mash'))
@@ -698,8 +699,8 @@ generalsecrloglikfn <- function (
   beta <- fullbeta(beta, details$fixedbeta)
   #--------------------------------------------------------------------
   # Detection parameters
-  detparindx <- parindx[!(names(parindx) %in% c('D', 'noneuc'))]
-  detlink <- link[!(names(link) %in% c('D', 'noneuc'))]
+  detparindx <- parindx[!(names(parindx) %in% c('D', 'noneuc','sigmaxy'))]
+  detlink <- link[!(names(link) %in% c('D', 'noneuc','sigmaxy'))]
   realparval  <- makerealparameters (design, beta, detparindx, detlink, fixed)
   realparval0 <- makerealparameters (design0, beta, detparindx, detlink, fixed)
   #--------------------------------------------------------------------
@@ -713,10 +714,11 @@ generalsecrloglikfn <- function (
                grplevels, sessionlevels, parameter = 'D')
   }
   #--------------------------------------------------------------------
+  
   # Non-Euclidean distance parameter
+  param <- if ('sigmaxy' %in% names(parindx)) 'sigmaxy' else 'noneuc'
   NE <- getD (designNE, beta, sessmask, parindx, link, fixed,
-              grplevels, sessionlevels, parameter = 'noneuc')
-
+              grplevels, sessionlevels, parameter = param)
   #--------------------------------------------------------------------
   # Two types of call
   # (i) overdispersion of sightings simulations only

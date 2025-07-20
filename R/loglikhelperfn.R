@@ -91,7 +91,7 @@ getmiscparm <- function(miscparm, detectfn, beta, parindx, cutval) {
     miscparm
 }
 #--------------------------------------------------------------------------------
-getuserdist <- function (traps, mask, userdist, sessnum, noneuc, density, miscparm) {
+getuserdist <- function (traps, mask, userdist, sessnum, NE, density, miscparm) {
     ## Apply user-provided distance function or basic distance function getdistmat2()
     if (is.null(userdist)) {
         getdistmat2(traps, mask, NULL)
@@ -101,8 +101,10 @@ getuserdist <- function (traps, mask, userdist, sessnum, noneuc, density, miscpa
         m <- nrow(mask)
         if (is.null(covariates(mask)))
             covariates(mask) <- data.frame(row.names = 1:m)
-        if (('noneuc' %in% userdistnames) && !is.null(noneuc))
-            covariates(mask)$noneuc <- noneuc  ## NE[1:m,,min(dim(NE)[3],sessnum)]
+        if (('noneuc' %in% userdistnames) && !is.null(NE))
+            covariates(mask)$noneuc <- NE  
+        if (('sigmaxy' %in% userdistnames) && !is.null(NE))
+            covariates(mask)$sigmaxy <- NE  
         if (('D' %in% userdistnames) && !is.null(density))
             covariates(mask)$D <- density
         ## pass miscellaneous unmodelled parameter(s)

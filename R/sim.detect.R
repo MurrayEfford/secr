@@ -81,7 +81,7 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
         stop ("all behavioural responses must be of same type in sim.detect")
     if (length(btype) == 0)
         btype <- 0
-  
+
     ## --------------------------------------------------------------------
     ## setup
     if (is.null(object$details$ignoreusage)) {
@@ -103,11 +103,8 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
     sessmask <- object$mask
     if (!ms(sessmask)) sessmask <- list(sessmask)  ## always a list
     grplevels <- group.levels(object$capthist, object$groups, sep=".")
-    beta <- object$fit$par
-    #2025-03-13
-    # userd <- is.null(object$details$userdist)
+    beta <- complete.beta(object) # object$fit$par
     userd <- !is.null(object$details$userdist) && is.function(object$details$userdist)
-    
     ncores <- setNumThreads()
     grain <- if (ncores==1) 0 else 1
     
@@ -196,21 +193,36 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
     ##------------------------------------------
     
     # see loglikhelperfn.R for getD
-    # Density
+    # Density - rarely used?
+    # wasteful because most computed D, NE discarded, but simpler than re-jigging getD
+    indlist <- mapply(nearesttrap, popnlist, sessmask, SIMPLIFY = FALSE)   
+    # select rows of D and NE needed for popnlist?
     if (!object$CL ) {
         D <- getD (object$designD, beta, sessmask, 
-                   object$parindx, object$link, object$fixed,
-                   grplevels, sessionlevels, 
-                   parameter = 'D')
+                          object$parindx, object$link, object$fixed,
+                          grplevels, sessionlevels, 
+                          parameter = 'D')
+        
+        D2 <- array(dim = c(max(sapply(popnlist,nrow)), 1, length(popnlist)))
+        for (sess in 1:length(popnlist)) {
+            D2[1:nrow(popnlist[[i]]),1,sess] <- D[indlist[[i]],1,sess]
+        }
     }
     # Non-Euclidean distance parameter
+    NEname <- if ('sigmaxy' %in% names(object$parindx)) "sigmaxy" else "noneuc"
+    
     NE <- getD (object$designNE, beta, sessmask, 
-                object$parindx, object$link, object$fixed,
-                grplevels, sessionlevels, 
-                parameter = 'noneuc')
+                       object$parindx, object$link, object$fixed,
+                       grplevels, sessionlevels, 
+                       parameter = NEname)
+    if (!is.null(NE)) {
+        NE2 <- array(dim = c(max(sapply(popnlist,nrow)), 1, length(popnlist)))
+        for (sess in 1:length(popnlist)) {
+            NE2[1:nrow(popnlist[[sess]]),1,sess] <- NE[indlist[[sess]],1,sess]
+        }
+    }
     
     #--------------------------------------------------------------------
-    
     output <- list()
     for (sessnum in 1:nsession) {
         
@@ -298,9 +310,9 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
         
         if (all(dettype %in% c(-1,0,1,2,5,8))) {
             if (is.function(object$details$userdist)) {
-                ## only use of NE in this fn
-                noneuc <- getmaskpar(!is.null(NE), NE, nrow(session.mask), sessnum, FALSE, NULL)
-                density <- getmaskpar(!object$CL, D, nrow(session.mask), sessnum, 
+                ## NE2 is pre-computed array [animal, group, session] of noneuc/sigmaxy values
+                noneuc <- getmaskpar(!is.null(NE), NE2, nrow(session.animals), sessnum, FALSE, NULL)
+                density <- getmaskpar(!object$CL, D2, nrow(session.animals), sessnum, 
                                       object$details$unmash, nmash)
                 distmat2 <- getuserdist(
                     session.traps, 

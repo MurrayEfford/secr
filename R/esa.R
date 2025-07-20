@@ -75,6 +75,12 @@ esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL,
                              parameter = 'D')
     }
     pi.density <- matrix(D/sum(D), ncol = 1)       # dim m x 1
+    
+    # Non-Euclidean distance parameter
+    param <- if ('sigmaxy' %in% names(object$parindx)) 'sigmaxy' else 'noneuc'
+    NE <- predictD(object, object$mask, group = NULL, session = sessnum, 
+                   parameter = param)
+
     #----------------------------------------------------------------------
     if (constant) {
         ## assume constant
@@ -144,7 +150,7 @@ esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL,
             return(NA)
         }
         else {
-          NE <- NULL   ## no NE covariates (yet)
+          # NE <- NULL   ## no NE covariates (yet)
           # pi.density <- matrix(1/m, nrow=m, ncol=1)
           ncores <- setNumThreads(ncores)  
           grain <- if (ncores==1) 0 else 1

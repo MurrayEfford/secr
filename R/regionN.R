@@ -60,8 +60,9 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
         else {
             D <- predictD(object, regionmask, group, session, parameter = 'D')
         }
-        noneuc <- predictD(object, regionmask, group, session, parameter = 'noneuc')
-        n + sumDpdot (object, sessnum, regionmask, D, noneuc, cellsize,
+        param <- if ('sigmaxy' %in% names(object$parindx)) 'sigmaxy' else 'noneuc'
+        NE <- predictD(object, regionmask, group, session, parameter = param)
+        n + sumDpdot (object, sessnum, regionmask, D, NE, cellsize,
                   constant = FALSE, oneminus = TRUE, pooled = pooled.RN, ncores = ncores)[1]
     }
     ###########################################################
@@ -237,10 +238,12 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
             det <- detector(traps(object$capthist))
         }
         if (all(det %in% .localstuff$individualdetectors)) {
-            noneuc <- predictD (object, regionmask, group, session, parameter = 'noneuc')
+            param <- if ('sigmaxy' %in% names(object$parindx)) 'sigmaxy' else 'noneuc'
+            NE <- predictD(object, regionmask, group, session, parameter = param)
+            
             RN.method <- tolower(RN.method)
             if (RN.method %in% c('mspe', 'poisson')) {
-                notdetected <- sumDpdot (object, sessnum, regionmask, D, noneuc,
+                notdetected <- sumDpdot (object, sessnum, regionmask, D, NE,
                     cellsize, constant = FALSE, oneminus = TRUE, pooled = pooled.RN, ncores = ncores)[1]
                 RN <- n + notdetected
                 if (RN.method == 'mspe') {
@@ -576,17 +579,19 @@ expected.n <- function (object, session = NULL, group = NULL, bycluster = FALSE,
         #######################################################
 
         if (is.function(object$details$userdist)) {
-          if (object$model$noneuc == ~1) {
+            param <- if ('sigmaxy' %in% names(object$parindx)) 'sigmaxy' else 'noneuc'
+            
+          if (object$model[[param]] == ~1) {
             predicted <- predict(object)
             if (!is.data.frame(predicted))
               predicted <- predicted[[1]]
-            noneuc <- rep(predicted['noneuc','estimate'], nrow(mask))
+            NE <- rep(predicted[param,'estimate'], nrow(mask))
           }
           else {
-            noneuc <- predictD (object, mask, group, session, parameter = 'noneuc')
+            NE <- predictD (object, mask, group, session, parameter = param)
           }
         }
-        else noneuc <- rep(NA, nrow(mask))
+        else NE <- rep(NA, nrow(mask))
 
         #################################################################
         if (bycluster) {
@@ -599,11 +604,11 @@ expected.n <- function (object, session = NULL, group = NULL, bycluster = FALSE,
                 cluster <- nearesttrap (mask, centres)
                 mask <- split (mask, cluster)
                 D <- split(D, cluster)
-                noneuc <- split(noneuc, cluster)
+                NE <- split(NE, cluster)
                 out <- numeric (nclust)
                 for (i in 1:nclust) {
                     out[i] <- sumDpdot(object = object, sessnum = sessnum,
-                                       mask = mask[[i]], D = D[[i]], noneuc = noneuc[[i]], cellsize = cellsize,
+                                       mask = mask[[i]], D = D[[i]], noneuc = NE[[i]], cellsize = cellsize,
                                        constant = FALSE, oneminus = FALSE, ncores = ncores)[1]
                 }
             }
@@ -613,14 +618,14 @@ expected.n <- function (object, session = NULL, group = NULL, bycluster = FALSE,
                     warning("expected.n assumes clusters independent when detectors exclusive (single, multi, polygonX, transectX)")
                 }
                 out <- sumDpdot(object = object, sessnum = sessnum,
-                                mask = mask, D = D, noneuc = noneuc, cellsize = cellsize,
+                                mask = mask, D = D, noneuc = NE, cellsize = cellsize,
                                 constant = FALSE, oneminus = FALSE, bycluster = TRUE, 
                                 ncores = ncores)
             }
             out
         }
         else {
-            sumDpdot (object, sessnum, mask, D, noneuc, cellsize,
+            sumDpdot (object, sessnum, mask, D, NE, cellsize,
              constant = FALSE, oneminus = FALSE, ncores = ncores)[1]
         }
         #################################################################

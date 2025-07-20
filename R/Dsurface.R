@@ -9,16 +9,20 @@
 ## 2018-04-29 drop dim of predictD output
 ## 2020-11-05 rectangularMask rewritten to allow disjunct mask blocks
 ## 2022-11-28 spotHeight bug fixed xy <- data.frame(locator(1))
+## 2025-07-16 sigmaxy variation of noneuc
 ############################################################################################
 
 predictD <- function (object, regionmask, group, session,
-                se.D = FALSE, cl.D = FALSE, alpha = 0.05, parameter = c('D','noneuc')) {
+                se.D = FALSE, cl.D = FALSE, alpha = 0.05, 
+                parameter = c('D','noneuc','sigmaxy')) {
     ## For one session and group at a time
     ## not exported; used also by region.N()
     parameter <- match.arg(parameter)
     ## return all-1's if not relevant
     if ((parameter == 'noneuc') & !('noneuc' %in% getuserdistnames(object$details$userdist)))
-      return(rep(1, nrow(regionmask)))
+        return(rep(1, nrow(regionmask)))
+    if ((parameter == 'sigmaxy') & !('sigmaxy' %in% getuserdistnames(object$details$userdist)))
+        return(rep(1, nrow(regionmask)))
     sessionlevels <- session(object$capthist)
     grouplevels <- group.levels(object$capthist,object$groups)
     if (is.null(session))
@@ -256,7 +260,7 @@ rectangularMask <- function (mask) {
 ############################################################################################
 
 predictDsurface <- function (object, mask = NULL, se.D = FALSE, cl.D = FALSE, alpha = 0.05,
-                             parameter = c('D','noneuc')) {
+                             parameter = c('D','noneuc','sigmaxy')) {
     parameter <- match.arg(parameter)
     sessionlevels <- session(object$capthist)
     grouplevels <- group.levels(object$capthist, object$groups)
@@ -335,7 +339,7 @@ plot.Dsurface <- function (x, covariate, group = NULL, plottype = 'shaded',
         # }
         if (length(covariate)>1)
             stop ("whoa... just one at a time")
-        if (covariate %in% c('D','noneuc','SE','lcl','ucl')) {
+        if (covariate %in% c('D','noneuc','sigmaxy','SE','lcl','ucl')) {
             covariate <- paste(covariate, group, sep='.')
         }
         if (!(covariate %in% names(covariates(x))))

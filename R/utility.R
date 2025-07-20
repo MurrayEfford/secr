@@ -39,6 +39,7 @@
 ## 2025-03-18 saveprogress()
 ## 2025-06-17 filterw(), captinhood()
 ## 2025-06-25 detectfn 20 OU
+## 2025-07-20 5.3.0
 ################################################################################
 
 # Global variables in namespace
@@ -245,7 +246,10 @@ valid.pnames <- function (details, CL, detectfn, alltelem, sighting, nmix) {
         pnames <- c('D', pnames)
     }
     if ('noneuc' %in% getuserdistnames(details$userdist)) {
-      pnames <- c(pnames, 'noneuc')
+        pnames <- c(pnames, 'noneuc')
+    }
+    if ('sigmaxy' %in% getuserdistnames(details$userdist)) {
+        pnames <- c(pnames, 'sigmaxy')
     }
     if (sighting)
       pnames <- c(pnames, 'pID')
@@ -1109,6 +1113,12 @@ partbeta <- function (beta, fb) {
     beta
 }
 
+NEmodelled <- function (details, fixed) {
+    userdistnames <- getuserdistnames(details$userdist)
+    any(c('noneuc', 'sigmaxy') %in% userdistnames) &&
+        is.null(fixed$noneuc) && is.null(fixed$sigmaxy)
+}
+
 fullbetanames <- function (object) {
     # 2024-12-23
     betanames <- unlist(sapply(object$design$designMatrices, colnames))
@@ -1126,11 +1136,11 @@ fullbetanames <- function (object) {
     if (D.modelled && !is.null(Dnames)) {
         betanames <- c(paste('D', Dnames, sep='.'), betanames)
     }
-    NE.modelled <- ('noneuc' %in% getuserdistnames(object$details$userdist)) &
-        is.null(object$fixed$noneuc)
+    NE.modelled <- NEmodelled(object$details, object$fixed)
     if (NE.modelled) {
+        NEname <- if ('sigmaxy' %in% names(object$parindx)) "sigmaxy" else "noneuc"
         NEnames <- colnames(object$designNE)
-        betanames <- c(betanames, paste('noneuc', NEnames, sep='.'))
+        betanames <- c(betanames, paste(NEname, NEnames, sep='.'))
     }
     betanames <- sub('..(Intercept))','',betanames)
     betanames
@@ -1329,10 +1339,11 @@ makerealparameters <- function (design, beta, parindx, link, fixed) {
     }
     ## construct matrix of detection parameters
     nrealpar  <- length(design$designMatrices)
-    parindx$D <- NULL ## detection parameters only
-    link$D    <- NULL ## detection parameters only
-    parindx$noneuc <- NULL ## detection parameters only
-    link$noneuc    <- NULL ## detection parameters only
+    nondetect <- c('D', 'noneuc', 'sigmaxy')
+    for (i in nondetect) {
+        parindx[[i]] <- NULL ## detection parameters only
+        link[[i]]    <- NULL ## detection parameters only
+    }
     detectionparameters <- names(link)
     fixed.dp <- fixed[detectionparameters[detectionparameters %in% names(fixed)]]
     
@@ -1565,7 +1576,7 @@ nparameters <- function (object) {
 
 #-------------------------------------------------------------------------------
 
-mapbeta <- function (parindx0, parindx1, beta0, betaindex)
+mapbeta <- function (parindx0, parindx1, beta0, betaindex, default = 0)
 
     ## Extend beta vector from simple model (beta0) to a more complex (i.e. general)
     ## model, inserting neutral values (zero) as required.
@@ -1573,28 +1584,33 @@ mapbeta <- function (parindx0, parindx1, beta0, betaindex)
     ## beta values until all beta values from the simpler model are
     ## used up. THIS ASSUMPTION MAY NOT BE JUSTIFIED.
     ## betaindex is a user-controlled alternative.
+    ## 2025-07-19 explicit default 0
 
 {
     ## list of zeroed vectors, one per real parameter
-    beta1 <- lapply(parindx1, function (x) {x[]<-0; x})
-    if (!is.null(betaindex)) {
-        beta1 <- unlist(beta1)
-        if (sum(betaindex>0) != length(beta0))
-            stop ("invalid 'betaindex'")
-        beta1[betaindex] <- beta0
-        beta1
+    beta1 <- lapply(parindx1, function (x) {x[]<-default; x})
+    if (is.null(beta0)) {
+        unlist(beta1)
     }
     else {
-        ## indx is within-parameter rather than absolute index
-        ## for each _original_ real parameter
-        indx <- lapply(parindx0, function(x) x-x[1]+1)
-        ## for (j in 1:length(beta1))
-        ## improved replace by name2015-11-17
-        for (j in names(beta1)) {
-            if (j %in% names(beta0))
-                beta1[[j]][indx[[j]]] <- beta0[parindx0[[j]]]
+        if (!is.null(betaindex)) {
+            beta1 <- unlist(beta1)
+            if (sum(betaindex>0) != length(beta0))
+                stop ("invalid 'betaindex'")
+            beta1[betaindex] <- beta0
+            beta1
         }
-        unlist(beta1)
+        else {
+            ## indx is within-parameter rather than absolute index
+            ## for each _original_ real parameter
+            indx <- lapply(parindx0, function(x) x-x[1]+1)
+            for (j in names(beta1)) {
+                if (j %in% names(beta0)) {
+                    beta1[[j]][indx[[j]]] <- beta0[parindx0[[j]]]
+                }
+            }
+            unlist(beta1)
+        }
     }
 }
 
@@ -2189,4 +2205,32 @@ filterw <- function (x, w = 5, lambda = 0.6) {
     filter(xp, filter = weights, sides = 1)[-(1:w)]
 }
 
+#-------------------------------------------------------------------------------
+
+sigmaxydistfn <- function (xy1, xy2, mask) {
+    if (missing(xy1)) return("sigmaxy")
+    sig <- covariates(mask)$sigmaxy   # sigma(x,y) at mask points
+    sig <- matrix(sig, byrow = TRUE, nrow = nrow(xy1), ncol = nrow(xy2))
+    euc <- edist(xy1, xy2) 
+    euc / sig
+}
+#-------------------------------------------------------------------------------
+
+setfixedbeta <- function (fb, parindx, link, CL) {
+    if (is.null(fb)) 
+        fb <- rep(NA, max(unlist(parindx)))
+    if (CL && !is.null(parindx$D)) {     # details$relativeD
+        if (!(link$D %in% c('log','identity')))
+            warning ("density link ", link$D, " not implemented for relativeD")
+        if (!is.na(fb[parindx$D[1]]))
+            warning ("overriding provided fixedbeta[1] for D")
+        fb[parindx$D[1]] <- if (link$D == 'log') 0 else 1
+    }
+    if (!is.null(parindx$sigmaxy)) {
+        if (!(link$sigma %in% c('log')))
+            warning ("sigma link should be log")
+        fb[parindx$sigma[1]] <- 0
+    }
+    fb
+}
 #-------------------------------------------------------------------------------

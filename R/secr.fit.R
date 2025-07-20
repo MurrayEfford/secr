@@ -310,7 +310,6 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
             names(mask) <- sessionlevels
         }
     }
-    
     #################################################
     
     nc <- ifelse (MS, sum(sapply(capthist, nrow)), nrow(capthist))
@@ -414,6 +413,22 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
         timevarying <- timevarying || any(names(timecov[[1]]) %in% allvars)
     }
     
+    
+    #################################################
+    # Spatially varying sigma check (sigmaxy)
+    #################################################
+    
+    if (!is.null(model$sigmaxy)) {
+        OKdetectfn <- c(0,1,2,14,15,16,19)
+        OKnames <- .localstuff$DFN[OKdetectfn+1]
+        if (!(detectfn %in% OKdetectfn)) {
+            stop ("sigmaxy only works with detectfn ", 
+                  paste(OKdetectfn, collapse=', '))
+        }
+        # hardwire distance function    
+        details$userdist <- sigmaxydistfn   # see utility.R
+    }
+    
     ##############################################
     ## 2019-09-01 fast proximity option
     details$fastproximity <- !is.null(details$fastproximity) &&
@@ -493,7 +508,8 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     
     defaultmodel <- list(D=~1, g0=~1, lambda0=~1,  esa=~1, a0=~1,
                          sigma=~1, sigmak=~1, z=~1, w=~1, c=~1, d=~1,
-                         noneuc=~1, beta0=~1, beta1=~1,
+                         noneuc=~1, sigmaxy=NULL,
+                         beta0=~1, beta1=~1,
                          sdS=~1, b0=~1, b1=~1, pID=~1, pmix=~1)
     defaultmodel <- replace (defaultmodel, names(model), model)
     
@@ -550,7 +566,7 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     #################################################
     ## finalise model
     #################################################
-    
+
     pnames <- pnames[!(pnames %in% fnames)]   ## drop fixed real parameters
     model <- defaultmodel[pnames]             ## select real parameters
     valid.model(model, CL, detectfn, hcov, details$userdist, names(sessioncov))
@@ -583,7 +599,8 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     
     defaultlink <- list(D='log', g0='logit', lambda0='log', esa='log',
                         a0='log', sigma='log', sigmak='log', z='log',
-                        w='log', c='identity', d='log', noneuc='log',
+                        w='log', c='identity', d='log', 
+                        noneuc='log', sigmaxy='log',
                         beta0='identity', beta1='neglog', sdS='log',
                         b0='log', b1='neglog',  pID='logit',
                         pmix='logit', cut='identity')
@@ -591,7 +608,11 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     # if (anycount) defaultlink$g0 <- 'log'
     link <- replace (defaultlink, names(link), link)
     link[!(names(link) %in% c(fnames,pnames))] <- NULL
-
+    
+    if (!is.null(model$sigmaxy) && (link$sigma != 'log' || link$sigmaxy != 'log')) {
+        warning ("for a sigmaxy model both sigma and sigmaxy should use 'log' link")
+    }
+    
     ##############################################
     # Prepare detection design matrices and lookup
     ##############################################
@@ -606,7 +627,7 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     # Prepare density design matrix
     ############################################
     D.modelled <- (!CL || details$relativeD) && is.null(fixed$D)
-    smoothsetup <- list(D = NULL, noneuc = NULL)
+    smoothsetup <- list(D = NULL, noneuc = NULL, sigmaxy = NULL)
     if (!D.modelled) {
         designD <- matrix(nrow = 0, ncol = 0)
         grouplevels <- 1    ## was NULL
@@ -671,8 +692,8 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     ############################################
     # Prepare non-Euclidean design matrix
     ############################################
-    NE.modelled <- ('noneuc' %in% getuserdistnames(details$userdist)) &
-        is.null(fixed$noneuc)
+    
+    NE.modelled <- NEmodelled(details, fixed)
     if (!NE.modelled) {
         designNE <- matrix(nrow = 0, ncol = 0)
         grouplevelsNE <- 1    ## was NULL
@@ -682,12 +703,16 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     else {
         grouplevelsNE  <- group.levels(capthist,groups)
         memo ('Preparing non-Euclidean parameter design matrix', details$trace)
-        temp <- D.designdata( mask, model$noneuc, grouplevelsNE, session(capthist), sessioncov)
-        if (any(smooths(model$noneuc)))
-            smoothsetup$noneuc <- gamsetup(model$noneuc, temp)
-        ## otherwise, smoothsetup$NE remains NULL
-        designNE <- general.model.matrix(model$noneuc, data = temp, gamsmth = smoothsetup$noneuc, 
+        
+        NEname <- if (is.null(model$sigmaxy)) "noneuc" else "sigmaxy"
+        modelNE <- model[[NEname]]
+        temp <- D.designdata( mask, modelNE, grouplevelsNE, session(capthist), sessioncov)
+        if (any(smooths(modelNE)))
+            smoothsetup[[NEname]] <- gamsetup(modelNE, temp)
+        ## otherwise, smoothsetup[[NEname]] remains NULL
+        designNE <- general.model.matrix(modelNE, data = temp, gamsmth = smoothsetup[[NEname]], 
                                          contrasts = details$contrasts)
+        
         attr(designNE, 'dimD') <- attr(temp, 'dimD')
         NEnames <- colnames(designNE)
         nNEParameters <- length(NEnames)
@@ -702,12 +727,24 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     else {
         np <- c(detectpar = 0)
     }
-    np <- c(D = nDensityParameters, np, noneuc = nNEParameters)
+    if (is.null(model$sigmaxy)) 
+        np <- c(D = nDensityParameters, np, noneuc = nNEParameters)
+    else
+        np <- c(D = nDensityParameters, np, sigmaxy = nNEParameters)
+    
     NP <- sum(np)
     parindx <- split(1:NP, rep(1:length(np), np))
     names(parindx) <- names(np)[np>0]
     if (!D.modelled) parindx$D <- NULL
     if (!NE.modelled) parindx$noneuc <- NULL
+    
+    # if (!is.null(model$sigmaxy)) {
+    #     if (is.null(details$fixedbeta)) {
+    #         details$fixedbeta <- rep(NA, NP)
+    #     }
+    #     details$fixedbeta[parindx$sigma[1]] <- 0  # fix intercept
+    # }
+    
     data <- prepareSessionData(capthist, mask, details$maskusage, design, 
                     design0, detectfn, groups, fixed, hcov, details)
 
@@ -807,33 +844,23 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     ############################################
     # Fixed beta parameters
     ############################################
-    fb <- details$fixedbeta
-    if (details$relativeD) {
-        if (is.null(fb)) fb <- rep(NA, NP)
-        if (!is.na(fb[parindx$D[1]]))
-            warning ("overriding provided fixedbeta[1] for D")
-        if (link$D == 'log')
-            fb[parindx$D[1]] <- 0
-        else if (link$D =='identity')
-            fb[parindx$D[1]] <- 1
-        else 
-            stop ("density link ", link$D, " not implemented for relativeD")
-        details$fixedbeta <- fb
-    }
-    if (!is.null(fb)) {
-        if (!(length(fb)== NP))
+    
+    # take care of sigmaxy and relativeD
+    details$fixedbeta <- setfixedbeta(details$fixedbeta, parindx, link, CL)
+    if (!is.null(details$fixedbeta )) {
+        if (!(length(details$fixedbeta )== NP))
             stop ("invalid fixed beta - require NP-vector")
-        if (sum(is.na(fb))==0)
+        if (sum(is.na(details$fixedbeta ))==0)
             stop ("cannot fix all beta parameters")
         ## drop unwanted betas; remember later to adjust parameter count
-        start <- start[is.na(fb)]
+        start <- start[is.na(details$fixedbeta )]
         NP <- length(start)
     }
+    
     ############################################
     # Variable names (general)
     ############################################
     realnames <- names(model)
-    
     betanames <- unlist(sapply(design$designMatrices, colnames))
     names(betanames) <- NULL
     ## coefficients for D precede all others
@@ -841,8 +868,11 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
         # NULL condition when no density beta (relativeD with D~1)
         betanames <- c(paste('D', Dnames, sep='.'), betanames)
     }
-    ## coefficients for noneuc follow all others (except model-specific in para below)
-    if (NE.modelled) betanames <- c(betanames, paste('noneuc', NEnames, sep='.'))
+    ## coefficients for noneuc and sigmaxy follow all others 
+    ## (except model-specific in para below)
+    if (NE.modelled) {
+        betanames <- c(betanames, paste(NEname, NEnames, sep='.'))
+    }
     betanames <- sub('..(Intercept))','',betanames)
     
     ############################################
@@ -865,6 +895,10 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
         betanames <- betanames[is.na(details$fixedbeta)]
     betaw <- max(max(nchar(betanames)),8)   # for 'trace' formatting
     names(start) <- betanames
+
+    ############################################
+    # Save progress
+    ############################################
     
     if (!is.null(details$saveprogress) && details$saveprogress > 0) {
         if (is.null(details$progressfilename) || !is.character(details$progressfilename)) {
