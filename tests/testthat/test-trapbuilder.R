@@ -17,9 +17,9 @@ test_that("method = 'SRS' works", {
     expect_equal(spacing(sample0), 76.3612953003, tolerance = 1e-4, check.attributes = FALSE)
 })
 
-# conditional from 2025-03-27 (see )
-if (requireNamespace("spsurvey", versionCheck=list(op=NULL, version = ">=5.3.0"), quietly = TRUE)) {
-    
+# conditional from 2025-03-27 
+if (requireNamespace("spsurvey", versionCheck=list(op = ">=", version = "5.3.0"), quietly = TRUE)) {
+    RNGkind(sample.kind = "Rejection")  # seems necessary 2025-07-20
     test_that("method = 'GRTS' works", {
         set.seed(1235)
         # GRTS sample
