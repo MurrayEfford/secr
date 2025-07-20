@@ -321,7 +321,6 @@ allhistpolygonfxi <- function (detectfn, realparval, haztemp, hk, H, pi.density,
 }
 
 fxi.secr <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL, ...) {
-    
     ## temporary fix for lack of fastproximity code
     object$details$fastproximity <- FALSE   ## 2020-08-30
     
@@ -403,11 +402,10 @@ fxi.secr <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL, ..
   #----------------------------------------
   
   # 2025-07-18
-  param <- if ('sigmaxy' %in% names(object$parindx)) 'sigmaxy' else 'noneuc'
+  NEname <- if ('sigmaxy' %in% names(object$parindx)) 'sigmaxy' else 'noneuc'
   session <- sessionlevels[sessnum]
-  grp <- data$grp[i]
-  NE <- predictD(object, object$mask, grp, session, parameter = param)
-  NEX <- predictD(object, X, grp, session, parameter = param)
+  NE <- predictD(object, object$mask, grp, session, parameter = NEname)
+  NEX <- predictD(object, X, grp, session, parameter = NEname)
   
   #---------------------------------------------------
   ## allow for scaling of detection
@@ -428,7 +426,7 @@ fxi.secr <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL, ..
   
   ## 2020-01-26 conditional on point vs polygon detectors
   if (data$dettype[1] %in% c(0,1,2,5,8,13)) {
-      
+   
       prmat <- allhistfxi (data$m, Xrealparval, haztemp, gkhk, pimask, PIA, data$usge,
                            CH, data$binomNcode, grp, pmix, grain, ncores)
   }
