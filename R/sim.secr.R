@@ -17,7 +17,7 @@
 sim.secr <- function (object, nsim = 1, extractfn = function(x)
     c(deviance=deviance(x), df=df.residual(x)), seed = NULL,
     maxperpoly = 100, data = NULL, tracelevel = 1, hessian =
-    c('none','auto','fdHess'), start = object$fit$par, ncores = NULL, ...) {
+    c('none','auto','fdHess'), start = "true", ncores = NULL, ...) {
 
 ## parametric bootstrap simulations based on a fitted secr object
 ## using simulate.secr (see simulate.R)
@@ -80,6 +80,8 @@ sim.secr <- function (object, nsim = 1, extractfn = function(x)
         }
         else if (is.list(test)) list() else rep(NA, n.extract)
     }
+    
+    if (!is.null(start) && !is.numeric(start)) start <- complete.beta(object)
     
     output <-  lapply (data, fitmodel)
 
