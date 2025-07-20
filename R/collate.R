@@ -3,6 +3,8 @@
 ## collate.R
 ## Moved to own file 2023-07-08
 ## 2023-07-08 bug fixed: betanames failed with multiple sessions
+## 2025-07-17 bug fixed: allows for fixedbeta via complete.beta()
+## 2025-07-20 improved check for compatibility
 ############################################################################################
 
 collate <- function (object, ..., 
@@ -58,7 +60,6 @@ collate.secrlist <- function (object, ..., realnames = NULL, betanames = NULL, n
         warning ("only one model")
 
     type <- 'real'                     ## default
-    
     parnames <- unique(as.vector(unlist(sapply(object,
                                                function(x) x$realnames))))  ## default
     
@@ -75,22 +76,24 @@ collate.secrlist <- function (object, ..., realnames = NULL, betanames = NULL, n
     ## rudimentary checks for compatible models
     if (nsecr > 1) {
         objnames <- function(i) switch (type,
-                                        real = object[[i]]$realnames, beta = object[[i]]$betanames)
-        test <- sapply (2:nsecr, function(i)
+                                        real = object[[i]]$realnames, 
+                                        beta = object[[i]]$betanames)
+        test <- sapply (1:nsecr, function(i)
             sum(match(parnames, objnames(i), nomatch=0)>0) == np)
         if (!all(test))
-            stop ("parameters not found in all models, or incompatible models")
+            stop (call. = FALSE, 
+                  "Parameter(s) not found in all models, or incompatible models; \n",
+                  "specify common parameter(s) with realnames or betanames?")
     }
     
     getLP <- function (object1) {  ## for predicted values of real parameters
         getfield <- function (x) {
-            if (is.null(object1$beta)) object1$beta <-  object1$fit$par         
             secr.lpredictor (
                 formula = object1$model[[x]], 
                 newdata = newdata,
                 indx = object1$parindx[[x]], 
-                beta = object1$beta,
-                beta.vcv = object1$beta.vcv, 
+                beta = beta, 
+                beta.vcv = beta.vcv, 
                 field = x,
                 smoothsetup = object1$smoothsetup[[x]],
                 contrasts = object1$details$contrasts,
@@ -99,6 +102,9 @@ collate.secrlist <- function (object, ..., realnames = NULL, betanames = NULL, n
         }
         if (any(unlist(nclusters(object1$capthist))>1))
             warning("collate is ignoring n.mashed", call. = FALSE)
+        # 2025-07-17 allow for fixedbeta
+        beta <- complete.beta(object1)
+        beta.vcv <- complete.beta.vcv(object1)
         sapply (names(object1$model), getfield, simplify = FALSE)
     }
     
@@ -136,7 +142,7 @@ collate.secrlist <- function (object, ..., realnames = NULL, betanames = NULL, n
             }
         }
     }
-    
+ 
     z <- abs(qnorm(1-alpha/2))   ## beware confusion with hazard z!
     if (type == 'real') {
         nr <- nrow(newdata)
