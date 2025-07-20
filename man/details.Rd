@@ -184,7 +184,7 @@ compute sigma from D, then compute lambda0 from sigma).
 on \eqn{n} and hence describing relative density instead of absolute density. 
 The intercept of the submodel for D as a function of covariates is 
 fixed at zero for a log link or 1 for the identity link. 
-Not set by the user in secr >= 5.2.0.
+Not set by the user in secr >= 5.3.0.
 
 \code{details$savecall} determines whether the full call to \code{secr.fit} is 
 saved in the output object. The default is TRUE except when called by 
