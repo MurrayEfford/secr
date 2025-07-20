@@ -24,7 +24,7 @@ simulated data.
 sim.secr(object, nsim = 1, extractfn = function(x) c(deviance =
     deviance(x), df = df.residual(x)), seed = NULL, maxperpoly = 100,
     data = NULL, tracelevel = 1, hessian = c("none", "auto", "fdHess"),
-    start = object$fit$par, ncores = NULL, ...)
+    start = "true", ncores = NULL, ...)
 
 sim.detect(object, popnlist, maxperpoly = 100, renumber = TRUE, 
     expected = FALSE, dropzeroCH = TRUE)
@@ -45,7 +45,7 @@ sim.detect(object, popnlist, maxperpoly = 100, renumber = TRUE,
   \item{data}{optional list of simulated data saved from previous call to \code{simulate.secr}}
   \item{tracelevel}{integer for level of detail in reporting (0,1,2)}
   \item{hessian}{character or logical controlling the computation of the Hessian matrix}
-  \item{start}{vector of starting `beta' values for \code{secr.fit}}
+  \item{start}{vector of starting `beta' values for \code{secr.fit}, NULL or 'true'}
   \item{...}{other arguments (not used by simulate, passed to `extractfn' by sim.secr)}
   \item{popnlist}{list of popn objects}
   \item{renumber}{logical; if TRUE then output animals are renumbered }
@@ -160,7 +160,8 @@ other methods are available for `secrlist' objects
 (e.g. \code{plot.secrlist}).
 
 The default value for \code{start} in \code{sim.secr} is the previously
-fitted parameter vector. Alternatives are NULL or \code{object$start}.
+fitted parameter vector. Alternatives are NULL or a (complete) 
+user-constructed vector of beta values.
 
 }
 
