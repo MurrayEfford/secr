@@ -48,44 +48,44 @@ trap.builder <- function (n = 10, cluster, region = NULL, frame =
     #####################################################
     
     allinside <- function (xy) {
-        xy <- st_as_sf(data.frame(xy), coords=1:2)
-        st_crs(xy) <- st_crs(region)
-        all(st_within(xy, region, sparse = FALSE))
+        xy <- sf::st_as_sf(data.frame(xy), coords=1:2)
+        sf::st_crs(xy) <- sf::st_crs(region)
+        all(sf::st_within(xy, region, sparse = FALSE))
     }
 
     anyinside <- function (xy) {
-        xy <- st_as_sf(data.frame(xy), coords=1:2)
-        st_crs(xy) <- st_crs(region)
-        any(st_within(xy, region, sparse = FALSE))
+        xy <- sf::st_as_sf(data.frame(xy), coords=1:2)
+        sf::st_crs(xy) <- sf::st_crs(region)
+        any(sf::st_within(xy, region, sparse = FALSE))
     }
 
     alloutside <- function (xy) {
-        xy <- st_as_sf(data.frame(xy), coords=1:2)
-        st_crs(xy) <- st_crs(exclude)
-        all(!st_within(xy, exclude, sparse = FALSE))
+        xy <- sf::st_as_sf(data.frame(xy), coords=1:2)
+        sf::st_crs(xy) <- sf::st_crs(exclude)
+        all(!sf::st_within(xy, exclude, sparse = FALSE))
     }
 
     anyoutside <- function (xy) {
-        xy <- st_as_sf(data.frame(xy), coords=1:2)
-        st_crs(xy) <- st_crs(exclude)
-        any(!st_within(xy, exclude, sparse = FALSE))
+        xy <- sf::st_as_sf(data.frame(xy), coords=1:2)
+        sf::st_crs(xy) <- sf::st_crs(exclude)
+        any(!sf::st_within(xy, exclude, sparse = FALSE))
     }
 
     centreinside <- function (xy) {
         xy <- apply(as.matrix(xy),2,mean)
         xy <- matrix(xy, ncol = 2)  # 2022-05-27
-        xy <- st_as_sf(data.frame(xy), coords = 1:2)
-        st_crs(xy) <- st_crs(region)
-        OK <- st_within(xy, region, sparse = FALSE)
+        xy <- sf::st_as_sf(data.frame(xy), coords = 1:2)
+        sf::st_crs(xy) <- sf::st_crs(region)
+        OK <- sf::st_within(xy, region, sparse = FALSE)
         apply(OK,1,any)
     }
     
     centreoutside <- function (xy) {
         xy <- apply(as.matrix(xy),2,mean)
         xy <- matrix(xy, ncol = 2)  # 2022-05-27
-        xy <- st_as_sf(data.frame(xy), coords = 1:2)
-        st_crs(xy) <- st_crs(region)
-        OK <- st_within(xy, region, sparse = FALSE)
+        xy <- sf::st_as_sf(data.frame(xy), coords = 1:2)
+        sf::st_crs(xy) <- sf::st_crs(region)
+        OK <- sf::st_within(xy, region, sparse = FALSE)
         !apply(OK,1,any)
     }
 
@@ -146,22 +146,22 @@ trap.builder <- function (n = 10, cluster, region = NULL, frame =
         }
 
         if (plt & !add) {
-            plot(st_geometry(region))   # use plot method for sfc
+            plot(sf::st_geometry(region))   # use plot method for sfc
             if (!is.null(exclude)) {
-                plot(st_geometry(exclude), col='lightgrey', add=TRUE, border='lightgrey')
+                plot(sf::st_geometry(exclude), col='lightgrey', add=TRUE, border='lightgrey')
             }
         }
     }
     else {
         if (plt & !add) {
             if (!is.null(region)) {
-                plot(st_geometry(region))   # use plot method for sfc
+                plot(sf::st_geometry(region))   # use plot method for sfc
             }
             else {
                 MASS::eqscplot (frame, axes = F, xlab = '', ylab = '', pch = 1, cex = 0.5)
             }
             if (!is.null(exclude)) {
-                plot(st_geometry(region), border = 'lightgrey', add = TRUE)   # use plot method for sfc
+                plot(sf::st_geometry(region), border = 'lightgrey', add = TRUE)   # use plot method for sfc
             }
         }
     }
@@ -173,8 +173,8 @@ trap.builder <- function (n = 10, cluster, region = NULL, frame =
     if (method == 'SRS') {
         
         if (is.null(frame)) {
-            pts <- st_sample(region, size = ntrial, type  = "random", exact = TRUE)
-            origins <- st_coordinates(pts)
+            pts <- sf::st_sample(region, size = ntrial, type  = "random", exact = TRUE)
+            origins <- sf::st_coordinates(pts)
         }
         else {
             if (ntrial > nrow(frame))
@@ -185,25 +185,23 @@ trap.builder <- function (n = 10, cluster, region = NULL, frame =
     }
     ####################################
     else if (method == 'GRTS') {
-        
-        if (!requireNamespace("spsurvey", versionCheck=list(op=NULL, version = ">=5.3.0"), quietly = TRUE)) {
+        if (!requireNamespace("spsurvey", versionCheck=list(op=">=", version = "5.3.0"), quietly = TRUE)) {
             stop ("package 'spsurvey >= 5.3.0' required for GRTS in trap.builder")
         }
         if (!is.null(region)) {
-                sf_frame <- st_sf(region)   # sfc to sf
+                sf_frame <- sf::st_sf(region)   # sfc to sf
         }
         else {
             # assume frame of points
-            sf_frame <- st_as_sf(data.frame(frame), coords=1:2)
+            sf_frame <- sf::st_as_sf(data.frame(frame), coords=1:2)
         }
 
         # ensure valid crs
-        crs <- st_crs(sf_frame)
+        crs <- sf::st_crs(sf_frame)
         if (!is.na(crs) && crs$IsGeographic) {   # most likely EPSG 4326
             stop ("region should use projected (Cartesian) coordinates")
         }
         ntrial <- n                   # oversample not allowed
-
         GRTS.sites <- spsurvey::grts(
             sframe      = sf_frame,
             n_base      = ntrial,
@@ -212,7 +210,7 @@ trap.builder <- function (n = 10, cluster, region = NULL, frame =
             projcrs_check = FALSE,     # override check
             ...
         )
-        origins <- st_coordinates(GRTS.sites$sites_base)
+        origins <- sf::st_coordinates(GRTS.sites$sites_base)
 
     }
     
@@ -299,17 +297,17 @@ trap.builder <- function (n = 10, cluster, region = NULL, frame =
     }
     ## drop excluded sites, if requested
     if (edgemethod %in% c('clip', 'centreinside')) {
-        xy <- st_as_sf(traps, coords=1:2)
-        st_crs(xy) <- st_crs(region)
+        xy <- sf::st_as_sf(traps, coords=1:2)
+        sf::st_crs(xy) <- sf::st_crs(region)
         # OK matrix, rows are points, cols are polygons
-        OK <- st_within(xy, region, sparse = FALSE)  
+        OK <- sf::st_within(xy, region, sparse = FALSE)  
         OK <- apply(OK,1,any)
         traps <- subset(traps, subset = OK)
     }
     if (!is.null(exclude) && (exclmethod %in% c('clip', 'centreoutside'))) {
-        xy <- st_as_sf(traps, coords=1:2)
-        st_crs(xy) <- st_crs(exclude)
-        OK <- st_within(xy, exclude, sparse = FALSE)  
+        xy <- sf::st_as_sf(traps, coords=1:2)
+        sf::st_crs(xy) <- sf::st_crs(exclude)
+        OK <- sf::st_within(xy, exclude, sparse = FALSE)  
         OK <- !apply(OK,1,any)
         traps <- subset(traps, subset = OK)
     }
@@ -365,13 +363,13 @@ make.systematic <- function (n, cluster, region, spacing = NULL,
     if (rotate != 0) {
         ## 2022-02-01 see utility.R for sfrotate
         if (is.null(centrexy)) {
-            centrexy <- st_centroid(st_as_sfc(st_bbox(region)))
-            centrexy <- st_coordinates(centrexy)
+            centrexy <- sf::st_centroid(st_as_sfc(st_bbox(region)))
+            centrexy <- sf::st_coordinates(centrexy)
         }
         region <- sfrotate(region, degrees = -rotate, centrexy = centrexy, usecentroid = FALSE)
     }
 
-    bbox <- st_bbox(region)
+    bbox <- sf::st_bbox(region)
     wd <- bbox[3]-bbox[1]
     ht <- bbox[4]-bbox[2]
     
@@ -401,7 +399,7 @@ make.systematic <- function (n, cluster, region, spacing = NULL,
             ny <- n[2]
         }
         else {
-            area <- sum(st_area(region))
+            area <- sum(sf::st_area(region))
             ## 2022-04-27 convert to numeric to avoid units
             cell <- as.numeric(sqrt(area / n))
             nx <- round ((wd - 2*wx) / cell) 
@@ -455,10 +453,10 @@ make.systematic <- function (n, cluster, region, spacing = NULL,
     args <- list(...)
     if (!is.null(args$edgemethod)) {
         if (args$edgemethod %in% c('allinside', 'centreinside','allowoverlap')) {
-            sfcentres <- st_as_sf(centres, coords=1:2)
-            st_crs(sfcentres) <- st_crs(region)                       
-            OK <- st_within(sfcentres, region, sparse = FALSE)
-            centres <- st_coordinates(sfcentres)[OK,, drop = FALSE]
+            sfcentres <- sf::st_as_sf(centres, coords=1:2)
+            sf::st_crs(sfcentres) <- sf::st_crs(region)                       
+            OK <- sf::st_within(sfcentres, region, sparse = FALSE)
+            centres <- sf::st_coordinates(sfcentres)[OK,, drop = FALSE]
         }
     }
     traps <- trap.builder (cluster = cluster, frame = centres, region = region,
@@ -513,16 +511,16 @@ make.lacework <- function (region, spacing = c(100, 20), times = NULL,
     temporigin <- origin
     fraction <- 1.0  ## suspended code
     region <- boundarytoSF(region)
-    A <- st_area(region)
+    A <- sf::st_area(region)
     K <- A/a^2 * (2*a/b - 1)
     if (K>5000) stop("Expected number of detectors ", K, " exceeds 5000")
     if (rotate != 0) {
-        centrexy <- st_centroid(st_as_sfc(st_bbox(region)))
-        centrexy <- st_coordinates(centrexy)
+        centrexy <- sf::st_centroid(sf::st_as_sfc(sf::st_bbox(region)))
+        centrexy <- sf::st_coordinates(centrexy)
         region <- sfrotate(region, degrees = -rotate, centrexy = centrexy, usecentroid = FALSE)
     }    
     
-    bbox <- matrix(st_bbox(region), ncol = 2)                   ## after rotation
+    bbox <- matrix(sf::st_bbox(region), ncol = 2)                   ## after rotation
     if (is.null(origin)) {
         origin <- bbox[,1]
         origin <- origin - runif(2)*a
