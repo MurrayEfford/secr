@@ -14,7 +14,7 @@ function for models fitted by maximising the conditional likelihood.
 \usage{
 
 predictDsurface(object, mask = NULL, se.D = FALSE, cl.D = FALSE, alpha =
-0.05, parameter = c('D', 'noneuc'))
+0.05, parameter = c('D', 'noneuc', 'sigmaxy'))
 
 }
 
