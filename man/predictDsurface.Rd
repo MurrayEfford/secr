@@ -14,7 +14,7 @@ function for models fitted by maximising the conditional likelihood.
 \usage{
 
 predictDsurface(object, mask = NULL, se.D = FALSE, cl.D = FALSE, alpha =
-0.05, parameter = c('D', 'noneuc', 'sigmaxy'))
+0.05, parameter = 'D')
 
 }
 
@@ -29,7 +29,8 @@ predictDsurface(object, mask = NULL, se.D = FALSE, cl.D = FALSE, alpha =
 
 \details{
 
-  Predictions use the linear model for density on the link scale in the
+  Predictions use the linear model for density or other spatial parameters 
+  ('noneuc', 'sigmaxy' etc.) on the link scale in the
   fitted secr model `object', or the fitted user-defined function, if
   that was specified in \code{secr.fit}.
   
