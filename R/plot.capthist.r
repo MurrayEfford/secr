@@ -10,6 +10,23 @@
 
 ##############################################################################
 
+span <- function (object, ...) {
+    if (ms(object)) {
+        sapply(object, span, ...)
+    }
+    else {
+        if (is.null(object) || !('x' %in% names(object) && 'y' %in% names(object))) {
+            NULL
+        }
+        else {
+            rx <- range(object$x)
+            ry <- range(object$y)
+            max(diff(rx), diff(ry))
+        }
+    }
+}
+#-------------------------------------------------------------------------------
+
 plot.capthist <- function(x, 
     rad = 5,
     hidetraps = FALSE, 
@@ -237,11 +254,11 @@ plot.capthist <- function(x,
         
         ###########
         ## MAINLINE
-        x <- check3D(x)
+        x <- secr_check3D(x)
         opal <- palette() ; on.exit(palette(opal))
         type <- match.arg(type)
         traps <- traps(x)
-        detectr <- expanddet(x)
+        detectr <- secr_expanddet(x)
         
         ## 2024-10-09 new warning
         if (!is.null(telemetryxy(x))) {
@@ -272,16 +289,16 @@ plot.capthist <- function(x,
             nocc <- sum(detectr != 'telemetry')
         
         if (type %in% c('petal','centres'))
-            cappar <- replacedefaults (list(cex=1.3, pch=16, col='blue'), cappar)
+            cappar <- secr_replacedefaults (list(cex=1.3, pch=16, col='blue'), cappar)
         if (type == 'sightings')
-            cappar <- replacedefaults (list(cex=1, pch=16, col='blue'), cappar)
+            cappar <- secr_replacedefaults (list(cex=1, pch=16, col='blue'), cappar)
         if (type == 'nontarget')
-            cappar <- replacedefaults (list(cex=1, pch=16, fg='black'), cappar)
+            cappar <- secr_replacedefaults (list(cex=1, pch=16, fg='black'), cappar)
         if (type %in% c('n.per.cluster','n.per.detector'))
-            cappar <- replacedefaults (list(cex = 3, pch = 21), cappar)
+            cappar <- secr_replacedefaults (list(cex = 3, pch = 21), cappar)
 
-        trkpar <- replacedefaults (list(col='blue', lwd=1), trkpar)
-        labpar <- replacedefaults (list(cex=0.7, col='black'), labpar)
+        trkpar <- secr_replacedefaults (list(col='blue', lwd=1), trkpar)
+        labpar <- secr_replacedefaults (list(cex=0.7, col='black'), labpar)
         initialpar <- par(cappar)
         if (!add) {
             if (type=="telemetry") {

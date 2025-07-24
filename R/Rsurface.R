@@ -2,7 +2,7 @@ Rsurface <- function (mask,  sigma, usecov = NULL, alpha2 = 1, detectfn = "HHN",
                       inverse = FALSE, scale = TRUE) {
     if (ms(mask)) stop ("not ready for multisession masks")
     mm <- nrow(mask)
-    detectfn <- valid.detectfn(detectfn, c(4,14:19))  ## converts from character
+    detectfn <- secr_valid.detectfn(detectfn, c(4,14:19))  ## converts from character
     tmpmask <- cbind(mask, rep(1,mm))
     miscparm <- c(1,0,0,0)
     if (!is.null(usecov)) {

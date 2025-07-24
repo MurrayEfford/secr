@@ -26,7 +26,7 @@ deviance.secr <- function (object, ...) {
         LLsat + sum(sapply(1:ngrp, function(g) nwfn(nw[[g]], n[g])))
     }
 
-    grps <- group.factor(object$capthist, object$groups)
+    grps <- secr_group.factor(object$capthist, object$groups)
 
     if (!object$CL & (object$details$distribution=='binomial')) {
         # 2024-08-20 fix code for N broken since 2011!

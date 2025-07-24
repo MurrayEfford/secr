@@ -152,9 +152,9 @@ derived.secr <- function (object, sessnum = NULL, groups=NULL, alpha=0.05, se.es
                 row.names = c('esa','D'),
                 estimate = derivedmean + c(0,NT/A),  ## NT in 'telemetry' below
                 SE.estimate = derivedSE)
-            temp <- add.cl(temp, alpha, loginterval)
+            temp <- secr_add.cl(temp, alpha, loginterval)
             if (!is.na(temp$estimate[2]) && temp$estimate[2] > 0) {
-                temp <- add.cl(temp, alpha, loginterval)
+                temp <- secr_add.cl(temp, alpha, loginterval)
                 temp$CVn <- varcomp1^0.5 / temp$estimate
                 temp$CVa <- varcomp2^0.5 / temp$estimate
                 temp$CVD <- temp$SE.estimate / temp$estimate
@@ -191,11 +191,11 @@ derived.secr <- function (object, sessnum = NULL, groups=NULL, alpha=0.05, se.es
         telem <- telemetered(capthist)
         
         if (telemetrytype(traps(capthist)) %in% c('independent','concurrent'))
-            OK <- !allzero(capthist)
+            OK <- !secr_allzero(capthist)
         else
             OK <- rep(TRUE, nrow(capthist))  ## use all if 'none','dependent'
         
-        OK <- !allzero(capthist)
+        OK <- !secr_allzero(capthist)
 
         if (bycluster) {
             tr <- traps(capthist)
@@ -214,7 +214,7 @@ derived.secr <- function (object, sessnum = NULL, groups=NULL, alpha=0.05, se.es
             out <- lapply(1:ncluster, getcluster)
         }
         else {    
-            grp <- group.factor(capthist, groups)
+            grp <- secr_group.factor(capthist, groups)
             # NT <- tapply(telem, grp, sum)  ## suppressed 2017-01-05
             NT <- 0
             grp <- grp[OK]

@@ -25,8 +25,8 @@ oneline.secr <- function (secr, k, chat = NULL) {
                        NA)
     
     c (
-        model  = model.string(secr$model, secr$details$userDfn),
-        detectfn = detectionfunctionname(secr$detectfn),
+        model  = secr_model.string(secr$model, secr$details$userDfn),
+        detectfn = secr_detectionfunctionname(secr$detectfn),
         npar   = Npar,
         logLik = -secr$fit$value,
         AIC    = round(AICval, 3),

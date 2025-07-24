@@ -49,11 +49,11 @@ sim.secr <- function (object, nsim = 1, extractfn = function(x)
     .localstuff$iter2 <- 0   
 
     if (any(detector(traps(object$capthist)) == 'single')) {
-        memo ('multi-catch likelihood used for single-catch traps', tracelevel>0)
+        secr_memo ('multi-catch likelihood used for single-catch traps', tracelevel>0)
     }
     
     if (is.null(data)) {
-        memo ('sim.secr simulating detections...', tracelevel>0)
+        secr_memo ('sim.secr simulating detections...', tracelevel>0)
         ## use multiple cores only for model fitting 2015-12-02
         data <- simulate(object, nsim = nsim, seed = seed, maxperpoly = maxperpoly)
     }
@@ -66,7 +66,7 @@ sim.secr <- function (object, nsim = 1, extractfn = function(x)
         ## use second counter so as not to interfere with secrloglik
         .localstuff$iter2 <- .localstuff$iter2 + 1   ## 2016-01-09
         if (tracelevel>0)
-            memo (paste('sim.secr fitting replicate', .localstuff$iter2, '...'), TRUE)
+            secr_memo (paste('sim.secr fitting replicate', .localstuff$iter2, '...'), TRUE)
         nc <-  sum(counts(sc)$'M(t+1)'[,'Total'])
         if (nc >= min.detections) {
             tempfit <- suppressWarnings( secr.fit(sc, model = object$model, mask = object$mask,
@@ -81,7 +81,7 @@ sim.secr <- function (object, nsim = 1, extractfn = function(x)
         else if (is.list(test)) list() else rep(NA, n.extract)
     }
     
-    if (!is.null(start) && !is.numeric(start)) start <- complete.beta(object)
+    if (!is.null(start) && !is.numeric(start)) start <- secr_complete.beta(object)
     
     output <-  lapply (data, fitmodel)
 

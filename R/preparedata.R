@@ -4,52 +4,6 @@
 ###############################################################################
 
 #--------------------------------------------------------------------------------
-getk <- function(traps) {
-  if (!all(detector(traps) %in% .localstuff$polydetectors)) {
-    nrow(traps)
-  }
-  else {
-    if (all(detector(traps) %in% c('polygon','polygonX'))) {        
-      k <- table(polyID(traps))       
-    }
-    else if (all(detector(traps) %in% c('transect','transectX'))) {        
-      k <- table(transectID(traps))   # transectX, transect
-    }
-    else stop ("unrecognised poly detector type")
-    c(k,0) ## zero terminate
-  }
-}
-#--------------------------------------------------------------------------------
-
-getxy <- function(dettype, capthist) {
-  if (all(detector(traps(capthist)) %in% .localstuff$polydetectors)) {
-    xy <- xy(capthist)
-    ## start[z] indexes the first row in xy (or element in signal)
-    ## for each possible count z (including zeros), where z is w-order (isk) 
-    start <- abs(capthist)
-    start <- head(cumsum(c(0,start)),length(start))
-  }
-  else {
-    if (any(dettype == 13)) {
-      ## ensure order matches
-      ## should have null histories in capthist
-      telem <- telemetryxy(capthist)
-      ord <- match(names(telem), rownames(capthist), nomatch = 0)
-      newtelem <- vector('list',nrow(capthist))
-      newtelem[ord] <- telem
-      xy <- do.call(rbind, newtelem)
-      tmp <- sapply(newtelem, nrow)
-      tmp[sapply(tmp, is.null)] <- 0
-      start <- cumsum(c(0,tmp))
-    }
-    else {
-      xy <- 0
-      start <- 0
-    }
-  }
-  list(xy = xy, start = start)
-}
-#--------------------------------------------------------------------------------
 getsignal <- function (dettype, capthist, tx) {
   if (all(dettype %in% c(5,12))) {    # signal strength, signalnoise
     signal <- signalmatrix(capthist)
@@ -74,8 +28,8 @@ getsignal <- function (dettype, capthist, tx) {
 }
 #--------------------------------------------------------------------------------
 
-recodebinomN <- function (dettype, binomN, telemcode) {
-  binomN <- expandbinomN(binomN, dettype)
+secr_recodebinomN <- function (dettype, binomN, telemcode) {
+  binomN <- secr_expandbinomN(binomN, dettype)
   detectr <- .localstuff$validdetectors[dettype+2]
   detectr[(detectr %in% c('count','polygon', 'transect')) & (binomN == 0)] <- "poissoncount"
   detectr[(detectr %in% c('count','polygon', 'transect')) & (binomN > 0)]  <- "binomialcount"
@@ -95,7 +49,7 @@ recodebinomN <- function (dettype, binomN, telemcode) {
 }
 #--------------------------------------------------------------------------------
 
-nullCH <- function (dimCH, individual) {
+secr_nullCH <- function (dimCH, individual) {
     if (is.null(individual)) {
         individual <- TRUE   ## 2020-05-16 for backward compatibility
     }
@@ -214,7 +168,7 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
         #   as.is
         #   bydetector
         #   sum
-        control <- replacedefaults(defaultcontrol, control)
+        control <- secr_replacedefaults(defaultcontrol, control)
         allsighting <- !any(markocc>0)
         anysighting <- any(markocc<1)
         
@@ -299,16 +253,16 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
 
 ##############################################################################
 
-prepareSessionData <- function (capthist, mask, maskusage, 
+secr_prepareSessionData <- function (capthist, mask, maskusage, 
     design, design0, detectfn, groups, fixed, hcov, details, 
     aslist = TRUE, sessnum = 1) {
     ## aslist used internally to determine whether single-session data are wrapped in a list
     if (ms(capthist)) {
-        if (!ms(mask)) stop ("expect session-specific mask in prepareSessionData")
+        if (!ms(mask)) stop ("expect session-specific mask in secr_prepareSessionData")
         if (is.null(maskusage))
             maskusage <- vector('list', length(capthist))
         mapply(
-            prepareSessionData, 
+            secr_prepareSessionData, 
             capthist = capthist, 
             mask = mask, 
             maskusage = maskusage,
@@ -322,10 +276,10 @@ prepareSessionData <- function (capthist, mask, maskusage,
         s    <- ncol(capthist)
         m    <- nrow(mask)
         traps   <- traps(capthist)
-        dettype <- detectorcode(traps, MLonly = TRUE, noccasions = s)
-        binomNcode <- recodebinomN(dettype, details$binomN, telemcode(traps))
+        dettype <- secr_detectorcode(traps, MLonly = TRUE, noccasions = s)
+        binomNcode <- secr_recodebinomN(dettype, details$binomN, telemcode(traps))
         ## k-1 because we have zero-terminated these vectors
-        k <- getk(traps)
+        k <- secr_getk(traps)
         K <- if (length(k)>1) length(k)-1 else k
         cumk <- cumsum(c(0,k))[1:length(k)]
         
@@ -334,14 +288,14 @@ prepareSessionData <- function (capthist, mask, maskusage,
             details$chat, details$markresight, details$knownmarks)
 
         ## knownclass for hcov mixture models
-        knownclass <- getknownclass(capthist, details$nmix, hcov)
+        knownclass <- secr_getknownclass(capthist, details$nmix, hcov)
         
         ## get static distance matrix
-        distmat2 <- getdistmat2(traps, mask, details$userdist)
+        distmat2 <- secr_getdistmat2(traps, mask, details$userdist)
 
         n.distrib <- switch (tolower(details$distribution), poisson=0, binomial=1, 0)
         signal <- getsignal (dettype, capthist, details$tx)
-        xy <- getxy (dettype, capthist)
+        xy <- secr_getxy (dettype, capthist)
         usge <- usage(traps)
         if (is.null(usge) || details$ignoreusage) {
             usge <- matrix(1, nrow = K, ncol = s)
@@ -377,11 +331,11 @@ prepareSessionData <- function (capthist, mask, maskusage,
         }
         
         ## Groups
-        grp  <- group.factor (capthist, groups)
+        grp  <- secr_group.factor (capthist, groups)
         if (any(is.na(grp))) {
             stop("group is missing for at least one animal")
         }
-        ngroup <- max(1,length(group.levels(capthist, groups)))
+        ngroup <- max(1,length(secr_group.levels(capthist, groups)))
         CH <- compressCH(capthist, binomNcode, details$fastproximity) 
         
         # 2023-06-09 tentatively remove hcov from condition
@@ -389,14 +343,12 @@ prepareSessionData <- function (capthist, mask, maskusage,
         # when is full CH0 (1 row per animal) really needed?
         # why is this an issue for polygonhistoriescpp and not simplehistoriescpp?
         
-        # CH0 <- nullCH(dim(CH), packageVersion('secr')<'4.0.0' || design0$individual || ngroup>1 || !is.null(hcov))   ## all-zero CH
-        
-        CH0 <- nullCH(dim(CH), packageVersion('secr')<'4.0.0' || design0$individual || ngroup>1)   ## all-zero CH
+        CH0 <- secr_nullCH(dim(CH), packageVersion('secr')<'4.0.0' || design0$individual || ngroup>1)   ## all-zero CH
         
         #####################################################################
         ## unclear whether this is correct wrt groups
         if (all(detector(traps) %in% .localstuff$simpledetectors)) {
-            logmult <- logmultinom(capthist, group.factor(capthist, groups))
+            logmult <- logmultinom(capthist, secr_group.factor(capthist, groups))
         }
         else {
             logmult <- 0

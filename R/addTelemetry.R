@@ -52,11 +52,11 @@ addTelemetry <- function (detectionCH, telemetryCH,
         else {
             type <- match.arg(type)
             xylist <- telemetryxy(telemetryCH)
-            capdet <- expanddet(detectionCH)
+            capdet <- secr_expanddet(detectionCH)
             if (collapsetelemetry)
                 teldet <- 'telemetry'
             else
-                teldet <- expanddet(telemetryCH)
+                teldet <- secr_expanddet(telemetryCH)
             
             if (type == "independent") 
                 OK <- rep(NA, nrow(telemetryCH))        
@@ -216,7 +216,7 @@ read.telemetry <- function (file = NULL, data = NULL, covnames = NULL, verify = 
         colcl <- c('character','character',NA,NA,NA, rep(NA,nfield-nvar))
         defaultargs <- list(sep = '', comment.char = '#')
         if (filetype(file)=='.csv') defaultargs$sep <- ','
-        captargs <- replacedefaults (defaultargs, list(...))
+        captargs <- secr_replacedefaults (defaultargs, list(...))
         captargs <- captargs[names(captargs) %in% names(formals(read.table))]
         capt <- do.call ('read.table', c(list(file = file, as.is = TRUE,
                                               colClasses = colcl), captargs) )

@@ -14,6 +14,30 @@
 ## 2021-09-21 modified for nonspatial detector type
 ############################################################################################
 
+#-------------------------------------------------------------------------------
+
+# Based on Tim Salabim stackoverflow Jul 12 2018
+# https://stackoverflow.com/questions/51292952/snap-a-point-to-the-closest-point-on-a-line-segment-using-sf
+
+snap_points <- function(x, y, max_dist = 1000) {
+    
+    if (inherits(x, "sf")) n = nrow(x)
+    if (inherits(x, "sfc")) n = length(x)
+    
+    out = do.call(c,
+                  lapply(seq(n), function(i) {
+                      nrst = st_nearest_points(st_geometry(x)[i], y)
+                      nrst_len = st_length(nrst)
+                      nrst_mn = which.min(nrst_len)
+                      if (as.vector(nrst_len[nrst_mn]) > max_dist) return(st_geometry(x)[i])
+                      return(st_cast(nrst[nrst_mn], "POINT")[2])
+                  })
+    )
+    return(out)
+}
+
+#-------------------------------------------------------------------------------
+
 make.capthist <- function (captures, traps, fmt = c("trapID", "XY"), noccasions = NULL,
     covnames = NULL, bysession = TRUE, sortrows = TRUE, cutval = NULL, tol = 0.01, 
     snapXY = FALSE, noncapt = 'NONE', signalcovariates = NULL)
@@ -159,7 +183,7 @@ make.capthist <- function (captures, traps, fmt = c("trapID", "XY"), noccasions 
                             # combine linestrings in one sfc
                             v <- st_sfc(vlist)     
                             xy <- st_as_sf(captures[,4:5, drop = FALSE], coords = 1:2)
-                            xy2 <- snap_points (xy, v, max_dist = tol) # see utility.R
+                            xy2 <- snap_points (xy, v, max_dist = tol) # see above
                             distances <- st_distance(xy,v) 
                             distances <- apply(distances,1,min)   # nearest 2022-12-01
                             OK <- distances < tol

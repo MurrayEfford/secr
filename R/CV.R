@@ -68,11 +68,11 @@ CVa <- function (object, sessnum = 1, ...) {
     if ((nmix == 1) | (length(pred) != nmix))
         stop ("requires 2- or 3-class mixture")
     trps <- traps(capthists)
-    dettype <- detectorcode(trps)
+    dettype <- secr_detectorcode(trps)
     if (!all(dettype %in%  c(0,1,2,5,8,13))) {
         stop ("type CVa is available only for point detectors")
     }
-    binomN <- getbinomN(binomN, detector(trps))
+    binomN <- secr_getbinomN(binomN, detector(trps))
     dpar <-  detectpar(object, ..., byclass = TRUE)
     a1 <- pdot(masks, trps, object$detectfn, detectpar = dpar[[1]],
                noccasions = ncol(capthists), binomN)
@@ -88,7 +88,7 @@ CVa <- function (object, sessnum = 1, ...) {
 
 CVpdot <- function (..., conditional = FALSE) {
     trps <- eval(match.call(pdot, expand.dots=T)$traps)
-    dettype <- detectorcode(trps)
+    dettype <- secr_detectorcode(trps)
     if (!all(dettype %in%  c(0,1,2,5,8,13))) {
         stop ("type CVpdot is available only for point detectors")
     }

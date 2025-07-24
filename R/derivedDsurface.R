@@ -37,7 +37,7 @@ derivedDcoef <- function (object, sessnum = 1, groups = NULL, se = FALSE) {
     else {
         capthist <- object$capthist
         if (ms(capthist)) capthist <- capthist[[sessnum]]
-        grp <- group.factor(capthist, groups)
+        grp <- secr_group.factor(capthist, groups)
         individuals <- split (1:nrow(capthist), grp)
         ngrp <- length(individuals)   ## number of groups
         
@@ -95,8 +95,8 @@ derivedDcoef <- function (object, sessnum = 1, groups = NULL, se = FALSE) {
 
 derivedDsurface <- function (object, mask = NULL, sessnum = NULL, groups = NULL) {
     Dx <- function(object, mask, sessnum, selection) {
-        D <- predictD(object, mask, group = NULL, session = sessnum, parameter = 'D')
-        cellsize <- getcellsize(mask)
+        D <- secr_predictD(object, mask, group = NULL, session = sessnum, parameter = 'D')
+        cellsize <- secr_getcellsize(mask)
         px <- pxi(object, sessnum = sessnum, X = mask)   # dim N x m
         D <- matrix(D, ncol = 1)                         # dim m x 1
         intDp <- px %*% D * cellsize                     # dim N x 1
@@ -126,7 +126,7 @@ derivedDsurface <- function (object, mask = NULL, sessnum = NULL, groups = NULL)
         
         capthist <- object$capthist
         if (ms(capthist)) capthist <- capthist[[sessnum]]
-        grp <- group.factor(capthist, groups)
+        grp <- secr_group.factor(capthist, groups)
         ind <- 1:nrow(capthist)
         if (length(ind)>0)
             individuals <- split (ind, grp)

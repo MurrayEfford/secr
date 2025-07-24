@@ -43,7 +43,7 @@ autoini <- function (capthist, mask, detectfn = 0, thin = 0.2, tol = 0.001,
       # allow for binary use/non-use of detectors
       if (!is.null(usage(trps))) PIA0[t(usage(trps)==0)] <- -1
       
-      distmat2 <- getdistmat2(trps, mask, NULL)
+      distmat2 <- secr_getdistmat2(trps, mask, NULL)
       gkhk <- makegkPointcpp (
           as.integer(detectfn), 
           as.integer(grain), 
@@ -52,13 +52,13 @@ autoini <- function (capthist, mask, detectfn = 0, thin = 0.2, tol = 0.001,
           as.matrix(distmat2), 
           as.double(0))
       
-      if (any(dettype==0)) CH0 <- nullCH (c(nc,s), FALSE)
-      else CH0 <- nullCH (c(nc,s,k), FALSE)
-      binomNcode <- recodebinomN(dettype, binomN, 0)
+      if (any(dettype==0)) CH0 <- secr_nullCH (c(nc,s), FALSE)
+      else CH0 <- secr_nullCH (c(nc,s,k), FALSE)
+      binomNcode <- secr_recodebinomN(dettype, binomN, 0)
       pmixn <- matrix(1, nrow=1, ncol=nc)
-      pdot <- integralprw1 (
+      pdot <- secr_integralprw1 (
           cc0 = nrow(realparval0), 
-          haztemp = gethazard(m, binomNcode, nrow(realparval0), gkhk$hk, PIA0, usge), 
+          haztemp = secr_gethazard(m, binomNcode, nrow(realparval0), gkhk$hk, PIA0, usge), 
           gkhk = gkhk, 
           pi.density = matrix(1/m, nrow=m, ncol=1), 
           PIA0 = PIA0, 
@@ -82,7 +82,7 @@ autoini <- function (capthist, mask, detectfn = 0, thin = 0.2, tol = 0.001,
         stop ("too few values for autoini")  ## message changed 2015-01-06
 
     if (is.character(detectfn))
-        detectfn <- detectionfunctionnumber(detectfn)
+        detectfn <- secr_detectionfunctionnumber(detectfn)
 
     if (! (detectfn %in% c(0)))
         stop ("only halfnormal detection function implemented in 'autoini'")
@@ -110,7 +110,7 @@ autoini <- function (capthist, mask, detectfn = 0, thin = 0.2, tol = 0.001,
         ## assuming k = nk i.e. not polygon or transect detector
         usge <- matrix(1, nrow = nrow(trps), ncol = ncol(capthist))
     }
-    dettype <- detectorcode(trps, noccasions = ncol(capthist))
+    dettype <- secr_detectorcode(trps, noccasions = ncol(capthist))
 
     n       <- nrow(capthist)    # number of individuals
     s       <- ncol(capthist)    # number of occasions

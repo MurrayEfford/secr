@@ -2,7 +2,7 @@
 ## package 'secr'
 ## modelAverage.R
 ## replacing model.average
-## 2024-12-23 more robust: allows for fixed and fixedbeta parameters (calls complete.beta)
+## 2024-12-23 more robust: allows for fixed and fixedbeta parameters (calls secr_complete.beta)
 ############################################################################################
 
 MATA <- function (wt, est, se, alpha) {
@@ -180,12 +180,12 @@ modelAverage.secrlist <- function (object, ..., realnames = NULL, betanames = NU
     else { ## type == 'real'
         getLP <- function (object1) {  ## predicted values of real parameters
             getfield <- function (x) {
-                secr.lpredictor (
+                secr_lpredictor (
                     formula     = object1$model[[x]], 
                     newdata     = newdata,
                     indx        = object1$parindx[[x]], 
-                    beta        = complete.beta(object1),     # 2024-12-23
-                    beta.vcv    = complete.beta.vcv(object1), 
+                    beta        = secr_complete.beta(object1),     # 2024-12-23
+                    beta.vcv    = secr_complete.beta.vcv(object1), 
                     field       = x,
                     smoothsetup = object1$smoothsetup[[x]], 
                     contrasts   = object1$details$contrasts,

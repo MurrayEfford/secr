@@ -22,7 +22,7 @@ Enk <- function (D, mask, traps, detectfn = 0,
     noccasions = NULL, binomN = NULL, userdist = NULL, 
     ncores = NULL, nrepl = NULL) {
     if (is.character(detectfn))
-        detectfn <- detectionfunctionnumber(detectfn)
+        detectfn <- secr_detectionfunctionnumber(detectfn)
     if ((detectfn > 9) & (detectfn<14) & is.null(detectpar$cutval))
         stop ("requires 'cutval' for detectfn 10:13")
     if (ms(traps) || ms(mask))
@@ -30,7 +30,7 @@ Enk <- function (D, mask, traps, detectfn = 0,
     
     truncate <- ifelse(is.null(detectpar$truncate), 1e+10, detectpar$truncate)
     
-    detectpars <- unlist(detectpar[parnames(detectfn)])
+    detectpars <- unlist(detectpar[secr_parnames(detectfn)])
     if ((detectfn>9) & (detectfn<14))  detectpars <- c(detectpars, detectpar$cutval)
     if (length(detectpars)<3) detectpars <- c(detectpars,0)
     miscparm <- numeric(4);   ## dummy
@@ -38,8 +38,8 @@ Enk <- function (D, mask, traps, detectfn = 0,
     usge <- usage(traps, noccasions)
     if (is.null(noccasions)) noccasions <- ncol(usge)
     
-    dettype <- detectorcode(traps, noccasions = noccasions)
-    binomN <- getbinomN (binomN, detector(traps))
+    dettype <- secr_detectorcode(traps, noccasions = noccasions)
+    binomN <- secr_getbinomN (binomN, detector(traps))
     markocc <- markocc(traps)
     
     if (is.null(markocc)) markocc <- rep(1,noccasions)
@@ -67,8 +67,9 @@ Enk <- function (D, mask, traps, detectfn = 0,
         stop("Enk formula available only for multi, proximity and count detectors; try simulation")
     }
     else {
-        D <- rep(D * getcellsize(mask), length.out = nrow(mask))  # per cell; includes linear
-        distmat2 <- getuserdist (traps, mask, userdist, sessnum = NA, NULL, NULL, miscparm)
+        D <- rep(D * secr_getcellsize(mask), length.out = nrow(mask))  # per cell; includes linear
+        # call with NULL NElist for now
+        distmat2 <- secr_getuserdist (traps, mask, userdist, sessnum = NA, NElist = NULL, density = NULL, miscparm)
         ncores <- setNumThreads(ncores)
         grain <- if (ncores==1) 0 else 1
         nkpointcpp(
@@ -81,7 +82,7 @@ Enk <- function (D, mask, traps, detectfn = 0,
             as.double  (detectpars),
             as.double  (miscparm),
             as.double  (truncate^2),
-            as.integer (expandbinomN(binomN, dettype)),
+            as.integer (secr_expandbinomN(binomN, dettype)),
             as.integer (grain),
             as.integer (ncores)
         )

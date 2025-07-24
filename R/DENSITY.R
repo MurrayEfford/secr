@@ -123,7 +123,7 @@ read.capthist <- function (captfile, trapfile, detector = 'multi', fmt = c('trap
         if (!requireNamespace("readxl", quietly = TRUE))
             stop("package readxl is required for input from Excel spreadsheets")
         defaultargs <- list(sheet = 1, skip = 0, col_names = TRUE)
-        captargs <- replacedefaults (defaultargs, list(...))
+        captargs <- secr_replacedefaults (defaultargs, list(...))
         ## first refers to captfile
         captargs$sheet <- captargs$sheet[1] 
         captargs$skip <- captargs$skip[1] 
@@ -154,7 +154,7 @@ read.capthist <- function (captfile, trapfile, detector = 'multi', fmt = c('trap
         
         defaultargs <- list(sep = '', comment.char = '#')
         if (ext == 'csv') defaultargs$sep <- ','
-        captargs <- replacedefaults (defaultargs, list(...))
+        captargs <- secr_replacedefaults (defaultargs, list(...))
         captargs <- captargs[names(captargs) %in% names(formals(read.table))]
         capt <- do.call ('read.table', c(list(file = captfile, as.is = TRUE,
                                               colClasses = colcl), captargs) )
@@ -200,7 +200,7 @@ read.capthist <- function (captfile, trapfile, detector = 'multi', fmt = c('trap
         ext <- tolower(file_ext(trapfile[1]))
         if (ext %in% c("xls","xlsx")) {
             defaultdots <- list(sheet = 2, skip = 0)
-            dots <- replacedefaults (defaultdots, list(...))
+            dots <- secr_replacedefaults (defaultdots, list(...))
             if (length(dots$sheet)>1) dots$sheet <- dots$sheet[2] 
             if (length(dots$skip)>1)  dots$skip <- dots$skip[2] 
             if (length(dots$col_names)>1) dots$col_names <- dots$col_names[2]
@@ -208,7 +208,7 @@ read.capthist <- function (captfile, trapfile, detector = 'multi', fmt = c('trap
         else {
             defaultdots <- list(sep = '', comment.char = '#')
             if (ext == 'csv') defaultdots$sep <- ','
-            dots <- replacedefaults (defaultdots, list(...))
+            dots <- secr_replacedefaults (defaultdots, list(...))
         }
         
         readtraps <- function (x, mo) {

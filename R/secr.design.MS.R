@@ -60,7 +60,7 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
                 
                 #############################################
                 ## 2020-05-15 convert all character to factor
-                cov <- lapply(cov, stringsAsFactors)
+                cov <- lapply(cov, secr_stringsAsFactors)
                 #############################################
                 
                 covnames <- lapply(cov, names)
@@ -88,7 +88,7 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
             {
                 #############################################
                 ## 2020-05-15 convert all character to factor
-                cov <- stringsAsFactors(cov)
+                cov <- secr_stringsAsFactors(cov)
                 #############################################
                 
                 found <- names(cov) %in% vars
@@ -156,11 +156,11 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
     }
     #--------------------------------------------------------------------------------
 
-    models$D <- NULL                          # drop density model
-    models$noneuc <- NULL                     # drop non-Euclidean parameter model
-    models$sigmaxy <- NULL                    # drop sigmaxy model
-    npar     <- length(models)                # real parameters
-    grouplevels  <- group.levels(capthist,groups)
+    for (nonp in .localstuff$spatialparameters) {
+        models[[nonp]] <- NULL                     # drop non-detection models
+    }
+    npar     <- length(models)                     # real parameters
+    grouplevels  <- secr_group.levels(capthist,groups)
     ngrp    <- max(1,length(grouplevels))
 
     ## 'session-specific' list if MS
@@ -194,7 +194,7 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
     parnames <- names(models)                 # typically c('g0', 'sigma', 'z')
     vars     <- unique (unlist(sapply (models, all.vars)))
     vars     <- vars[!(vars %in% groups)]     # groups treated separately
-    nmix     <- get.nmix(models, capthist, hcov)
+    nmix     <- secr_get.nmix(models, capthist, hcov)
     trps    <- traps(capthist)                 # session-specific trap array
     used    <- usage(trps)                     # session-specific usage
     if (ignoreusage) used <- NULL
@@ -311,7 +311,7 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
         ################
         # add g factor
 
-        gvar <- group.factor(capthist, groups)          # list if MS
+        gvar <- secr_group.factor(capthist, groups)          # list if MS
         if (MS) gvar <- lapply(gvar, pad1, n)           # constant length
         # by animal within session
         dframe$g <- insertdim ( unlist(gvar), c(2,1), dims)  ## unlist works on factors, too
@@ -637,7 +637,7 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
         else {
             ## see utility.R for general.model.matrix
             ## allows regression splines (mgcv)
-            tempmat <- general.model.matrix(formula, data = dframe, contrasts = contrasts, ...)  ## secr.design.MS contrasts
+            tempmat <- secr_general.model.matrix(formula, data = dframe, contrasts = contrasts, ...)  ## secr.design.MS contrasts
             ## drop pmix beta0 column from design matrix
             if (prefix=='pmix') {
                 tempmat <- tempmat[,-1,drop=FALSE]
@@ -725,10 +725,10 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
     smoothsetup <- vector(length(parnames), mode = 'list')
     names(smoothsetup) <- parnames
     for (i in parnames) {
-        if (any(smooths(models[[i]]))) {
+        if (any(secr_smooths(models[[i]]))) {
             ## collapse data to unique rows
             temp <- make.lookup (dframe)
-            smoothsetup[[i]] <- gamsetup(models[[i]], temp$lookup)
+            smoothsetup[[i]] <- secr_gamsetup(models[[i]], temp$lookup)
         }
     }
     

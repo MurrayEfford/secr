@@ -47,17 +47,18 @@ reparameterize.esa <- function (realparval, mask, traps, detectfn, nocc) {
     ## debug if (inherits(tmp, 'try-error')) print(c(fx(lower),fx(upper)))
     if (inherits(tmp, 'try-error')) 0.0001 else tmp$root
   }
-  cell <- getcellsize(mask)
+  cell <- secr_getcellsize(mask)
   if (inherits(mask, 'linearmask'))
     stop ('esa parameterization not available for linear masks')
-  dettype <- detectorcode(traps)
+  dettype <- secr_detectorcode(traps)
   if (!all(dettype %in%  c(0,1,2,5,8,13))) {
       stop ("esa parameterization is available only for point detectors")
   }
   realnames <- dimnames(realparval)[[2]]
   sigmaindex <- match('sigma', realnames)
   esaindex <- match('esa', realnames)
-  z <- ifelse (ndetectpar(detectfn) == 3, realparval[, match('z', realnames)], 1)
+  ndetectpar <- length(secr_parnames(detectfn))
+  z <- ifelse (ndetectpar == 3, realparval[, match('z', realnames)], 1)
   if (is.na(esaindex) | is.na(sigmaindex))
     stop ("'param = 2' requires both 'esa' and 'sigma' in model")
   realparval[,esaindex]  <- unlist(mapply(g0fromesa,
@@ -89,7 +90,7 @@ reparameterize.a0 <- function (realparval, detectfn, linear) {
 }
 ###############################################################################
 
-reparameterize <- function (realparval, detectfn, details, mask, traps, D, s) {
+secr_reparameterize <- function (realparval, detectfn, details, mask, traps, D, s) {
   
   ##----------------------------------------------
   ## allow for scaling of detection in one session

@@ -4,13 +4,13 @@
 #############################################################################
 
 ## 2014-08-19 moved from methods.R
-## 2015-09-30 fixpmix now done in secr.lpredictor
+## 2015-09-30 fixpmix now done in secr_lpredictor
 ## 2017-04-08 realnames argument
-## 2017-11-16 secr.lpredictor in utility.R: variances & covariances for fixedbeta coef set to zero
+## 2017-11-16 secr_lpredictor in utility.R: variances & covariances for fixedbeta coef set to zero
 ## 2017-12-18 dots argument passed to secr.make.newdata
 ## 2018-02-23 revamp pmix code
 ## 2021-05-04 newdata method
-## 2024-10-03 speedup when se.fit = FALSE by setting beta.vcv = NULL in secr.lpredictor
+## 2024-10-03 speedup when se.fit = FALSE by setting beta.vcv = NULL in secr_lpredictor
 ############################################################################################
 
 predict.secr <- function (object, newdata = NULL, realnames = NULL, 
@@ -51,7 +51,7 @@ predict.secr <- function (object, newdata = NULL, realnames = NULL,
       if (!is.null(Dfn)) warning ("model uses Dlambda parameterization; use predictDlambda for density and lambda estimates")
     }
     ######################################
-    
+
     smoothsetup <- object$smoothsetup
     if (is.null(smoothsetup)) {
         smoothsetup <- vector(length(models), mode = 'list')
@@ -77,11 +77,11 @@ predict.secr <- function (object, newdata = NULL, realnames = NULL,
     }
 
     ## allow for fixed beta parameters 2009 10 19, 2014-03-18
-    beta <- complete.beta(object)
-    beta.vcv <- complete.beta.vcv(object)
+    beta <- secr_complete.beta(object)
+    beta.vcv <- secr_complete.beta.vcv(object)
 
     getfield <- function (x) {
-        if ((x == 'D') && userD(object)) {
+        if ((x == 'D') && secr_userD(object)) {
             ## user-supplied density function
             ## return only intercept
             lpred <- matrix(ncol = 2, nrow = nrow(newdata),
@@ -96,8 +96,7 @@ predict.secr <- function (object, newdata = NULL, realnames = NULL,
             ## smoothsetup argument must be specified if model
             ## includes smooth terms and newdata differs from data
             ## (dframe) used to fit model
-
-            secr.lpredictor (
+            secr_lpredictor (
                 formula = models[[x]], 
                 newdata = newdata,
                 indx = parindices[[x]], 

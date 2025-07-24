@@ -24,12 +24,12 @@ pmixProfileLL <- function (CH, model = list(g0~h2, sigma~h2), CL = TRUE,
 
 # Alternatively, get pmi automatically NOT READY
 #     if ('formula' %in% class(model)) model <- list(model)
-#     model <- stdform (model)  ## named, no LHS
+#     model <- secr_stdform (model)  ## named, no LHS
 #     pnames <- pnames[!(pnames %in% fnames)]   ## drop fixed real parameters
 #     model <- defaultmodel[pnames]             ## select real parameters
-#     valid.model(model, CL, detectfn, hcov, details$userdist, names(sessioncov))
+#     secr_valid.model(model, CL, detectfn, hcov, details$userdist, names(sessioncov))
 #
-#     design <- secr.design.MS(CH, models = stdform(model), timecov = args$timecov, sessioncov =
+#     design <- secr.design.MS(CH, models = secr_stdform(model), timecov = args$timecov, sessioncov =
 #                                  args$sessioncov, groups = args$groups, hcov = args$hcov)
 #     np <- sapply(design$designMatrices, ncol)
 #     NP <- sum(np)

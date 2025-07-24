@@ -7,7 +7,7 @@
 
 disinteraction <- function (capthist, groups, sep='.') {
     ngv <- length(groups)
-    grouplevels <- group.levels(capthist, groups, sep=sep)
+    grouplevels <- secr_group.levels(capthist, groups, sep=sep)
     if (ngv>1)
         temp <- matrix(unlist(strsplit(as.character(grouplevels), sep, fixed=TRUE)),
                        byrow = T, ncol = ngv)
@@ -115,7 +115,7 @@ simulate.secr <- function (object, nsim = 1, seed = NULL, maxperpoly = 100, chat
         stop ("not implemented for conditional likelihood")
     
     ## density array dim(mask points, groups, sessions)
-    Darray <- getDensityArray (predictDsurface(object))
+    Darray <- secr_getDensityArray (predictDsurface(object))
     
     ## setup
     if (!is.null(object$groups)) {

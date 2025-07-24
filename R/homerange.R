@@ -37,11 +37,11 @@ dbar <- function (capthist, userdist = NULL, mask = NULL) {
         }
         if (nrow(capthist) < 1) return(NA)
         traps <- traps(capthist)
-        det <- expanddet(capthist)
+        det <- secr_expanddet(capthist)
         IDfactor <- getID(det, capthist)
         ## 2014-09-01
         ## NOT USING PARAMETERS noneuc ETC
-        distmat <- valid.userdist(userdist, det, traps, traps, mask )
+        distmat <- secr_valid.userdist(userdist, det, traps, traps, mask )
         if (!all(det %in% .localstuff$individualdetectors))
             stop ("require individual detector type for dbar")
         
@@ -106,9 +106,9 @@ moves <- function (capthist, userdist = NULL, mask = NULL, names = FALSE) {
             sapply(nam, function(x) numeric(0), simplify = FALSE)
         }
         else {
-            det <- expanddet(capthist)
+            det <- secr_expanddet(capthist)
             IDfactor <- getID(det, capthist)
-            distmat <- valid.userdist(userdist, det, traps, traps, mask)
+            distmat <- secr_valid.userdist(userdist, det, traps, traps, mask)
             if (!all(det %in% .localstuff$individualdetectors))
                 stop ("require individual detector type for moves")
             
@@ -188,11 +188,11 @@ ARL <- function (capthist, min.recapt = 1, plt = FALSE, full = FALSE, userdist =
         }
         if (nrow(capthist) < 1) return(NA)
         traps <- traps(capthist)
-        det <- expanddet(capthist)
+        det <- secr_expanddet(capthist)
         IDfactor <- getID(det, capthist)
         if (!all(det %in% .localstuff$individualdetectors))
             stop ("require individual detector type for ARL")
-        distmat <- valid.userdist(userdist, det, traps, traps, mask )
+        distmat <- secr_valid.userdist(userdist, det, traps, traps, mask )
         prox  <- length(dim(capthist)) > 2
         
         if (all(det %in% 'telemetry')) {
@@ -277,9 +277,9 @@ MMDM <- function (capthist, min.recapt = 1, full = FALSE, userdist = NULL, mask 
         }
         if (nrow(capthist) < 1) return(NA)
         traps <- traps(capthist)
-        det <- expanddet(capthist)
+        det <- secr_expanddet(capthist)
         IDfactor <- getID(det, capthist)
-        distmat <- valid.userdist(userdist, det, traps, traps, mask )
+        distmat <- secr_valid.userdist(userdist, det, traps, traps, mask )
         if (!all(det %in% .localstuff$individualdetectors))
             stop ("require individual detector type for MMDM")
         
@@ -355,7 +355,7 @@ RPSV <- function (capthist, CC = FALSE)
         }
         if (nrow(capthist) < 1) return(NA)
         traps <- traps(capthist)
-        det <- expanddet(capthist)
+        det <- secr_expanddet(capthist)
         if (!all(det %in% .localstuff$individualdetectors))
             stop ("require individual detector type for RPSV")
         IDfactor <- getID(det, capthist)
@@ -449,10 +449,10 @@ ORL <- function (capthist, userdist = NULL, mask = NULL) {
         }
         if (nrow(capthist) < 1) return(NA)
         traps <- traps(capthist)
-        det <- expanddet(capthist)
+        det <- secr_expanddet(capthist)
         if (!all(det %in% .localstuff$individualdetectors))
             stop ("require individual detector type for ARL")
-        distmat <- valid.userdist(userdist, det, traps, traps, mask )
+        distmat <- secr_valid.userdist(userdist, det, traps, traps, mask )
         prox  <- length(dim(capthist)) > 2
         IDfactor <- getID(det, capthist)
         
@@ -540,7 +540,7 @@ centroids <- function (capthist) {
         }
         if (nrow(capthist) < 1) return(NA)
         traps <- traps(capthist)
-        det <- expanddet(capthist)
+        det <- secr_expanddet(capthist)
         IDfactor <- getID(det, capthist)
         
         if (!all(det %in% .localstuff$individualdetectors))
@@ -627,7 +627,7 @@ t2r2 <- function (capthist)
         }
         if (nrow(capthist) < 1) return(NA)
         traps <- traps(capthist)
-        det <- expanddet(capthist)
+        det <- secr_expanddet(capthist)
         if (!all(det %in% individualdetectors))
             stop ("require individual detector type for t2r2")
         IDfactor <- getID(det, capthist)

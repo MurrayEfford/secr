@@ -28,6 +28,25 @@
 
 ## spsurvey uses sf 2022-01-31
 
+sfrotate <- function (x, degrees, centrexy = NULL, usecentroid = FALSE) {
+    rot = function(a) matrix(c(cos(a), sin(a), -sin(a), cos(a)), 2, 2)
+    gx <- st_geometry(x)
+    if (is.null(centrexy)) {
+        if (usecentroid) {
+            centrexy <- st_centroid(gx)[1,]   # unique centre
+        }
+        else {
+            centrexy <- st_centroid(st_as_sfc(st_bbox(x)))
+        }
+    } 
+    else {
+        centrexy <- st_sfc(st_point(centrexy) )
+    }
+    (gx - centrexy) * rot(degrees/360*2*pi) + centrexy
+}
+
+#-------------------------------------------------------------------------------
+
 trap.builder <- function (n = 10, cluster, region = NULL, frame =
     NULL, method = c("SRS", "GRTS", "all", "rank"), edgemethod =
     c("clip", "allowoverlap", "allinside", "anyinside", "centreinside"), 
@@ -361,7 +380,6 @@ make.systematic <- function (n, cluster, region, spacing = NULL,
     order <- match.arg(order)
     region <- boundarytoSF(region)
     if (rotate != 0) {
-        ## 2022-02-01 see utility.R for sfrotate
         if (is.null(centrexy)) {
             centrexy <- sf::st_centroid(st_as_sfc(st_bbox(region)))
             centrexy <- sf::st_coordinates(centrexy)

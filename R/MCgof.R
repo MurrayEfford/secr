@@ -67,7 +67,7 @@ simfxiAC <- function (object, bytrap, debug) {
         # returns dataframe
         detpar <- detectpar0(object, bytrap = bytrap, byclass = TRUE) 
         # split dataframe by latent class, dropping 'class' column etc.
-        pnames <- parnames(object$detectfn[1])
+        pnames <- secr_parnames(object$detectfn[1])
         if ('pmix' %in% names(detpar)) pnames <- c(pnames, 'pmix')
         detpar <- split(subset(detpar, select = pnames), detpar$class)
         for (i in 1:length(detpar)) {
@@ -157,7 +157,7 @@ MCgof.secr <- function (
             popn <- simfxiAC(object, bytrap, debug)
         }
         else {
-            Darray <- getDensityArray (predictDsurface(object))
+            Darray <- secr_getDensityArray (predictDsurface(object))
             # sim.onepopn() is in simulate.R
             popn <- sim.onepopn(object, Darray)[[1]]
         }

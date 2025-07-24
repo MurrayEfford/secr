@@ -48,8 +48,8 @@ plot.traps <- function(x,
             dcol <- 'white'
         else 
             dcol <- 'red'
-        detpar <- replacedefaults (list(col=dcol, pch=3, cex=0.8, fg='red', bg='white'), detpar)
-        txtpar <- replacedefaults (list(col='blue', cex=0.7), txtpar)
+        detpar <- secr_replacedefaults (list(col=dcol, pch=3, cex=0.8, fg='red', bg='white'), detpar)
+        txtpar <- secr_replacedefaults (list(col='blue', cex=0.7), txtpar)
         if (is.logical(markvertices))
             markvertices <- markvertices * 2  ## 0 or 2
         

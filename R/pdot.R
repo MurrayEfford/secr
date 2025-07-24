@@ -62,7 +62,7 @@ pdot <- function (X, traps, detectfn = 0, detectpar = list(g0 = 0.2, sigma = 25,
     grain <- if (ncores==1) 0 else 1
 
     if (is.character(detectfn))
-        detectfn <- detectionfunctionnumber(detectfn)
+        detectfn <- secr_detectionfunctionnumber(detectfn)
     if ((detectfn > 9) & (detectfn<14) & is.null(detectpar$cutval))
         stop ("requires 'cutval' for detectfn 10:13")
     if (ms(traps))
@@ -74,7 +74,7 @@ pdot <- function (X, traps, detectfn = 0, detectpar = list(g0 = 0.2, sigma = 25,
     usge <- usage(traps, noccasions)
     if (is.null(noccasions)) noccasions <- ncol(usge)
 
-    detectpars <- detectpar[parnames(detectfn)]
+    detectpars <- detectpar[secr_parnames(detectfn)]
     gl0 <- detectpars[[1]]   ## g0 or lambda0
     sig <- detectpars[[2]]   ## sigma
     
@@ -92,8 +92,8 @@ pdot <- function (X, traps, detectfn = 0, detectpar = list(g0 = 0.2, sigma = 25,
     miscparm <- numeric(4);   ## dummy
     
     
-    dettype <- detectorcode(traps, noccasions = noccasions)
-    binomN <- getbinomN (binomN, detector(traps))
+    dettype <- secr_detectorcode(traps, noccasions = noccasions)
+    binomN <- secr_getbinomN (binomN, detector(traps))
     markocc <- markocc(traps)
     
     if (is.null(markocc)) markocc <- rep(1,noccasions)
@@ -128,8 +128,9 @@ pdot <- function (X, traps, detectfn = 0, detectpar = list(g0 = 0.2, sigma = 25,
         1 - exp(-temp)   ## probability detected at least once, given total hazard
     }
     else {
-        distmat2 <- getuserdist (traps, X, userdist, sessnum = NA, NULL, NULL, 
-                               miscparm)
+        # call with NULL NElist for now
+        distmat2 <- secr_getuserdist (traps, X, userdist, sessnum = NA, 
+                                 NElist = NULL, density = NULL, miscparm)
       #-------------------------------------------------------------
       pdotpointcpp(
         as.matrix(X),
@@ -144,7 +145,7 @@ pdot <- function (X, traps, detectfn = 0, detectpar = list(g0 = 0.2, sigma = 25,
         as.double(otherdetpar),     # new    
         as.double(miscparm),
         as.double(truncate^2),
-        as.integer(expandbinomN(binomN, dettype)),
+        as.integer(secr_expandbinomN(binomN, dettype)),
         as.integer(grain),
         as.integer(ncores)
       )
@@ -188,7 +189,7 @@ pdotContour <- function (traps, border = NULL, nx = 64, detectfn = 0,
         tempmask <- make.mask (traps, border, nx = nx, type = 'traprect')
         xlevels <- unique(tempmask$x)
         ylevels <- unique(tempmask$y)
-        binomN <- getbinomN (binomN, detector(traps))
+        binomN <- secr_getbinomN (binomN, detector(traps))
         z <- pdot(tempmask, traps, detectfn, detectpar, noccasions, binomN)
         if (!is.null(poly)) {
             OK <- pointsInPolygon(tempmask, poly)

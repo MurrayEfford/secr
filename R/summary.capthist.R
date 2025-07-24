@@ -16,7 +16,7 @@ summary.capthist <- function(object, terse = FALSE, moves = FALSE, tpa = FALSE, 
         }
     }
     else {
-        object <- check3D(object)
+        object <- secr_check3D(object)
         trps <- traps(object)
         nd <- ndetector(trps)
         if (terse) {   ## 2017-11-06, 2019-01-22, 2024-10-09
@@ -31,7 +31,7 @@ summary.capthist <- function(object, terse = FALSE, moves = FALSE, tpa = FALSE, 
             )
         }
         else {
-            detector <- expanddet(object) # detector(traps)
+            detector <- secr_expanddet(object) # detector(traps)
             cutval <- attr(object, 'cutval',exact = TRUE)   # signal strength only
             
             # ni, ui, fi, M, losses etc.
@@ -190,7 +190,7 @@ summary.capthist <- function(object, terse = FALSE, moves = FALSE, tpa = FALSE, 
             
             tempcovar <- covariates(object)
             if (!is.null(tempcovar) && ((nrow(tempcovar)>0) & (ncol(tempcovar)>0))) {
-                covsummary <- summary(stringsAsFactors(tempcovar))   ## force character to factor 2020-07-14 
+                covsummary <- summary(secr_stringsAsFactors(tempcovar))   ## force character to factor 2020-07-14 
             }
             else {
                 covsummary <- NULL

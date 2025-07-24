@@ -10,7 +10,7 @@
 ## default of limits changed to FALSE in plot.secr()
 ## 2012-10-21 moved HN etc to utility.r
 ## 2013-04-20 new detection functions HHN, HHR, HEX, HAN, HCG
-## 2013-04-24 uses getdfn from utility.r
+## 2013-04-24 uses secr_getdfn from utility.r
 ## 2014-04-25 ylim bug when g0 fixed
 ## 2014-09-18 limits = TRUE now works with acoustic dfn
 
@@ -77,9 +77,9 @@ plot.secr <- function (x, newdata = NULL, add = FALSE,
             out
         }
         else {
-            pars <- predicted[parnames(x$detectfn),'estimate']
+            pars <- predicted[secr_parnames(x$detectfn),'estimate']
             pars[is.na(pars)] <- unlist(x$fixed)
-            dfn <- getdfn(x$detectfn)
+            dfn <- secr_getdfn(x$detectfn)
             if (sigmatick) {
               sigma <- pars[2]
               y <- dfn(sigma, pars, x$details$cutval)
@@ -103,7 +103,7 @@ plot.secr <- function (x, newdata = NULL, add = FALSE,
                     # newdata <- secr.make.newdata (x)
                     newdata <- makeNewData(x)
                 }
-                parnamvec <- parnames(x$detectfn)
+                parnamvec <- secr_parnames(x$detectfn)
                 ## 2019-01-25 added beta0
                 if (!parnamvec[1] %in% c('g0','lambda0','beta0'))
                     stop ("first detection parameter not g0 or lambda0")
@@ -115,7 +115,7 @@ plot.secr <- function (x, newdata = NULL, add = FALSE,
                     
                     for (rn in parnamvec) {
                         par.rn <- x$parindx[[rn]]
-                        mat <- general.model.matrix(
+                        mat <- secr_general.model.matrix(
                             x$model[[rn]], 
                             data = newdata[rowi,,drop=FALSE], 
                             gamsmth = x$smoothsetup[[rn]],
@@ -215,7 +215,7 @@ detectfnplot <- function (detectfn, pars, details = NULL,
 {
     gline <- function (pars) {
         ## here pars is a vector of parameter values
-        dfn <- getdfn(detectfn)
+        dfn <- secr_getdfn(detectfn)
         if (sigmatick) {
             sigma <- pars[2]
             y <- dfn(sigma, pars,details$cutval)
@@ -256,13 +256,13 @@ detectfnplot <- function (detectfn, pars, details = NULL,
 
     ## added 2010-07-01
     if (is.character(detectfn))
-        detectfn <- detectionfunctionnumber(detectfn)
+        detectfn <- secr_detectionfunctionnumber(detectfn)
 
     needp <- c(2,3,2,3,2,3,3,3,3,2,3,3,5,5,2,3,2,3,3,3)[detectfn+1]
 
     if (ncol(pars) != needp)
         stop ("require ", needp, " parameters for ",
-             detectionfunctionname(detectfn), " detection function")
+              secr_detectionfunctionname(detectfn), " detection function")
 
     if (is.null(ylim)) {
         if (detectfn %in% c(10,11,12,13)) {

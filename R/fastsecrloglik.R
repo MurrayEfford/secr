@@ -39,7 +39,7 @@ allhistfast <- function (realparval, gkhk, pi.density, PIA,
 }
 #--------------------------------------------------------------------------------
 
-integralprw1fast <- function (realparval0, gkhk, pi.density, PIA0, 
+secr_integralprw1fast <- function (realparval0, gkhk, pi.density, PIA0, 
                               nk2ch0, usge, pmixn, grain, ncores, binomN, indiv) {
     nc <- dim(PIA0)[2]
     nr <- nrow(nk2ch0)
@@ -103,10 +103,10 @@ fastsecrloglikfn <- function (
         #---------------------------------------------------
       PIA <- design$PIA[sessnum, 1:data$nc, 1:data$s, 1:data$K, ,drop=FALSE]
         ## unmodelled beta parameters, if needed
-        miscparm <- getmiscparm(details$miscparm, detectfn, beta, parindx, details$cutval)
+        miscparm <- secr_getmiscparm(details$miscparm, detectfn, beta, parindx, details$cutval)
         D.modelled <- (!CL || details$relativeD) && is.null(fixed$D)
         
-        density <- getmaskpar(D.modelled, D, data$m, sessnum, details$unmash, 
+        density <- secr_getmaskpar(D.modelled, D, data$m, sessnum, details$unmash, 
                               attr(data$capthist, 'n.mash'))
         if (!D.modelled) {
             pi.density <- rep(1/data$m, data$m)  
@@ -120,7 +120,7 @@ fastsecrloglikfn <- function (
         #---------------------------------------------------
         ## allow for scaling of detection
         Dtemp <- if (D.modelled) mean(D[,1,sessnum]) else NA
-        Xrealparval <- reparameterize (realparval, detectfn, details,
+        Xrealparval <- secr_reparameterize (realparval, detectfn, details,
                                        data$mask, data$traps, Dtemp, 1) # 1 was s! 2024-07-30
         ## check valid parameter values
         if (!all(is.finite(Xrealparval))) {
@@ -146,11 +146,10 @@ fastsecrloglikfn <- function (
         ##--------------------------------------------------------------
 
         #####################################################################
-        pmixn <- getpmix (data$knownclass, PIA, Xrealparval)  ## membership prob by animal
+        pmixn <- secr_getpmix (data$knownclass, PIA, Xrealparval)  ## membership prob by animal
         if (!is.null(details$userdist)) {    # changed from is.function() 2024-02-15
-            noneuc <- getmaskpar(!is.null(NE), NE, data$m, sessnum, FALSE, NULL)
-            distmat2 <- getuserdist(data$traps, data$mask, details$userdist, sessnum, 
-                                    noneuc[,1], density[,1], miscparm)
+            distmat2 <- secr_getuserdist(data$traps, data$mask, details$userdist, sessnum, 
+                                    NElist, density[,1], miscparm)
         }
         else {
             distmat2 <- data$distmat2
@@ -182,7 +181,7 @@ fastsecrloglikfn <- function (
             pdot <- rep(sum(data$externalpdot * pi.density), data$nc)
         }
         else {
-            pdot <- integralprw1fast (Xrealparval, gkhk, pi.density, PIA, 
+            pdot <- secr_integralprw1fast (Xrealparval, gkhk, pi.density, PIA, 
                   data$CH0, data$usge, pmixn, details$grain, details$ncores, 
                   details$binomN, design$individual)
         }
@@ -203,7 +202,7 @@ fastsecrloglikfn <- function (
         #----------------------------------------------------------------------
         
         if (!CL) {
-            N <- sum(density[,1]) * getcellsize(data$mask)
+            N <- sum(density[,1]) * secr_getcellsize(data$mask)
             ## 2022-01-05 catch nc = 0
             meanpdot <- if (data$nc == 0) pdot else data$nc / sum(1/pdot)
             ## 2023-09-22
@@ -214,7 +213,7 @@ fastsecrloglikfn <- function (
             }
             comp[3,1] <- switch (data$n.distrib+1,
                                  dpois(data$nc, N * meanpdot, log = TRUE),
-                                 lnbinomial (data$nc, N, meanpdot),
+                                 secr_lnbinomial (data$nc, N, meanpdot),
                                  NA)
         }
         #----------------------------------------------------------------------
@@ -262,38 +261,37 @@ fastsecrloglikfn <- function (
     #--------------------------------------------------------------------
     # Fixed beta
     pbeta <- beta   # save varying beta, for trace etc.
-    beta <- fullbeta(beta, details$fixedbeta)
+    beta <- secr_fullbeta(beta, details$fixedbeta)
 
     #--------------------------------------------------------------------
     # Detection parameters
-    detparindx <- parindx[!(names(parindx) %in% c('D', 'noneuc','sigmaxy'))]
-    detlink <- link[!(names(link) %in% c('D', 'noneuc','sigmaxy'))]
-    realparval  <- makerealparameters (design, beta, detparindx, detlink, fixed)
+    detparindx <- parindx[!(names(parindx) %in% .localstuff$spatialparameters)]
+    detlink <- link[!(names(link) %in% .localstuff$spatialparameters)]
+    realparval  <- secr_makerealparameters (design, beta, detparindx, detlink, fixed)
     
+    #--------------------------------------------------------------------
+    sessmask <- lapply(data, '[[', 'mask')
+    grplevels <- unique(unlist(lapply(data, function(x) levels(x$grp))))
     #--------------------------------------------------------------------
     # Density
     D.modelled <- (!CL || details$relativeD) && is.null(fixed$D)
-    
     if (D.modelled) {
-        sessmask <- lapply(data, '[[', 'mask')
-        grplevels <- unique(unlist(lapply(data, function(x) levels(x$grp))))
-        D <- getD (designD, beta, sessmask, parindx, link, fixed,
+        D <- secr_getD (designD, beta, sessmask, parindx, link, fixed,
                    grplevels, sessionlevels, parameter = 'D')
         if (!is.na(sumD <- sum(D)))
             if (sumD <= 0)
                 warning ("invalid density <= 0")
     }
     #--------------------------------------------------------------------
-    # Non-Euclidean distance parameter
-    sessmask <- lapply(data, '[[', 'mask')
-    param <- if ('sigmaxy' %in% names(parindx)) 'sigmaxy' else 'noneuc'
-    NE <- getD (designNE, beta, sessmask, parindx, link, fixed,
-                levels(data$grp[[1]]), sessionlevels, parameter = param)
+    # Non-Euclidean distance parameters
+    NElist <- mapply(secr_getD, designNE, parameter = names(designNE),
+                 MoreArgs = list(beta, sessmask, parindx, link, fixed,
+                                 grplevels, sessionlevels), SIMPLIFY = FALSE)
     #--------------------------------------------------------------------
     # typical likelihood evaluation
     if (!is.null(details$saveprogress) && details$saveprogress>0 &&
         .localstuff$iter == 0) {
-        saveprogress(pbeta, NA, details$progressfilename)
+        secr_saveprogress(pbeta, NA, details$progressfilename)
     }
     
     loglik <- sum(mapply (sessionLL, data, 1:nsession))
@@ -308,7 +306,7 @@ fastsecrloglikfn <- function (
     #--------------------------------------------------------------------
     if (!is.null(details$saveprogress) && details$saveprogress>0 &&
         .localstuff$iter %% details$saveprogress == 0) {
-        saveprogress(pbeta, loglik, details$progressfilename)
+        secr_saveprogress(pbeta, loglik, details$progressfilename)
     }
     
     #--------------------------------------------------------------------

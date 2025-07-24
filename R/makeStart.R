@@ -15,13 +15,13 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
         fb <- start$details$fixedbeta
         if (is.null(fb)) fb <- rep(NA, length(oldbeta))
         names(fb)[is.na(fb)] <- start$betanames
-        oldbeta <- fullbeta(oldbeta, fb) # matches start$parindx
+        oldbeta <- secr_fullbeta(oldbeta, fb) # matches start$parindx
         if (!is.null(details) && !is.null(details$nsim) && details$nsim > 0) {
             start <- oldbeta    ## chat simulations
         }
         else {
             oldnam <- start$betanames
-            start <- mapbeta(start$parindx, parindx, oldbeta, NULL)
+            start <- secr_mapbeta(start$parindx, parindx, oldbeta, NULL)
             
             if (!is.null(details$miscparm)) {
                 nb <- length(start)
@@ -85,7 +85,7 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
         if (requireautoini) {
             ## not for signal attenuation
             if (!(detectfn %in% c(9,10,11,12,13)) & !anypoly & !anytrans) {
-                memo('Finding initial parameter values...', details$trace)
+                secr_memo('Finding initial parameter values...', details$trace)
                 # specific to session, do not use anytelem
                 if (any(detector(traps(ch))=="telemetry")) {
                     if (all(detector(traps(ch))=="telemetry"))
@@ -119,7 +119,7 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
                 }
                 nms <- c('D', 'g0', 'sigma')
                 nms <- paste(nms, '=', round(unlist(start3),5))
-                memo(paste('Initial values ', paste(nms, collapse=', ')),
+                secr_memo(paste('Initial values ', paste(nms, collapse=', ')),
                     details$trace)
             }
             else warning ("using default starting values", call. = FALSE)
@@ -139,6 +139,7 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
             pID     = 0.7,
             noneuc  = 50,
             sigmaxy = ifelse (is.na(start3$sigma), rpsv, start3$sigma),
+            lambda0xy = -log(1-ifelse (is.na(start3$g0), 0.1, start3$g0)),
             beta0   = details$cutval + 30,
             beta1   = -0.2,
             sdS     = 2,

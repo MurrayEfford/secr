@@ -8,7 +8,7 @@ circular.r <- function (p = 0.95, detectfn = 0, sigma = 1, detectpar = NULL, haz
 
     ## translate character detectfn to numeric code
     if (is.character(detectfn))
-        detectfn <- detectionfunctionnumber(detectfn)
+        detectfn <- secr_detectionfunctionnumber(detectfn)
 
     if (detectfn %in% c(0,2,3,14,16)) {
         ## if input is a named list
@@ -24,7 +24,7 @@ circular.r <- function (p = 0.95, detectfn = 0, sigma = 1, detectpar = NULL, haz
     detectpar$g0 <- 1  ## always
     detectpar$lambda0 <- 1  ## 2013-04-19
     OK <- upper == Inf
-    detectpar <- detectpar[parnames(detectfn)]  ## correct order
+    detectpar <- detectpar[secr_parnames(detectfn)]  ## correct order
     pars <- unlist(detectpar)
     cutval <- ifelse (detectfn %in% c(9,10,11), detectpar$cutval, NA)
     scale <- spatialscale (detectpar, detectfn) ## see utility.R; assumes cutval in detectpar
@@ -46,7 +46,7 @@ circular.r <- function (p = 0.95, detectfn = 0, sigma = 1, detectpar = NULL, haz
     }
     ## otherwise integrate
     else {
-        dfn <- getdfn (detectfn)
+        dfn <- secr_getdfn (detectfn)
         rdfn <- function (r, pars, cutval)  {
             haz <- dfn(r, pars, cutval)
             if (hazard) haz <- -log(1-haz)
@@ -69,7 +69,7 @@ circular.p <- function (r = 1, detectfn = 0, sigma = 1, detectpar = NULL, hazard
 
     ## convert character detectfn to numeric code
     if (is.character(detectfn))
-        detectfn <- detectionfunctionnumber(detectfn)
+        detectfn <- secr_detectionfunctionnumber(detectfn)
 
     if (detectfn %in% c(0,2,3,14,16)) {
         if (is.null(detectpar)) {
@@ -84,7 +84,7 @@ circular.p <- function (r = 1, detectfn = 0, sigma = 1, detectpar = NULL, hazard
     detectpar$g0 <- 1       ## always
     detectpar$lambda0 <- 1  ## always
     OK <- upper == Inf
-    detectpar <- detectpar[parnames(detectfn)]  ## correct order
+    detectpar <- detectpar[secr_parnames(detectfn)]  ## correct order
     pars <- unlist(detectpar)
     cutval <- ifelse (detectfn %in% c(9,10,11), detectpar$cutval, NA)
 
@@ -103,7 +103,7 @@ circular.p <- function (r = 1, detectfn = 0, sigma = 1, detectpar = NULL, hazard
     }
     ## otherwise integrate
     else {
-        dfn <- getdfn(detectfn)
+        dfn <- secr_getdfn(detectfn)
         rdfn <- function (r, pars, cutval) {
             haz <- dfn(r, pars, cutval)
             if (hazard) haz <- -log(1-haz)

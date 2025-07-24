@@ -12,175 +12,188 @@
 ## 2025-07-16 sigmaxy variation of noneuc
 ############################################################################################
 
-predictD <- function (object, regionmask, group, session,
+secr_predictD <- function (object, regionmask, group, session,
                 se.D = FALSE, cl.D = FALSE, alpha = 0.05, 
-                parameter = c('D','noneuc','sigmaxy')) {
+                parameter = 'D', aslist = FALSE) {
     ## For one session and group at a time
     ## not exported; used also by region.N()
-    parameter <- match.arg(parameter)
-    ## return all-1's if not relevant
-    if ((parameter == 'noneuc') & !('noneuc' %in% getuserdistnames(object$details$userdist)))
-        return(rep(1, nrow(regionmask)))
-    if ((parameter == 'sigmaxy') & !('sigmaxy' %in% getuserdistnames(object$details$userdist)))
-        return(rep(1, nrow(regionmask)))
-    sessionlevels <- session(object$capthist)
-    grouplevels <- group.levels(object$capthist,object$groups)
-    if (is.null(session))
-        session <- sessionlevels[1]
-    if (is.null(group))
-        groupn <- 1
-    else
-        groupn <- match(group, grouplevels)  # convert to numeric 2024-12-24
-    if (is.null(regionmask))
-        regionmask <- object$mask
-    if (ms(regionmask))
-        regionmask <- regionmask[[session]]
-
-    ## must use mean and SD for scaling from original mask(s)
-    ## this is a list for ms masks
-    if (ms(object))
-        meanSD <- attr(object$mask[[session]], 'meanSD')
-    else
-        meanSD <- attr(object$mask, 'meanSD')
-
-    ## 2011-11-08 allow for 'mashing'
-    if (ms(object))  {
-        n.mash <- attr (object$capthist[[session]], 'n.mash')
-        n.clust <- length(n.mash)
+    
+    if (length(parameter)==0) return (NULL)
+    parameter <- match.arg(parameter, .localstuff$spatialparameters, several.ok = TRUE)
+    if (aslist) {
+        ## 2025-07-23 allow multiple parameters and return list
+        out <- vector(mode = 'list', length(parameter))
+        names(out) <- parameter
+        for (p in parameter) {
+            out[[p]] <- secr_predictD(object, regionmask, group, session,
+                                  se.D, cl.D, alpha, parameter = p,
+                                 aslist = FALSE)
+        }
+        out
     }
     else {
-        n.mash <- attr (object$capthist, 'n.mash')
-        n.clust <- length(n.mash)
-    }
-    ## 2012-07-24 allow for unmash model fit
-    unmash <- object$details$unmash
-    if (is.null(unmash))
-        unmash <- FALSE
-    if (is.null(n.mash) | unmash)
-        n.clust <- 1
-
-    if (is.null(object$model$D) && parameter == 'D') {    ## implies CL && !relativeD
-        ## no density model (conditional likelihood fit)
-        temp <- derived(object, se.D = (se.D | cl.D)) ## inefficient as repeats for each sess
-        if (!is.data.frame(temp))
-            temp <- temp[[session]]
-        D <- temp['D', 'estimate'] / n.clust
-        if (se.D) {
-            attr(D, 'SE') <- temp['D', 'SE'] / n.clust
-        }
-        if (cl.D) {
-            z <- abs(qnorm(1-alpha/2))
-            attr(D, 'lcl') <- temp['D', 'lcl'] / n.clust
-            attr(D, 'ucl') <- temp['D', 'lcl'] / n.clust
-        }
-        return (D)
-    }
-
-    ## user-defined density model
-    else if (userD(object) && (parameter == 'D')) {
-        designD <- object$details$userDfn
-        if (!is.function(designD))
-            stop ("details$userDfn must be a function")
-        if (se.D | cl.D)
-            warning ("SE and confidence intervals may be unavailable with userDfn")
-        if (n.clust>1)
-            warning ("no adjustment for mashing when using userDfn")
-        ## getD is in functions.R
-        ## does not use link$D when calling user function userDfn
-        D <- getD (designD, object$fit$par, regionmask, object$parindx,
-                   object$link$D, object$fixed, grouplevels, sessionlevels,
-                   'D')
-        ###########################################
-        ## 2022-05-24 temp fix for unresolved issue
-        ## return(D[,groupn,session])
-        return(D[,groupn+1,session])
-        ###########################################
-    }
-    ## linear density model on link scale
-    else {
-
-        newdata <- D.designdata (regionmask, object$model[[parameter]],
-             grouplevels, sessionlevels, sessioncov = object$sessioncov,
-             meanSD = meanSD)
-        dimD <- attr(newdata, "dimD")
-        ## if newdata has more than one group or session...
-        if (prod(dimD[2:3]) > 1) {
-            ## select a single group by number 
-            groupOK <- (groupn == (1:length(grouplevels))) | (dimD[2]==1)
-            groupOK <- rep(rep(groupOK, each = dimD[1]), dimD[3])
-            ## select a single session
-            sessionOK <- if (is.character(session))
-                session == sessionlevels
-            else
-                session == 1:dimD[3]
-            sessionOK <- rep(sessionOK, each = prod(dimD[1:2]))
-            newdata <- newdata[sessionOK & groupOK,]
-        }
-        if (length(grouplevels)>1 && !('g' %in% names(newdata))) {
-            # fiddle to allow groups in derivedDsurface 2024-12-24
-            newdata$g <- rep(group, nrow(newdata))
-            newdata$g <- factor(newdata$g, levels = grouplevels)
-        }
-        class(newdata) <- c('mask', 'data.frame')
-        attr (newdata, 'area') <- attr(regionmask, 'area')
-
-
-        #############################################
-        ## allow for fixed beta parameters
-        beta <- complete.beta(object)
-        beta.vcv <- complete.beta.vcv(object)
-        #############################################
-
-        indx <- object$parindx[[parameter]]
-        betaD <- beta[indx]
-        if (object$model[[parameter]] == ~1) {
-            D <- untransform(betaD, object$link[[parameter]])
-            D <- max(D,0) / n.clust
-            return ( rep(D, nrow(regionmask) ))
+        ## return all-1's if not relevant
+        if ((parameter %in%  c('noneuc','sigmaxy','lambda0xy')) &&
+            !(parameter %in% secr_getuserdistnames(object$details$userdist)))
+            return(rep(1, nrow(regionmask)))
+        sessionlevels <- session(object$capthist)
+        grouplevels <- secr_group.levels(object$capthist,object$groups)
+        if (is.null(session))
+            session <- sessionlevels[1]
+        if (is.null(group))
+            groupn <- 1
+        else
+            groupn <- match(group, grouplevels)  # convert to numeric 2024-12-24
+        if (is.null(regionmask))
+            regionmask <- object$mask
+        if (ms(regionmask))
+            regionmask <- regionmask[[session]]
+        
+        ## must use mean and SD for scaling from original mask(s)
+        ## this is a list for ms masks
+        if (ms(object))
+            meanSD <- attr(object$mask[[session]], 'meanSD')
+        else
+            meanSD <- attr(object$mask, 'meanSD')
+        
+        ## 2011-11-08 allow for 'mashing'
+        if (ms(object))  {
+            n.mash <- attr (object$capthist[[session]], 'n.mash')
+            n.clust <- length(n.mash)
         }
         else {
-            vars <- all.vars(object$model[[parameter]])
-            if (any(!(vars %in% names(newdata))))
-                stop ("one or more model covariates not found")
-            newdata <- as.data.frame(newdata)
-
-            if (is.null(object$details[['f']]) || parameter != 'D') {
-                mat <- general.model.matrix(
-                    object$model[[parameter]], 
-                    data = newdata, 
-                    gamsmth = object$smoothsetup[[parameter]], 
-                    contrasts = object$details$contrasts)
-                lpred <- as.numeric(mat %*% betaD)   ## 2018-04-29 drop matrix class, dim attribute
-                temp <- untransform(lpred, object$link[[parameter]])
-                temp <- pmax(temp, 0) / n.clust
-                
-                if (se.D | cl.D) {
-                    vcv <- beta.vcv [indx,indx]
-                    selpred <- sapply(1:nrow(mat), function(i)
-                        mat[i,, drop=F] %*% vcv %*% t(mat[i,, drop=F]))^0.5
-                    if (se.D) {
-                        attr(temp, 'SE') <- se.untransform (lpred, selpred, object$link[[parameter]]) / n.clust
-                        attr(temp, 'SE')[temp<=0] <- NA
-                    }
-                    if (cl.D) {
-                        z <- abs(qnorm(1-alpha/2))
-                        attr(temp, 'lcl') <- untransform (lpred - z * selpred, object$link[[parameter]]) / n.clust
-                        attr(temp, 'ucl') <- untransform (lpred + z * selpred, object$link[[parameter]]) / n.clust
-                        attr(temp, 'lcl')[temp<=0] <- NA
-                        attr(temp, 'ucl')[temp<=0] <- NA
-                    }
-                }
+            n.mash <- attr (object$capthist, 'n.mash')
+            n.clust <- length(n.mash)
+        }
+        ## 2012-07-24 allow for unmash model fit
+        unmash <- object$details$unmash
+        if (is.null(unmash))
+            unmash <- FALSE
+        if (is.null(n.mash) | unmash)
+            n.clust <- 1
+        
+        if (is.null(object$model$D) && parameter == 'D') {    ## implies CL && !relativeD
+            ## no density model (conditional likelihood fit)
+            temp <- derived(object, se.D = (se.D | cl.D)) ## inefficient as repeats for each sess
+            if (!is.data.frame(temp))
+                temp <- temp[[session]]
+            D <- temp['D', 'estimate'] / n.clust
+            if (se.D) {
+                attr(D, 'SE') <- temp['D', 'SE'] / n.clust
+            }
+            if (cl.D) {
+                z <- abs(qnorm(1-alpha/2))
+                attr(D, 'lcl') <- temp['D', 'lcl'] / n.clust
+                attr(D, 'ucl') <- temp['D', 'lcl'] / n.clust
+            }
+            return (D)
+        }
+        
+        ## user-defined density model
+        else if (secr_userD(object) && (parameter == 'D')) {
+            designD <- object$details$userDfn
+            if (!is.function(designD))
+                stop ("details$userDfn must be a function")
+            if (se.D | cl.D)
+                warning ("SE and confidence intervals may be unavailable with userDfn")
+            if (n.clust>1)
+                warning ("no adjustment for mashing when using userDfn")
+            ## does not use link$D when calling user function userDfn
+            D <- secr_getD (designD, object$fit$par, regionmask, object$parindx,
+                       object$link$D, object$fixed, grouplevels, sessionlevels,
+                       'D')
+            ###########################################
+            ## 2022-05-24 temp fix for unresolved issue
+            ## return(D[,groupn,session])
+            return(D[,groupn+1,session])
+            ###########################################
+        }
+        ## linear density model on link scale
+        else {
+            
+            newdata <- D.designdata (regionmask, object$model[[parameter]],
+                                     grouplevels, sessionlevels, sessioncov = object$sessioncov,
+                                     meanSD = meanSD)
+            dimD <- attr(newdata, "dimD")
+            ## if newdata has more than one group or session...
+            if (prod(dimD[2:3]) > 1) {
+                ## select a single group by number 
+                groupOK <- (groupn == (1:length(grouplevels))) | (dimD[2]==1)
+                groupOK <- rep(rep(groupOK, each = dimD[1]), dimD[3])
+                ## select a single session
+                sessionOK <- if (is.character(session))
+                    session == sessionlevels
+                else
+                    session == 1:dimD[3]
+                sessionOK <- rep(sessionOK, each = prod(dimD[1:2]))
+                newdata <- newdata[sessionOK & groupOK,]
+            }
+            if (length(grouplevels)>1 && !('g' %in% names(newdata))) {
+                # fiddle to allow groups in derivedDsurface 2024-12-24
+                newdata$g <- rep(group, nrow(newdata))
+                newdata$g <- factor(newdata$g, levels = grouplevels)
+            }
+            class(newdata) <- c('mask', 'data.frame')
+            attr (newdata, 'area') <- attr(regionmask, 'area')
+            
+            
+            #############################################
+            ## allow for fixed beta parameters
+            beta <- secr_complete.beta(object)
+            beta.vcv <- secr_complete.beta.vcv(object)
+            #############################################
+            
+            indx <- object$parindx[[parameter]]
+            betaD <- beta[indx]
+            if (object$model[[parameter]] == ~1) {
+                D <- untransform(betaD, object$link[[parameter]])
+                D <- max(D,0) / n.clust
+                return ( rep(D, nrow(regionmask) ))
             }
             else {
-                f <- object$details[['f']]
-                lpred <- f(newdata[, vars[1]], beta[indx])
-                temp <- untransform(lpred, object$link[[parameter]])
-                temp <- pmax(temp, 0) / n.clust
-                if (se.D | cl.D) {
-                    warning("se.D and cl.D not available for user-specified density function")
+                vars <- all.vars(object$model[[parameter]])
+                if (any(!(vars %in% names(newdata))))
+                    stop ("one or more model covariates not found")
+                newdata <- as.data.frame(newdata)
+                
+                if (is.null(object$details[['f']]) || parameter != 'D') {
+                    mat <- secr_general.model.matrix(
+                        object$model[[parameter]], 
+                        data = newdata, 
+                        gamsmth = object$smoothsetup[[parameter]], 
+                        contrasts = object$details$contrasts)
+                    lpred <- as.numeric(mat %*% betaD)   ## 2018-04-29 drop matrix class, dim attribute
+                    temp <- untransform(lpred, object$link[[parameter]])
+                    temp <- pmax(temp, 0) / n.clust
+                    
+                    if (se.D | cl.D) {
+                        vcv <- beta.vcv [indx,indx]
+                        selpred <- sapply(1:nrow(mat), function(i)
+                            mat[i,, drop=F] %*% vcv %*% t(mat[i,, drop=F]))^0.5
+                        if (se.D) {
+                            attr(temp, 'SE') <- se.untransform (lpred, selpred, object$link[[parameter]]) / n.clust
+                            attr(temp, 'SE')[temp<=0] <- NA
+                        }
+                        if (cl.D) {
+                            z <- abs(qnorm(1-alpha/2))
+                            attr(temp, 'lcl') <- untransform (lpred - z * selpred, object$link[[parameter]]) / n.clust
+                            attr(temp, 'ucl') <- untransform (lpred + z * selpred, object$link[[parameter]]) / n.clust
+                            attr(temp, 'lcl')[temp<=0] <- NA
+                            attr(temp, 'ucl')[temp<=0] <- NA
+                        }
+                    }
                 }
+                else {
+                    f <- object$details[['f']]
+                    lpred <- f(newdata[, vars[1]], beta[indx])
+                    temp <- untransform(lpred, object$link[[parameter]])
+                    temp <- pmax(temp, 0) / n.clust
+                    if (se.D | cl.D) {
+                        warning("se.D and cl.D not available for user-specified density function")
+                    }
+                }
+                return (temp)
             }
-            return (temp)
         }
     }
 }
@@ -260,10 +273,10 @@ rectangularMask <- function (mask) {
 ############################################################################################
 
 predictDsurface <- function (object, mask = NULL, se.D = FALSE, cl.D = FALSE, alpha = 0.05,
-                             parameter = c('D','noneuc','sigmaxy')) {
-    parameter <- match.arg(parameter)
+                             parameter = 'D') {
+    parameter <- match.arg(parameter, .localstuff$spatialparameters)
     sessionlevels <- session(object$capthist)
-    grouplevels <- group.levels(object$capthist, object$groups)
+    grouplevels <- secr_group.levels(object$capthist, object$groups)
     if (is.null(mask))
         mask <- object$mask
     densitylist <- vector('list')
@@ -280,7 +293,7 @@ predictDsurface <- function (object, mask = NULL, se.D = FALSE, cl.D = FALSE, al
             sessmask <- mask
         D <- data.frame (seq = 1:nrow(sessmask))
         for (group in grouplevels) {
-            predicted <- predictD(object, sessmask, group, session, se.D, cl.D, 
+            predicted <- secr_predictD(object, sessmask, group, session, se.D, cl.D, 
                                   alpha, parameter)
             D[,paste(parameter,group,sep='.')] <- as.numeric(predicted)
             if (se.D) {
@@ -339,7 +352,7 @@ plot.Dsurface <- function (x, covariate, group = NULL, plottype = 'shaded',
         # }
         if (length(covariate)>1)
             stop ("whoa... just one at a time")
-        if (covariate %in% c('D','noneuc','sigmaxy','SE','lcl','ucl')) {
+        if (covariate %in% c('D','noneuc','sigmaxy','lambda0xy','SE','lcl','ucl')) {
             covariate <- paste(covariate, group, sep='.')
         }
         if (!(covariate %in% names(covariates(x))))
@@ -489,12 +502,12 @@ spotHeight <- function (object, prefix = NULL, dec = 2, point = FALSE, text = TR
 }
 ############################################################################################
 
-getDensityArray <- function (x, paddedlength = NULL) {
+secr_getDensityArray <- function (x, paddedlength = NULL) {
     if (ms(x)) {
         ## find maximum mask points (may vary between sessions)
         maxnrow <- max(sapply(x, nrow))
         nsession <- length(x)
-        densities <- lapply(x, getDensityArray, maxnrow)
+        densities <- lapply(x, secr_getDensityArray, maxnrow)
         do.call(abind, densities)
     }
     else {

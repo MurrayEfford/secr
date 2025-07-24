@@ -87,7 +87,6 @@ par.secr.fit <- function (arglist, ncores = 1, seed = NULL,
         output <- lapply(arglist, run.fit)
     }
     
-    ## changed from memo() 2016-06-04
     message(paste('Completed in ', round((proc.time() - ptm)[3]/60,3), ' minutes at ',
                   format(Sys.time(), "%H:%M:%S %d %b %Y"), sep=''))
     

@@ -3,10 +3,10 @@
 ## confint.secr.R
 ## last changed 2009 06 11, 2009 07 16 2009 10 20
 ## 2011 01 31
-## 2011 09 28 field argument added to call to secr.lpredictor
+## 2011 09 28 field argument added to call to secr_lpredictor
 ## 2011 09 28 optimizer changed to optim from nlm
 ## 2011 10 21 not for user-defined density
-## 2014-08-22 modified to include smoothsetup argument for secr.lpredictor()
+## 2014-08-22 modified to include smoothsetup argument for secr_lpredictor()
 ## 2014-10-25 updated for NE
 ## could be sped up by adopting Venzon & Moolgavkar algorithm
 ## e.g. in Bhat package
@@ -31,8 +31,8 @@ confint.secr <- function (object, parm, level = 0.95, newdata = NULL,
     profileInterval <- function (parm, ...) {
 
         predicted <- function (beta) {
-            beta <- fullbeta(beta, object$details$fixedbeta)
-            temp <- secr.lpredictor (
+            beta <- secr_fullbeta(beta, object$details$fixedbeta)
+            temp <- secr_lpredictor (
                 formula     = object$model[[parm]], 
                 newdata     = newdata,
                 indx        = object$parindx[[parm]], 
@@ -49,7 +49,7 @@ confint.secr <- function (object, parm, level = 0.95, newdata = NULL,
 
         profileLL.lagrange <- function (gamma, parm) {
           
-            data <- prepareSessionData(object$capthist, object$mask, object$details$maskusage, 
+            data <- secr_prepareSessionData(object$capthist, object$mask, object$details$maskusage, 
                                               object$design, object$design0, object$detectfn, object$groups, 
                                               object$fixed, object$hcov, object$details)
             
@@ -58,7 +58,7 @@ confint.secr <- function (object, parm, level = 0.95, newdata = NULL,
             
             lagrange <- function (beta2, gamma) {
                 ## return quantity to be maximized
-                templl <- generalsecrloglikfn(
+                templl <- secr_generalsecrloglikfn(
                     beta       = beta2,
                     parindx    = object$parindx,
                     link       = object$link,
@@ -78,11 +78,11 @@ confint.secr <- function (object, parm, level = 0.95, newdata = NULL,
             }
             
             ## maximize for fixed gamma (equivalent to fixed 'parm')
-        beta <- coef(object)$beta  # complete.beta(object)
+        beta <- coef(object)$beta  # secr_complete.beta(object)
           lagrange.fit <- optim (par = beta, fn = lagrange, gamma = gamma,
                                    hessian = FALSE)
             .localstuff$beta <- lagrange.fit$par
-            lp <- -generalsecrloglikfn (
+            lp <- -secr_generalsecrloglikfn (
                 beta       = .localstuff$beta,
                 parindx    = object$parindx,
                 link       = object$link,
@@ -112,7 +112,7 @@ confint.secr <- function (object, parm, level = 0.95, newdata = NULL,
             if (is.null(fb)) fb <- rep(NA, np)
             fb[parm] <- x
             details$fixedbeta <- fb
-            start <- complete.beta(object)
+            start <- secr_complete.beta(object)
             fit <- secr.fit (
                 capthist   = object$capthist, 
                 mask       = object$mask,
@@ -239,10 +239,10 @@ confint.secr <- function (object, parm, level = 0.95, newdata = NULL,
     #---------------------------------------------------------------------------------------
 
 
-    memo ('Profile likelihood interval(s)...', tracelevel > 0)
+    secr_memo ('Profile likelihood interval(s)...', tracelevel > 0)
     if (!inherits(object, 'secr'))
         stop ("requires 'secr' object")
-    if (userD(object))
+    if (secr_userD(object))
         stop ("confint not implemented for user-defined density function")
 
     setNumThreads(ncores)
@@ -266,27 +266,27 @@ confint.secr <- function (object, parm, level = 0.95, newdata = NULL,
                 case[i] <- 2
         if (any(case==1)) {
             if (is.null(newdata)) {
-                # newdata <- secr.make.newdata (object)[1,, drop = FALSE]  ## default base levels
                 newdata <- makeNewData (object)[1,, drop = FALSE]  ## default base levels
             }
             if (detector(traps(object$capthist)) %in% c('polygon','polygonX',
                    'transect','transectX','signal','unmarked','presence'))
                 logmult <- 0
             else
-                logmult <- logmultinom(object$capthist, group.factor(object$capthist,
+                logmult <- logmultinom(object$capthist, secr_group.factor(object$capthist,
                     object$groups))
-            ## reconstruct density design matrix
-            D.modelled <- (!object$CL || object$details$relativeD) && is.null(object$fixed$D)
-            # NE.modelled <- is.function(object$details$userdist) && is.null(object$fixed$noneuc)           
-            NE.modelled <- NEmodelled (object$details, object$fixed)
             
-            sessionlevels <- session(object$capthist)
-            grouplevels <- group.levels(object$capthist, object$groups)
-            smoothsetup <- object$smoothsetup
-            # D.designmatrix <- designmatrix (D.modelled, object$mask, object$model$D,
+            ## reconstruct density design matrix; unclear when this is needed
+            # sessionlevels <- session(object$capthist)
+            # grouplevels <- secr_group.levels(object$capthist, object$groups)
+            # smoothsetup <- object$smoothsetup
+            # D.modelled <- (!object$CL || object$details$relativeD) && is.null(object$fixed$D)
+            # NE.modelled <- secr_NEmodelled (object$details, object$fixed,
+            #                                    c('noneuc','sigmaxy','lambda0xy'))
+            # obsolete
+            # D.designmatrix <- secr_designmatrix (D.modelled, object$mask, object$model$D,
             #                                 grouplevels, sessionlevels, object$sessioncov,
             #                                 smoothsetup$D, object$details$contrasts)
-            # NE.designmatrix <- designmatrix (NE.modelled, object$mask, object$model$noneuc,
+            # NE.designmatrix <- secr_designmatrix (NE.modelled, object$mask, object$model$noneuc,
             #                                 grouplevels, sessionlevels, object$sessioncov,
             #                                 smoothsetup$noneuc, object$details$contrasts)        
         }

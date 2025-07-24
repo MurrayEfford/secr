@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------
-gethazard <- function (m, binomN, cc, hk, PIA, usge) {
+secr_gethazard <- function (m, binomN, cc, hk, PIA, usge) {
     nmix <- dim(PIA)[5]
     if (any(binomN == -2)) {   ## multi-catch trap
         nc <- dim(PIA)[2]
@@ -25,7 +25,7 @@ gethazard <- function (m, binomN, cc, hk, PIA, usge) {
 #--------------------------------------------------------------------------------
 ## mixture proportions by animal        
 ## assume dim(PIA)[1] == 1
-getpmix <- function(knownclass, PIA, realparval)
+secr_getpmix <- function(knownclass, PIA, realparval)
 {
     nc <- dim(PIA)[2]
     # not needed nc <- length(knownclass)   ## 2020-11-04
@@ -52,7 +52,7 @@ getpmix <- function(knownclass, PIA, realparval)
     pmixn
 }
 #--------------------------------------------------------------------------------
-getpID <- function(PIA, realparval, MRdata)
+secr_getpID <- function(PIA, realparval, MRdata)
 {
     ss <- dim(PIA)[3]
     nmix <- dim(PIA)[5]
@@ -74,7 +74,7 @@ getpID <- function(PIA, realparval, MRdata)
 }
 
 #--------------------------------------------------------------------------------
-getmiscparm <- function(miscparm, detectfn, beta, parindx, cutval) {
+secr_getmiscparm <- function(miscparm, detectfn, beta, parindx, cutval) {
     ## miscparm is used to package beta parameters that are not modelled
     ## and hence do not have a beta index specified by parindx.
     ## This includes the signal threshold and the mean and sd of noise.
@@ -91,42 +91,12 @@ getmiscparm <- function(miscparm, detectfn, beta, parindx, cutval) {
     miscparm
 }
 #--------------------------------------------------------------------------------
-getuserdist <- function (traps, mask, userdist, sessnum, NE, density, miscparm) {
-    ## Apply user-provided distance function or basic distance function getdistmat2()
-    if (is.null(userdist)) {
-        getdistmat2(traps, mask, NULL)
-    }
-    else {
-        userdistnames <- getuserdistnames(userdist)
-        m <- nrow(mask)
-        if (is.null(covariates(mask)))
-            covariates(mask) <- data.frame(row.names = 1:m)
-        if (('noneuc' %in% userdistnames) && !is.null(NE))
-            covariates(mask)$noneuc <- NE  
-        if (('sigmaxy' %in% userdistnames) && !is.null(NE))
-            covariates(mask)$sigmaxy <- NE  
-        if (('D' %in% userdistnames) && !is.null(density))
-            covariates(mask)$D <- density
-        ## pass miscellaneous unmodelled parameter(s)
-        attr(mask, 'miscparm') <- miscparm
-        distmat2 <- valid.userdist (userdist,
-                                    detector(traps),
-                                    xy1 = traps,
-                                    xy2 = mask,
-                                    mask = mask,
-                                    sessnum = sessnum)^2
-        baddist <- (!is.finite(distmat2)) | (distmat2<0) | is.na(distmat2)
-        if (any(baddist)) {
-            warning ("replacing infinite, negative and NA userdist values with 1e10")
-            distmat2[baddist] <- 1e10
-        }
-        distmat2
-    }
-}
-#--------------------------------------------------------------------------------
-getD <- function (designD, beta, mask, parindx, link, fixed,
+# returns array [nmask, ngroup, nsession] of real parameter values
+secr_getD <- function (designD, beta, mask, parindx, link, fixed,
                   grouplevels, sessionlevels, parameter = 'D') {
-    ## apply to either 'D' or 'noneuc'
+    ## for .localstuff$spatialparameters 'D', 'noneuc', 'sigmaxy', or 'lambda0xy'
+    whichbeta <- beta[parindx[[parameter]]]
+    if (length(whichbeta) == 0) return(NULL)
     if (!is.function(designD)) {
         if ((is.null(designD) || nrow(designD)==0) && (is.null(fixed[[parameter]]))) return(NULL)
     }
@@ -147,22 +117,21 @@ getD <- function (designD, beta, mask, parindx, link, fixed,
             if (ms(mask)) {
                 for (session in 1:nsession) {
                     m <- nrow(mask[[session]])
-                    D[1:m,,session] <- designD(beta[parindx[[parameter]]], mask[[session]], ngroup, 1)
+                    D[1:m,,session] <- designD(whichbeta, mask[[session]], ngroup, 1)
                 }
             } 
             else {
                 m <- nrow(mask)
-                D[1:m,,1] <- designD(beta[parindx[[parameter]]], mask, ngroup, 1)
+                D[1:m,,1] <- designD(whichbeta, mask, ngroup, 1)
             }
         }
         else {
-            beta <- beta[parindx[[parameter]]]
             Dfn <- attr(designD, 'Dfn')
             if (is.function(Dfn)) {
-                    D[,,] <- Dfn(designD, beta)
+                    D[,,] <- Dfn(designD, whichbeta)
             }
             else {
-                D[,,] <- designD %*% beta  # linear predictor
+                D[,,] <- designD %*% whichbeta  # linear predictor
             }
             D[,,] <- untransform (D, link[[parameter]])
         }
@@ -174,7 +143,7 @@ getD <- function (designD, beta, mask, parindx, link, fixed,
     D
 }
 #--------------------------------------------------------------------------------
-getmaskpar <- function(OK, D, m, sessnum, unmash, nmash) {
+secr_getmaskpar <- function(OK, D, m, sessnum, unmash, nmash) {
     if (!OK) {
         NULL   ## not in model
     }
@@ -239,10 +208,11 @@ getchat <- function (cc0, nc, n.distrib, group, usge, pmixn, pID,
     return (sumchat)
 }
 
-makegk <- function(dettype, detectfn, trps, mask, details, sessnum, noneuc, D, miscparm, realparval, grain, ncores) {
+secr_makegk <- function(dettype, detectfn, trps, mask, details, sessnum, NElist, D, 
+                   miscparm, realparval, grain, ncores) {
     ## precompute gk, hk for point detectors
     if (all(dettype %in% c(0,1,2,5,8,13))) {
-        distmat2 <- getuserdist(trps, mask, details$userdist, sessnum, noneuc, D, miscparm)
+        distmat2 <- secr_getuserdist(trps, mask, details$userdist, sessnum, NElist, D, miscparm)
         gkhk <- makegkPointcpp (
             as.integer(detectfn), 
             as.integer(grain),
@@ -262,7 +232,7 @@ makegk <- function(dettype, detectfn, trps, mask, details, sessnum, noneuc, D, m
     ## precompute gk, hk for polygon and transect detectors
     else if (all(dettype %in% c(3,4,6,7))) {
         ## k-1 because we have zero-terminated these vectors
-        k <- getk(trps)
+        k <- secr_getk(trps)
         K <- if (length(k)>1) length(k)-1 else k
         cumk <- cumsum(c(0,k))[1:length(k)]
         dimension <- (dettype[1] %in% c(3,6)) + 1   ## 1 = 1D, 2 = 2D

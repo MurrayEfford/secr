@@ -17,7 +17,7 @@
 ###############################################################################
 ## used only for secondary setup (e.g. confint, score.test)
 
-designmatrix <- function (modelled, mask, model, grouplevels, sessionlevels, 
+secr_designmatrix <- function (modelled, mask, model, grouplevels, sessionlevels, 
                           sessioncov, smoothsetup, contrasts = NULL) {
     if (!modelled) {
         designmatrix <- matrix(nrow = 0, ncol = 0)
@@ -26,7 +26,7 @@ designmatrix <- function (modelled, mask, model, grouplevels, sessionlevels,
     else {
         temp <- D.designdata( mask, model, grouplevels,
                               sessionlevels, sessioncov)
-        designmatrix <- general.model.matrix(model, data = temp, gamsmth = smoothsetup, 
+        designmatrix <- secr_general.model.matrix(model, data = temp, gamsmth = smoothsetup, 
                                              contrasts = contrasts)
         attr(designmatrix, 'dimD') <- attr(temp, 'dimD')
     }
@@ -41,7 +41,7 @@ D.designdata <- function (mask, Dmodel, grouplevels, sessionlevels, sessioncov =
     ## Dmodel -- formula that may be constant ~1 or include
     ## any of the 'automatic' terms c('g','x','y','x2','y2','xy','session',
     ## 'Session') or user-supplied mask-level covariates
-    ## grouplevels -- group.levels(capthist,groups)
+    ## grouplevels -- secr_group.levels(capthist,groups)
     ## sessionlevels -- character vector of session names
     ## sessioncov -- dataframe of session-specific covariates
     ## meanSD -- optional externally provided mean and SD (rows) for x-
@@ -151,7 +151,7 @@ D.designdata <- function (mask, Dmodel, grouplevels, sessionlevels, sessioncov =
     if (!is.null(sessioncov)) {
         #############################################
         ## 2020-11-06 convert all character to factor
-        sessioncov <- stringsAsFactors(sessioncov)   
+        sessioncov <- secr_stringsAsFactors(sessioncov)   
         #############################################
         found <- names(sessioncov) %in% vars
         if (is.data.frame(sessioncov) & any(found)) {

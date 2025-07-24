@@ -86,7 +86,7 @@ bias.D <- function (buffer, traps, detectfn, detectpar, noccasions, binomN = NUL
 #        lth(punion2(polys, ntheta))
 #    }
 
-    detectfn <- valid.detectfn(detectfn)
+    detectfn <- secr_valid.detectfn(detectfn)
     if (!all(detector(traps) %in% .localstuff$pointdetectors))
         stop ("bias.D() requires passive point detectors (not polygon or transect)")
     if (!all(detector(traps) %in% .localstuff$individualdetectors))
@@ -265,13 +265,13 @@ suggest.buffer <- function (object, detectfn = NULL, detectpar = NULL, noccasion
                     tempmask <- make.mask (traps, buffer = 5*RPSV(object, CC = TRUE))
                     ## thin = 1 specified 2019-12-16
                     detectpar <- autoini (object, tempmask,
-                        ignoreusage = ignoreusage, ncores = ncores, thin = 1)[parnames(0)]
+                        ignoreusage = ignoreusage, ncores = ncores, thin = 1)[secr_parnames(0)]
                     tempdp <- lapply(detectpar,formatC,4)
                     warning ("using automatic 'detectpar' ",
                         paste(names(detectpar), "=", tempdp, collapse=", "),
                         call. = FALSE)
                     if (!is.null(detectfn)) {
-                        detectfn <- valid.detectfn(detectfn)
+                        detectfn <- secr_valid.detectfn(detectfn)
                         ## limited!
                         if (detectfn != 0)
                             warning ("forcing 'detectfn' to halfnormal", call. = FALSE)
@@ -287,8 +287,8 @@ suggest.buffer <- function (object, detectfn = NULL, detectpar = NULL, noccasion
         if (is.null(interval)) {
             interval <- c(1, 100 * spatialscale(detectpar, detectfn))
         }
-        detectfn <- valid.detectfn(detectfn)
-        detectpar <- valid.detectpar(detectpar, detectfn)
+        detectfn <- secr_valid.detectfn(detectfn)
+        detectpar <- secr_valid.detectpar(detectpar, detectfn)
         
         if (!all(detector(traps) %in% .localstuff$pointdetectors))
             stop ("require passive point detectors (not polygon or transect)")

@@ -82,6 +82,7 @@ get.line.intersection <- function (p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.
     }
     return (c(NA,NA))  ## No collision
 }
+#-------------------------------------------------------------------------------
 
 ## vectorized
 get.line.intersection.v <- function (p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y)
@@ -97,6 +98,7 @@ get.line.intersection.v <- function (p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p
     out[!OK,] <- NA
     out
 }
+#-------------------------------------------------------------------------------
 
 stop.at.edge <- function (old, pop, tol = 1e-6) {
     ## animals that stop at the edge are shifted tol m towards centre 
@@ -127,6 +129,7 @@ stop.at.edge <- function (old, pop, tol = 1e-6) {
     pop <- update(bottom, pop)
     pop
 }
+#-------------------------------------------------------------------------------
 
 reflect <- function (pop) {
     bb <- attr(pop, 'boundingbox')
@@ -143,6 +146,7 @@ reflect <- function (pop) {
     }
     pop
 }
+#-------------------------------------------------------------------------------
 
 tile <- function (popn, method = "reflect") {
     bbox <- attr(popn, 'boundingbox')
@@ -159,6 +163,7 @@ tile <- function (popn, method = "reflect") {
     else
         stop ("unrecognised method")
 }
+#-------------------------------------------------------------------------------
 
 # post-dispersal locations
 # see main function sim.popn() for application of edge methods
@@ -236,6 +241,17 @@ disperse <- function (newpopn, turnoverpar, t, core, disp) {
     }
     newpopn
 }
+#-------------------------------------------------------------------------------
+
+## 2023-09-17 im2mask converts spatstat im object
+im2mask <- function(im) {
+    # spatstat im object to mask
+    df <- as.data.frame(im)
+    names(df) <- c('x','y','Lambda')
+    df$Lambda <- df$Lambda * 1e4   # per hectare
+    read.mask(data = df, spacing = im$xstep)
+}
+#-------------------------------------------------------------------------------
 
 sim.popn <- function (D, core, buffer = 100, model2D = c("poisson", 
     "cluster", "IHP", "coastal", "hills", "linear", "even", "rLGCP", "rThomas"), 

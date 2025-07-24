@@ -154,7 +154,7 @@ checkcovariatelevels <- function (cov) {
   }
   #############################################
   ## 2020-05-15 convert all character to factor
-  cov <- lapply(cov, stringsAsFactors)
+  cov <- lapply(cov, secr_stringsAsFactors)
   #############################################
   
   factornames <- sapply(cov, xfactor)
@@ -249,8 +249,8 @@ verify.traps <- function (object, report = 2, ...) {
       usagedetectorsOK <- nrow(usage(object)) == ndetector(object)
       
       ## 5
-      if (length(detectorcode(object))>1)
-        usagedetectors2OK <- length(detectorcode(object)) == ncol(usage(object))
+      if (length(secr_detectorcode(object))>1)
+        usagedetectors2OK <- length(secr_detectorcode(object)) == ncol(usage(object))
       
       ## 6
       usagecount <- apply(usage(object),2,sum)
@@ -321,7 +321,7 @@ verify.traps <- function (object, report = 2, ...) {
         }
         if (!usagedetectors2OK) {
           cat ('Conflicting number of occasions in usage matrix\n')
-          cat ('detector attribute :', length(detectorcode(object)), 'occasions\n')
+          cat ('detector attribute :', length(secr_detectorcode(object)), 'occasions\n')
           cat ('usage(traps) :', ncol(usage(object)), 'occasions\n')
         }
         if (!usagenonzeroOK) {
@@ -414,8 +414,8 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
   }
   else {
     ## preliminaries
-    object <- check3D(object)
-    detectortype <- expanddet(object)  # vector length noccasions
+    object <- secr_check3D(object)
+    detectortype <- secr_expanddet(object)  # vector length noccasions
     telemetrytype <- telemetrytype(traps(object))
     signal <- all(detectortype %in% c('signal','signalnoise'))
     unmarked <- all(detectortype %in% c('unmarked'))
@@ -525,7 +525,7 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
       ###################
       ## binary detectors
       
-      detectorcodes <- detectorcode(traps(object), MLonly = FALSE, noccasions = ncol(object))
+      detectorcodes <- secr_detectorcode(traps(object), MLonly = FALSE, noccasions = ncol(object))
       
       ## 8
       ## single, multi, capped, proximity, polygonX, transectX, signal and signalnoise must be binary

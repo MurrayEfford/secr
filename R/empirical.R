@@ -268,7 +268,7 @@ derivednj <- function ( nj, esa, se.esa = NULL,
     D <- n / A 
     varD <- D^2 * (varn/n^2 + varA/A^2)
     temp <- data.frame(row.names = c('esa','D'), estimate = c(A,D), SE.estimate = c(varA,varD)^0.5)
-    temp <- add.cl(temp, alpha, loginterval)
+    temp <- secr_add.cl(temp, alpha, loginterval)
     temp$CVn <- c(NA, varn^0.5/n)
     temp$CVa <- c(NA, sqrt(varA)/A)
     temp$CVD <- c(NA, varD^0.5/D)

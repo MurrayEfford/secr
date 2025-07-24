@@ -481,7 +481,7 @@ signalmatrix <- function (object, noise = FALSE, recodezero = FALSE,
                prefix=prefix, signalcovariates = signalcovariates, names = names)
     }
     else {
-        object <- check3D(object)
+        object <- secr_check3D(object)
         tmpsignal <- object
         if (dim(tmpsignal)[2]>1)
             warning("using only first occasion")
@@ -677,7 +677,7 @@ detectionindex <- function (object) {
         if (nrow(object) == 0)
            numeric(0)
         else {
-            object <- check3D(object)
+            object <- secr_check3D(object)
             x <- object
             x[] <- 1:length(x)
             x[abs(object)==0] <- 0
@@ -1170,8 +1170,8 @@ flip.default <- function (object, lr = FALSE, tb = FALSE, ...) {
 
 'xy<-' <- function (object, value) {
     if (!is.null(value)) {
-        object <- check3D(object)
-        polyoccasions <- expanddet(object) %in% .localstuff$polydetectors
+        object <- secr_check3D(object)
+        polyoccasions <- secr_expanddet(object) %in% .localstuff$polydetectors
         ndetections <- sum(abs(object[,polyoccasions,]))
         if (nrow(value) != ndetections)
             stop ("requires one location per detection")
@@ -1187,8 +1187,8 @@ flip.default <- function (object, lr = FALSE, tb = FALSE, ...) {
 
 'telemetryxy<-' <- function (object, value) {
     if (!is.null(value)) {
-        object <- check3D(object)
-        telemoccasions <- expanddet(object) %in% 'telemetry'
+        object <- secr_check3D(object)
+        telemoccasions <- secr_expanddet(object) %in% 'telemetry'
         ndetections <- sum(abs(object[,telemoccasions,]))
         if (sum(sapply(value,nrow)) != ndetections)
             stop ("requires one location per detection")
@@ -1699,7 +1699,7 @@ subset.capthist <- function (x, subset=NULL, occasions=NULL, traps=NULL,
            nk <- 1
         }
         else {
-            detector <- expanddet(x)   # vector 2017-01-28
+            detector <- secr_expanddet(x)   # vector 2017-01-28
             nk <- ndetector (trapsx)
         }
         if (is.logical(subset) & (length(subset) != nrow(x)))
@@ -2342,7 +2342,7 @@ print.secr <- function (x, newdata = NULL, alpha = 0.05, deriv = FALSE, call = T
             ncapt <- sum(abs(x$capthist)>0)
 
         defaultmarkresight <- list(Tu='as.is', Tm='as.is', Tn='ignore')
-        markresightcontrol <- replacedefaults(defaultmarkresight, x$details$markresight)
+        markresightcontrol <- secr_replacedefaults(defaultmarkresight, x$details$markresight)
 
         Tu <- Tu(x$capthist)
         Tm <- Tm(x$capthist)
@@ -2351,7 +2351,7 @@ print.secr <- function (x, newdata = NULL, alpha = 0.05, deriv = FALSE, call = T
         unmarkedocc <- markocc(traps(x$capthist)) == 0
 
         if ('g' %in% x$vars) {
-            Groups  <- table(group.factor(x$capthist, x$groups))
+            Groups  <- table(secr_group.factor(x$capthist, x$groups))
             temp <- paste (names(Groups), Groups, collapse=', ', sep='=')
             temp <- paste('(',temp,')', sep='')
         }
@@ -2409,7 +2409,7 @@ print.secr <- function (x, newdata = NULL, alpha = 0.05, deriv = FALSE, call = T
         2*(x$fit$value + Npar) + 2 * Npar * (Npar+1) / (n - Npar - 1),
         NA)
     cat ('\n')
-    cat ('Model           : ', model.string(x$model, x$details$userDfn), '\n')
+    cat ('Model           : ', secr_model.string(x$model, x$details$userDfn), '\n')
 
     ## 2013-06-08
     if (!is.null(x$hcov))
@@ -2424,7 +2424,7 @@ print.secr <- function (x, newdata = NULL, alpha = 0.05, deriv = FALSE, call = T
     }
 
     cat ('Fixed (real)    : ', fixed.string(x$fixed), '\n')
-    cat ('Detection fn    : ', detectionfunctionname(x$detectfn))
+    cat ('Detection fn    : ', secr_detectionfunctionname(x$detectfn))
     cat ('\n')
     if (!x$CL)
         cat ('Distribution    : ', x$details$distribution, '\n')
@@ -2510,8 +2510,8 @@ vcov.secr <- function (object, realnames = NULL, newdata = NULL, byrow = FALSE, 
         ## average real parameters
         ## vcv among multiple rows
         
-        beta <- complete.beta(object)
-        beta.vcv <- complete.beta.vcv(object)
+        beta <- secr_complete.beta(object)
+        beta.vcv <- secr_complete.beta.vcv(object)
         if (is.null(newdata)) {
             newdata <- makeNewData (object)
         }
@@ -2525,7 +2525,7 @@ vcov.secr <- function (object, realnames = NULL, newdata = NULL, byrow = FALSE, 
                 reali <- function (beta, rn) {
                     ## real from all beta pars eval at newdata[i,]
                     par.rn <- object$parindx[[rn]]
-                    mat <- general.model.matrix(
+                    mat <- secr_general.model.matrix(
                         object$model[[rn]], 
                         data = newdatai,
                         gamsmth = object$smoothsetup[[rn]],
@@ -2556,7 +2556,7 @@ vcov.secr <- function (object, realnames = NULL, newdata = NULL, byrow = FALSE, 
                 if (rn == 'pmix')
                     stop("vcov does not work at present when realname == 'pmix'")
                 par.rn <- object$parindx[[rn]]
-                mat <- general.model.matrix(
+                mat <- secr_general.model.matrix(
                     object$model[[rn]], 
                     data = newdata,
                     gamsmth = object$smoothsetup[[rn]],
@@ -2576,7 +2576,7 @@ vcov.secr <- function (object, realnames = NULL, newdata = NULL, byrow = FALSE, 
             names (vcvlist) <- realnames
             return (vcvlist)
         }
-        ## DIFFERENT VARIANCE TO secr.lpredictor for sigma because there use se.Xuntransfom
+        ## DIFFERENT VARIANCE TO secr_lpredictor for sigma because there use se.Xuntransfom
     }
 }
 

@@ -65,7 +65,7 @@ detectpar.secr <- function(object, ..., byclass = FALSE, bytrap = FALSE) {
     if (!inherits(object,'secr')) stop ("requires 'secr' object")
     if (!is.null(object$fixed) && length(object$fixed)>0) warning("fixed parameters ignored") 
     
-    pnames <- parnames(object$detectfn)
+    pnames <- secr_parnames(object$detectfn)
     nclass <- object$details$nmix
     
     if (object$details$param == 2) pnames[1] <- 'esa'
@@ -134,15 +134,15 @@ detectpar0 <- function(object,
                        byclass    = FALSE) {
     beta <- object$fit$par
     # insert fixed betas as needed
-    beta <- fullbeta(beta, object$details$fixedbeta)
+    beta <- secr_fullbeta(beta, object$details$fixedbeta)
     # get lookup table 
-    realparval0 <- makerealparameters (
+    realparval0 <- secr_makerealparameters (
         object$design0, beta,
         object$parindx, object$link, object$fixed)  # naive
     param <- object$details$param
     if (param>0) {
         if (param == 3) {
-            realparval0 <- reparameterize(
+            realparval0 <- secr_reparameterize(
                 realparval0, object$detectfn, object$details, object$mask, 
                 traps(object$capthist), NA, NA)
         }

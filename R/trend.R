@@ -17,8 +17,8 @@ Dfn2 <- function (designD, beta = NULL, ...) {
 predictDlambda <- function (object, alpha = 0.05) {
     z <- abs(qnorm(1-alpha/2))   
 
-    beta <- complete.beta(object)
-    beta.vcv <- complete.beta.vcv(object)
+    beta <- secr_complete.beta(object)
+    beta.vcv <- secr_complete.beta.vcv(object)
     beta.vcv[is.na(beta.vcv)] <- 0
     Dpar <- object$parindx[['D']]
     beta <- beta[Dpar]

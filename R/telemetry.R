@@ -30,9 +30,9 @@ telemetry.LT <- function(CH, detectfn, realparval, PIA,
     ## does not use habitat mask, or truncate at boundary
     normalize <- function (parm) {
         ## Why normalize?
-        par3 <- ndetectpar(detectfn) == 3
+        par3 <- length(secr_parnames(detectfn)) == 3
         sigma <- parm['sigma']
-        z <- if (par3) parm[parnames(detectfn)[3]] else 1
+        z <- if (par3) parm[secr_parnames(detectfn)[3]] else 1
         if (detectfn %in% c(14,16))
             lambda0 <- 10000 / (sigma^2 * 2 * pi)
         else {
@@ -57,8 +57,8 @@ telemetry.LT <- function(CH, detectfn, realparval, PIA,
         realparval[pind,'pmix', drop = FALSE]
     }
 
-    detectfn <- valid.detectfn(detectfn, 14:19)
-    dfn <- getdfn (detectfn)
+    detectfn <- secr_valid.detectfn(detectfn, 14:19)
+    dfn <- secr_getdfn (detectfn)
     Nrealparval <- t(apply(realparval, 1, normalize))  ## adjust lambda0, complete pars
 
     ## df with one row per detection
@@ -113,9 +113,9 @@ telemetry.LC <- function(CH, detectfn, detectpar, mask, bvn = TRUE) {
     J <- dim(CH)[2]
     traps <- traps(CH)
     K <- ndetector(traps)
-    detectfn <- valid.detectfn(detectfn, 14:19)
+    detectfn <- secr_valid.detectfn(detectfn, 14:19)
     detectpar <- detectpar[c('lambda0','sigma','z')] ## ensure order correct
-    g <- getdfn (detectfn)
+    g <- secr_getdfn (detectfn)
     xylist <- telemetryxy(CH)
     centrexy <- t(sapply(xylist, apply, 2, mean))
 

@@ -42,7 +42,7 @@ summary.secr <- function (object, newdata = NULL, alpha = 0.05, deriv = FALSE, .
 
         if (!is.null(markocc(traps(object$capthist) ))) {
             defaultmarkresight <- list(Tu='as.is', Tm='as.is', Tn='ignore')
-            markresightcontrol <- replacedefaults(defaultmarkresight, object$details$markresight)
+            markresightcontrol <- secr_replacedefaults(defaultmarkresight, object$details$markresight)
             out$Tu <- Tu(object$capthist)
             out$Tm <- Tm(object$capthist)
             out$Tn <- Tn(object$capthist)
@@ -58,7 +58,7 @@ summary.secr <- function (object, newdata = NULL, alpha = 0.05, deriv = FALSE, .
         }
 
         if ('g' %in% object$vars) {
-            Groups  <- table(group.factor(object$capthist, object$groups))
+            Groups  <- table(secr_group.factor(object$capthist, object$groups))
             temp <- paste (names(Groups), Groups, collapse=', ', sep='=')
             out$groupinfo <- paste('(',temp,')', sep='')
         }

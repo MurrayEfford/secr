@@ -29,17 +29,17 @@
 ## 2023-03-10 distancetotrap and nearesttrap moved to separate file
 ## 2023-03-10 setNumThreads moved to separate file
 ## 2023-05-21 4.6.0
-## 2023-09-17 im2mask converts spatstat im object
 ## 2024-03-19 rlnormCV
 ## 2024-07-31 addzeroCH tweaked to allow zero-row covariate df + drop = FALSE
 ## 2024-09-25 purged a couple of unused fn, moved xy2CH to xy2CH.R
-## 2024-10-09 span()
+## 2024-10-09 span() (now in plot.capthist.R)
 ## 2025-01-07 allzero bug fixed
 ## 2025-01-10 completeDbeta
 ## 2025-03-18 saveprogress()
 ## 2025-06-17 filterw(), captinhood()
 ## 2025-06-25 detectfn 20 OU
 ## 2025-07-20 5.3.0
+## 2025-07-24 secr_ prefix attached to most functions used in other .R files
 ################################################################################
 
 # Global variables in namespace
@@ -96,15 +96,18 @@
 ## Bk added 2020-02-26; Br added 2025-06-17
 .localstuff$learnedresponses <- c('b', 'bk', 'B', 'k', 'Bk', 'Br') 
 
+## 2025-07-22
+
+.localstuff$spatialparameters <- c('D', 'noneuc','sigmaxy','lambda0xy')
 #-------------------------------------------------------------------------------
 
-detectionfunctionname <- function (fn) {
+secr_detectionfunctionname <- function (fn) {
     .localstuff$detectionfunctions[fn+1]
 }
 
 #-------------------------------------------------------------------------------
 
-detectionfunctionnumber <- function (detname) {
+secr_detectionfunctionnumber <- function (detname) {
     dfn <- match (toupper(detname), .localstuff$DFN)
     if (is.na(dfn))
         dfn <- match (tolower(detname), .localstuff$detectionfunctions)
@@ -115,7 +118,7 @@ detectionfunctionnumber <- function (detname) {
 
 #-------------------------------------------------------------------------------
 
-parnames <- function (detectfn) {
+secr_parnames <- function (detectfn) {
     switch (detectfn+1,
         c('g0','sigma'),   ## 0
         c('g0','sigma','z'),
@@ -143,19 +146,19 @@ parnames <- function (detectfn) {
 
 #-------------------------------------------------------------------------------
 
-getdfn <- function (detectfn) {
+secr_getdfn <- function (detectfn) {
     switch (detectfn+1, HN, HR, EX, CHN, UN, WEX, ANN, CLN, CG, BSS, SS, SSS,
                        SN, SNS, HHN, HHR, HEX, HAN, HCG, HVP, HHN)
 }
 
 #-------------------------------------------------------------------------------
 
-valid.detectfn <- function (detectfn, valid = c(0:3,5:19)) {
+secr_valid.detectfn <- function (detectfn, valid = c(0:3,5:19)) {
 # exclude 4 uniform: too numerically flakey
     if (is.null(detectfn))
         stop ("requires 'detectfn'")
     if (is.character(detectfn))
-        detectfn <- detectionfunctionnumber(detectfn)
+        detectfn <- secr_detectionfunctionnumber(detectfn)
     if (any(!(detectfn %in% valid)))    # allow vector of detectfn 2024-02-12
         stop ("invalid detection function")
     detectfn
@@ -163,7 +166,7 @@ valid.detectfn <- function (detectfn, valid = c(0:3,5:19)) {
 
 #-------------------------------------------------------------------------------
 
-valid.detectpar <- function (detectpar, detectfn) {
+secr_valid.detectpar <- function (detectpar, detectfn) {
     if (is.null(detectpar) | is.null(detectfn))
         stop ("requires valid 'detectpar' and 'detectfn'")
 
@@ -175,23 +178,41 @@ valid.detectpar <- function (detectpar, detectfn) {
         detectpar[[aname]] <- if (detectfn %in% 0:8) 1-exp(-lambda0) else lambda0
     }
 
-    if (!all(parnames(detectfn) %in% names(detectpar)))
-        stop ("requires 'detectpar' ", paste(parnames(detectfn), collapse=','),
-            " for ", detectionfunctionname(detectfn), " detectfn")
-    detectpar[parnames(detectfn)]
+    if (!all(secr_parnames(detectfn) %in% names(detectpar)))
+        stop ("requires 'detectpar' ", paste(secr_parnames(detectfn), collapse=','),
+            " for ", secr_detectionfunctionname(detectfn), " detectfn")
+    detectpar[secr_parnames(detectfn)]
 }
 
 #-------------------------------------------------------------------------------
 
-valid.model <- function(model, CL, detectfn, hcov, userdist, sessioncovnames) {
-    if (any(sapply(model, badsmooths)))
+secr_valid.model <- function(model, CL, detectfn, hcov, userdist, sessioncovnames) {
+    badsmooths <- function (formula) {
+        ## does smooth specification conform to secr requirements?
+        ## returns TRUE/FALSE
+        labels <- attr(terms(formula), "term.labels")
+        if (length(labels) > 0) {
+            smoothterms <- sapply(labels, function (x)
+                any(sapply(c("s\\(", "te\\("), grepl, x)))
+            labels <- labels[smoothterms]
+            any(sapply(labels, function(x)
+                grepl("s\\(", x) & !grepl("k =", x))) |
+                any(sapply(labels, function(x)
+                    grepl("te\\(", x) & (!grepl("fx = TRUE", x) | !grepl("k =", x))))
+        }
+        else
+            FALSE
+    }
+    
+    if (any(sapply(model, badsmooths))) {
         warning ("smooth term may be unsuitable for secr: ",
                  "does not specify k or fx where required")
+    }
 }
 
 #-------------------------------------------------------------------------------
 
-getuserdistnames <- function (userdist) {
+secr_getuserdistnames <- function (userdist) {
     ## return the names of any supplementary arguments of user-provided function
     ## for non-euclidean distance computations
     if (is.function(userdist)) {
@@ -207,7 +228,44 @@ getuserdistnames <- function (userdist) {
 
 #-------------------------------------------------------------------------------
 
-valid.pnames <- function (details, CL, detectfn, alltelem, sighting, nmix) {
+secr_getuserdist <- function (traps, mask, userdist, sessnum, NElist, density, miscparm) {
+    ## Apply user-provided distance function or basic distance function secr_getdistmat2()
+    if (is.null(userdist)) {
+        secr_getdistmat2(traps, mask, NULL)
+    }
+    else {
+        userdistnames <- secr_getuserdistnames(userdist)
+        m <- nrow(mask)
+        if (is.null(covariates(mask)))
+            covariates(mask) <- data.frame(row.names = 1:m)
+        
+        if (length(NElist)>0) {
+            noneucpar <- lapply(NElist, secr_getmaskpar, OK = TRUE, m, sessnum, FALSE, NULL)
+            noneucpar <- as.data.frame(noneucpar)
+            covariates(mask) <- cbind(covariates(mask), noneucpar)
+        }
+        
+        if (('D' %in% userdistnames) && !is.null(density))
+            covariates(mask)$D <- density
+        ## pass miscellaneous unmodelled parameter(s)
+        attr(mask, 'miscparm') <- miscparm
+        distmat2 <- secr_valid.userdist (userdist,
+                                         detector(traps),
+                                         xy1 = traps,
+                                         xy2 = mask,
+                                         mask = mask,
+                                         sessnum = sessnum)^2
+        baddist <- (!is.finite(distmat2)) | (distmat2<0) | is.na(distmat2)
+        if (any(baddist)) {
+            warning ("replacing infinite, negative and NA userdist values with 1e10")
+            distmat2[baddist] <- 1e10
+        }
+        distmat2
+    }
+}
+#--------------------------------------------------------------------------------
+
+secr_valid.pnames <- function (details, CL, detectfn, alltelem, sighting, nmix) {
     ## modelled parameters
     pnames <- switch (detectfn+1,
         c('g0','sigma'),           # 0 halfnormal
@@ -222,8 +280,8 @@ valid.pnames <- function (details, CL, detectfn, alltelem, sighting, nmix) {
         c('b0','b1'),              # 9
         c('beta0','beta1','sdS'),  # 10
         c('beta0','beta1','sdS'),  # 11
-        c('beta0','beta1','sdS'),  # 12  cf parnames() in utility.R: muN, sdN?
-        c('beta0','beta1','sdS'),  # 13  cf parnames() in utility.R: muN, sdN?
+        c('beta0','beta1','sdS'),  # 12  cf secr_parnames() in utility.R: muN, sdN?
+        c('beta0','beta1','sdS'),  # 13  cf secr_parnames() in utility.R: muN, sdN?
         c('lambda0','sigma'),      # 14 hazard halfnormal
         c('lambda0','sigma','z'),  # 15 hazard hazard rate
         c('lambda0','sigma'),      # 16 hazard exponential
@@ -245,11 +303,14 @@ valid.pnames <- function (details, CL, detectfn, alltelem, sighting, nmix) {
         # include density D if needed
         pnames <- c('D', pnames)
     }
-    if ('noneuc' %in% getuserdistnames(details$userdist)) {
+    if ('noneuc' %in% secr_getuserdistnames(details$userdist)) {
         pnames <- c(pnames, 'noneuc')
     }
-    if ('sigmaxy' %in% getuserdistnames(details$userdist)) {
+    if ('sigmaxy' %in% secr_getuserdistnames(details$userdist)) {
         pnames <- c(pnames, 'sigmaxy')
+    }
+    if ('lambda0xy' %in% secr_getuserdistnames(details$userdist)) {
+        pnames <- c(pnames, 'lambda0xy')
     }
     if (sighting)
       pnames <- c(pnames, 'pID')
@@ -264,7 +325,7 @@ valid.pnames <- function (details, CL, detectfn, alltelem, sighting, nmix) {
 }
 #-------------------------------------------------------------------------------
 
-valid.userdist <- function (userdist, detector, xy1, xy2, mask, sessnum) {
+secr_valid.userdist <- function (userdist, detector, xy1, xy2, mask, sessnum) {
     if (is.null(userdist)) {
         ## default to Euclidean distance
         result <- edist(xy1, xy2)
@@ -275,10 +336,10 @@ valid.userdist <- function (userdist, detector, xy1, xy2, mask, sessnum) {
         }
         if (is.function(userdist))
         {
-            OK <- getuserdistnames(userdist) %in% names(covariates(mask))
+            OK <- secr_getuserdistnames(userdist) %in% names(covariates(mask))
             if ((length(OK)>0) & !all(OK))
                 stop ("covariates required by userdist function not in mask : ",
-                      paste(getuserdistnames(userdist)[!OK], collapse=','))
+                      paste(secr_getuserdistnames(userdist)[!OK], collapse=','))
             # 2023-02-06 selected columns 1:2 only (mask passes miscparm)
             result <- do.call(userdist, c(list(xy1[,1:2], xy2[,1:2], mask)))
         }
@@ -310,7 +371,7 @@ valid.userdist <- function (userdist, detector, xy1, xy2, mask, sessnum) {
 }
 #-------------------------------------------------------------------------------
 
-new.param <- function (details, model, CL) {
+secr_new.param <- function (details, model, CL) {
     esa <- 'esa' %in% names(model)
     a0 <- 'a0' %in% names(model)
     sigmak <- 'sigmak' %in% names(model)
@@ -339,7 +400,7 @@ new.param <- function (details, model, CL) {
 #-------------------------------------------------------------------------------
 ## MULTI-SESSION FORM?
 
-detectorcode <- function (object, MLonly = TRUE, noccasions = NULL) {
+secr_detectorcode <- function (object, MLonly = TRUE, noccasions = NULL) {
     ## numeric detector code from a traps object
     detcode <- sapply(detector(object), switch,
         single      = -1,
@@ -370,7 +431,7 @@ detectorcode <- function (object, MLonly = TRUE, noccasions = NULL) {
 }
 #-------------------------------------------------------------------------------
 
-expanddet <- function(CH) {
+secr_expanddet <- function(CH) {
     trps <- traps(CH)
     if (is.null(trps))
         return ('nonspatial')
@@ -384,37 +445,11 @@ expanddet <- function(CH) {
 
 #-------------------------------------------------------------------------------
 
-ndetectpar <- function (detectfn) {
-    length(parnames(detectfn))
-}
+secr_replacedefaults <- function (default, user) replace(default, names(user), user)
 
 #-------------------------------------------------------------------------------
 
-replacedefaults <- function (default, user) replace(default, names(user), user)
-
-#-------------------------------------------------------------------------------
-
-discreteN <- function (n, N) {
-    tN <- trunc(N)
-    if (N != tN) tN + sample (x = c(1,0), prob = c(N-tN, 1-(N-tN)),
-        replace = T, size = n)
-    else rep(tN,n)
-}
-
-#-------------------------------------------------------------------------------
-
-ndetector <- function (traps) {
-    if (is.null(traps))
-        return(1)
-    else if (all(detector(traps) %in% .localstuff$polydetectors))
-        length(levels(polyID(traps)))
-    else
-        nrow(traps)
-}
-
-#-------------------------------------------------------------------------------
-
-memo <- function (text, trace) {
+secr_memo <- function (text, trace) {
     ## could use message(text), but does not immediately flush console
     if (trace) { cat (text, '\n')
     flush.console() }
@@ -422,56 +457,8 @@ memo <- function (text, trace) {
 
 #-------------------------------------------------------------------------------
 
-insertdim <- function (x, dimx, dims) {
-  ## make vector of values
-  ## using x repeated so as to fill array
-  ## with dim = dims and the x values occupying dimension(s) dimx
-  olddim <- 1:length(dims)
-  olddim <- c(olddim[dimx], olddim[-dimx])
-  temp <- array (dim=c(dims[dimx], dims[-dimx]))
-  tempval <- array(dim=dims[dimx])
-  if (length(x) > length(tempval))
-      tempval[] <- x[1:length(tempval)]
-  else
-      tempval[] <- x     ## repeat as needed
-  temp[] <- tempval  ## repeat as needed
-  if (is.factor(x))
-    factor(levels(x), levels=levels(x))[aperm(temp, order(olddim))]   ## 2010 02 25
-  else
-    as.vector(aperm(temp, order(olddim)))
-}
-
-#-------------------------------------------------------------------------------
-
-pad1 <- function (x, n) {
-## pad x to length n with dummy (first value)
-    if (is.factor(x)) {
-        xc <- as.character(x)
-        xNA <- c(xc, rep(xc[1], n-length(xc)))
-        out <- factor(xNA, levels=levels(x))
-    }
-    else out <- c(x, rep(x[1], n-length(x)))
-    out
-}
-
-#-------------------------------------------------------------------------------
-
-padarray <- function (x, dims) {
-    temp <- array(dim=dims)
-    dimx <- dim(x)
-    if (all(dimx>0)) {
-        if (length(dimx)<2 | length(dimx)>3)
-            stop ("invalid array")
-        if (length(dimx)>2) temp[1:dimx[1], 1:dimx[2], 1:dimx[3]] <- x
-        else temp[1:dimx[1], 1:dimx[2]] <- x
-    }
-    temp
-}
-
-#-------------------------------------------------------------------------------
-
 ## regularize a list of formulae
-stdform <- function (flist) {
+secr_stdform <- function (flist) {
     LHS <- function (form) {
         trms <- as.character (form)
         if (length(trms)==2) '' else trms[2]
@@ -490,18 +477,7 @@ stdform <- function (flist) {
 
 #-------------------------------------------------------------------------------
 
-## miscellaneous functions
-
-invlogit <- function (y) 1/(1+exp(-y))   # plogis(y)
-logit    <- function (x) log(x/(1-x))    # qlogis(x), except for invalid argument
-sine     <- function (x) asin (x*2-1)
-invsine  <- function (y) (sin(y)+1) / 2
-odds     <- function (x) x / (1-x)
-invodds  <- function (y) y / (1+y)
-
-#-------------------------------------------------------------------------------
-
-lnbinomial <- function (x,size,prob) {
+secr_lnbinomial <- function (x,size,prob) {
     # dbinom allowing non-integer x, forcing log = TRUE
     if (x <= size) {
         lgamma (size+1) - lgamma (size-x+1) - lgamma (x+1) +
@@ -514,7 +490,7 @@ lnbinomial <- function (x,size,prob) {
 
 #-------------------------------------------------------------------------------
 
-model.string <- function (model, userDfn) {
+secr_model.string <- function (model, userDfn) {
     # 2023-04-16 Note: model should be a list
     if (!is.null(userDfn)) {
         if (!is.null(model$D))
@@ -533,20 +509,20 @@ fixed.string <- function (fixed) {
 
 #-------------------------------------------------------------------------------
 
-var.in.model <- function(v,m) v %in% unlist(lapply(m, all.vars))
+secr_var.in.model <- function(v,m) v %in% unlist(lapply(m, all.vars))
 
 #-------------------------------------------------------------------------------
 
-get.nmix <- function (model, capthist, hcov) {
+secr_get.nmix <- function (model, capthist, hcov) {
     model$D <- NULL  ## ignore density model
     model$pmix <- NULL ## pmix alone cannot make this a mixture model
     nmix <- 1
-    if (any(var.in.model('h2', model))) {
+    if (any(secr_var.in.model('h2', model))) {
         nmix <- 2
-        if (any(var.in.model('h3', model)))
+        if (any(secr_var.in.model('h3', model)))
             stop ("do not combine h2 and h3")
     }
-    if (any(var.in.model('h3', model))) {
+    if (any(secr_var.in.model('h3', model))) {
         nmix <- 3
     }
     if ((nmix == 1) & (!is.null(hcov))) {
@@ -569,7 +545,7 @@ get.nmix <- function (model, capthist, hcov) {
 
 #-------------------------------------------------------------------------------
 
-add.cl <- function (df, alpha, loginterval, lowerbound = 0) {
+secr_add.cl <- function (df, alpha, loginterval, lowerbound = 0) {
 
 ## add lognormal or standard Wald intervals to dataframe with columns
 ## 'estimate' and 'SE.estimate'
@@ -623,7 +599,7 @@ spatialscale <- function (object, detectfn, sessnum = 1) {
 #-------------------------------------------------------------------------------
 
 ## logical for whether object specifies userDfn
-userD <- function (object) {
+secr_userD <- function (object) {
   if (!inherits(object, c('secr','ipsecr')))
     stop ("requires fitted model")
   !is.null(object$details$userDfn)
@@ -890,10 +866,10 @@ mlogit <- function (x) {
 
 #-------------------------------------------------------------------------------
 
-group.levels <- function (capthist, groups, sep='.') {
+secr_group.levels <- function (capthist, groups, sep='.') {
     # 2016-06-05 use also for trap strata
     if (inherits(capthist, 'list')) {
-        temp <- lapply(capthist, group.levels, groups, sep)
+        temp <- lapply(capthist, secr_group.levels, groups, sep)
         sort(unique(unlist(temp)))  ## vector of global levels
     }
     else {
@@ -944,13 +920,13 @@ n.occasion <- function (capthist) {
 
 #-------------------------------------------------------------------------------
 
-group.factor <- function (capthist, groups, sep='.')
+secr_group.factor <- function (capthist, groups, sep='.')
     ## convert a set of grouping factors to a single factor (g)
     ## levels common to all sessions
 {
     if (inherits(capthist, 'list')) {
-        temp <- lapply(capthist, group.factor, groups)  ## recursive call
-        grouplevels <- group.levels(capthist, groups)
+        temp <- lapply(capthist, secr_group.factor, groups)  ## recursive call
+        grouplevels <- secr_group.levels(capthist, groups)
         if (length(grouplevels)<2)
             temp
         else
@@ -971,45 +947,15 @@ group.factor <- function (capthist, groups, sep='.')
 
 #-------------------------------------------------------------------------------
 
-getgrpnum <- function (capthist, groups) {
+secr_getgrpnum <- function (capthist, groups) {
     if (is.null(groups))
         rep(1, nrow(capthist))
     else
-        match(group.factor(capthist, groups), group.levels(capthist, groups))
+        match(secr_group.factor(capthist, groups), secr_group.levels(capthist, groups))
 }
 
 #-------------------------------------------------------------------------------
 
-make.lookup <- function (tempmat) {
-
-    ## should add something to protect make.lookup from bad data...
-    nrw <- nrow(tempmat)
-    ncl <- ncol(tempmat)
-    nam <- colnames(tempmat)
-
-    df <- is.data.frame(tempmat)
-    if (df) {
-       lev <- lapply(tempmat, levels)
-       tempmat[] <- sapply(tempmat, as.numeric)
-       tempmat <- as.matrix(tempmat)
-    }
-    dimnames(tempmat) <- NULL
-
-    temp <- makelookupcpp(tempmat)
-    
-    lookup <- temp$lookup
-    colnames(lookup) <- nam
-    if (df) {
-        lookup <- as.data.frame(lookup)
-        ## restore factors
-        for (i in 1: length(lev))
-            if (!is.null(lev[[i]]))
-                lookup[,i] <- factor(lev[[i]][lookup[,i]], levels = lev[[i]])
-    }
-    list (lookup=lookup, index=temp$index)
-}
-
-#-------------------------------------------------------------------------------
 
 ## Return an integer vector of class membership defined by a categorical
 ## individual covariate in a capthist object. Individuals of unknown
@@ -1021,9 +967,9 @@ make.lookup <- function (tempmat) {
 ## knownclass 2 'latent class 1' 
 ## knownclass 3 'latent class 2' 
 
-getknownclass <- function(capthist, nmix, hcov) {
+secr_getknownclass <- function(capthist, nmix, hcov) {
     if (ms(capthist)) {
-        lapply(capthist, getknownclass, nmix = nmix, hcov = hcov)
+        lapply(capthist, secr_getknownclass, nmix = nmix, hcov = hcov)
     }
     else {
         if ((nmix>1) & (!is.null(hcov))) {
@@ -1039,15 +985,6 @@ getknownclass <- function(capthist, nmix, hcov) {
         else
             rep(1,nrow(capthist))
     }
-}
-
-#-------------------------------------------------------------------------------
-
-getnmix <- function (details) {
-    if (is.null(details$nmix))
-       1
-    else
-       details$nmix
 }
 
 #-------------------------------------------------------------------------------
@@ -1068,7 +1005,7 @@ inflate <- function (xy, rmult = 1) {
 
 ## moved from pdot.R 2013-11-09
 ## scalar 2016-10-14
-getbinomN <- function (binomN, detectr) {
+secr_getbinomN <- function (binomN, detectr) {
     if (any(detectr %in% .localstuff$countdetectors)) {
         if (is.null(binomN))
             return(0)
@@ -1098,7 +1035,7 @@ inflatechull <- function (poly, r, ntheta = 60) {
 
 ## expand beta parameter vector using template of 'fixed beta'
 ## fixed beta fb input is missing (NA) for estimated beta parameters
-fullbeta <- function (beta, fb) {
+secr_fullbeta <- function (beta, fb) {
     if (!is.null(fb)) {
         fb[is.na(fb)] <- beta  ## partial beta (varying only)
         beta <- fb             ## complete beta
@@ -1113,13 +1050,14 @@ partbeta <- function (beta, fb) {
     beta
 }
 
-NEmodelled <- function (details, fixed) {
-    userdistnames <- getuserdistnames(details$userdist)
-    any(c('noneuc', 'sigmaxy') %in% userdistnames) &&
-        is.null(fixed$noneuc) && is.null(fixed$sigmaxy)
+secr_NEmodelled <- function (details, fixed, NEnames) {
+    userdistnames <- secr_getuserdistnames(details$userdist)
+    sapply(NEnames, function(NEname)
+        (NEname %in% userdistnames) && is.null(fixed[[NEname]])
+    )
 }
 
-fullbetanames <- function (object) {
+secr_fullbetanames <- function (object) {
     # 2024-12-23
     betanames <- unlist(sapply(object$design$designMatrices, colnames))
     names(betanames) <- NULL
@@ -1136,29 +1074,31 @@ fullbetanames <- function (object) {
     if (D.modelled && !is.null(Dnames)) {
         betanames <- c(paste('D', Dnames, sep='.'), betanames)
     }
-    NE.modelled <- NEmodelled(object$details, object$fixed)
-    if (NE.modelled) {
-        NEname <- if ('sigmaxy' %in% names(object$parindx)) "sigmaxy" else "noneuc"
-        NEnames <- colnames(object$designNE)
-        betanames <- c(betanames, paste(NEname, NEnames, sep='.'))
+    NE.modelled <- secr_NEmodelled(object$details, object$fixed, names(object$designNE))
+    if (any(NE.modelled)) {
+        exnames <- mapply(paste, names(object$designNE), sapply(object$designNE, colnames), sep='.')
+        exnames <- unname(unlist(exnames))
+        betanames <- c(betanames, exnames)
     }
+    
     betanames <- sub('..(Intercept))','',betanames)
     betanames
 }
+
 #-------------------------------------------------------------------------------
 
-complete.beta <- function (object) {
+secr_complete.beta <- function (object) {
     fb <- object$details$fixedbeta
     if (inherits(object, 'secr')) 
         beta <- setNames(object$fit$par, object$betanames) 
     else 
         beta <- object$beta
-    fullbeta(beta, fb)
+    secr_fullbeta(beta, fb)
 }
 
 #-------------------------------------------------------------------------------
 
-complete.beta.vcv <- function (object) {
+secr_complete.beta.vcv <- function (object) {
     fb <- object$details$fixedbeta
     if (!is.null(fb)) {
         nbeta <- length(fb)
@@ -1182,7 +1122,7 @@ completeDbeta <- function(object, vcv = FALSE) {
     intercept <- unlist(derivedDcoef(object, se = vcv)[1,1:2])
     Dpar <- object$parindx$D
     Dpar1 <- Dpar[-length(Dpar)]
-    beta.vcv <- complete.beta.vcv (object)        
+    beta.vcv <- secr_complete.beta.vcv (object)        
     if (vcv) {
         if (object$link$D == 'identity') {
             beta.vcv[Dpar,Dpar] <- beta.vcv[Dpar,Dpar] * intercept[1]^2
@@ -1203,7 +1143,7 @@ completeDbeta <- function(object, vcv = FALSE) {
     object
 }
 
-smooths <- function (formula) {
+secr_smooths <- function (formula) {
     ## which terms in formula are smooths?
     ## returns logical vector
     labels <- attr(terms(formula), "term.labels")
@@ -1227,26 +1167,7 @@ polys <- function (formula) {
 
 #-------------------------------------------------------------------------------
 
-badsmooths <- function (formula) {
-    ## does smooth specification conform to secr requirements?
-    ## returns TRUE/FALSE
-    labels <- attr(terms(formula), "term.labels")
-    if (length(labels) > 0) {
-        smoothterms <- sapply(labels, function (x)
-                              any(sapply(c("s\\(", "te\\("), grepl, x)))
-        labels <- labels[smoothterms]
-        any(sapply(labels, function(x)
-               grepl("s\\(", x) & !grepl("k =", x))) |
-        any(sapply(labels, function(x)
-               grepl("te\\(", x) & (!grepl("fx = TRUE", x) | !grepl("k =", x))))
-    }
-    else
-        FALSE
-}
-
-#-------------------------------------------------------------------------------
-
-gamsetup <- function(formula, data, ...) {
+secr_gamsetup <- function(formula, data, ...) {
     ## use 'session' column as dummy LHS so gam does not gag
     ## (cf secrgam:::make.density.design.matrix)
     ## session is always present in detection data, must be added for D
@@ -1258,7 +1179,7 @@ gamsetup <- function(formula, data, ...) {
 }
 #-------------------------------------------------------------------------------
 
-general.model.matrix <- function (formula, data, gamsmth = NULL, 
+secr_general.model.matrix <- function (formula, data, gamsmth = NULL, 
     contrasts = NULL, ...) {
 
     ## A function to compute the design matrix for the model in
@@ -1287,10 +1208,10 @@ general.model.matrix <- function (formula, data, gamsmth = NULL,
 
     if (any(polys(formula)))
         stop ("orthogonal polynomials are temporarily blocked")  ## 2014-09-12
-    if (any(smooths(formula))) {
+    if (any(secr_smooths(formula))) {
         if (is.null(gamsmth)) {
             ## setup knots etc from scratch
-            mat <- gamsetup(formula, data, ...)$X
+            mat <- secr_gamsetup(formula, data, ...)$X
         }
         else {
             ## fool predict.gam into generating the necessary
@@ -1311,7 +1232,7 @@ general.model.matrix <- function (formula, data, gamsmth = NULL,
 
 #-------------------------------------------------------------------------------
 
-makerealparameters <- function (design, beta, parindx, link, fixed) {
+secr_makerealparameters <- function (design, beta, parindx, link, fixed) {
     modelfn <- function(i) {
         ## linear predictor for real parameter i
         Yp <- design$designMatrices[[i]] %*% beta[parindx[[i]]]
@@ -1339,7 +1260,7 @@ makerealparameters <- function (design, beta, parindx, link, fixed) {
     }
     ## construct matrix of detection parameters
     nrealpar  <- length(design$designMatrices)
-    nondetect <- c('D', 'noneuc', 'sigmaxy')
+    nondetect <- c('D', 'noneuc', 'sigmaxy','lambda0xy')
     for (i in nondetect) {
         parindx[[i]] <- NULL ## detection parameters only
         link[[i]]    <- NULL ## detection parameters only
@@ -1372,7 +1293,7 @@ makerealparameters <- function (design, beta, parindx, link, fixed) {
 
 #-------------------------------------------------------------------------------
 
-secr.lpredictor <- function (formula, newdata, indx, beta, field, beta.vcv=NULL,
+secr_lpredictor <- function (formula, newdata, indx, beta, field, beta.vcv=NULL,
     smoothsetup = NULL, contrasts = NULL, Dfn = NULL) {
     ## form linear predictor for a single 'real' parameter
     ## smoothsetup should be provided whenever newdata differs from
@@ -1390,14 +1311,14 @@ secr.lpredictor <- function (formula, newdata, indx, beta, field, beta.vcv=NULL,
     lpred <- matrix(ncol = 2, nrow = nrow(newdata), dimnames = list(NULL,c('estimate','se')))
 
     if (!is.null(Dfn) && field == 'D') {
-        warning("secr.lpredictor is not ready for D as function -  do not use estimates")
+        warning("secr_lpredictor is not ready for D as function -  do not use estimates")
        nsess <- length(unique(newdata$session))
        Yp <- Dfn(newdata[,vars[1]], beta = beta[indx], dimD = c(nrow(newdata)/nsess,1,nsess)) 
        mat <- as.matrix(newdata[,vars[1], drop = FALSE])
     }
     else {
         
-        mat <- general.model.matrix(formula, data = newdata, gamsmth = smoothsetup, 
+        mat <- secr_general.model.matrix(formula, data = newdata, gamsmth = smoothsetup, 
             contrasts = contrasts)
         if (nrow(mat) < nrow(newdata))
             warning ("missing values in predictors?", call. = FALSE)
@@ -1464,7 +1385,7 @@ secr.lpredictor <- function (formula, newdata, indx, beta, field, beta.vcv=NULL,
 
 #-------------------------------------------------------------------------------
 
-getcellsize <- function (mask) {
+secr_getcellsize <- function (mask) {
     if (inherits(mask, 'linearmask'))
         cell <- attr(mask, 'spacing') / 1000  ## per km
     else
@@ -1477,7 +1398,7 @@ getcellsize <- function (mask) {
 #-------------------------------------------------------------------------------
 
 ## intercept and fix certain models with bad defaults
-updatemodel <- function (model, detectfn, detectfns, oldvar, newvar, warn = FALSE) {
+secr_updatemodel <- function (model, detectfn, detectfns, oldvar, newvar, warn = FALSE) {
     if (detectfn %in% detectfns) {
         for (i in 1:length(oldvar)) {
             if (oldvar[i] %in% names(model)) {
@@ -1576,7 +1497,7 @@ nparameters <- function (object) {
 
 #-------------------------------------------------------------------------------
 
-mapbeta <- function (parindx0, parindx1, beta0, betaindex, default = 0)
+secr_mapbeta <- function (parindx0, parindx1, beta0, betaindex, default = 0)
 
     ## Extend beta vector from simple model (beta0) to a more complex (i.e. general)
     ## model, inserting neutral values (zero) as required.
@@ -1699,7 +1620,7 @@ addzeroCH <- function (CH, nzero, cov = NULL, prefix = 'Z') {
 
 #-------------------------------------------------------------------------------
 
-expandbinomN <- function (binomN, detectorcodes) {
+secr_expandbinomN <- function (binomN, detectorcodes) {
     # assumes detectorcodes is a vector of length = noccasions
     binomN <- ifelse (detectorcodes %in% c(2,6,7), binomN, 1)
     if (any(is.na(binomN))) stop ("NA value in binomN")
@@ -1708,9 +1629,9 @@ expandbinomN <- function (binomN, detectorcodes) {
 
 #-------------------------------------------------------------------------------
 
-check3D <- function (object) {
+secr_check3D <- function (object) {
     if (ms(object)) {
-        out <- lapply(object, check3D)
+        out <- lapply(object, secr_check3D)
         class(out) <- class(object)
         out
     }
@@ -1772,52 +1693,11 @@ newstr <-function (strings) {
 
 #-------------------------------------------------------------------------------
 
-shareFactorLevels <- function (object, columns = NULL, stringsAsFactors = TRUE) {
-    ## stringsAsFactors added 2020-05-16
-    if (ms(object)) {
-        if (!is.null(covariates(object))) {
-            df <- do.call(rbind, covariates(object))
-            if (is.null(columns)) {
-                columns <- 1:ncol(df)
-            }
-            if (stringsAsFactors) {
-                df[,columns] <- stringsAsFactors(df[,columns, drop = FALSE])
-            }
-            for (i in columns) {
-                if (is.factor(df[,i])) {
-                    levelsi <- levels(df[,i])
-                    for (sess in 1:length(object)) {
-                        covariates(object[[sess]])[,i] <-
-                            factor(covariates(object[[sess]])[,i],
-                                   levels = levelsi)
-                    }
-                }
-            }
-        }
-    }
-    else {
-        # modified 2021-04-27 to apply to covariates, not object itself
-        if (!is.null(covariates(object))) {
-            if (stringsAsFactors) {
-                df <- covariates(object)
-                if (is.null(columns)) {
-                    columns <- 1:ncol(df)
-                }
-                df[,columns] <- stringsAsFactors(df[,columns, drop = FALSE])
-                covariates(object) <- df
-            }
-        }
-    }
-    object
-}
-
-#-------------------------------------------------------------------------------
-
-allzero <- function (object) {
+secr_allzero <- function (object) {
     if (!inherits(object, 'capthist'))
         stop ("requires 'capthist' object")
     if (ms(object)) {
-        lapply(object, allzero)
+        lapply(object, secr_allzero)
     }
     else {
         telemocc <- detector(traps(object))=='telemetry'
@@ -1838,78 +1718,6 @@ primarysessions <- function(intervals) {
 secondarysessions <- function(intervals) {
     primary <- primarysessions(intervals)
     unname(unlist(sapply(table(primary), seq_len)))  
-}
-
-#-------------------------------------------------------------------------------
-
-boundarytoSF <- function (poly) {
-  if (is.null(poly)) {
-    NULL
-  }
-  else if(inherits(poly, c('sf','sfc'))) {
-    poly <- st_geometry(poly) # extract sfc if not already sfc
-    geomtype <- st_geometry_type(poly, by_geometry = FALSE)
-    if (geomtype == 'GEOMETRY') {   # 2023-06-02
-        geomtype <- st_geometry_type(poly, by_geometry = TRUE)
-    }
-    if (!all(geomtype %in% c("POLYGON", "MULTIPOLYGON"))) {
-      stop ("poly sf/sfc should be of type POLYGON or MULTIPOLYGON")
-    }
-    poly
-  }
-  else if (inherits(poly, 'SpatialPolygons')) {   # also SPDF?
-    st_as_sfc(poly)
-  }
-  else if (inherits(poly, 'SpatVector')) {
-    st_as_sfc(as(poly,"Spatial"))
-  }
-  else if (inherits(poly, c('matrix', 'data.frame'))) {
-    ## input is 2-column matrix for a single polygon
-    poly <- matrix(unlist(poly), ncol = 2)
-    poly <- rbind (poly, poly[1,])  ## force closure of polygon
-    st_sfc(st_polygon(list(poly)))
-  }
-  else stop (class(poly), " not valid input to boundarytoSF")
-}
-
-#-------------------------------------------------------------------------------
-
-pointsInPolygon <- function (xy, poly, logical = TRUE) {
-  # xy is 2-column matrix or data.frame of coordinates
-  if (inherits(poly, 'mask')) { 
-    if (ms(poly))
-      stop ("multi-session masks not supported")
-    sp <- spacing(poly)
-    minx <- min(poly$x, na.rm = TRUE)
-    miny <- min(poly$y, na.rm = TRUE)
-    mask <- sweep(poly, MARGIN = 2, FUN = '+', STATS = c(-minx, -miny))
-    mask <- round(mask/sp) + 1
-    xy <- matrix(unlist(xy), ncol = 2)  ## in case dataframe
-    xy <- sweep(xy, MARGIN = 2, FUN = '+', STATS = c(-minx, -miny))
-    xy <- round(xy/sp) + 1
-    xy[xy<=0] <- NA
-    xy[,1][xy[,1]>max(mask$x, na.rm = TRUE)] <- NA
-    xy[,2][xy[,2]>max(mask$y, na.rm = TRUE)] <- NA
-    
-    maskmatrix <- matrix(0, ncol = max(mask$y, na.rm = TRUE), nrow = max(mask$x, na.rm = TRUE))
-    maskmatrix[as.matrix(mask)] <- 1:nrow(mask)
-    inside <- maskmatrix[as.matrix(xy)]
-    inside[is.na(inside)] <- 0
-    if (logical)
-      inside <- inside > 0
-    inside
-  }
-  else {
-    poly <- boundarytoSF(poly)
-    if (inherits(poly, c('sf','sfc'))) {
-      xy <- st_as_sf(data.frame(xy), coords = 1:2)
-      st_crs(xy) <- st_crs(poly)
-      apply(st_within(xy, poly, sparse = FALSE), 1, any)
-    }
-    else {
-      stop ("unknown input to pointsInPolygon")
-    }
-  }
 }
 
 #-------------------------------------------------------------------------------
@@ -1983,7 +1791,7 @@ uniquerownames <- function (capthist) {
 
 #-------------------------------------------------------------------------------
 
-selectCHsession <- function(capthist, sessnum) {
+secr_selectCHsession <- function(capthist, sessnum) {
     if (ms(capthist)) 
         capthist[[sessnum]]
     else 
@@ -1992,7 +1800,7 @@ selectCHsession <- function(capthist, sessnum) {
 
 #-------------------------------------------------------------------------------
 
-stringsAsFactors <- function (DF) {
+secr_stringsAsFactors <- function (DF) {
     # convert any character columns of a data.frame (or list) to factor
     if (is.list(DF) && length(DF)>0) {    ## bug fix 2020-08-14
         chr <- sapply(DF, is.character)
@@ -2003,10 +1811,7 @@ stringsAsFactors <- function (DF) {
 
 #-------------------------------------------------------------------------------
 
-# see also getuserdist in loglikhelperfn.R
-# 2021-03-30 moved from preparedata.R 
-
-getdistmat2 <- function (traps, mask, userdist) {
+secr_getdistmat2 <- function (traps, mask, userdist) {
     ## Static distance matrix
     if (is.function(userdist)) {
         NULL   ## compute dynamically later
@@ -2034,7 +1839,7 @@ getdistmat2 <- function (traps, mask, userdist) {
 #-------------------------------------------------------------------------------
 
 ## function to assign all-ones usage matrix
-uniformusage <- function(object, noccasions) {
+secr_uniformusage <- function(object, noccasions) {
   if (inherits(object, 'capthist')) {
     if (ms(object)) {
       for (r in 1:length(object)) {
@@ -2069,80 +1874,7 @@ uniformusage <- function(object, noccasions) {
 
 #-------------------------------------------------------------------------------
 
-sfrotate <- function (x, degrees, centrexy = NULL, usecentroid = FALSE) {
-    rot = function(a) matrix(c(cos(a), sin(a), -sin(a), cos(a)), 2, 2)
-    gx <- st_geometry(x)
-    if (is.null(centrexy)) {
-        if (usecentroid) {
-            centrexy <- st_centroid(gx)[1,]   # unique centre
-        }
-        else {
-            centrexy <- st_centroid(st_as_sfc(st_bbox(x)))
-        }
-    } 
-    else {
-        centrexy <- st_sfc(st_point(centrexy) )
-    }
-    (gx - centrexy) * rot(degrees/360*2*pi) + centrexy
-}
-
-#-------------------------------------------------------------------------------
-
-# Based on Tim Salabim stackoverflow Jul 12 2018
-# https://stackoverflow.com/questions/51292952/snap-a-point-to-the-closest-point-on-a-line-segment-using-sf
-
-snap_points <- function(x, y, max_dist = 1000) {
-    
-    if (inherits(x, "sf")) n = nrow(x)
-    if (inherits(x, "sfc")) n = length(x)
-    
-    out = do.call(c,
-        lapply(seq(n), function(i) {
-            nrst = st_nearest_points(st_geometry(x)[i], y)
-            nrst_len = st_length(nrst)
-            nrst_mn = which.min(nrst_len)
-            if (as.vector(nrst_len[nrst_mn]) > max_dist) return(st_geometry(x)[i])
-            return(st_cast(nrst[nrst_mn], "POINT")[2])
-        })
-    )
-    return(out)
-}
-
-#-------------------------------------------------------------------------------
-
-# random truncated Poisson
-rtpois <- function(n, lambda) {
-    qpois(runif(n, dpois(0, lambda), 1), lambda)
-}
-#-------------------------------------------------------------------------------
-
-im2mask <- function(im) {
-    # spatstat im object to mask
-    df <- as.data.frame(im)
-    names(df) <- c('x','y','Lambda')
-    df$Lambda <- df$Lambda * 1e4   # per hectare
-    read.mask(data = df, spacing = im$xstep)
-}
-#-------------------------------------------------------------------------------
-
-span <- function (object, ...) {
-    if (ms(object)) {
-        sapply(object, span, ...)
-    }
-    else {
-        if (is.null(object) || !('x' %in% names(object) && 'y' %in% names(object))) {
-            NULL
-        }
-        else {
-            rx <- range(object$x)
-            ry <- range(object$y)
-            max(diff(rx), diff(ry))
-        }
-    }
-}
-#-------------------------------------------------------------------------------
-
-saveprogress <- function (beta, loglik, filename) {
+secr_saveprogress <- function (beta, loglik, filename) {
     log <- data.frame(
         eval = .localstuff$iter,
         loglik = loglik,
@@ -2151,6 +1883,130 @@ saveprogress <- function (beta, loglik, filename) {
     log <- cbind(log, as.list(beta))
     attr(.localstuff$savedinputs, 'log') <- rbind(attr(.localstuff$savedinputs, 'log'), log)
     saveRDS(.localstuff$savedinputs, file = filename)
+}
+#-------------------------------------------------------------------------------
+
+secr_sigmaxydistfn <- function (xy1, xy2, mask) {
+    if (missing(xy1)) return("sigmaxy")
+    sig <- covariates(mask)$sigmaxy   # sigma(x,y) at mask points
+    sig <- matrix(sig, byrow = TRUE, nrow = nrow(xy1), ncol = nrow(xy2))
+    euc <- edist(xy1, xy2) 
+    euc / sig
+}
+#-------------------------------------------------------------------------------
+
+# speculative alternative for full spatial model of lambda0 
+secr_siglamxydistfn <- function (xy1, xy2, mask) {
+    if (missing(xy1)) return(c("sigmaxy","lambda0xy"))
+    sig <- covariates(mask)$sigmaxy   # sigma(x,y) at mask points
+    sig <- matrix(sig, byrow = TRUE, nrow = nrow(xy1), ncol = nrow(xy2))
+    lam <- covariates(mask)$lambda0xy   # lambda0(x,y) at mask points
+    lam <- matrix(lam, byrow = TRUE, nrow = nrow(xy1), ncol = nrow(xy2))
+    euc <- edist(xy1, xy2) 
+    euc / sig - log(lam)   # HEX
+}
+#-------------------------------------------------------------------------------
+
+# doubtful logic as really lam should scale with sigma
+secr_lambda0xydistfn <- function (xy1, xy2, mask, scale = 1) {
+    if (missing(xy1)) return("lambda0xy")
+    lam <- covariates(mask)$lambda0xy   # lambda0(x,y) at mask points
+    lam <- matrix(lam, byrow = TRUE, nrow = nrow(xy1), ncol = nrow(xy2))
+    euc <- edist(xy1, xy2)
+    euc - scale * log(lam)       # HEX
+}
+#-------------------------------------------------------------------------------
+
+secr_setfixedbeta <- function (fb, parindx, link, CL) {
+    if (is.null(fb)) 
+        fb <- rep(NA, max(unlist(parindx)))
+    if (CL && !is.null(parindx$D)) {     # details$relativeD
+        if (!(link$D %in% c('log','identity')))
+            warning ("density link ", link$D, " not implemented for relativeD")
+        if (!is.na(fb[parindx$D[1]]))
+            warning ("overriding provided fixedbeta[1] for D")
+        fb[parindx$D[1]] <- if (link$D == 'log') 0 else 1
+    }
+    if (!is.null(parindx$sigmaxy)) {
+        if (!(link$sigma %in% c('log')))
+            warning ("sigma link should be log")
+        fb[parindx$sigma[1]] <- 0
+    }
+    if (!is.null(parindx$lambda0xy)) {
+        if (!(link$lambda0xy %in% c('log')))
+            warning ("lambda0 link should be log")
+        fb[parindx$lambda0[1]] <- 0
+    }
+    fb
+}
+#-------------------------------------------------------------------------------
+
+# 2025-07-23 moved from preparedata.R
+secr_getk <- function(traps) {
+    if (!all(detector(traps) %in% .localstuff$polydetectors)) {
+        nrow(traps)
+    }
+    else {
+        if (all(detector(traps) %in% c('polygon','polygonX'))) {        
+            k <- table(polyID(traps))       
+        }
+        else if (all(detector(traps) %in% c('transect','transectX'))) {        
+            k <- table(transectID(traps))   # transectX, transect
+        }
+        else stop ("unrecognised poly detector type")
+        c(k,0) ## zero terminate
+    }
+}
+#--------------------------------------------------------------------------------
+
+# 2025-07-23 moved from preparedata.R
+secr_getxy <- function(dettype, capthist) {
+    if (all(detector(traps(capthist)) %in% .localstuff$polydetectors)) {
+        xy <- xy(capthist)
+        ## start[z] indexes the first row in xy (or element in signal)
+        ## for each possible count z (including zeros), where z is w-order (isk) 
+        start <- abs(capthist)
+        start <- head(cumsum(c(0,start)),length(start))
+    }
+    else {
+        if (any(dettype == 13)) {
+            ## ensure order matches
+            ## should have null histories in capthist
+            telem <- telemetryxy(capthist)
+            ord <- match(names(telem), rownames(capthist), nomatch = 0)
+            newtelem <- vector('list',nrow(capthist))
+            newtelem[ord] <- telem
+            xy <- do.call(rbind, newtelem)
+            tmp <- sapply(newtelem, nrow)
+            tmp[sapply(tmp, is.null)] <- 0
+            start <- cumsum(c(0,tmp))
+        }
+        else {
+            xy <- 0
+            start <- 0
+        }
+    }
+    list(xy = xy, start = start)
+}
+#--------------------------------------------------------------------------------
+
+secr_makeNElist <- function (object, mask, group, sessnum) {
+## 2025-07-24 construct list of design matrices for non-euclidean parameters
+## object is a previously fitted secr model
+## used in esa() etc.
+    
+    if (length(object$designNE) == 0) return(NULL)
+    else if (length(object$designNE) > 3) {
+        # assume legacy fit, designNE not a list
+        designNE <- list(noneuc = designNE)
+    }
+    NElist <- secr_predictD(object = object, regionmask = mask, 
+                            group = NULL, session = sessnum,
+                            parameter = names(object$designNE), aslist = TRUE)
+    ## convert vectors to 3-D arrays for historical reasons
+    sapply(NElist, function(x) array(x, dim = c(length(x),1,1)), 
+           simplify = FALSE, USE.NAMES = TRUE)
+    
 }
 #-------------------------------------------------------------------------------
 
@@ -2207,30 +2063,62 @@ filterw <- function (x, w = 5, lambda = 0.6) {
 
 #-------------------------------------------------------------------------------
 
-sigmaxydistfn <- function (xy1, xy2, mask) {
-    if (missing(xy1)) return("sigmaxy")
-    sig <- covariates(mask)$sigmaxy   # sigma(x,y) at mask points
-    sig <- matrix(sig, byrow = TRUE, nrow = nrow(xy1), ncol = nrow(xy2))
-    euc <- edist(xy1, xy2) 
-    euc / sig
-}
+
+## miscellaneous functions
+
+invlogit <- function (y) 1/(1+exp(-y))   # plogis(y)
+logit    <- function (x) log(x/(1-x))    # qlogis(x), except for invalid argument
+sine     <- function (x) asin (x*2-1)
+invsine  <- function (y) (sin(y)+1) / 2
+odds     <- function (x) x / (1-x)
+invodds  <- function (y) y / (1+y)
+
 #-------------------------------------------------------------------------------
 
-setfixedbeta <- function (fb, parindx, link, CL) {
-    if (is.null(fb)) 
-        fb <- rep(NA, max(unlist(parindx)))
-    if (CL && !is.null(parindx$D)) {     # details$relativeD
-        if (!(link$D %in% c('log','identity')))
-            warning ("density link ", link$D, " not implemented for relativeD")
-        if (!is.na(fb[parindx$D[1]]))
-            warning ("overriding provided fixedbeta[1] for D")
-        fb[parindx$D[1]] <- if (link$D == 'log') 0 else 1
-    }
-    if (!is.null(parindx$sigmaxy)) {
-        if (!(link$sigma %in% c('log')))
-            warning ("sigma link should be log")
-        fb[parindx$sigma[1]] <- 0
-    }
-    fb
+discreteN <- function (n, N) {
+    tN <- trunc(N)
+    if (N != tN) tN + sample (x = c(1,0), prob = c(N-tN, 1-(N-tN)),
+                              replace = T, size = n)
+    else rep(tN,n)
 }
+
 #-------------------------------------------------------------------------------
+
+ndetector <- function (traps) {
+    if (is.null(traps))
+        return(1)
+    else if (all(detector(traps) %in% .localstuff$polydetectors))
+        length(levels(polyID(traps)))
+    else
+        nrow(traps)
+}
+
+#-------------------------------------------------------------------------------
+
+pad1 <- function (x, n) {
+    ## pad x to length n with dummy (first value)
+    if (is.factor(x)) {
+        xc <- as.character(x)
+        xNA <- c(xc, rep(xc[1], n-length(xc)))
+        out <- factor(xNA, levels=levels(x))
+    }
+    else out <- c(x, rep(x[1], n-length(x)))
+    out
+}
+
+#-------------------------------------------------------------------------------
+
+padarray <- function (x, dims) {
+    temp <- array(dim=dims)
+    dimx <- dim(x)
+    if (all(dimx>0)) {
+        if (length(dimx)<2 | length(dimx)>3)
+            stop ("invalid array")
+        if (length(dimx)>2) temp[1:dimx[1], 1:dimx[2], 1:dimx[3]] <- x
+        else temp[1:dimx[1], 1:dimx[2]] <- x
+    }
+    temp
+}
+
+#-------------------------------------------------------------------------------
+

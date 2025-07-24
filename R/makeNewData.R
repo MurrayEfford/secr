@@ -40,7 +40,7 @@ makeNewData.secr <- function (object, all.levels = FALSE, bytrap = FALSE, ...) {
     mixvar <- switch(nmix, character(0),'h2','h3')
     
     nocc <- max(n.occasion (capthist))
-    grouplevels <- group.levels(capthist, groups)
+    grouplevels <- secr_group.levels(capthist, groups)
     ngrp <- max(1, length(grouplevels))
     sessions <- session(capthist)
     R <- length(sessions)

@@ -10,13 +10,13 @@ sharedData <- function (object, i, sessnum, X, ncores, naive = FALSE) {
     object$details$fastproximity <- FALSE 
 
     ## data for a single session
-    data <- prepareSessionData(object$capthist, object$mask, object$details$maskusage, 
+    data <- secr_prepareSessionData(object$capthist, object$mask, object$details$maskusage, 
                                object$design, object$design0, object$detectfn, object$groups, 
                                object$fixed, object$hcov, object$details)
     
     sessionlevels <- session(object$capthist)
     beta <- coef(object)$beta
-    beta <- fullbeta(beta, object$details$fixedbeta)
+    beta <- secr_fullbeta(beta, object$details$fixedbeta)
     detparindx <- object$parindx[!(names(object$parindx) %in% c('D', 'noneuc'))]
     detlink <- object$link[!(names(object$link) %in% c('D', 'noneuc'))]
 
@@ -48,7 +48,7 @@ sharedData <- function (object, i, sessnum, X, ncores, naive = FALSE) {
         if (!is.null(xy)) {
             ## 2022-02-13 don't want 'no detections on occasion x'
             ch <- suppressWarnings(subset(object$capthist, ok))  
-            xy <- getxy(data$dettype, selectCHsession(ch, sessnum))
+            xy <- secr_getxy(data$dettype, secr_selectCHsession(ch, sessnum))
         }
     }
     if (length(dim(data$CH)) == 2) {
@@ -98,9 +98,9 @@ sharedData <- function (object, i, sessnum, X, ncores, naive = FALSE) {
     
     ## TO BE FIXED
     
-    # NE <- getD (object$designNE, beta, object$mask, object$parindx, object$link, object$fixed,
+    # NE <- secr_getD (object$designNE, beta, object$mask, object$parindx, object$link, object$fixed,
     #             levels(data$grp[[1]]), sessionlevels, parameter = 'noneuc')
-    # NEX <- getD (object$designNE, beta, X, object$parindx, object$link, object$fixed,
+    # NEX <- secr_getD (object$designNE, beta, X, object$parindx, object$link, object$fixed,
     #             levels(data$grp[[1]]), sessionlevels, parameter = 'noneuc')
     # 
     NE <- NULL
@@ -108,29 +108,29 @@ sharedData <- function (object, i, sessnum, X, ncores, naive = FALSE) {
     ## allow for scaling of detection
     Dtemp <- if (D.modelled) mean(D) else NA
     if (naive) {
-        realparval  <- makerealparameters (object$design0, beta, detparindx,
+        realparval  <- secr_makerealparameters (object$design0, beta, detparindx,
                                             detlink, object$fixed)
-        Xrealparval <- reparameterize (realparval, object$detectfn, object$details,
+        Xrealparval <- secr_reparameterize (realparval, object$detectfn, object$details,
                                        data$mask, data$traps, Dtemp, data$s)
         PIA <- object$design0$PIA[sessnum, ok, 1:data$s, 1:data$K, ,drop=FALSE]
     }
     else {
-        realparval  <- makerealparameters (object$design, beta, detparindx,
+        realparval  <- secr_makerealparameters (object$design, beta, detparindx,
                                            detlink, object$fixed)
-        Xrealparval <- reparameterize (realparval, object$detectfn, object$details,
+        Xrealparval <- secr_reparameterize (realparval, object$detectfn, object$details,
                                        data$mask, data$traps, Dtemp, data$s)
         PIA <- object$design$PIA[sessnum, ok, 1:data$s, 1:data$K, ,drop=FALSE]
     }
     
-    pmix <- getpmix (data$knownclass[ok], PIA, Xrealparval)  ## membership prob by animal
+    pmix <- secr_getpmix (data$knownclass[ok], PIA, Xrealparval)  ## membership prob by animal
     
     ## unmodelled beta parameters, if needed
-    miscparm <- getmiscparm(object$details$miscparm, object$detectfn, object$beta, 
+    miscparm <- secr_getmiscparm(object$details$miscparm, object$detectfn, object$beta, 
                             object$parindx, object$details$cutval)
 
-    gkhk <- makegk (data$dettype, object$detectfn, data$traps, data$mask, object$details, sessnum, 
+    gkhk <- secr_makegk (data$dettype, object$detectfn, data$traps, data$mask, object$details, sessnum, 
                     NE, D, miscparm, Xrealparval, grain, ncores)
-    haztemp <- gethazard (data$m, data$binomNcode, nrow(Xrealparval), gkhk$hk, PIA, data$usge)
+    haztemp <- secr_gethazard (data$m, data$binomNcode, nrow(Xrealparval), gkhk$hk, PIA, data$usge)
     
     # return a list
     

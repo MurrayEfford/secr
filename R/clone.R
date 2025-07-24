@@ -6,6 +6,12 @@
 ## 2022-08-08 truncated Poisson, revised 'constant'
 ############################################################################################
 
+# random truncated Poisson
+rtpois <- function(n, lambda) {
+    qpois(runif(n, dpois(0, lambda), 1), lambda)
+}
+#-------------------------------------------------------------------------------
+
 clone <- function (object, type, ...) UseMethod("clone")
 
 clone.default <- function (object,  type, ...)       {

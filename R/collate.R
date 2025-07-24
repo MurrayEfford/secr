@@ -88,7 +88,7 @@ collate.secrlist <- function (object, ..., realnames = NULL, betanames = NULL, n
     
     getLP <- function (object1) {  ## for predicted values of real parameters
         getfield <- function (x) {
-            secr.lpredictor (
+            secr_lpredictor (
                 formula = object1$model[[x]], 
                 newdata = newdata,
                 indx = object1$parindx[[x]], 
@@ -103,8 +103,8 @@ collate.secrlist <- function (object, ..., realnames = NULL, betanames = NULL, n
         if (any(unlist(nclusters(object1$capthist))>1))
             warning("collate is ignoring n.mashed", call. = FALSE)
         # 2025-07-17 allow for fixedbeta
-        beta <- complete.beta(object1)
-        beta.vcv <- complete.beta.vcv(object1)
+        beta <- secr_complete.beta(object1)
+        beta.vcv <- secr_complete.beta.vcv(object1)
         sapply (names(object1$model), getfield, simplify = FALSE)
     }
     

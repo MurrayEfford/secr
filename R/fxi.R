@@ -222,7 +222,7 @@ fxTotal.secr <- function (object, sessnum = 1, mask = NULL, ncores = NULL, ...)
   fxilocal <- fxi(object, sessnum = sessnum, X = mask, ncores = ncores)
   fx <- do.call(cbind, fxilocal)
   fxt <- apply(fx, 1, sum)
-  fxt <- fxt/getcellsize(mask)
+  fxt <- fxt/secr_getcellsize(mask)
   D <- predictDsurface(object, mask = mask)
   D <- covariates(D)$D.0
   nclass <- object$details$nmix
@@ -325,15 +325,15 @@ fxi.secr <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL, ..
     object$details$fastproximity <- FALSE   ## 2020-08-30
     
     ## data for a single session
-    data <- prepareSessionData(object$capthist, object$mask, object$details$maskusage, 
+    data <- secr_prepareSessionData(object$capthist, object$mask, object$details$maskusage, 
                              object$design, object$design0, object$detectfn, object$groups, 
                              object$fixed, object$hcov, object$details)
 
   sessionlevels <- session(object$capthist)
-  beta <- complete.beta(object)
-  detparindx <- object$parindx[!(names(object$parindx) %in% c('D', 'noneuc','sigmaxy'))]
-  detlink <- object$link[!(names(object$link) %in% c('D', 'noneuc','sigmaxy'))]
-  realparval  <- makerealparameters (object$design, beta, detparindx,
+  beta <- secr_complete.beta(object)
+  detparindx <- object$parindx[!(names(object$parindx) %in% .localstuff$spatialparameters)]
+  detlink <- object$link[!(names(object$link) %in% .localstuff$spatialparameters)]
+  realparval  <- secr_makerealparameters (object$design, beta, detparindx,
                                      detlink, object$fixed)
   data <- data[[sessnum]]
   reusemask <- is.null(X)
@@ -354,7 +354,7 @@ fxi.secr <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL, ..
     if (!is.null(xy)) {
       ## 2022-02-13 don't want 'no detections on occasion x'
       ch <- suppressWarnings(subset(object$capthist, ok))  
-      xy <- getxy(data$dettype, selectCHsession(ch, sessnum))
+      xy <- secr_getxy(data$dettype, secr_selectCHsession(ch, sessnum))
     }
   }
   if (length(dim(data$CH)) == 2) {
@@ -364,7 +364,6 @@ fxi.secr <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL, ..
     CH <- data$CH[ok,,,drop=FALSE]
   }
   grp <- data$grp[ok]
-
   ncores <- setNumThreads(ncores)
   grain <- if (ncores==1) 0 else 1;
   
@@ -400,29 +399,27 @@ fxi.secr <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL, ..
   piX <- covariates(tmpmask)$pi
   piX[is.na(piX)] <- 0
   #----------------------------------------
-  
-  # 2025-07-18
-  NEname <- if ('sigmaxy' %in% names(object$parindx)) 'sigmaxy' else 'noneuc'
-  session <- sessionlevels[sessnum]
-  NE <- predictD(object, object$mask, grp, session, parameter = NEname)
-  NEX <- predictD(object, X, grp, session, parameter = NEname)
+
+  # 2025-07-18, 24
+  NElist  <- secr_makeNElist(object, object$mask, group = grp, sessnum)
+  NElistX <- secr_makeNElist(object, X, group = grp, sessnum)
   
   #---------------------------------------------------
   ## allow for scaling of detection
   Dtemp <- if (D.modelled) mean(D) else NA
-  Xrealparval <- reparameterize (realparval, object$detectfn, object$details,
+  Xrealparval <- secr_reparameterize (realparval, object$detectfn, object$details,
                                  data$mask, data$traps, Dtemp, data$s)
   PIA <- object$design$PIA[sessnum, ok, 1:data$s, 1:data$K, ,drop=FALSE]
   PIA0 <- object$design0$PIA[sessnum, ok, 1:data$s, 1:data$K, ,drop=FALSE]
-  pmix <- getpmix (data$knownclass[ok], PIA, Xrealparval)  ## membership prob by animal
+  pmix <- secr_getpmix (data$knownclass[ok], PIA, Xrealparval)  ## membership prob by animal
 
   ## unmodelled beta parameters, if needed
-  miscparm <- getmiscparm(object$details$miscparm, object$detectfn, object$beta, 
+  miscparm <- secr_getmiscparm(object$details$miscparm, object$detectfn, object$beta, 
                           object$parindx, object$details$cutval)
 
-  gkhk <- makegk (data$dettype, object$detectfn, data$traps, data$mask, object$details, sessnum, 
-                  NE, D, miscparm, Xrealparval, grain, ncores)
-  haztemp <- gethazard (data$m, data$binomNcode, nrow(realparval), gkhk$hk, PIA, data$usge)
+  gkhk <- secr_makegk (data$dettype, object$detectfn, data$traps, data$mask, object$details, sessnum, 
+                  NElist, D, miscparm, Xrealparval, grain, ncores)
+  haztemp <- secr_gethazard (data$m, data$binomNcode, nrow(realparval), gkhk$hk, PIA, data$usge)
   
   ## 2020-01-26 conditional on point vs polygon detectors
   if (data$dettype[1] %in% c(0,1,2,5,8,13)) {
@@ -444,9 +441,9 @@ fxi.secr <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL, ..
   }
   else {
     nX <- nrow(X)
-    gkhkX <- makegk (data$dettype, object$detectfn, data$traps, X, object$details, 
-        sessnum, NEX, D, miscparm, Xrealparval, grain, ncores)
-    haztempX <- gethazard (nX, data$binomNcode, nrow(Xrealparval), gkhkX$hk, PIA, data$usge)
+    gkhkX <- secr_makegk (data$dettype, object$detectfn, data$traps, X, object$details, 
+        sessnum, NElistX, D, miscparm, Xrealparval, grain, ncores)
+    haztempX <- secr_gethazard (nX, data$binomNcode, nrow(Xrealparval), gkhkX$hk, PIA, data$usge)
     
     if (data$dettype[1] %in% c(0,1,2,5,8,13)) {
         ## point detectors

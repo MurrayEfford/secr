@@ -93,7 +93,7 @@ join <- function (object, remove.dupl.sites = TRUE, tol = 0.001,
     if (!ms(object) | any(sapply(object, class) != 'capthist'))
         stop("requires multi-session capthist object or list of ",
              "single-session capthist")
-    detectorlist <- lapply(object, expanddet)
+    detectorlist <- lapply(object, secr_expanddet)
     outputdetector <- unlist(detectorlist)
 
     nsession <- length(object)

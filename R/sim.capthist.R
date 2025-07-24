@@ -69,7 +69,7 @@ sim.capthist <- function (
 
     # moved here 2020-12-06
     if (is.character(detectfn)) {
-        detectfn <- detectionfunctionnumber(detectfn)
+        detectfn <- secr_detectionfunctionnumber(detectfn)
     }
 
     if (detectfn %in% c(0:7, 14:20)) {
@@ -112,7 +112,7 @@ sim.capthist <- function (
         #####################################################################
         ## generate population list if not provided
         if (!inherits(popn,'popn')) {
-            popn <- replacedefaults(list(D = 5, buffer = 100,
+            popn <- secr_replacedefaults(list(D = 5, buffer = 100,
                 Ndist = 'poisson'), popn)
             ## will fail with multiple traps
             popn <- sim.popn (popn$D, core = traps, buffer = popn$buffer,
@@ -347,7 +347,7 @@ sim.capthist <- function (
             else 
                 binomN  ## as input
         }
-        detectpar <- replacedefaults(defaults, detectpar)
+        detectpar <- secr_replacedefaults(defaults, detectpar)
 
         # extended to HPX 2021-03-25
         if (detectfn %in% c(0:7, 14:20)) {
@@ -422,7 +422,7 @@ sim.capthist <- function (
         #-----------------------------------------------------------------------------#
         if (!inherits(popn,'popn')) # generate if not provided
         {
-            popn <- replacedefaults(list(D = 5, buffer = 100,
+            popn <- secr_replacedefaults(list(D = 5, buffer = 100,
                 Ndist = 'poisson'), popn)
             popn <- sim.popn (popn$D, core = traps, buffer = popn$buffer,
                 covariates = NULL, Ndist = popn$Ndist)
@@ -437,7 +437,7 @@ sim.capthist <- function (
             
         ## user-provided distances
         if (is.null(userdist)) {
-            distmat2 <- getdistmat2(traps, popn, NULL)
+            distmat2 <- secr_getdistmat2(traps, popn, NULL)
         }
         else {
             ## move towards IHP/k simulations
@@ -445,7 +445,7 @@ sim.capthist <- function (
             mask <- attr(popn, 'mask')
             ## ASSUME MASK HAS NONEUC REQUIREMENTS 2014-10-30
             ## fails if any(detector %in% .localstuff$polydetectors)
-            distmat2 <- valid.userdist(userdist,
+            distmat2 <- secr_valid.userdist(userdist,
                                   detector(traps),
                                   xy1 = traps,
                                   xy2 = popn,         # animals, 2017-04-06
@@ -463,7 +463,7 @@ sim.capthist <- function (
         
         animals <- as.matrix(popn)
         K <- ndetector(traps)
-        dettype <- detectorcode(traps, noccasions = noccasions)
+        dettype <- secr_detectorcode(traps, noccasions = noccasions)
         simfunctionname <- paste0('trapping', detector(traps))
         if (length(simfunctionname)==1 & noccasions>1)
             simfunctionname <- rep(simfunctionname, noccasions)
@@ -471,7 +471,7 @@ sim.capthist <- function (
             stop("provide one detector name for each occasion")
 
         ## vector binomN
-        detectpar$binomN <- expandbinomN(detectpar$binomN, dettype)
+        detectpar$binomN <- secr_expandbinomN(detectpar$binomN, dettype)
     
         
         if (detectfn %in% c(0:7, 14:20)) {
@@ -860,7 +860,7 @@ sim.resight <- function (traps, popn = list(D = 5, buffer = 100, Ndist = 'poisso
     unres <- markocc == -1
     proximityocc <- any(detector(traps) %in% 'proximity')
 
-    dettype <- detectorcode(traps, MLonly = FALSE, noccasions = S)
+    dettype <- secr_detectorcode(traps, MLonly = FALSE, noccasions = S)
     if (!all(dettype[markocc<1] %in% c(1,2,6,7)))
         stop ("only for sightings at binary or count proximity detectors", 
               " or polygon or transect searches")
@@ -903,7 +903,7 @@ sim.resight <- function (traps, popn = list(D = 5, buffer = 100, Ndist = 'poisso
 
     if (!inherits(popn,'popn'))         ## generate popn if not provided
     {
-        popn <- replacedefaults(list(D = 5, buffer = 100,
+        popn <- secr_replacedefaults(list(D = 5, buffer = 100,
                                      Ndist = 'poisson'), popn)
         if (!(distributedmarking & allsighting))
             popn <- sim.popn (popn$D, core = traps, buffer = popn$buffer,
