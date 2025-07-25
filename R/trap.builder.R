@@ -145,7 +145,7 @@ trap.builder <- function (n = 10, cluster, region = NULL, frame =
     }
     else {
         if ((attr(cluster,'detector') %in% .localstuff$polydetectors) &
-            (ndetector(cluster) > 1))
+            (secr_ndetector(cluster) > 1))
             stop("clusters with multiple polygons or transects not supported")
     }
 
@@ -334,7 +334,7 @@ trap.builder <- function (n = 10, cluster, region = NULL, frame =
     ## renumber clusters
     oldnames <- unique(clusterID(traps))
     if (attr(cluster,'detector') %in% .localstuff$polydetectors) {
-        npoly <- ndetector(traps)
+        npoly <- secr_ndetector(traps)
         npercluster <- nrow(cluster)
         polyID(traps) <- factor(rep(1:npoly, rep(npercluster, npoly)))
         clustertrap(traps) <- rep(1, nrow(traps))

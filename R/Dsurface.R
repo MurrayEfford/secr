@@ -19,7 +19,7 @@ secr_predictD <- function (object, regionmask, group, session,
     ## not exported; used also by region.N()
     
     if (length(parameter)==0) return (NULL)
-    parameter <- match.arg(parameter, .localstuff$spatialparameters, several.ok = TRUE)
+    parameter <- match.arg(parameter, .localstuff$spatialparametersD, several.ok = TRUE)
     if (aslist) {
         ## 2025-07-23 allow multiple parameters and return list
         out <- vector(mode = 'list', length(parameter))
@@ -33,7 +33,7 @@ secr_predictD <- function (object, regionmask, group, session,
     }
     else {
         ## return all-1's if not relevant
-        if ((parameter %in%  c('noneuc','sigmaxy','lambda0xy')) &&
+        if ((parameter %in% .localstuff$spatialparameters) &&
             !(parameter %in% secr_getuserdistnames(object$details$userdist)))
             return(rep(1, nrow(regionmask)))
         sessionlevels <- session(object$capthist)
@@ -274,7 +274,7 @@ rectangularMask <- function (mask) {
 
 predictDsurface <- function (object, mask = NULL, se.D = FALSE, cl.D = FALSE, alpha = 0.05,
                              parameter = 'D') {
-    parameter <- match.arg(parameter, .localstuff$spatialparameters)
+    parameter <- match.arg(parameter, .localstuff$spatialparametersD)
     sessionlevels <- session(object$capthist)
     grouplevels <- secr_group.levels(object$capthist, object$groups)
     if (is.null(mask))
@@ -352,7 +352,7 @@ plot.Dsurface <- function (x, covariate, group = NULL, plottype = 'shaded',
         # }
         if (length(covariate)>1)
             stop ("whoa... just one at a time")
-        if (covariate %in% c('D','noneuc','sigmaxy','lambda0xy','SE','lcl','ucl')) {
+        if (covariate %in% c(.localstuff$spatialparametersD,'SE','lcl','ucl')) {
             covariate <- paste(covariate, group, sep='.')
         }
         if (!(covariate %in% names(covariates(x))))

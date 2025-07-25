@@ -55,7 +55,7 @@ addSightings <- function (capthist, unmarked = NULL, nonID = NULL, uncertain = N
         if (is.null(markocc(traps(capthist))))
             stop("traps(capthist) lacks markocc attribute; provide this first")
         S <- ncol(capthist)
-        K <- ndetector(traps(capthist))
+        K <- secr_ndetector(traps(capthist))
       
         if (is.character(unmarked))
             ## discard session column as unused

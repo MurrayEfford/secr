@@ -243,6 +243,14 @@ disperse <- function (newpopn, turnoverpar, t, core, disp) {
 }
 #-------------------------------------------------------------------------------
 
+discreteN <- function (n, N) {
+    tN <- trunc(N)
+    if (N != tN) tN + sample (x = c(1,0), prob = c(N-tN, 1-(N-tN)),
+                              replace = T, size = n)
+    else rep(tN,n)
+}
+#-------------------------------------------------------------------------------
+
 ## 2023-09-17 im2mask converts spatstat im object
 im2mask <- function(im) {
     # spatstat im object to mask

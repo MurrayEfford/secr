@@ -87,7 +87,7 @@ reduce.traps <- function (object, newtraps = NULL, newoccasions = NULL, span = N
         if (!inherits(object, 'traps'))
             stop ("requires traps object")
         newxy <- match.arg(newxy)
-        splitfactor <- 1:ndetector(object)    # default to status quo
+        splitfactor <- 1:secr_ndetector(object)    # default to status quo
 
         #############################################################
         if (is.null(span) & is.null(newtraps)) {
@@ -361,7 +361,7 @@ reduce.capthist <- function (object, newtraps = NULL, span = NULL,
                 warning ("number of occasions is not a multiple of 'by'")
         }
         if (!is.null(traps(object))) {
-            ntrap <- ndetector(traps(object))  ## npoly if 'polygon' or 'transect'
+            ntrap <- secr_ndetector(traps(object))  ## npoly if 'polygon' or 'transect'
             inputdetector <- detector(traps(object))
         }
         else {
@@ -396,7 +396,7 @@ reduce.capthist <- function (object, newtraps = NULL, span = NULL,
         ## 2014-10-11
         if (outputdetector %in% .localstuff$countdetectors) {
             if (is.null(usage(traps(object)))) {
-                usage(traps(object)) <- matrix(1, nrow = ndetector(traps(object)),
+                usage(traps(object)) <- matrix(1, nrow = secr_ndetector(traps(object)),
                                                ncol = ncol(object))
             }
         }
@@ -429,7 +429,7 @@ reduce.capthist <- function (object, newtraps = NULL, span = NULL,
                 trps <- reduce(trps, newtraps = newtraps, newoccasions = newoccasions,
                                span = span, rename = rename, ...)
                 newtrapID <- attr(trps, 'newtrap')
-                ntrap <- ndetector(trps)
+                ntrap <- secr_ndetector(trps)
             }
         }
         else {
@@ -611,7 +611,7 @@ reduce.capthist <- function (object, newtraps = NULL, span = NULL,
         ################################
         slabels <- sessionlabels(object)  ## 2018-05-10
         if (!is.null(slabels) & !is.null(interv)) {
-            sessionlabels(tempnew) <- slabels[unique(primarysessions(interv))]
+            sessionlabels(tempnew) <- slabels[unique(secr_primarysessions(interv))]
         }
         
         ################################

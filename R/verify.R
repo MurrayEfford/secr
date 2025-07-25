@@ -11,7 +11,7 @@
 ## 2015-01-06 stop if mixture of NULL and non-NULL covariates
 ## 2015-10-03 resight data
 ## 2015-10-12 verify.traps error messages
-## 2015-11-02 xyinpoly moved to utility.R
+## 2015-11-02 secr_xyinpoly moved to utility.R
 ## 2016-10-06 secr 3.0 revamped
 ## 2017-10-18 zerohist check ()
 ## 2017-10-19 capped detector check
@@ -235,7 +235,7 @@ verify.traps <- function (object, report = 2, ...) {
     
     ## 2
     if (!is.null(covariates(object)))
-      trapcovariatesOK <- nrow(covariates(object)) == ndetector(object)
+      trapcovariatesOK <- nrow(covariates(object)) == secr_ndetector(object)
     
     ## 3
     uniquedetectors <- unique(detector(object))
@@ -246,7 +246,7 @@ verify.traps <- function (object, report = 2, ...) {
     ## 'usage' of traps
     if (!is.null(usage(object))) {
       ## 4
-      usagedetectorsOK <- nrow(usage(object)) == ndetector(object)
+      usagedetectorsOK <- nrow(usage(object)) == secr_ndetector(object)
       
       ## 5
       if (length(secr_detectorcode(object))>1)
@@ -311,12 +311,12 @@ verify.traps <- function (object, report = 2, ...) {
         }
         if (!detectorsOK) {
           cat ('Invalid combination of detector types\n')
-          cat ('traps :', ndetector(object), 'detectors\n')
+          cat ('traps :', secr_ndetector(object), 'detectors\n')
           cat ('usage(traps) :', nrow(usage(object)), 'detectors\n')
         }
         if (!usagedetectorsOK) {
           cat ('Conflicting number of detectors in usage matrix\n')
-          cat ('traps :', ndetector(object), 'detectors\n')
+          cat ('traps :', secr_ndetector(object), 'detectors\n')
           cat ('usage(traps) :', nrow(usage(object)), 'detectors\n')
         }
         if (!usagedetectors2OK) {
@@ -611,7 +611,7 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
       else
         xyOK <- nrow(xy) == sum(abs(object)>0)
       # assumes detection sequence is ksn in trap() and xy()
-      inpoly <- xyinpoly(xy(object), traps(object))
+      inpoly <- secr_xyinpoly(xy(object), traps(object))
       inpoly <- inpoly == trap(object, names = FALSE, sortorder = "ksn")  
       ## 17
       xyinpolyOK <- all(inpoly)
@@ -688,7 +688,7 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
       Tu <- Tu(object)
       Tm <- Tm(object)
       nocc <- ncol(object)
-      K <- ndetector(traps(object))
+      K <- secr_ndetector(traps(object))
       r <- numeric(nocc)
       usge <- usage(traps(object))
       if (is.null(usge)) usge <- 1
@@ -785,12 +785,12 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
           }
           if (!trapcheck$trapcovariatesOK) {
             cat ('Wrong number of rows in dataframe of detector covariates\n')
-            cat ('traps(capthist) :', ndetector(traps(object)), 'detectors\n')
+            cat ('traps(capthist) :', secr_ndetector(traps(object)), 'detectors\n')
             cat ('covariates(traps(capthist)) :', nrow(covariates(traps(object))), 'detectors\n')
           }
           if (!trapcheck$usagedetectorsOK) {
             cat ('Conflicting number of detectors in usage matrix\n')
-            cat ('traps(capthist) :', ndetector(traps(object)), 'detectors\n')
+            cat ('traps(capthist) :', secr_ndetector(traps(object)), 'detectors\n')
             cat ('usage(traps(capthist)) :', nrow(usage(traps(object))), 'detectors\n')
           }
           if (!trapcheck$usagenonzeroOK) {
@@ -846,7 +846,7 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
         
         if (!detectornumberOK) {
           cat ('traps object incompatible with reported detections\n')
-          cat ('traps(capthist) :', ndetector(traps(object)), 'detectors\n')
+          cat ('traps(capthist) :', secr_ndetector(traps(object)), 'detectors\n')
           cat ('capthist :', dim(object)[3], 'detectors\n')
         }
         

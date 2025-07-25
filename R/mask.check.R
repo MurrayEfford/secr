@@ -26,10 +26,21 @@ bisect <- function(f, a, b, tol = 1e-6) {
     }
     (a + b) / 2
 }
+#-------------------------------------------------------------------------------
+
+inflatechull <- function (poly, r, ntheta = 60) {
+    theta <- (2*pi) * (1:ntheta) / ntheta
+    ## add supernumerary vertices
+    temp  <- data.frame(x = apply(expand.grid(poly$x, r * cos(theta)),1,sum),
+                        y = apply(expand.grid(poly$y, r * sin(theta)),1,sum))
+    hull <- chull(temp)
+    temp[c(hull,hull[1]), ]
+}
+
+#-------------------------------------------------------------------------------
 
 mindistfromedge <- function (mask, traps, maxr=1e5, ntheta = 60, tol=0.0001) {
     ## compare convex hulls
-    ## rewritten 2014-08-28; uses inflatechull() in utility.R
     hull <- chull(traps)
     trapshull <- traps[c(hull,hull[1]),]    ## ensure closed
     hull <- chull(mask)

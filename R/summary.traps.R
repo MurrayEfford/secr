@@ -45,7 +45,7 @@ summary.traps <- function(object, getspacing = TRUE, covariates = FALSE, ...) {
         ## defaults
         area <- NA
         totallength <- NA
-        np = ndetector(object)
+        np = secr_ndetector(object)
         spacex <- NA
         spacey <- NA
         xrange <- range(object$x)
@@ -77,6 +77,18 @@ summary.traps <- function(object, getspacing = TRUE, covariates = FALSE, ...) {
     }
 }
 ###############################################################################
+
+newstr <- function (strings) {
+    ## compress a character vector
+    ## use run length encoding function
+    rl <- rle(strings)
+    st <- rl$values
+    le <- paste0(' (',as.character(rl$lengths), ')')
+    le[le==' (1)'] <- ''
+    paste(paste0(st, le), collapse = ', ')
+}
+
+#-------------------------------------------------------------------------------
 
 print.summary.traps <- function (x, terse = FALSE, ...) {
     

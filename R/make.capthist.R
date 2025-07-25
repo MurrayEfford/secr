@@ -154,7 +154,7 @@ make.capthist <- function (captures, traps, fmt = c("trapID", "XY"), noccasions 
                     if (nrow(captures)==0)  ## 2016-01-02
                         captTrap <- numeric(0)
                     else
-                        captTrap <- xyinpoly(captures[,4:5], traps)
+                        captTrap <- secr_xyinpoly(captures[,4:5], traps)
                     if (any(captTrap==0)) {
                         captures <- captures[captTrap>0,]  ## first! 2010-11-17
                         captTrap <- captTrap[captTrap>0]
@@ -281,16 +281,16 @@ make.capthist <- function (captures, traps, fmt = c("trapID", "XY"), noccasions 
         if ((length(detector(traps))>1) & (length(detector(traps)) != nocc))
             stop("detector vector of traps object does not match nocc")
             
-        w <- array (0, dim=c(nID, nocc, ndetector(traps)))
+        w <- array (0, dim=c(nID, nocc, secr_ndetector(traps)))
         ## drop rows if dummy input row indicates no captures
         if (any(!validcapt)) {
             if (any(validcapt))
                 stop ("cannot combine data and noncapt")
             w <- w[FALSE, , , drop = FALSE]
-            dimnames(w) <- list(NULL, 1:nocc, 1:ndetector(traps))
+            dimnames(w) <- list(NULL, 1:nocc, 1:secr_ndetector(traps))
         }
         else {
-            dimnames(w) <- list(NULL, 1:nocc, 1:ndetector(traps))
+            dimnames(w) <- list(NULL, 1:nocc, 1:secr_ndetector(traps))
             if (nID>0) {
                 dimnames(w)[[1]] <- 1:nID   ## 2016-01-02
                 temp <- table (captID, abs(captures[,3]), captTrap)

@@ -281,7 +281,7 @@ confint.secr <- function (object, parm, level = 0.95, newdata = NULL,
             # smoothsetup <- object$smoothsetup
             # D.modelled <- (!object$CL || object$details$relativeD) && is.null(object$fixed$D)
             # NE.modelled <- secr_NEmodelled (object$details, object$fixed,
-            #                                    c('noneuc','sigmaxy','lambda0xy'))
+            #                                    .localstuff$spatialparameters)
             # obsolete
             # D.designmatrix <- secr_designmatrix (D.modelled, object$mask, object$model$D,
             #                                 grouplevels, sessionlevels, object$sessioncov,

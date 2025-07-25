@@ -25,11 +25,11 @@ discretize <- function (object, spacing = 5, outputdetector = c('proximity','cou
             trps$x <- trps$x - dx
             trps$y <- trps$y - dy
             if (type == 'centre') {
-                poly <- inflate(trapsCH, 1+tol)  ## inflate is fn in utility.r
+                poly <- secr_inflate(trapsCH, 1+tol)  ## inflate is fn in utility.r
                 OK <- pointsInPolygon(trps,poly)
             }
             else {
-                poly <- inflate(trapsCH, 1+tol)  ## inflate is fn in utility.r
+                poly <- secr_inflate(trapsCH, 1+tol)  ## inflate is fn in utility.r
                 cell <- matrix(c(-1,-1,1,1,-1,-1,1,1,-1,-1), ncol = 2) * spacing/2
                 trpsc <- rbind(sweep(trps, STATS=c(-1,-1)*spacing/2, MARGIN=2, FUN='+'),
                                sweep(trps, STATS=c(-1,1)*spacing/2,  MARGIN=2, FUN='+'),

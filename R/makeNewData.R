@@ -39,7 +39,8 @@ makeNewData.secr <- function (object, all.levels = FALSE, bytrap = FALSE, ...) {
     if(is.null(nmix)) nmix <- 1
     mixvar <- switch(nmix, character(0),'h2','h3')
     
-    nocc <- max(n.occasion (capthist))
+    nocc <- if (ms(capthist)) sapply(capthist, ncol) else ncol(capthist)
+    nocc <- max(nocc)
     grouplevels <- secr_group.levels(capthist, groups)
     ngrp <- max(1, length(grouplevels))
     sessions <- session(capthist)
@@ -88,7 +89,7 @@ makeNewData.secr <- function (object, all.levels = FALSE, bytrap = FALSE, ...) {
         
         basevars <- list(session = factor(sessions[session], levels=sessions))
         if (ngrp>1) basevars$g <- factor(grouplevels)
-        if (nmix>1) basevars[mixvar] <- list(h.levels(capthist, hcov, nmix))
+        if (nmix>1) basevars[mixvar] <- list(secr_h.levels(capthist, hcov, nmix))
         
         for (v in sessvars) {
             if (v=='x')  basevars$x <- 0     # mean attr(mask,'meanSD')[1,'x']
@@ -167,11 +168,11 @@ makeNewData.secr <- function (object, all.levels = FALSE, bytrap = FALSE, ...) {
     # some setup
     if (bytrap) {
         if (ms(capthist)) {
-            ndet <- sapply(traps(capthist), ndetector)
+            ndet <- sapply(traps(capthist), secr_ndetector)
             trapcovnames <- names(covariates(traps(capthist)[[1]]))
         }
         else {
-            ndet <- ndetector(trps)
+            ndet <- secr_ndetector(trps)
             trapcovnames <- names(covariates(traps(capthist)))
         }
     }

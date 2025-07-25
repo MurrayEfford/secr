@@ -159,7 +159,7 @@ slice <- function (object, from = 0, by = 1000, length.out = NULL, keep.incomple
                             all(detector(object) == 'transectX'))
     if (!is.null(usage(object))) {
         ## TO BE FIXED 2012-12-22
-        usagematrix <- matrix (0, ndetector(newobj), ncol(usage(object)))
+        usagematrix <- matrix (0, secr_ndetector(newobj), ncol(usage(object)))
         usagematrix <- matrix(usagematrix, nrow = nrow(newobj))
         usage(newobj) <- usagematrix[oldID,]
     }

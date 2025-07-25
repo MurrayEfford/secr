@@ -35,7 +35,7 @@ secr_getpmix <- function(knownclass, PIA, realparval)
     pmix <- numeric(nmix)
     if (nmix>1) {
         # index of first non-missing occasion s and detector k
-        fsk <- sapply(1:nc, function(i) firstsk(PIA[1,i,,,1, drop = FALSE]))
+        fsk <- sapply(1:nc, function(i) secr_firstsk(PIA[1,i,,,1, drop = FALSE]))
         kc <- as.vector((fsk-1) %/% k + 1)
         sc <- as.vector((fsk-1) %/% k + 1)
         for (x in 1:nmix) {
@@ -94,7 +94,7 @@ secr_getmiscparm <- function(miscparm, detectfn, beta, parindx, cutval) {
 # returns array [nmask, ngroup, nsession] of real parameter values
 secr_getD <- function (designD, beta, mask, parindx, link, fixed,
                   grouplevels, sessionlevels, parameter = 'D') {
-    ## for .localstuff$spatialparameters 'D', 'noneuc', 'sigmaxy', or 'lambda0xy'
+    ## for .localstuff$spatialparametersD 'D', 'noneuc', 'sigmaxy', 'lambda0xy', 'a0'
     whichbeta <- beta[parindx[[parameter]]]
     if (length(whichbeta) == 0) return(NULL)
     if (!is.function(designD)) {
@@ -212,7 +212,8 @@ secr_makegk <- function(dettype, detectfn, trps, mask, details, sessnum, NElist,
                    miscparm, realparval, grain, ncores) {
     ## precompute gk, hk for point detectors
     if (all(dettype %in% c(0,1,2,5,8,13))) {
-        distmat2 <- secr_getuserdist(trps, mask, details$userdist, sessnum, NElist, D, miscparm)
+        distmat2 <- secr_getuserdist(trps, mask, details$userdist, sessnum, NElist, D,
+                                     miscparm = miscparm, detectfn = detectfn)
         gkhk <- makegkPointcpp (
             as.integer(detectfn), 
             as.integer(grain),

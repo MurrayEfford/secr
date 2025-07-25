@@ -406,7 +406,7 @@ secr_generalsecrloglikfn <- function (
     pID <- secr_getpID(PIA, Xrealparval, data$MRdata)
     if (!is.null(details$userdist)) {    # changed from is.function() 2024-02-15
         distmat2 <- secr_getuserdist(data$traps, data$mask, details$userdist, sessnum, 
-                               NElist, density[,1], miscparm)
+                    NElist, density[,1], miscparm = miscparm, detectfn = detectfn)
     }
     else {
         distmat2 <- data$distmat2

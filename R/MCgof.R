@@ -21,11 +21,59 @@ defaultstatfn <- function (capthist) {
         yk = apply(abs(capthist), 3, sum)
     )
 }
+#-------------------------------------------------------------------------------
 
 # Calculate Freeman-Tukey statistic, from Choo et al. 2024
 defaulttestfn <- function(realised, expected){
     sum((sqrt(realised) - sqrt(expected))^2)
 }
+#-------------------------------------------------------------------------------
+
+# 2024-10-04
+# return parameters for first detection
+# optionally by session, animal, occasion, trap or latent class
+
+detectpar0 <- function(object,
+                       bysession  = TRUE, 
+                       byanimal   = FALSE, 
+                       byoccasion = FALSE, 
+                       bytrap     = FALSE, 
+                       byclass    = FALSE) {
+    beta <- object$fit$par
+    # insert fixed betas as needed
+    beta <- secr_fullbeta(beta, object$details$fixedbeta)
+    # get lookup table 
+    realparval0 <- secr_makerealparameters (
+        object$design0, beta,
+        object$parindx, object$link, object$fixed)  # naive
+    param <- object$details$param
+    if (param>0) {
+        if (param == 3) {
+            realparval0 <- secr_reparameterize(
+                realparval0, object$detectfn, object$details, object$mask, 
+                traps(object$capthist), NA, NA)
+        }
+        else stop ("parameterisation ", param, " not available")
+    }
+    # which indices of PIA do we care about? others use only first element
+    indlist <- as.list(rep(1,5))
+    if (bysession)  indlist[[1]] <- TRUE
+    if (byanimal)   indlist[[2]] <- TRUE 
+    if (byoccasion) indlist[[3]] <- TRUE 
+    if (bytrap)     indlist[[4]] <- TRUE 
+    if (byclass)    indlist[[5]] <- TRUE 
+    # find indices
+    arglist <- c(list(x = object$design0$PIA, drop = FALSE), indlist)
+    selected <- do.call('[', arglist)
+    out <- as.data.frame(realparval0[selected,, drop = FALSE])
+    
+    dd <- lapply(dim(selected), function(x) 1:x)
+    names(dd) <- c('session','animal','occasion','trap','class')
+    id <- do.call(expand.grid, dd)[,sapply(indlist, is.logical), drop = FALSE]
+    cbind(out, id)
+    
+}
+#-------------------------------------------------------------------------------
 
 simfxiAC <- function (object, bytrap, debug) {
     
@@ -44,7 +92,6 @@ simfxiAC <- function (object, bytrap, debug) {
     
     # --------------------------------------------
     # sample _unobserved_ AC from their common pdf
-
     # density of unobserved AC
     Dstar <- predictDsurface(object)
     Dstar <- covariates(Dstar)$D.0
@@ -112,6 +159,7 @@ simfxiAC <- function (object, bytrap, debug) {
     
     popn
 }
+#-------------------------------------------------------------------------------
 
 MCgof.secrlist <- function (
         object, nsim = 100, statfn = NULL, testfn = NULL,
@@ -126,6 +174,7 @@ MCgof.secrlist <- function (
                   debug = debug, ...)
     names(out) <- names(object)
 }
+#-------------------------------------------------------------------------------
 
 MCgof.secr <- function (
         object, nsim = 100, statfn = NULL, testfn = NULL,
@@ -161,7 +210,6 @@ MCgof.secr <- function (
             # sim.onepopn() is in simulate.R
             popn <- sim.onepopn(object, Darray)[[1]]
         }
-        
         # -----------------------------------------------
         # simulate detections for these parameters and AC
         simCH <- sim.detect(
@@ -195,8 +243,8 @@ MCgof.secr <- function (
         N <- nrow(capti$popn)  # varies for each replicate because D varies
         CH <- object$capthist
         n <- nrow(CH)
-        # addzeroCH is internal secr function
-        paddedCH <- addzeroCH(CH, N - n, prefix = 'N')
+        # secr_addzeroCH is internal secr function
+        paddedCH <- secr_addzeroCH(CH, N - n, prefix = 'N')
         Tobs <- statfn(paddedCH)
         obs <- testfn(Tobs[[stat]],       capti$Texp[[stat]], ...)
         sim <- testfn(capti$Tsim[[stat]], capti$Texp[[stat]], ...)

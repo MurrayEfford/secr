@@ -882,12 +882,12 @@ flip.default <- function (object, lr = FALSE, tb = FALSE, ...) {
             if (is.null(noccasions)) {
                 if (is.null(dim(value)))
                     stop("usage value should be matrix or scalar with noccasions")
-                else if (nrow(value) != ndetector(object))
+                else if (nrow(value) != secr_ndetector(object))
                     stop("mismatch between value and number of detectors")
             }
             else {
                 ## assume value is scalar
-                value <- matrix(value, nrow = ndetector(object), ncol = noccasions)
+                value <- matrix(value, nrow = secr_ndetector(object), ncol = noccasions)
             }
             if (!is.null(markocc(object))) {
                 if (ncol(value) != length(markocc(object)))
@@ -964,7 +964,7 @@ flip.default <- function (object, lr = FALSE, tb = FALSE, ...) {
             if (length(value)>1) {
                 if (length(dims <- dim(value)) != 2)
                     stop ("require either total count or traps x occasions matrix")
-                if (dims[1] != ndetector(traps(object)))
+                if (dims[1] != secr_ndetector(traps(object)))
                     stop ("Tu not compatible with traps attribute")
                 if (dims[2] != length(markocc))
                     stop ("Tu not compatible with markocc attribute")
@@ -995,7 +995,7 @@ flip.default <- function (object, lr = FALSE, tb = FALSE, ...) {
             if (length(value)>1) {
                 if (length(dims <- dim(value)) != 2)
                     stop ("require either total count or traps x occasions matrix")
-                if (dims[1] != ndetector(traps(object)))
+                if (dims[1] != secr_ndetector(traps(object)))
                     stop ("Tm not compatible with traps attribute")
                 if (dims[2] != length(markocc))
                     stop ("Tm not compatible with markocc attribute")
@@ -1026,7 +1026,7 @@ flip.default <- function (object, lr = FALSE, tb = FALSE, ...) {
             if (length(value)>1) {
                 if (length(dims <- dim(value)) != 2)
                     stop ("require either total count or traps x occasions matrix")
-                if (dims[1] != ndetector(traps(object)))
+                if (dims[1] != secr_ndetector(traps(object)))
                     stop ("Tn not compatible with traps attribute")
                 if (dims[2] != length(markocc))
                     stop ("Tn not compatible with markocc attribute")
@@ -1058,7 +1058,7 @@ flip.default <- function (object, lr = FALSE, tb = FALSE, ...) {
             if (length(value)>1) {
                 if (length(dims <- dim(value)) != 2)
                     stop ("require traps x occasions matrix")
-                if (dims[1] != ndetector(traps(object)))
+                if (dims[1] != secr_ndetector(traps(object)))
                     stop ("nontarget not compatible with traps attribute")
             }
             if (any(value<0))
@@ -1121,7 +1121,7 @@ flip.default <- function (object, lr = FALSE, tb = FALSE, ...) {
             }
             else if (inherits(object, 'capthist')) {
                 ## capthist object
-                nsessions <- length(unique(primarysessions(intervals(object))))
+                nsessions <- length(unique(secr_primarysessions(intervals(object))))
                 if (nsessions>1) {    # 2019-09-29
                     OK <- sapply(value, function(x) nsessions == length(x))
                     if (any(!OK))
@@ -1700,7 +1700,7 @@ subset.capthist <- function (x, subset=NULL, occasions=NULL, traps=NULL,
         }
         else {
             detector <- secr_expanddet(x)   # vector 2017-01-28
-            nk <- ndetector (trapsx)
+            nk <- secr_ndetector (trapsx)
         }
         if (is.logical(subset) & (length(subset) != nrow(x)))
             stop ("if 'subset' is logical its length must match number of animals")
@@ -1962,9 +1962,7 @@ subset.capthist <- function (x, subset=NULL, occasions=NULL, traps=NULL,
                          " all intervals set to 1.0")
                 intervals(temp) <- rep(1, ncol(temp)-1)
             }
-            ## bug fixed 2021-04-22
-            # sessions <- unique(primarysessions(intervals(temp))[occasions])
-            sessions <- unique(primarysessions(interv)[occasions])
+            sessions <- unique(secr_primarysessions(interv)[occasions])
             sessionlabels(temp) <- slabels[sessions]
         }
         ################################################
@@ -2402,7 +2400,7 @@ print.secr <- function (x, newdata = NULL, alpha = 0.05, deriv = FALSE, call = T
     ## Model description
 
     ## 2015-03-31
-    Npar <- nparameters(x)   ## see utility.R
+    Npar <- secr_nparameters(x)   ## see utility.R
     AICval <- 2*(x$fit$value + Npar)
     n <- ifelse (ms(x$capthist), sum(sapply(x$capthist, nrow)), nrow(x$capthist))
     AICcval <- ifelse ((n - Npar - 1) > 0,
@@ -2423,7 +2421,7 @@ print.secr <- function (x, newdata = NULL, alpha = 0.05, deriv = FALSE, call = T
             cat ('User distances  :  dynamic (function)\n')
     }
 
-    cat ('Fixed (real)    : ', fixed.string(x$fixed), '\n')
+    cat ('Fixed (real)    : ', secr_fixed.string(x$fixed), '\n')
     cat ('Detection fn    : ', secr_detectionfunctionname(x$detectfn))
     cat ('\n')
     if (!x$CL)

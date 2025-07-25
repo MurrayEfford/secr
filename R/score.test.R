@@ -54,8 +54,8 @@ prepare <- function (secr, newmodel, betaindex) {
         out
     }
     # 2025-07-24 does NOT allow for change in details$userdist
-    NE.modelled <- secr_NEmodelled(details, fixed, c('noneuc','sigmaxy','lambda0xy'))
-    designNE <- sapply(c('noneuc','sigmaxy','lambda0xy')[NE.modelled], 
+    NE.modelled <- secr_NEmodelled(details, fixed, .localstuff$spatialparameters)
+    designNE <- sapply(.localstuff$spatialparameters[NE.modelled], 
                        getNE, simplify = FALSE, USE.NAMES = TRUE)
 
     # beta <- complete.beta(secr)

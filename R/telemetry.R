@@ -112,7 +112,7 @@ telemetry.LC <- function(CH, detectfn, detectpar, mask, bvn = TRUE) {
     n <- dim(CH)[1]
     J <- dim(CH)[2]
     traps <- traps(CH)
-    K <- ndetector(traps)
+    K <- secr_ndetector(traps)
     detectfn <- secr_valid.detectfn(detectfn, 14:19)
     detectpar <- detectpar[c('lambda0','sigma','z')] ## ensure order correct
     g <- secr_getdfn (detectfn)

@@ -64,9 +64,9 @@ make.grid <- function (nx = 6, ny = 6, spacex = 20, spacey = spacex, spacing=NUL
 
     ## added 2010 03 24
     if (ID == 'xy') {
-        ## see utility.R for function leadingzero 2012-09-04
-        colA <- leadingzero(1:nx)
-        rowA <- leadingzero(1:ny)
+        ## see utility.R for function secr_leadingzero 2012-09-04
+        colA <- secr_leadingzero(1:nx)
+        rowA <- secr_leadingzero(1:ny)
         row.names(grid) <- apply(expand.grid(colA, rowA), 1,
             function(x) paste(x, sep='', collapse=''))
     }
@@ -93,7 +93,7 @@ make.grid <- function (nx = 6, ny = 6, spacex = 20, spacey = spacex, spacing=NUL
     }
 
     if (leadingzero && (ID %in% c('numy','numx','numyb','numxb') )) {
-        row.names(grid) <- leadingzero(as.numeric(row.names(grid)))
+        row.names(grid) <- secr_leadingzero(as.numeric(row.names(grid)))
     }
     
     attr(grid, 'detector')    <- detector
@@ -211,7 +211,7 @@ make.circle <- function (n = 20, radius = 100, spacing = NULL,
     if (IDclockwise) sequence  <- c(1, n:2)
     else sequence <- 1:n
     if (leadingzero)
-        row.names(object) <- leadingzero(sequence)
+        row.names(object) <- secr_leadingzero(sequence)
     else 
         row.names(object) <- sequence
     

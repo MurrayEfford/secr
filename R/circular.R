@@ -27,7 +27,7 @@ circular.r <- function (p = 0.95, detectfn = 0, sigma = 1, detectpar = NULL, haz
     detectpar <- detectpar[secr_parnames(detectfn)]  ## correct order
     pars <- unlist(detectpar)
     cutval <- ifelse (detectfn %in% c(9,10,11), detectpar$cutval, NA)
-    scale <- spatialscale (detectpar, detectfn) ## see utility.R; assumes cutval in detectpar
+    scale <- secr_spatialscale (detectpar, detectfn) ## see utility.R; assumes cutval in detectpar
 
     ## use formula for halfnormal
     if (OK & (((detectfn == 0) & !hazard) | ((detectfn == 14) & hazard))) {
@@ -88,7 +88,7 @@ circular.p <- function (r = 1, detectfn = 0, sigma = 1, detectpar = NULL, hazard
     pars <- unlist(detectpar)
     cutval <- ifelse (detectfn %in% c(9,10,11), detectpar$cutval, NA)
 
-    scale <- spatialscale (detectpar, detectfn) ## see utility.R; assumes cutval in detectpar
+    scale <- secr_spatialscale (detectpar, detectfn) ## see utility.R; assumes cutval in detectpar
 
     ## use formula for halfnormal
     if (OK & (((detectfn == 0) & !hazard) | ((detectfn == 14) & hazard))) {

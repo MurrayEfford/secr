@@ -195,7 +195,7 @@ esaPlotsecr <- function (object, max.buffer = NULL, max.mask = NULL,
                 session <- match(session, names(object$capthist))
             }
             detpar <- detectpar(object)[[session]]
-            spscale <- spatialscale(object, object$detectfn, session)
+            spscale <- secr_spatialscale(object, object$detectfn, session)
         }
         else {
             trps <- traps(object$capthist)
@@ -203,7 +203,7 @@ esaPlotsecr <- function (object, max.buffer = NULL, max.mask = NULL,
             nocc <- ncol(object$capthist)
             spacg <- attr(object$mask, 'spacing')
             detpar <- detectpar(object)
-            spscale <- spatialscale(object, object$detectfn)
+            spscale <- secr_spatialscale(object, object$detectfn)
         }
         if (is.null(max.mask)) {
             if (is.null(max.buffer)) {

@@ -20,7 +20,7 @@ getpmixall <- function(PIA, realparval)
     pmix <- 1   ## default single class
     if (nmix>1) {
         # index of first non-missing occasion s and detector k
-        fsk <- firstsk(PIA[1,1,,,1, drop = FALSE])
+        fsk <- secr_firstsk(PIA[1,1,,,1, drop = FALSE])
         kc <- as.vector((fsk-1) %/% k + 1)[1]
         sc <- as.vector((fsk-1) %/% k + 1)[1]
         pmix <- PIA[cbind(1,1,sc,kc,1:nmix)]
@@ -331,7 +331,8 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
                     sessnum, 
                     NElist2, 
                     density[,1], 
-                    object$details$miscparm)
+                    miscparm = object$details$miscparm,
+                    detectfn = object$detectfn)
             }
             else {
                 distmat2 <- secr_getdistmat2 (

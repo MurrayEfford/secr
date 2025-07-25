@@ -452,7 +452,7 @@ fxi.secr <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL, ..
     }
     else {
         ## polygon-like detectors
-        maskusage <- maskboolean(object$capthist, X, object$details$maxdistance)  # 2024-01-30
+        maskusage <- secr_maskboolean(object$capthist, X, object$details$maxdistance)  # 2024-01-30
         prmatX <- allhistpolygonfxi (object$detectfn, Xrealparval, haztempX, gkhkX$hk, gkhkX$H, piX, PIA, 
                              CH, xy, data$binomNcode, grp, data$usge, X,
                              pmix, maskusage, object$details$grain, ncores, object$details$minprob)

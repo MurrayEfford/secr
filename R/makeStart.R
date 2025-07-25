@@ -2,6 +2,26 @@
 ## makeStart.R
 ## 2022-04-02, 2023-12-17
 
+#-------------------------------------------------------------------------------
+
+uniquerownames <- function (capthist) {
+    if (!ms(capthist)) {
+        return(capthist)
+    }
+    else {
+        last <- 0
+        for (i in 1:length(capthist)) {
+            nr <- nrow(capthist[[i]])
+            if (nr > 0) {
+                rownames(capthist[[i]]) <- last + (1:nr)
+                last <- last+nr
+            }
+        }
+        capthist
+    }
+}
+#-------------------------------------------------------------------------------
+
 makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link, 
     details = NULL, fixed = NULL, CL = FALSE, anypoly = FALSE, anytrans = FALSE, 
     alltelem = FALSE, sighting = FALSE) {
@@ -140,6 +160,8 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
             noneuc  = 50,
             sigmaxy = ifelse (is.na(start3$sigma), rpsv, start3$sigma),
             lambda0xy = -log(1-ifelse (is.na(start3$g0), 0.1, start3$g0)),
+            a0xy    = ifelse (is.na(start3$g0), 0.1 * rpsv^2, start3$g0 *
+                                  start3$sigma^2) / 10000 * 2 * pi,
             beta0   = details$cutval + 30,
             beta1   = -0.2,
             sdS     = 2,

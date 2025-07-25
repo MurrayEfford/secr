@@ -24,8 +24,8 @@ split.traps <- function (x, f, drop = FALSE, prefix='S', byoccasion = FALSE, ...
       # f <- factor(paste (prefix,f,sep=''))
       # sp <- paste(prefix, levels(polyID(x)), sep='')
       # 2016-05-10
-      f <- factor(paste0 (prefix,leadingzero(f)))
-      sp <- paste0(prefix, leadingzero(levels(polyID(x))))
+      f <- factor(paste0 (prefix,secr_leadingzero(f)))
+      sp <- paste0(prefix, secr_leadingzero(levels(polyID(x))))
   }
   else {
       sp <- levels(polyID(x))

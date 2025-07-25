@@ -59,7 +59,7 @@ D.designdata <- function (mask, Dmodel, grouplevels, sessionlevels, sessioncov =
     getcol <- function (msk, colnum) {
           mn <- attr(msk, "meanSD")[1, colnum]
           SD <- attr(msk, "meanSD")[2, colnum]
-          pad1 (scale(msk[,colnum], mn, SD), nmaskrow)
+          secr_pad1 (scale(msk[,colnum], mn, SD), nmaskrow)
     }
 
     #--------------------------------------------------------------------------

@@ -13,6 +13,37 @@
 ## 2024-12-15 sumDpdot ignored varying relative density
 ## 2025-01-09 relativeD tweaks
 
+#-------------------------------------------------------------------------------
+# function to convert fitted single-session CL relative D model to a full model
+# used by region.N
+# variances not reliable
+
+completeDbeta <- function(object, vcv = FALSE) {
+    if (ms(object)) stop ("completeDbeta is not ready for multisession secr")
+    intercept <- unlist(derivedDcoef(object, se = vcv)[1,1:2])
+    Dpar <- object$parindx$D
+    Dpar1 <- Dpar[-length(Dpar)]
+    beta.vcv <- secr_complete.beta.vcv (object)        
+    if (vcv) {
+        if (object$link$D == 'identity') {
+            beta.vcv[Dpar,Dpar] <- beta.vcv[Dpar,Dpar] * intercept[1]^2
+        }
+        beta.vcv[is.na(beta.vcv)] <- 0    # assume zero covariances for now
+        beta.vcv[1,1] <- intercept[2]^2
+    }
+    if (object$link$D == 'identity') {
+        # rescale density coefficients
+        object$fit$par[Dpar1] <- object$fit$par[Dpar1] * intercept[1]
+    }
+    object$beta.vcv <- beta.vcv
+    object$fit$par <- c(intercept[1], object$fit$par)
+    object$fit$estimate <- object$fit$par
+    object$details$fixedbeta[1] <- NA  # inferred, not fixed
+    object$betanames <- c('D', object$betanames)
+    object$CL <- FALSE
+    object
+}
+
 ################################################################################
 
 region.N.secrlist <- function (
@@ -338,7 +369,7 @@ sumDpdot <- function (object, sessnum = 1, mask, D, NElist, cellsize, constant =
     m      <- length(mask$x)            ## assume session-specific mask...
     ncores <- setNumThreads(ncores)
     grain <- if (ncores==1) 0 else 1
-    binomNcode <- secr_recodebinomN(dettype, binomN, telemcode(trps))
+    binomNcode <- secr_recodebinomN(dettype, binomN, secr_telemcode(trps))
     
     ##############################################
     

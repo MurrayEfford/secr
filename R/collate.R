@@ -100,7 +100,7 @@ collate.secrlist <- function (object, ..., realnames = NULL, betanames = NULL, n
                 Dfn = attr(object1$designD, 'Dfn')
             )
         }
-        if (any(unlist(nclusters(object1$capthist))>1))
+        if (any(unlist(secr_nclusters(object1$capthist))>1))
             warning("collate is ignoring n.mashed", call. = FALSE)
         # 2025-07-17 allow for fixedbeta
         beta <- secr_complete.beta(object1)

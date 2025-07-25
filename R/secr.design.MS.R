@@ -21,6 +21,21 @@ individualcovariates <- function (PIA) {
     pia <- matrix(aperm(PIA, c(2:5,1)), nrow = dim(PIA)[2])
     n.unique.rows(pia) > 1
 }
+
+padarray <- function (x, dims) {
+    temp <- array(dim=dims)
+    dimx <- dim(x)
+    if (all(dimx>0)) {
+        if (length(dimx)<2 | length(dimx)>3)
+            stop ("invalid array")
+        if (length(dimx)>2) temp[1:dimx[1], 1:dimx[2], 1:dimx[3]] <- x
+        else temp[1:dimx[1], 1:dimx[2]] <- x
+    }
+    temp
+}
+
+#-------------------------------------------------------------------------------
+
 #-------------------------------------------------------------------------------
 
 secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
@@ -31,8 +46,8 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
 ## Generate design matrix, reduced parameter array, and parameter index array (PIA)
 ## for detection function parameters
 ## 'capthist' must be of class 'capthist' or 'list'
-## uses pad1 to pad session-specific covar to constant length with first value,
-## pad1 defined in 'utility.R'
+## uses secr_pad1 to pad session-specific covar to constant length with first value,
+## secr_pad1 defined in 'utility.R'
 ##
 ## groups is a vector of factor names whose intersection defines group
 ## groups only defined for CL = FALSE  
@@ -79,7 +94,7 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
                         }
                     }
                     ## pad on first dimension
-                    vals <- lapply(cov, function(x) pad1(x[,variable], dims[dimcov[1]]))
+                    vals <- lapply(cov, function(x) secr_pad1(x[,variable], dims[dimcov[1]]))
                     vals <- unlist(vals)
                     dframe[,variable] <<- insertdim (vals, dimcov, dims)
                 }
@@ -113,7 +128,7 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
         ## function to add time-specific trap covariates to a design data frame 'dframe'
         ## covindices should be a list or list of lists, one per session (R > 1),
         ## if list, then require predictors to appear in all sessions
-        ## uses pad1 and insertdim from utility.R
+        ## uses secr_pad1 and insertdim from utility.R
 
         found <- ''
         dimcov <- c(1,4,3) ## session, trap, time
@@ -156,7 +171,7 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
     }
     #--------------------------------------------------------------------------------
 
-    for (nonp in .localstuff$spatialparameters) {
+    for (nonp in .localstuff$spatialparametersD) {
         models[[nonp]] <- NULL                     # drop non-detection models
     }
     npar     <- length(models)                     # real parameters
@@ -172,13 +187,13 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
         R <- length(capthist)
         n <- max(sapply(capthist, nrow))                         # max over sessions
         S <- max(sapply(capthist, ncol))                         # max over sessions
-        K <- max(sapply(traps(capthist), ndetector))             # max over sessions
+        K <- max(sapply(traps(capthist), secr_ndetector))             # max over sessions
     }
     else {
         R <- 1
         n <- nrow(capthist)
         S <- ncol(capthist)
-        K <- ndetector(traps(capthist))
+        K <- secr_ndetector(traps(capthist))
     }
     ## cover unmarked case
     if (n == 0) n <- 1
@@ -300,7 +315,7 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
         else {
             if (any(sapply(timecov, nrow) < S))
                 stop ("requires valid time covariate 'timecov'")
-            timecov <- lapply (timecov, function(x) pad1(x[,1], S))
+            timecov <- lapply (timecov, function(x) secr_pad1(x[,1], S))
         }
         dframe$tcov <- insertdim (unlist(timecov), c(3,1), dims)
     }
@@ -312,7 +327,7 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
         # add g factor
 
         gvar <- secr_group.factor(capthist, groups)          # list if MS
-        if (MS) gvar <- lapply(gvar, pad1, n)           # constant length
+        if (MS) gvar <- lapply(gvar, secr_pad1, n)           # constant length
         # by animal within session
         dframe$g <- insertdim ( unlist(gvar), c(2,1), dims)  ## unlist works on factors, too
 
@@ -325,7 +340,7 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
         for (i in groups) {
             if (MS) {
                 grouping <- lapply(zcov, function(x) x[,i])
-                grouping <- unlist(lapply(grouping, pad1, n))
+                grouping <- unlist(lapply(grouping, secr_pad1, n))
             }
             else grouping <- zcov[,i]
             ## 2011-11-28 these insertdim seem to do nothing - should assign to dframe column
@@ -556,8 +571,6 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
             prevcapt <- function(x) c(FALSE, x[-S]>0)
             if (MS) {
                 temp <- lapply(capthist, makek)
-                # temp <- lapply(temp, padarray, c(n,S,K))
-                # bug fixed 2012-09-10
                 temp <- lapply(temp, padarray, c(S,K))
             }
             else temp <- makek(capthist)  # one session
@@ -570,7 +583,7 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
             stop ("model uses trap covariates, but valid covariate ",
                   "data not found")
         if (is.data.frame(trapcov)) trapcov <- trapcov[,1,drop=F]  ## retain only first
-        else trapcov <- lapply (trapcov, function(x) pad1(x[,1], K))
+        else trapcov <- lapply (trapcov, function(x) secr_pad1(x[,1], K))
         dframe$kcov <- insertdim(unlist(trapcov), c(4,1), dims)
     }
 
@@ -579,7 +592,7 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
     ## h2 or h3
     if (nmix > 1) {
         mixture <- paste('h',nmix,sep='')
-        classnames <- h.levels(capthist, hcov, nmix)
+        classnames <- secr_h.levels(capthist, hcov, nmix)
         tempclass <- insertdim(classnames, 5, dims)
         dframe[,mixture] <- factor(tempclass)
     }
@@ -757,7 +770,7 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
         if (MS) {
             validdim <- as.list(data.frame(t(matrix(c(sapply(capthist, nrow),
                           sapply(capthist, ncol),
-                          sapply(trps, ndetector),
+                          sapply(trps, secr_ndetector),
                           rep(nmix,R)), nrow = R))))
             names(validdim) <- sessionlevels
         }

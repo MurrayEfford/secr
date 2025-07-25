@@ -285,7 +285,7 @@ suggest.buffer <- function (object, detectfn = NULL, detectpar = NULL, noccasion
             }
         }
         if (is.null(interval)) {
-            interval <- c(1, 100 * spatialscale(detectpar, detectfn))
+            interval <- c(1, 100 * secr_spatialscale(detectpar, detectfn))
         }
         detectfn <- secr_valid.detectfn(detectfn)
         detectpar <- secr_valid.detectpar(detectpar, detectfn)

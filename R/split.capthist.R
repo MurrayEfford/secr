@@ -54,14 +54,14 @@ split.capthist <- function (x, f, drop = FALSE, prefix='S', bytrap = FALSE,
         
         f <- as.factor(f)  # retains unused levels
         if (any(!is.na(as.numeric(levels(f))))) {
-            levels(f) <- paste (prefix,leadingzero(levels(f)),sep='')
+            levels(f) <- paste (prefix, secr_leadingzero(levels(f)),sep='')
         }
         options(oldopt)
         
         if (bytrap) {
             ## 2015-10-11
             ## if (length(f)!= nrow(traps(x)))
-            if (length(f)!= ndetector(traps(x)))
+            if (length(f)!= secr_ndetector(traps(x)))
                 stop ("length of f should match number of detectors")
         }
         else if (byoccasion) {

@@ -24,7 +24,7 @@ xy2CH <- function (CH, inflation = 1e-8) {
         
         trps <-  allxy[chull(allxy),]
         trps <- rbind(trps, trps[1,,drop=F])
-        trps <- inflate(trps, 1 + inflation)  ## see also telemetry.R
+        trps <- secr_inflate(trps, 1 + inflation)  ## see also telemetry.R
         
         trps <- as.data.frame(trps)
         dimnames(trps) <- list(1:nrow(trps), c('x','y'))

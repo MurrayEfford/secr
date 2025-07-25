@@ -289,3 +289,103 @@ shareFactorLevels <- function (object, columns = NULL, stringsAsFactors = TRUE) 
 
 #-------------------------------------------------------------------------------
 
+## Manually remove some mask points
+# simplified 2022-02-03
+
+deleteMaskPoints <- function (mask, onebyone = TRUE, add = FALSE, poly = NULL,
+                              poly.habitat = FALSE, ...) {
+    ## interface does not work properly in RStudio
+    
+    if (ms(mask)) {         ## a list of mask objects
+        if (inherits(poly, 'list') & (!is.data.frame(poly)))
+            stop ("lists of polygons not implemented in 'make.mask'")
+        temp <- lapply (mask, deleteMaskPoints, onebyone = onebyone, add = add,
+                        poly = poly, poly.habitat = poly.habitat, ...)
+        class (temp) <- c('mask', 'list')
+        temp
+    }
+    else {
+        plot(mask, add = add, ...)
+        if (!is.null(poly)) {
+            if (poly.habitat)
+                pointstodrop <- (1:nrow(mask))[!pointsInPolygon(mask, poly)]
+            else
+                pointstodrop <- (1:nrow(mask))[pointsInPolygon(mask, poly)]
+        }
+        else if (onebyone) {
+            cat ('Click to select points; right-click to stop\n')
+            flush.console()
+            xy <- locator(type = 'p', pch=1, col='red')
+            pointstodrop <- if (length(xy$x)==0)
+                numeric(0)
+            else
+                nearesttrap(xy, mask)
+        }
+        else {
+            cat ('Click to select polygon vertices; right-click to stop\n')
+            flush.console()
+            xy <- locator(type = 'l', col='red')
+            xy <- as.data.frame(xy)
+            xy <- rbind(xy, xy[1,])
+            if (poly.habitat)
+                pointstodrop <- (1:nrow(mask))[!pointsInPolygon(mask, xy)]
+            else
+                pointstodrop <- (1:nrow(mask))[pointsInPolygon(mask, xy)]
+        }
+        npts <- length(pointstodrop)
+        if (npts>0) {
+            points(mask[pointstodrop,], pch = 16, col = 'red')
+            if(.Platform$OS.type == "windows") {
+                pl <- if (npts>1) 's' else ''
+                msg <- paste ('Delete ', npts, ' red point',pl, '?', sep='')
+                response <-  utils::winDialog(type = "okcancel", msg)
+            } else {
+                response <- 'OK'
+            }
+            if (response == 'OK') {
+                mask <- subset(mask, -pointstodrop)
+                if (npts==1)
+                    message("1 point deleted")
+                else
+                    message(npts, " points deleted")
+            }
+            else
+                message ("point(s) not deleted")
+        }
+        else
+            message ("no points to delete")
+        plot(mask, col='green')
+        mask
+    }
+}
+
+#-------------------------------------------------------------------------------
+updateCH <- function(object) {
+    if (!inherits(object, 'capthist'))
+        stop ("requires capthist object")
+    if (ms(object)) {
+        out <- lapply(object, updateCH)
+        class (out) <- c("capthist", "list")
+        out
+    }
+    else {
+        if (length(dim(object)) == 3) {
+            return(object)
+        }
+        else {
+            K <- secr_ndetector(traps(object))
+            ch <- array(0, dim = c(dim(object), K), dimnames = 
+                            list(rownames(object), colnames(object), 1:K))
+            OK <- as.logical(object!=0)
+            animal <- row(object)[OK]
+            occ <- col(object)[OK] 
+            detn <- object[OK]
+            ch[cbind(animal, occ, detn)] <- 1
+            traps(ch) <- traps(object)
+            class (ch) <- "capthist"
+            session(ch) <- session(object)
+            ch
+        }
+    }
+}
+#-------------------------------------------------------------------------------

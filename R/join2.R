@@ -12,6 +12,34 @@
 ## 2021-05-27 fixed bug in join|onesession for nonspatial data
 #############################################################################
 
+addzerodf <- function (df, oldCH, sess) {
+    ## add dummy detection records to dataframe for 'all-zero' case
+    ## that arises in sighting-only mark-resight with known marks
+    allzero <- apply(oldCH,1,sum)==0
+    naz <- sum(allzero)
+    if (naz > 0) {
+        df0 <- expand.grid(
+            newID = rownames(oldCH)[allzero], 
+            newocc = NA,
+            newtrap = trap(oldCH)[1], 
+            alive = TRUE, 
+            sess = sess,
+            stringsAsFactors = FALSE)
+        df$x <- NULL; df$y <- NULL  ## 2021-04-08
+        df <- rbind(df,df0)
+        if (!is.null(xy(oldCH))) {
+            df$x <- c(xy(oldCH)$x, rep(NA, naz))
+            df$y <- c(xy(oldCH)$y, rep(NA, naz))
+        }
+        if (!is.null(signal(oldCH)))  {
+            df$signal <- c(signal(oldCH), rep(NA, naz))
+        }
+    }
+    df
+}
+
+#-------------------------------------------------------------------------------
+
 join <- function (object, remove.dupl.sites = TRUE, tol = 0.001,
                   sites.by.name = FALSE, drop.sites = FALSE, intervals = NULL, 
                   sessionlabels = NULL, timevaryingcov = NULL) {

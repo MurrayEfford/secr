@@ -139,7 +139,7 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
                     apply(Tval, 1, sum)
                 }
                 else {
-                    if (length(Tval) == ndetector(traps(capthist)))
+                    if (length(Tval) == secr_ndetector(traps(capthist)))
                         Tval
                     else
                         stop ("bydetector expects", T, "as a matrix or length-K vector,",
@@ -277,7 +277,7 @@ secr_prepareSessionData <- function (capthist, mask, maskusage,
         m    <- nrow(mask)
         traps   <- traps(capthist)
         dettype <- secr_detectorcode(traps, MLonly = TRUE, noccasions = s)
-        binomNcode <- secr_recodebinomN(dettype, details$binomN, telemcode(traps))
+        binomNcode <- secr_recodebinomN(dettype, details$binomN, secr_telemcode(traps))
         ## k-1 because we have zero-terminated these vectors
         k <- secr_getk(traps)
         K <- if (length(k)>1) length(k)-1 else k
@@ -301,7 +301,7 @@ secr_prepareSessionData <- function (capthist, mask, maskusage,
             usge <- matrix(1, nrow = K, ncol = s)
         }
         if (is.null(maskusage)) {
-            maskusage <- maskboolean(capthist, mask, details$maxdistance)
+            maskusage <- secr_maskboolean(capthist, mask, details$maxdistance)
         }
         else {
             if (!is.matrix(maskusage) || nrow(maskusage) != nrow(capthist) || ncol(maskusage) != nrow(mask))

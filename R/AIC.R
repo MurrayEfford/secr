@@ -17,7 +17,7 @@ oneline.secr <- function (secr, k, chat = NULL) {
     
     ## 2015-03-31, 2017-02-10, 2023-05-21
     if (is.null(chat)) chat <- 1.0
-    Npar <- nparameters(secr)   ## see utility.R
+    Npar <- secr_nparameters(secr)   ## see utility.R
     nLL <- secr$fit$value
     AICval <- 2*nLL/chat + k *Npar
     AICcval <- ifelse ((n - Npar - 1)>0,

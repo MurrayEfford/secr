@@ -165,7 +165,7 @@ esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL,
           else {
               CH0 <- secr_nullCH (c(n,s,K), object$design0$individual)
           }
-          binomNcode <- secr_recodebinomN(dettype, binomN, telemcode(trps))
+          binomNcode <- secr_recodebinomN(dettype, binomN, secr_telemcode(trps))
           pmixn <- secr_getpmix (knownclass, PIA0, Xrealparval0)
           MRdata <- list(markocc = markocc, firstocc=rep(-1,nrow(CH0)))
           pID <- secr_getpID(PIA0, Xrealparval0, MRdata)

@@ -13,7 +13,7 @@
 ## 2010 12 19 more careful handling of detectpars
 ## 2011 01 24 debugged pdotpoly
 ## 2011 02 06 allow polygonX, transectX
-## 2011 06 13 moved spatialscale to utility.R
+## 2011 06 13 moved secr_spatialscale to utility.R
 ## 2012 12 24 binomN = 'usage'
 ## 2014-03-26 pdot.contour and buffer.contour extended to multi-session traps
 ## 2014-10-17 userdist fixes
@@ -70,7 +70,7 @@ pdot <- function (X, traps, detectfn = 0, detectpar = list(g0 = 0.2, sigma = 25,
 
     truncate <- ifelse(is.null(detectpar$truncate), 1e+10, detectpar$truncate)
 
-    ntraps <- ndetector(traps)
+    ntraps <- secr_ndetector(traps)
     usge <- usage(traps, noccasions)
     if (is.null(noccasions)) noccasions <- ncol(usge)
 
@@ -130,7 +130,8 @@ pdot <- function (X, traps, detectfn = 0, detectpar = list(g0 = 0.2, sigma = 25,
     else {
         # call with NULL NElist for now
         distmat2 <- secr_getuserdist (traps, X, userdist, sessnum = NA, 
-                                 NElist = NULL, density = NULL, miscparm)
+                                 NElist = NULL, density = NULL, 
+                                 miscparm = miscparm, detectfn = detectfn)
       #-------------------------------------------------------------
       pdotpointcpp(
         as.matrix(X),
@@ -185,7 +186,7 @@ pdotContour <- function (traps, border = NULL, nx = 64, detectfn = 0,
     }
     else {
         if (is.null(border))
-            border <- 5 * spatialscale(detectpar, detectfn)
+            border <- 5 * secr_spatialscale(detectpar, detectfn)
         tempmask <- make.mask (traps, border, nx = nx, type = 'traprect')
         xlevels <- unique(tempmask$x)
         ylevels <- unique(tempmask$y)

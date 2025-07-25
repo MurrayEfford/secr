@@ -192,7 +192,7 @@ modelAverage.secrlist <- function (object, ..., realnames = NULL, betanames = NU
                     Dfn         = attr(object1$designD, 'Dfn')
                 )
             }
-            if (any(unlist(nclusters(object1$capthist))>1))
+            if (any(unlist(secr_nclusters(object1$capthist))>1))
                 warning("model.average is ignoring n.mashed", call. = FALSE)
             sapply (names(object1$model), getfield, simplify = FALSE)
         }
