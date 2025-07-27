@@ -35,6 +35,7 @@ kgradient <- function (object, individuals, sessnum, ...)
 }
 #-------------------------------------------------------------------------------
 
+# exported
 derivedDcoef <- function (object, sessnum = 1, groups = NULL, se = FALSE) {
     if (is.null(object$model$D) || is.null(object$link$D) || !object$CL) {
         warning ("not relative density model")
@@ -191,15 +192,11 @@ sharedData <- function (object, i, sessnum, X, ncores, naive = FALSE) {
     piX[is.na(piX)] <- 0
     #----------------------------------------
     
-    ## TO BE FIXED
-    
-    # NE <- secr_getD (object$designNE, beta, object$mask, object$parindx, object$link, object$fixed,
-    #             levels(data$grp[[1]]), sessionlevels, parameter = 'noneuc')
-    # NEX <- secr_getD (object$designNE, beta, X, object$parindx, object$link, object$fixed,
-    #             levels(data$grp[[1]]), sessionlevels, parameter = 'noneuc')
-    # 
-    NE <- NULL
+    ## Non-Euclidean distance parameters
+    ## not group-specific (at least for now)
+    NElist <- secr_makeNElist(object, data$mask, group = NULL, sessnum)
     #---------------------------------------------------
+
     ## allow for scaling of detection
     Dtemp <- if (D.modelled) mean(D) else NA
     if (naive) {
@@ -224,7 +221,7 @@ sharedData <- function (object, i, sessnum, X, ncores, naive = FALSE) {
                                  object$parindx, object$details$cutval)
     
     gkhk <- secr_makegk (data$dettype, object$detectfn, data$traps, data$mask, object$details, sessnum, 
-                         NE, D, miscparm, Xrealparval, grain, ncores)
+                         NElist, D, miscparm, Xrealparval, grain, ncores)
     haztemp <- secr_gethazard (data$m, data$binomNcode, nrow(Xrealparval), gkhk$hk, PIA, data$usge)
     
     # return a list
@@ -270,6 +267,8 @@ pxi <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL, ...) {
 }
 #-------------------------------------------------------------------------------
 
+# exported
+# density only: no equivalent of noneuc etc. for 'relativeD' 
 derivedDsurface <- function (object, mask = NULL, sessnum = NULL, groups = NULL) {
     Dx <- function(object, mask, sessnum, selection) {
         D <- secr_predictD(object, mask, group = NULL, session = sessnum, parameter = 'D')
