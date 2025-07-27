@@ -1420,7 +1420,7 @@ secr_sigmaxydistfn <- function (xy1, xy2, mask) {
 }
 #-------------------------------------------------------------------------------
 
-secr_Dsigxydistfn <- function (xy1, xy2, mask) {
+secr_Dsigmakxydistfn <- function (xy1, xy2, mask) {
     if (missing(xy1)) return(c("D", "sigmakxy"))
     D   <- covariates(mask)$D   # D(x,y) at mask points
     sigk <- covariates(mask)$sigmakxy   # sigma(x,y) at mask points

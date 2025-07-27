@@ -220,6 +220,18 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
         }
         #########################################
 
+        ## set base to zero for spatial parameters sigmaxy etc.
+        ## for tidiness only (secr.fit automatically fixes base betas to zero)
+        for ( j in names(parindx) ) {
+            newxy <- c('sigmaxy','lambda0xy','sigmakxy','a0xy')
+            if (j %in% newxy) {
+                base <- c('sigma','lambda0','sigma','lambda0')
+                base <- base[match (j, newxy)]
+                start[parindx[[base]][1]] <- 0
+            }
+        }
+        #########################################
+        
         if ((details$nmix>1) && !('pmix' %in% names(fixed)) && !('pmix' %in% startnames))
             start[parindx[['pmix']][1]] <- clean.mlogit((1:details$nmix)-0.5)[2]
         
@@ -236,3 +248,4 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
     }
     start
 }
+

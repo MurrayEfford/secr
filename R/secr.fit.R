@@ -451,7 +451,7 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
                       paste(OKdetectfn, collapse=', '))
             }
             if (all(c('D', 'sigmakxy') %in% names(model)))
-                details$userdist <- secr_Dsigxydistfn   # D, sigmakxy
+                details$userdist <- secr_Dsigmakxydistfn   # D, sigmakxy
             else
                 stop("sigmakxy requires D and sigmakxy")
         }
