@@ -97,8 +97,8 @@
 
 ## 2025-07-22
 
-.localstuff$spatialparameters <- c('noneuc','sigmaxy','lambda0xy','a0xy')
-.localstuff$spatialparametersD <- c('D','noneuc','sigmaxy','lambda0xy','a0xy')
+.localstuff$spatialparameters <- c('noneuc','sigmaxy','lambda0xy','a0xy','sigmakxy')
+.localstuff$spatialparametersD <- c('D','noneuc','sigmaxy','lambda0xy','a0xy','sigmakxy')
 #-------------------------------------------------------------------------------
 
 secr_detectionfunctionname <- function (fn) {
@@ -308,6 +308,7 @@ secr_valid.pnames <- function (details, CL, detectfn, alltelem, sighting, nmix) 
     }
     ## 'noneuc', 'sigmaxy', 'lambda0xy', 'a0xy' etc.
     for (parm in secr_getuserdistnames(details$userdist)) {
+        parm <- parm[parm != 'D']   # drop unwanted
         pnames <- c(pnames, parm)
     }
     if (sighting)
@@ -1157,9 +1158,55 @@ secr_mapbeta <- function (parindx0, parindx1, beta0, betaindex, default = 0)
             ## indx is within-parameter rather than absolute index
             ## for each _original_ real parameter
             indx <- lapply(parindx0, function(x) x-x[1]+1)
+            was <- function (parname) {
+                parname %in% names(beta0) && !parname %in% names(beta1) 
+            }
+            wasnt <- function (parname) {
+                !parname %in% names(beta0)
+            }
             for (j in names(beta1)) {
+                
+                # new = old
                 if (j %in% names(beta0)) {
                     beta1[[j]][indx[[j]]] <- beta0[parindx0[[j]]]
+                }
+                
+                # transfers between overlapping parameters 2025-07-27
+                
+                # xy > base
+                if (j == 'sigma' && was('sigmaxy')) {
+                    beta1[[j]][1] <- beta0[parindx0[['sigmaxy']][1]]
+                }
+                if (j == 'lambda0' && was ('lambda0xy')) {
+                    beta1[[j]][1] <- beta0[parindx0[['lambda0xy']][1]]
+                }
+                if (j == 'sigma' && was('sigmakxy')) {
+                    beta1[[j]][1] <- beta0[parindx0[['sigmakxy']][1]] +
+                        log(100) - beta0[parindx0[['D']][1]] / 2
+                }
+                if (j == 'lambda0' && was ('a0xy')) {
+                    beta1[[j]][1] <- beta0[parindx0[['a0xy']][1]] - 
+                        log(2*pi) - 2 * beta0[parindx0[['sigma']][1]]
+                }
+                
+                # base > xy
+                if (j == 'sigmaxy' && wasnt('sigmaxy')) {
+                    beta1[[j]][1] <- beta0[parindx0[['sigma']][1]]
+                    beta1[['sigma']] <- 0
+                }
+                if (j == 'lambda0xy' && wasnt ('lambda0xy')) {
+                    beta1[[j]][1] <- beta0[parindx0[['lambda0']][1]]
+                    beta1[['lambda0']] <- 0
+                }
+                if (j == 'sigmakxy' && wasnt('sigmakxy')) {
+                    beta1[[j]][1] <- beta0[parindx0[['sigma']][1]] -
+                        log(100) + beta0[parindx0[['D']][1]] / 2
+                    beta1[['sigma']] <- 0
+                }
+                if (j == 'a0xy' && wasnt('a0xy')) {
+                    beta1[[j]][1] <- beta0[parindx0[['lambda0']][1]] +
+                        log(2*pi) + 2 * beta0[parindx0[['sigma']][1]]
+                    beta1[['lambda0']] <- 0
                 }
             }
             unlist(beta1)
@@ -1373,6 +1420,17 @@ secr_sigmaxydistfn <- function (xy1, xy2, mask) {
 }
 #-------------------------------------------------------------------------------
 
+secr_Dsigxydistfn <- function (xy1, xy2, mask) {
+    if (missing(xy1)) return(c("D", "sigmakxy"))
+    D   <- covariates(mask)$D   # D(x,y) at mask points
+    sigk <- covariates(mask)$sigmakxy   # sigma(x,y) at mask points
+    sig <- 100 * sigk / sqrt(D)
+    sig <- matrix(sig, byrow = TRUE, nrow = nrow(xy1), ncol = nrow(xy2))
+    euc <- edist(xy1, xy2) 
+    euc / sig
+}
+#-------------------------------------------------------------------------------
+
 # speculative alternative for full spatial model of lambda0 
 secr_siglamxydistfn <- function (xy1, xy2, mask) {
     if (missing(xy1)) return(c("sigmaxy","lambda0xy"))
@@ -1427,7 +1485,7 @@ secr_setfixedbeta <- function (fb, parindx, link, CL) {
             warning ("overriding provided fixedbeta[1] for D")
         fb[parindx$D[1]] <- if (link$D == 'log') 0 else 1
     }
-    if (!is.null(parindx$sigmaxy)) {
+    if (!is.null(parindx$sigmaxy) || !is.null(parindx$sigmakxy)) {
         if (!(link$sigma %in% c('log')))
             warning ("sigma link should be log")
         fb[parindx$sigma[1]] <- 0

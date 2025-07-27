@@ -418,7 +418,7 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     # Spatially varying sigma check (sigmaxy)
     #################################################
     
-    if (any(c('sigmaxy','lambda0xy','a0xy') %in% names(model))) {
+    if (any(c('sigmaxy','lambda0xy','a0xy','sigmakxy') %in% names(model))) {
         if ('lambda0xy' %in% names(model)) {
             OKdetectfn <- c(14,16)
             OKnames <- .localstuff$DFN[OKdetectfn+1]
@@ -442,6 +442,18 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
                 details$userdist <- secr_siga0xydistfn   # sigmaxy, a0xy
             else
                 stop("a0xy requires sigmaxy")
+        }
+        else if ('sigmakxy' %in% names(model)) {
+            OKdetectfn <- c(0,1,2,14,15,16,19)
+            OKnames <- .localstuff$DFN[OKdetectfn+1]
+            if (!(detectfn %in% OKdetectfn)) {
+                stop ("sigmakxy only works with detectfn ", 
+                      paste(OKdetectfn, collapse=', '))
+            }
+            if (all(c('D', 'sigmakxy') %in% names(model)))
+                details$userdist <- secr_Dsigxydistfn   # D, sigmakxy
+            else
+                stop("sigmakxy requires D and sigmakxy")
         }
         else {
             OKdetectfn <- c(0,1,2,14,15,16,19)
@@ -535,7 +547,7 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     defaultmodel <- list(D=~1, g0=~1, lambda0=~1,  esa=~1, a0=~1,
                          sigma=~1, sigmak=~1, z=~1, w=~1, c=~1, d=~1,
                          noneuc=~1, sigmaxy=NULL, lambda0xy=NULL, a0xy=NULL,
-                         beta0=~1, beta1=~1,
+                         sigmakxy=NULL, beta0=~1, beta1=~1,
                          sdS=~1, b0=~1, b1=~1, pID=~1, pmix=~1)
     defaultmodel <- replace (defaultmodel, names(model), model)
     
@@ -626,7 +638,7 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
                         a0='log', sigma='log', sigmak='log', z='log',
                         w='log', c='identity', d='log', 
                         noneuc='log', sigmaxy='log', lambda0xy='log', a0xy='log',
-                        beta0='identity', beta1='neglog', sdS='log',
+                        sigmakxy='log', beta0='identity', beta1='neglog', sdS='log',
                         b0='log', b1='neglog',  pID='logit',
                         pmix='logit', cut='identity')
     
@@ -653,7 +665,7 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     ############################################
     D.modelled <- (!CL || details$relativeD) && is.null(fixed$D)
     smoothsetup <- list(D = NULL, noneuc = NULL, sigmaxy = NULL, 
-                        lambda0xy = NULL, a0xy = NULL)
+                        lambda0xy = NULL, a0xy = NULL, sigmakxy=NULL)
     grouplevels  <- secr_group.levels(capthist,groups)
     if (!D.modelled) {
         designD <- matrix(nrow = 0, ncol = 0)
@@ -883,7 +895,7 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
         # NULL condition when no density beta (relativeD with D~1)
         betanames <- c(paste('D', Dnames, sep='.'), betanames)
     }
-    ## coefficients for noneuc, sigmaxy, lambda0xy, a0xy follow all others 
+    ## coefficients for noneuc, sigmaxy, lambda0xy, a0xy, sigmakxy follow all others 
     ## (except model-specific in para below)
     if (any(NE.modelled)) {
         cols <- lapply(designNE, colnames)

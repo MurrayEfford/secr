@@ -34,7 +34,9 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
         oldbeta <- coef(start)$beta
         fb <- start$details$fixedbeta
         if (is.null(fb)) fb <- rep(NA, length(oldbeta))
-        names(fb)[is.na(fb)] <- start$betanames
+        # 2025-07-27
+        # names(fb)[is.na(fb)] <- start$betanames
+        names(fb) <- secr_fullbetanames(start)
         oldbeta <- secr_fullbeta(oldbeta, fb) # matches start$parindx
         if (!is.null(details) && !is.null(details$nsim) && details$nsim > 0) {
             start <- oldbeta    ## chat simulations
@@ -162,6 +164,7 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
             lambda0xy = -log(1-ifelse (is.na(start3$g0), 0.1, start3$g0)),
             a0xy    = ifelse (is.na(start3$g0), 0.1 * rpsv^2, start3$g0 *
                                   start3$sigma^2) / 10000 * 2 * pi,
+            sigmakxy = 1,
             beta0   = details$cutval + 30,
             beta1   = -0.2,
             sdS     = 2,
