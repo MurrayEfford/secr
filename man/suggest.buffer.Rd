@@ -14,6 +14,9 @@ constructed using \code{make.mask} with \code{type = "trapbuffer"}.  The
 method relies on an approximation to the bias of maximum likelihood
 density estimates (M. Efford unpubl).
 
+\code{bufferbiascheck} is the post hoc test implemented in 
+\code{\link{secr.fit}} when 'biasLimit' is not NA.
+
 }
 
 \usage{
@@ -23,6 +26,8 @@ suggest.buffer(object, detectfn = NULL, detectpar = NULL,
 
 bias.D (buffer, traps, detectfn, detectpar, noccasions, binomN = NULL,
     control = NULL)
+
+bufferbiascheck(object, buffer, biasLimit)
 
 }
 
@@ -45,6 +50,8 @@ bias.D (buffer, traps, detectfn, detectpar, noccasions, binomN = NULL,
   \item{buffer}{ vector of buffer widths }
   \item{traps}{ `traps' object }
   \item{control}{ list of mostly obscure numerical settings (see Details) }
+  \item{biasLimit}{ numeric threshold for predicted relative bias due to
+  buffer being too small }
 }
 \details{
 
@@ -95,6 +102,8 @@ too small.
   (approximate bias of density estimate using finite buffer width,
   relative to estimate with infinite buffer).
   
+  \code{bufferbiascheck} returns a logical value, FALSE if the predicted bias 
+  exceeds biasLimit.
 }
 
 \note{

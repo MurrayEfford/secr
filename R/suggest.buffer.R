@@ -312,16 +312,16 @@ suggest.buffer <- function (object, detectfn = NULL, detectpar = NULL, noccasion
     }
 }
 
-bufferbiascheck <- function (output, buffer, biasLimit) {
+bufferbiascheck <- function (object, buffer, biasLimit) {
     ############################################
     ## buffer bias check
     ## not for polygon & transect detectors
     ############################################
-    capthist <- output$capthist
+    capthist <- object$capthist
     validbiasLimit <- !is.null(biasLimit)
     validbiasLimit <- validbiasLimit & is.finite(biasLimit)
     validbiasLimit <- validbiasLimit & (biasLimit>0)
-    if ((output$fit$value < 1e9) &
+    if ((object$fit$value < 1e9) &
         (all(detector(traps(capthist)) %in% .localstuff$pointdetectors)) &
         !any(detector(traps(capthist)) %in% c('unmarked','presence')) &
         is.null(telemetryxy(capthist)) &
@@ -331,14 +331,14 @@ bufferbiascheck <- function (output, buffer, biasLimit) {
             bias <- numeric(nsess)
             for (i in 1:nsess) {
                 temptrps <- traps(capthist)[[i]]
-                if (output$details$ignoreusage)
+                if (object$details$ignoreusage)
                     usage(temptrps) <- NULL
-                dpar <-  detectpar(output)[[i]]
+                dpar <-  detectpar(object)[[i]]
                 biastemp <- try( bias.D(buffer, temptrps,
-                                        detectfn = output$detectfn,
+                                        detectfn = object$detectfn,
                                         detectpar = dpar,
                                         noccasions = ncol(capthist[[i]]),
-                                        binomN = output$details$binomN) )
+                                        binomN = object$details$binomN) )
                 if (inherits(biastemp, 'try-error'))
                     warning('could not perform bias check', call. = FALSE)
                 else
@@ -347,14 +347,14 @@ bufferbiascheck <- function (output, buffer, biasLimit) {
         }
         else {
             temptrps <- traps(capthist)
-            if (output$details$ignoreusage)
+            if (object$details$ignoreusage)
                 usage(temptrps) <- NULL
-            dpar <-  detectpar(output)
+            dpar <-  detectpar(object)
             bias <- try( bias.D(buffer, temptrps,
-                                detectfn = output$detectfn,
+                                detectfn = object$detectfn,
                                 detectpar = dpar,
                                 noccasions = ncol(capthist),
-                                binomN = output$details$binomN) )
+                                binomN = object$details$binomN) )
             if (inherits(bias, 'try-error')) {
                 warning('could not perform bias check', call. = FALSE)
                 bias <- 0  ## suppresses second message

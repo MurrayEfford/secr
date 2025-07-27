@@ -548,6 +548,7 @@ S3method(makeNewData, default) # makeNewData.Rd
 S3method(makeNewData, secr)    # makeNewData.Rd
 
 export (bias.D)                # suggest.buffer.Rd    
+export (bufferbiascheck)       # suggest.buffer.Rd    
 
 export (boundarytoSF)          # internal.Rd
 export (Dfn2)                  # internal.Rd
