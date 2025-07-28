@@ -39,7 +39,7 @@ collate.ipsecr <- function (object, ...,
     allargs <- list(...)
     modelnames <- (c ( as.character(match.call(expand.dots=FALSE)$object),
                        as.character(match.call(expand.dots=FALSE)$...) ))
-    class(object) <- 'secr'
+    # class(object) <- 'secr' not helpful 2025-07-29
     allargs <- secrlist(object, allargs)
     names(allargs) <- modelnames
     collate(allargs, realnames = realnames, betanames = betanames, 
