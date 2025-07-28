@@ -1435,7 +1435,7 @@ secr_Dsigmakxya0xydistfn <- function (xy1, xy2, mask) {
     if (missing(xy1)) return(c("D", "sigmakxy","a0xy"))
     D   <- covariates(mask)$D   # D(x,y) at mask points
     sigk <- covariates(mask)$sigmakxy   # sigma(x,y) at mask points
-    a0 <- covariates(mask)$a0xy       # a0(x,y) at mask points
+    a0 <- covariates(mask)$a0xy * 10000 # a0(x,y) at mask points, sq. m
     sig <- 100 * sigk / sqrt(D)
     sig <- matrix(sig, byrow = TRUE, nrow = nrow(xy1), ncol = nrow(xy2))
     a0 <- matrix(a0, byrow = TRUE, nrow = nrow(xy1), ncol = nrow(xy2))
@@ -1473,7 +1473,7 @@ secr_siga0xydistfn <- function (xy1, xy2, mask) {
     if (missing(xy1)) return(c("sigmaxy","a0xy"))
     sig <- covariates(mask)$sigmaxy   # sigma(x,y) at mask points
     sig <- matrix(sig, byrow = TRUE, nrow = nrow(xy1), ncol = nrow(xy2))
-    a0 <- covariates(mask)$a0xy       # a0(x,y) at mask points
+    a0 <- covariates(mask)$a0xy * 10000      # a0(x,y) at mask points, sq. m
     a0 <- matrix(a0, byrow = TRUE, nrow = nrow(xy1), ncol = nrow(xy2))
     euc <- edist(xy1, xy2) 
     detectfn <- attr(mask, 'detectfn')
