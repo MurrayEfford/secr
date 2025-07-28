@@ -431,18 +431,6 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
             else
                 details$userdist <- secr_lambda0xydistfn  # lambda0xy only
         }
-        else if ('a0xy' %in% names(model)) {
-            OKdetectfn <- c(14,16)
-            OKnames <- .localstuff$DFN[OKdetectfn+1]
-            if (!(detectfn %in% OKdetectfn)) {
-                stop ("a0xy only works with detectfn ", 
-                      paste(OKdetectfn, collapse=', '))
-            }
-            if ('sigmaxy' %in% names(model))
-                details$userdist <- secr_siga0xydistfn   # sigmaxy, a0xy
-            else
-                stop("a0xy requires sigmaxy")
-        }
         else if ('sigmakxy' %in% names(model)) {
             OKdetectfn <- c(0,1,2,14,15,16,19)
             OKnames <- .localstuff$DFN[OKdetectfn+1]
@@ -450,10 +438,27 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
                 stop ("sigmakxy only works with detectfn ", 
                       paste(OKdetectfn, collapse=', '))
             }
-            if (all(c('D', 'sigmakxy') %in% names(model)))
-                details$userdist <- secr_Dsigmakxydistfn   # D, sigmakxy
+            if (all(c('D', 'sigmakxy') %in% names(model))) {
+                if ('a0xy' %in% names(model))
+                    details$userdist <- secr_Dsigmakxya0xydistfn   # D, sigmakxy, a0xy
+                else
+                    details$userdist <- secr_Dsigmakxydistfn   # D, sigmakxy
+            }
             else
                 stop("sigmakxy requires D and sigmakxy")
+        }
+        else if ('a0xy' %in% names(model)) {
+            OKdetectfn <- c(14,16)
+            OKnames <- .localstuff$DFN[OKdetectfn+1]
+            if (!(detectfn %in% OKdetectfn)) {
+                stop ("a0xy only works with detectfn ", 
+                      paste(OKdetectfn, collapse=', '))
+            }
+            if ('sigmaxy' %in% names(model)) {
+                details$userdist <- secr_siga0xydistfn   # sigmaxy, a0xy
+            }
+            else
+                stop("a0xy requires sigmaxy or sigmakxy")
         }
         else {
             OKdetectfn <- c(0,1,2,14,15,16,19)
