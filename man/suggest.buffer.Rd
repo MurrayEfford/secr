@@ -1,6 +1,7 @@
 \name{suggest.buffer}
 \alias{suggest.buffer}
 \alias{bias.D}
+\alias{bufferbiascheck}
 
 \title{
 Mask Buffer Width
