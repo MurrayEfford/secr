@@ -102,7 +102,7 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
     nsession <- length(sessionlevels)
     sessmask <- object$mask
     if (!ms(sessmask)) sessmask <- list(sessmask)  ## always a list
-    grplevels <- secr_group.levels(object$capthist, object$groups, sep=".")
+    grouplevels <- secr_group.levels(object$capthist, object$groups, sep=".")
     beta <- secr_complete.beta(object) # object$fit$par
     userd <- !is.null(object$details$userdist) && is.function(object$details$userdist)
     ncores <- setNumThreads()
@@ -200,7 +200,7 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
     if (!object$CL ) {
         D <- secr_getD (object$designD, beta, sessmask, 
                                object$parindx, object$link, object$fixed,
-                               grplevels, sessionlevels, 
+                               grouplevels, sessionlevels, 
                                parameter = 'D')
         
         D2 <- array(dim = c(max(sapply(popnlist,nrow)), 1, length(popnlist)))
@@ -213,7 +213,7 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
     # 
     # NE <- secr_getD (object$designNE, beta, sessmask, 
     #             object$parindx, object$link, object$fixed,
-    #             grplevels, sessionlevels, 
+    #             grouplevels, sessionlevels, 
     #             parameter = NEname)
     # if (!is.null(NE)) {
     #     NE2 <- array(dim = c(max(sapply(popnlist,nrow)), 1, length(popnlist)))
@@ -224,7 +224,7 @@ sim.detect <- function (object, popnlist, maxperpoly = 100, renumber = TRUE,
     
     NElist <- mapply(secr_getD, object$designNE, parameter = names(object$designNE),
                      MoreArgs = list(beta, sessmask, object$parindx, object$link, 
-                                     object$fixed, grplevels, sessionlevels), 
+                                     object$fixed, grouplevels, sessionlevels), 
                      SIMPLIFY = FALSE)
     NElist2 <- NElist
     for (i in names(NElist)) {
