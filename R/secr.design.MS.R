@@ -52,7 +52,6 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
 ## groups is a vector of factor names whose intersection defines group
 ## groups only defined for CL = FALSE  
 ## use of 'g' requires valid groups definition
-## grouping variables are also added individually to dframe
 
     #--------------------------------------------------------------------------------
     findvars.MS <- function (cov, vars, dimcov) {
@@ -171,13 +170,11 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
     }
     #--------------------------------------------------------------------------------
 
-    for (nonp in .localstuff$spatialparametersD) {
-        models[[nonp]] <- NULL                     # drop non-detection models
-    }
-    npar     <- length(models)                     # real parameters
-    grouplevels  <- secr_group.levels(capthist,groups)
-    ngrp    <- max(1,length(grouplevels))
-
+    # drop non-detection models
+    for (nonp in .localstuff$spatialparametersD) models[[nonp]] <- NULL                     
+    
+    npar     <- length(models)                                   # real parameters
+    
     ## 'session-specific' list if MS
     MS   <- ms(capthist) # logical for multi-session
     sessionlevels <- session(capthist)
@@ -187,7 +184,7 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
         R <- length(capthist)
         n <- max(sapply(capthist, nrow))                         # max over sessions
         S <- max(sapply(capthist, ncol))                         # max over sessions
-        K <- max(sapply(traps(capthist), secr_ndetector))             # max over sessions
+        K <- max(sapply(traps(capthist), secr_ndetector))        # max over sessions
     }
     else {
         R <- 1
@@ -206,9 +203,9 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
         return(list(designMatrices = NULL, parameterTable = NULL, PIA = constantPIA, R = R))
     }
 
-    parnames <- names(models)                 # typically c('g0', 'sigma', 'z')
+    parnames <- names(models)                  # typically c('g0', 'sigma', 'z')
     vars     <- unique (unlist(sapply (models, all.vars)))
-    vars     <- vars[!(vars %in% groups)]     # groups treated separately
+    vars     <- vars[!(vars %in% groups)]      # groups treated separately
     nmix     <- secr_get.nmix(models, capthist, hcov)
     trps    <- traps(capthist)                 # session-specific trap array
     used    <- usage(trps)                     # session-specific usage
@@ -217,7 +214,7 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
     trapcov <- covariates(trps)                # session-specific trap covariates
 
     if (('g' %in% vars) & is.null(groups))
-        stop ("requires valid 'groups' covariate")
+        stop ("requires valid 'groups' covariates")
 
     #--------------------------------------------------------------------------
     # timecov may be a vector or a dataframe or a list of vectors or a list of data frames
@@ -325,27 +322,13 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
 
         ################
         # add g factor
+        # levels determined by unsorted interaction(groups, drop=TRUE)
 
-        gvar <- secr_group.factor(capthist, groups)          # list if MS
-        if (MS) gvar <- lapply(gvar, secr_pad1, n)           # constant length
-        # by animal within session
-        dframe$g <- insertdim ( unlist(gvar), c(2,1), dims)  ## unlist works on factors, too
+        grp <- secr_group.factor(capthist, groups)         # list if MS
+        if (MS) grp <- lapply(grp, secr_pad1, n)           # constant length
+        grp <- unlist(grp)
+        dframe$g <- insertdim (grp, c(2,1), dims)   ## unlist works on factors, too
 
-        #################################
-        # also add separate group factors
-
-        # Get group membership from covariates(capthist) for each session,
-        # and pad to max(n) if needed
-
-        for (i in groups) {
-            if (MS) {
-                grouping <- lapply(zcov, function(x) x[,i])
-                grouping <- unlist(lapply(grouping, secr_pad1, n))
-            }
-            else grouping <- zcov[,i]
-            ## 2011-11-28 these insertdim seem to do nothing - should assign to dframe column
-            insertdim(grouping, c(2,1), dims)
-        }
     }
     #--------------------------------------------------------------------------
 
