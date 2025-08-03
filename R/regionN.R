@@ -196,6 +196,7 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
         cellsize <- secr_getcellsize(regionmask)    ## bug fixed 2022-10-08
         regionsize <- nrow(regionmask) * cellsize
 
+        # number in group
         ngrp <- function(x) sum(secr_getgrpnum(x, object$groups) == group)
         if (ms(object)) {
             if (pooled.RN)
@@ -359,7 +360,6 @@ sumDpdot <- function (object, sessnum = 1, mask, D, NElist, cellsize, constant =
     dettype <- secr_detectorcode(trps, noccasions = s)
     nmix    <- if (is.null(object$details$nmix)) 1 else object$details$nmix
     knownclass <- secr_getknownclass(capthists, nmix, object$hcov)
-    groups <- object$groups  
     markocc <- markocc(traps(capthists))
     if (is.null(markocc)) markocc <- rep(1,s)
     MRdata <- list(markocc = markocc, firstocc = -1)
