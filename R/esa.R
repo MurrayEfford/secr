@@ -118,7 +118,11 @@ esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL,
                 ## should be constant over sessions
                 PIA0 <- object$design0$PIA[sessnum,,1:s,1:K,,drop = FALSE]
                 ## fill array with PI appropriate to grouping of i-th animal
-                PIA0 <- PIA0[1, secr_group.factor(capthists, object$groups),,,,drop = FALSE]
+                # browser()
+                # # grp for each individual as in preparedata
+                # grp  <- secr_group.factor (capthists, object$groups)
+                # grp  <- factor(grp, levels = unique(grp))
+                # PIA0 <- PIA0[1, as.integer(grp),,,,drop = FALSE]
             }
 
             realparval0 <- secr_makerealparameters (object$design0, beta,

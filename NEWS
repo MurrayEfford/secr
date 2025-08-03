@@ -1,4 +1,4 @@
-Changes in version 5.3.0 (2025-07-28)
+Changes in version 5.3.0 (2025-08-03)
 
 New features or changed behaviour of old functions
     o  t2r2() index of serial correlation
@@ -10,6 +10,10 @@ New features or changed behaviour of old functions
 Bugs fixed
     o  print method failed for Dsurface generated from 'nonueuc' parameter
     o  collate() failed for models fitted with fixed beta parameters
+    o  individual covariate 'g' formed automatically as the interaction of 
+       named covariates (the 'groups' argument of secr.fit) produced 
+       inconsistent results owing to the mis-assignment of factor levels. 
+       See GitHub Issue for more
 
 Other
     o  sim.secr() start argument now defaults to 'true'

@@ -636,7 +636,7 @@ secr_group.levels <- function (capthist, groups, sep='.') {
     # 2016-06-05 use also for trap strata
     if (inherits(capthist, 'list')) {
         temp <- lapply(capthist, secr_group.levels, groups, sep)
-        sort(unique(unlist(temp)))  ## vector of global levels
+        unique(unlist(temp))  ## vector of global levels
     }
     else {
         if (is.null(groups)) 0
@@ -645,10 +645,48 @@ secr_group.levels <- function (capthist, groups, sep='.') {
                 stop ("one or more grouping variables is missing ",
                       "from covariates")
             temp <- as.data.frame(covariates(capthist)[,groups])
-            # omit null combinations, sort as with default of factor levels
-            sort(levels(interaction(temp, drop=T, sep=sep)))
+            levels(interaction(temp, drop = TRUE, sep = sep, lex.order = FALSE))
         }
     }
+}
+#-------------------------------------------------------------------------------
+
+secr_group.factor <- function (capthist, groups, sep='.')
+    ## convert a set of grouping factors to a single factor (g)
+    ## levels common to all sessions
+{
+    if (inherits(capthist, 'list')) {
+        temp <- lapply(capthist, secr_group.factor, groups, sep = sep, 
+                       lex.order = lex.order)  ## recursive call
+        grouplevels <- secr_group.levels(capthist, groups)
+        if (length(grouplevels)<2)
+            temp
+        else
+            # list; force shared factor levels on each component
+            lapply (temp, factor, levels = grouplevels)
+    }
+    else {
+        if (is.null(groups) | (length(groups)==0) ) {
+            return (factor(rep(1, nrow(capthist)), levels = 1))  
+        }
+        temp <- as.data.frame(covariates(capthist)[,groups])
+        if (ncol(temp) != length(groups)) {
+            stop ("one or more grouping variables is missing from ",
+                  "covariates(capthist)")
+        }
+        temp <- interaction(temp, drop = TRUE, sep = sep, lex.order = FALSE) 
+        temp
+    }
+}
+
+#-------------------------------------------------------------------------------
+
+secr_getgrpnum <- function (capthist, groups) {
+    # vector of group factor values for individuals in single-session capthist
+    if (is.null(groups))
+        rep(1, nrow(capthist))
+    else
+        match(secr_group.factor(capthist, groups), secr_group.levels(capthist, groups))
 }
 
 #-------------------------------------------------------------------------------
@@ -673,43 +711,6 @@ secr_h.levels <- function (capthist, hcov, nmix) {
 }
 
 #-------------------------------------------------------------------------------
-
-secr_group.factor <- function (capthist, groups, sep='.')
-    ## convert a set of grouping factors to a single factor (g)
-    ## levels common to all sessions
-{
-    if (inherits(capthist, 'list')) {
-        temp <- lapply(capthist, secr_group.factor, groups)  ## recursive call
-        grouplevels <- secr_group.levels(capthist, groups)
-        if (length(grouplevels)<2)
-            temp
-        else
-            # list; force shared factor levels on each component
-            lapply (temp, factor, levels=grouplevels)
-    }
-    else {
-        if (is.null(groups) | (length(groups)==0) )
-            return (factor(rep(1, nrow(capthist)), levels = 1))  # added levels 2017-04-18
-        temp <- as.data.frame(covariates(capthist)[,groups])
-        if (ncol(temp) != length(groups))
-            stop ("one or more grouping variables is missing from ",
-                  "covariates(capthist)")
-        temp <- interaction(temp, drop=T, sep=sep)  # omit null combinations
-        temp
-    }
-}
-
-#-------------------------------------------------------------------------------
-
-secr_getgrpnum <- function (capthist, groups) {
-    if (is.null(groups))
-        rep(1, nrow(capthist))
-    else
-        match(secr_group.factor(capthist, groups), secr_group.levels(capthist, groups))
-}
-
-#-------------------------------------------------------------------------------
-
 
 ## Return an integer vector of class membership defined by a categorical
 ## individual covariate in a capthist object. Individuals of unknown

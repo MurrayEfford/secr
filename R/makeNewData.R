@@ -88,7 +88,9 @@ makeNewData.secr <- function (object, all.levels = FALSE, bytrap = FALSE, ...) {
             trps <- traps(capthist)
         
         basevars <- list(session = factor(sessions[session], levels=sessions))
-        if (ngrp>1) basevars$g <- factor(grouplevels)
+        # if (ngrp>1) basevars$g <- factor(grouplevels)
+        # 2025-08-03
+        if (ngrp>1) basevars$g <- factor(grouplevels, levels = grouplevels)
         if (nmix>1) basevars[mixvar] <- list(secr_h.levels(capthist, hcov, nmix))
         
         for (v in sessvars) {

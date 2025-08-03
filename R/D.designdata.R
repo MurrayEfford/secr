@@ -130,7 +130,9 @@ D.designdata <- function (mask, Dmodel, grouplevels, sessionlevels, sessioncov =
     if ('g' %in% vars) {
         if (length(grouplevels)<1)
             stop ("no groups specified")
-        dframe$g <- insertdim(factor(grouplevels), 2, dims)
+        # dframe$g <- insertdim(factor(grouplevels), 2, dims)
+        # 2025-08-03
+        dframe$g <- insertdim(factor(grouplevels, levels = grouplevels), 2, dims)
     }
     #--------------------------------------------------------------------------
     ## sessions

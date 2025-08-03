@@ -44,7 +44,8 @@ secr.fit (capthist, model = list(D~1, g0~1, sigma~1), mask = NULL, buffer = NULL
   \item{sessioncov}{ optional dataframe of values of session-specific covariate(s). }
   \item{hcov}{ character name of individual covariate for known
   membership of mixture classes. }
-  \item{groups}{ optional vector of one or more variables with which to form groups. Each element should be the name of a factor variable in the \code{covariates} attribute of \code{capthist}. }
+  \item{groups}{ optional vector of one or more variables with which to form groups. 
+  Each element should be the name of a factor variable in the \code{covariates} attribute of \code{capthist}. See Note.}
   \item{dframe}{ optional data frame of design data for detection parameters }
   \item{details}{ list of additional settings, mostly model-specific (see Details) }
   \item{method}{ character string giving method for maximizing log likelihood }
@@ -320,6 +321,9 @@ or to infer N for a different region.
 Prior to version 2.3.2 the buffer bias check could be switched off by
 setting \code{verify = FALSE}. This is now done by setting
 \code{biasLimit = 0} or \code{biasLimit = NA} .
+
+Groups defined by the `interaction' of multiple individual covariates gave 
+unreliable results before version 5.3.0. See GitHub Issue.
 
 }
 
