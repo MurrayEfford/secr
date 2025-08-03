@@ -323,7 +323,7 @@ setting \code{verify = FALSE}. This is now done by setting
 \code{biasLimit = 0} or \code{biasLimit = NA} .
 
 Groups defined by the `interaction' of multiple individual covariates gave 
-unreliable results before version 5.3.0. See GitHub Issue.
+unreliable results before version 5.3.0. See https://github.com/MurrayEfford/secr/issues/9.
 
 }
 
