@@ -46,7 +46,11 @@ logLik.secr <- function(object, ...) {
 AIC.secr <- function (object, ..., sort = TRUE, k = 2, dmax = 10, 
                       criterion = c('AIC','AICc'), chat = NULL) {
     allargs <- list(...)
-    modelnames <- (c ( as.character(match.call(expand.dots=FALSE)$object),
+    objectname <- as.character(match.call(expand.dots=FALSE)$object)
+    ## 2025-08-04
+    if (objectname[1] == '[[') objectname <- paste0(objectname[2], '[[',
+                                                    objectname[3],']]')
+    modelnames <- (c ( objectname,
                        as.character(match.call(expand.dots=FALSE)$...) ))
     allargs <- secrlist(object, allargs)
     names(allargs) <- modelnames
