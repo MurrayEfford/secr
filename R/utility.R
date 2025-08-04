@@ -651,13 +651,12 @@ secr_group.levels <- function (capthist, groups, sep='.') {
 }
 #-------------------------------------------------------------------------------
 
-secr_group.factor <- function (capthist, groups, sep='.')
+secr_group.factor <- function (capthist, groups)
     ## convert a set of grouping factors to a single factor (g)
     ## levels common to all sessions
 {
     if (inherits(capthist, 'list')) {
-        temp <- lapply(capthist, secr_group.factor, groups, sep = sep, 
-                       lex.order = lex.order)  ## recursive call
+        temp <- lapply(capthist, secr_group.factor, groups)  ## recursive call
         grouplevels <- secr_group.levels(capthist, groups)
         if (length(grouplevels)<2)
             temp
@@ -674,7 +673,7 @@ secr_group.factor <- function (capthist, groups, sep='.')
             stop ("one or more grouping variables is missing from ",
                   "covariates(capthist)")
         }
-        temp <- interaction(temp, drop = TRUE, sep = sep, lex.order = FALSE) 
+        temp <- interaction(temp, drop = TRUE, sep = '.', lex.order = FALSE) 
         temp
     }
 }
