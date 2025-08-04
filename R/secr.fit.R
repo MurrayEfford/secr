@@ -413,7 +413,6 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
         timevarying <- timevarying || any(names(timecov[[1]]) %in% allvars)
     }
     
-    
     #################################################
     # Spatially varying sigma check (sigmaxy)
     #################################################
@@ -617,6 +616,8 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     #################################################
     ## Specialisations
     #################################################
+    ## 2025-08-05 continue suppressing CL x g even tho' it works for detection;
+    ##            status with CL x D~g unresolved
     if (CL & !is.null(groups)) {
         groups <- NULL
         warning ("groups not valid with CL; groups ignored")
