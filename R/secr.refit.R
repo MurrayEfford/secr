@@ -63,10 +63,16 @@ secr.refit <- function (object, ...) {
     if (newstructure) {
         
         if(!is.null(object$details$relativeD) && object$details$relativeD) {
-            stop ("cannot change structure of relative density model in secr.refit")
+            if (!args$CL) {
+                # convert to full-likelihood form
+                der <- derivedDcoef(object, se = FALSE)
+                args$start <- der$beta
+                args$details$fixedbeta[1] <- NA
+                args$details$relativeD <- FALSE
+            }
+            else stop ("cannot change structure of relative density model in secr.refit")
         }
-            
-        if (inherits(object, 'secr')) {
+        else if (inherits(object, 'secr')) {
             # rely on makeStart() in secr.fit()
             args$start <- object
             warning("model structure has changed")
@@ -77,7 +83,7 @@ secr.refit <- function (object, ...) {
     }
     
     ## relativeD requires beta0 (overwritten later, but must be present in start vector)
-    if (!is.null(object$details$relativeD) && object$details$relativeD) {
+    if (args$CL && !is.null(object$details$relativeD) && object$details$relativeD) {
         args$start <- c(NA, args$start)
     }
     
