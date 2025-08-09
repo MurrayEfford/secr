@@ -5,101 +5,11 @@
 ## 2025-01-01 pxi forked from fxi.R
 ## 2025-01-03 derivedDbeta0 groups
 ## 2025-01-11 se.beta0
-## 2025-01-20 replaced derivedDbeta0 by derivedDcoef
+## 2025-08-08 derivedDcoef moved to derivedDcoef.R
 ## 2025-05-17 addCovariates from mask if needed
 ## 2025-07-26 pxi included here
 
 #############################################################################
-
-# session-specific
-
-#-------------------------------------------------------------------------------
-
-onek <- function (beta, object, individuals, sessnum)
-    ## object is a fitted secr object 
-    ## individuals is vector indexing the subset of animals to be used
-    # Return k-hat for given beta
-    # Only 1 session
-{
-    out <- sum(1 / esa (object, sessnum, beta, Dweight = TRUE)[individuals])
-    # cat('beta ', beta, ' out ', out, '\n')
-    out
-}
-#-------------------------------------------------------------------------------
-
-kgradient <- function (object, individuals, sessnum, ...)
-    ## object is a fitted secr object 
-    ## individuals is vector indexing the subset of a to be used
-{
-    nlme::fdHess(object$fit$par, onek, object, individuals, sessnum, ...)$gradient
-}
-#-------------------------------------------------------------------------------
-
-# exported
-derivedDcoef <- function (object, sessnum = 1, groups = NULL, se = FALSE) {
-    if (is.null(object$model$D) || is.null(object$link$D) || !object$CL) {
-        warning ("not relative density model")
-        return(NULL)
-    }
-    else {
-        capthist <- object$capthist
-        if (ms(capthist)) capthist <- capthist[[sessnum]]
-        grp <- secr_group.factor(capthist, groups)
-        individuals <- split (1:nrow(capthist), grp)
-        ngrp <- length(individuals)   ## number of groups
-        
-        se.derivedk <- function (selection, object, selected.a, sessnum) {
-            A <-  masksize(object$mask)
-            s2 <- switch (tolower(object$details$distribution),
-                          poisson  = sum (1/selected.a^2),
-                          binomial = sum (( 1 - selected.a / A) / selected.a^2))
-            kgrad  <- kgradient (object, selection, sessnum)
-            vark <- kgrad %*% object$beta.vcv %*% kgrad
-            sqrt(vark + s2)
-        }
-        
-        getcoef <- function (selection) {
-            selected.a <- esa (object, sessnum, Dweight = TRUE)[selection]
-            k <- sum(1 / selected.a)
-            if (se) {
-                warning ("derivedDcoef() underestimates se(beta0)", call. = FALSE)
-                se.k <- se.derivedk (selection, object, selected.a, sessnum)
-            }
-            else {
-                se.k <- NA
-            }
-            # return on link scale
-            beta0 <- transform(k, object$link$D)
-            se.beta0 <- se.transform(k, se.k, object$link$D)
-            oldcoef <- coef(object)
-            alpha <- attr(oldcoef, 'alpha')
-            z <- abs(qnorm(1 - alpha/2))
-            Dcoef <- c(beta0, se.beta0, beta0 - z * se.beta0, beta0 + z * se.beta0)
-            tmp <- rbind(D = Dcoef, oldcoef)
-            if (object$link$D == 'identity') {
-                tmp[grepl('D.', rownames(tmp)),] <- tmp[grepl('D.', rownames(tmp)),] * tmp[1,1]
-            }
-            tmp
-            
-        }
-        
-        # NB getcoef() gives same (estimate, SE.estimate) as derived(object, Dweight=T), 
-        # and takes about the same time
-        # May later switch to derived()
-        
-        if ( ngrp > 1) {
-            # multiple groups
-            lapply(individuals, getcoef)
-        }
-        else {    
-            # one group
-            getcoef(individuals[[1]])
-        }
-        
-        
-    }
-}
-#-------------------------------------------------------------------------------
 
 sharedData <- function (object, i, sessnum, X, ncores, naive = FALSE) {
     ## temporary fix for lack of fastproximity code
