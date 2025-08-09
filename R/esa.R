@@ -5,6 +5,7 @@
 ## 2022-01-22 fixed bug that ignored details$ignoreusage
 ## 2024-09-22 S3 method
 ## 2025-01-04 experimental includes density if model$D && Dweight
+## 2025-08-09 set beta when computing D
 ############################################################################################
 
 esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL, 
@@ -37,7 +38,7 @@ esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL,
         beta <- object$fit$par
     }
     
-    beta <- secr_fullbeta(beta, object$details$fixedbeta)
+    fullbeta <- secr_fullbeta(beta, object$details$fixedbeta)
     trps <- traps(capthists)  ## need session-specific traps
     if (!all(detector(trps) %in% .localstuff$individualdetectors))
         stop ("require individual detector type for esa")
@@ -76,7 +77,8 @@ esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL,
         D <- rep(1,m)
     }
     else {
-        D <- secr_predictD(object, object$mask, group = NULL, session = sessnum, 
+        if (!is.null(beta)) object$fit$par <- beta
+        D <- secr_predictD(object, mask, group = NULL, session = sessnum, 
                              parameter = 'D')
     }
     pi.density <- matrix(D/sum(D), ncol = 1)       # dim m x 1
@@ -89,7 +91,7 @@ esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL,
         if (is.null(beta))
             realparval0 <- detectpar(object)
         else {
-            realparval0 <- secr_makerealparameters (object$design0, beta,
+            realparval0 <- secr_makerealparameters (object$design0, fullbeta,
                 object$parindx, object$link, object$fixed)  # naive
             # realparval0 <- as.list(realparval0)
             # names(realparval0) <- secr_parnames(object$detectfn)
@@ -100,7 +102,7 @@ esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL,
         a <- cellsize * sum(pi.density * pdot(X = mask, traps = trps, detectfn = object$detectfn,
                              detectpar = realparval0, noccasions = noccasions, 
                              ncores = ncores))
-        return(rep(a,n))
+        out <- rep(a,n)
     }
     else {
         if (is.null(beta)) {
@@ -125,7 +127,7 @@ esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL,
                 # PIA0 <- PIA0[1, as.integer(grp),,,,drop = FALSE]
             }
 
-            realparval0 <- secr_makerealparameters (object$design0, beta,
+            realparval0 <- secr_makerealparameters (object$design0, fullbeta,
                 object$parindx, object$link, object$fixed)  # naive
 
         }
@@ -153,7 +155,7 @@ esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL,
 
         ## not if first detector type is telemetry
         if (dettype[1] %in% c(13)) {
-            return(NA)
+            out <- NA
         }
         else {
           # NE <- NULL   ## no NE covariates (yet)
@@ -179,6 +181,7 @@ esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL,
               gkhk = gkhk,
               pi.density = pi.density,
               PIA0 = PIA0,
+              ngroup = 1,
               CH0 = CH0,
               binomNcode = binomNcode,
               MRdata = MRdata,
@@ -188,9 +191,9 @@ esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL,
               pID = pID,
               grain = grain,
               ncores = ncores)
-          
-          pdot * cellsize * sum(D)
+          out <- pdot * cellsize * sum(D)
         }
     }
+    out
 }
 ############################################################################################
