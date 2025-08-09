@@ -495,6 +495,7 @@ sumDpdot <- function (object, sessnum = 1, mask, D, NElist, cellsize, constant =
                 # pi.density = matrix(1/m, nrow = m, ncol = 1), 
                 pi.density = D/sum(D), # bug fix 2024-12-15
                 PIA0 = PIA0, 
+                ngroup = 1,
                 CH0 = CH0, 
                 binomNcode = binomNcode, 
                 MRdata = MRdata,
@@ -505,7 +506,7 @@ sumDpdot <- function (object, sessnum = 1, mask, D, NElist, cellsize, constant =
                 grain = grain,
                 ncores = ncores)
             # else {
-            #     pd <- secr_integralprw1poly (detectfn, Xrealparval0, haztemp, gkhk$hk, gkhk$H, pi.density, PIA0, 
+            #     pd <- secr_integralprw1poly (detectfn, Xrealparval0, haztemp, gkhk$hk, gkhk$H, pi.density, PIA0, ngroup=1,
             #                             data$CH0, data$binomNcode, data$grp, data$usge, data$mask,
             #                             pmixn, data$maskusage, details$grain, details$minprob, debug = details$debug>3)
             # 
