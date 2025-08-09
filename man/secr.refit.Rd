@@ -37,6 +37,8 @@ The 'start' argument may not be overridden: it is set by \code{secr.refit} from 
 
 A third use of \code{secr.refit} is to vary the model structure. This requires that 'object' is a fitted model. A change in model structure is implied when the \dots argument replaces any of 'model', 'CL', 'detectfn', 'link', 'fixed', 'hcov', or 'groups'. New starting values are then determined in \code{secr.fit} by a call to \code{\link{makeStart}}, and may not precisely follow the previous fit.
 
+Also, \code{secr.refit} will compute a full model from a relative density model (i.e. estimate the intercept) - just set CL = FALSE. If method = "none" then new variances are computed using fdHess. Note this does \emph{not} work if the model includes individual covariates, which are prohibited in a full-likelihood model.
+
 }
 
 \value{
@@ -81,6 +83,14 @@ secr.refit('progress.RDS', details = list(saveprogress = FALSE))
 
 # cleanup
 unlink("progress.RDS")
+
+# Example using secr.refit() to complete a relative density model
+# fitCL <- secr.fit(OVpossumCH[[1]], buffer = 120, detectfn = 'HEX', 
+#    CL = TRUE, model = D~x+y)
+# fit <- secr.refit(fitCL, CL = FALSE, method = "none")    
+# coef(fitCL)    
+# coef(fit)
+# predict(fit)
 
 }
 
