@@ -187,7 +187,7 @@ fastsecrloglikfn <- function (
         }
         if (details$debug>2) browser()
         
-        comp <- matrix(0, nrow = 6, ncol = 1)
+        comp <- matrix(0, nrow = 6, ncol = 1)   # no groups
         
         #----------------------------------------------------------------------
         
@@ -201,10 +201,14 @@ fastsecrloglikfn <- function (
         
         #----------------------------------------------------------------------
         
+        N <- sum(density[,1]) * secr_getcellsize(data$mask)
+        ## 2022-01-05 catch nc = 0
+        meanpdot <- if (data$nc == 0) pdot else data$nc / sum(1/pdot)
+        
+        ## 2025-08-05
+        .localstuff$Eng[sessnum, 1] <- N * meanpdot      
+        
         if (!CL) {
-            N <- sum(density[,1]) * secr_getcellsize(data$mask)
-            ## 2022-01-05 catch nc = 0
-            meanpdot <- if (data$nc == 0) pdot else data$nc / sum(1/pdot)
             ## 2023-09-22
             if (data$n.distrib == 1 && .localstuff$iter == 0 && data$nc>N) {
                 warning("distribution = 'binomial' ",
@@ -271,13 +275,14 @@ fastsecrloglikfn <- function (
     
     #--------------------------------------------------------------------
     sessmask <- lapply(data, '[[', 'mask')
-    grplevels <- unique(unlist(lapply(data, function(x) levels(x$grp))))
+    grouplevels <- unique(unlist(lapply(data, function(x) levels(x$grp))))
+    ngroup <- length(grouplevels)
     #--------------------------------------------------------------------
     # Density
     D.modelled <- (!CL || details$relativeD) && is.null(fixed$D)
     if (D.modelled) {
         D <- secr_getD (designD, beta, sessmask, parindx, link, fixed,
-                   grplevels, sessionlevels, parameter = 'D')
+                   grouplevels, sessionlevels, parameter = 'D')
         if (!is.na(sumD <- sum(D)))
             if (sumD <= 0)
                 warning ("invalid density <= 0")
@@ -286,16 +291,29 @@ fastsecrloglikfn <- function (
     # Non-Euclidean distance parameters
     NElist <- mapply(secr_getD, designNE, parameter = names(designNE),
                  MoreArgs = list(beta, sessmask, parindx, link, fixed,
-                                 grplevels, sessionlevels), SIMPLIFY = FALSE)
+                                 grouplevels, sessionlevels), SIMPLIFY = FALSE)
     #--------------------------------------------------------------------
     # typical likelihood evaluation
     if (!is.null(details$saveprogress) && details$saveprogress>0 &&
         .localstuff$iter == 0) {
         secr_saveprogress(pbeta, NA, details$progressfilename)
     }
-    
+    .localstuff$Eng <- matrix(0, nrow = nsession, ncol = ngroup)
     loglik <- sum(mapply (sessionLL, data, 1:nsession))
-    .localstuff$iter <- .localstuff$iter + 1   ## moved outside loop 2011-09-28
+    #---------------------------------------------------------
+    ## 2025-08-05
+    ## relative density across sessions
+    if (details$relativeD) {
+        # assume no groups for now, only sessions
+        # add multinomial probability of session counts
+        # first column of Eng has (relative) expected count for group 1
+        loglik <- loglik + dmultinom(
+            x    = sapply(data,'[[','nc'),    # nc per session
+            prob = .localstuff$Eng[,1] / sum(.localstuff$Eng), 
+            log  = TRUE)
+    }
+    #---------------------------------------------------------
+    .localstuff$iter <- .localstuff$iter + 1 
     if (details$trace) {
         cat(format(.localstuff$iter, width=4),
             formatC(round(loglik,dig), format='f', digits=dig, width=10),

@@ -348,6 +348,7 @@ secr_generalsecrloglikfn <- function (
       ## 2025-08-05 ngroup
         # pi.density <- matrix(1/data$m, nrow=data$m, ncol=1)  
         pi.density <- matrix(1/data$m, nrow = data$m, ncol = ngroup)  
+        Nm <- matrix(0, data$m, ngroup)
     }
     else {
       Dsum <- apply(density,2,sum)   ## by group
@@ -537,6 +538,7 @@ secr_generalsecrloglikfn <- function (
             }
         }
         if (!is.null(details$externalpdot)) {
+            warning("externalpdot is deprecated and will be removed in a coming version")
             pdot <- rep(sum(data$externalpdot * pi.density), nc1)
         }
         else {
@@ -572,6 +574,7 @@ secr_generalsecrloglikfn <- function (
             
         }
         if (!is.null(details$externalpdot)) {
+            warning("externalpdot is deprecated and will be removed in a coming version")
             pdot <- rep(sum(data$externalpdot * pi.density), nc1)
         }
         else {
@@ -581,8 +584,7 @@ secr_generalsecrloglikfn <- function (
         }
     }
     
-    # 2025-08-05 now global to this fn
-    # ngroup <- max(length(levels(data$grp)),1)
+    # 2025-08-05 ngroup now global to this fn
     comp <- matrix(0, nrow = 6, ncol = ngroup)
     for (g in 1:ngroup) {
       ok <- as.integer(data$grp) == g
@@ -600,31 +602,37 @@ secr_generalsecrloglikfn <- function (
       
       #----------------------------------------------------------------------
       
+      #      if (!CL && !data$MRdata$allsighting) {
+      ng <- sum(ok)
+      if (any(data$dettype==13))
+          nonzero <- sum(apply(data$CH[,data$dettype!=13,,drop=FALSE] != 0,1,sum)[ok]>0)
+      else
+          nonzero <- ng
+      N <- sum(Nm[,g])
+      if (ng == 0) {
+          meanpdot <- pdot
+      }
+      else {
+          meanpdot <- ng / sum(1/pdot[ok])
+      }
+
+      ## 2025-08-05
+      .localstuff$Eng[sessnum, g] <- N * meanpdot      
+  
       if (!CL && !data$MRdata$allsighting) {
-          ng <- sum(ok)
-          if (any(data$dettype==13))
-              nonzero <- sum(apply(data$CH[,data$dettype!=13,,drop=FALSE] != 0,1,sum)[ok]>0)
-          else
-              nonzero <- ng
-          N <- sum(Nm[,g])
-          if (ng == 0) {
-              meanpdot <- pdot
-          }
-          else {
-              meanpdot <- ng / sum(1/pdot[ok])
-          }
+          
           ## 2023-09-22
           if (data$n.distrib == 1 && .localstuff$iter == 0 && nonzero>N) {
               warning("distribution = 'binomial' ",
                       "but number detected n (", nonzero, 
                       ") exceeds initial value of N (", round(N,1), ")")
           }
-              
+          
           comp[3,g] <- if (is.na(meanpdot) || (meanpdot <= 0)) NA 
-              else switch (data$n.distrib+1,
-                               dpois(nonzero, N * meanpdot, log = TRUE),
-                           secr_lnbinomial (nonzero, N, meanpdot),
-                               NA)
+          else switch (data$n.distrib+1,
+                       dpois(nonzero, N * meanpdot, log = TRUE),
+                       secr_lnbinomial (nonzero, N, meanpdot),
+                       NA)
       }
       #----------------------------------------------------------------------
       # adjustment for mixture probabilities when class known
@@ -676,6 +684,7 @@ secr_generalsecrloglikfn <- function (
           }
       }
       #----------------------------------------------------------------------
+
     }   ## end loop over groups
     if (details$debug>=1) {
         ## display likelihood components summed over groups, and logmultinomial constant
@@ -737,7 +746,21 @@ secr_generalsecrloglikfn <- function (
           .localstuff$iter == 0) {
           secr_saveprogress(pbeta, NA, details$progressfilename)
       }
+      .localstuff$Eng <- matrix(0, nrow = nsession, ncol = ngroup)
       loglik <- sum(sapply (data, sessionLL)) 
+      #---------------------------------------------------------
+      ## 2025-08-05
+      ## relative density across sessions
+      if (details$relativeD) {
+          # assume no groups for now, only sessions
+          # add multinomial probability of session counts
+          # first column of Eng has (relative) expected count for group 1
+          loglik <- loglik + dmultinom(
+              x    = sapply(data,'[[','nc'),    # nc per session
+              prob = .localstuff$Eng[,1] / sum(.localstuff$Eng), 
+              log  = TRUE)
+      }
+      #---------------------------------------------------------
       .localstuff$iter <- .localstuff$iter + 1  
       if (details$trace) {
           cat(format(.localstuff$iter, width=4),
