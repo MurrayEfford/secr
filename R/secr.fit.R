@@ -376,7 +376,7 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     #################################################
     ## standardize user model and parameterisation
     #################################################
-    
+   
     if ('formula' %in% class(model)) model <- list(model)
     model <- secr_stdform (model)  ## named, no LHS
     if (details$relativeD) {
@@ -384,7 +384,9 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
         if (!is.null(model$D) && model$D == ~1) model$D <- NULL
     }
     else if (CL) {
-        if (!is.null(model$D) && model$D == ~1) model$D <- NULL
+        # if (!is.null(model$D) && model$D == ~1) model$D <- NULL
+        if (!is.null(model$D) && model$D == ~1 && 
+            (is.null(details$Dlambda) || !details$Dlambda)) model$D <- NULL
         details$relativeD <- !is.null(model$D)
     }
     else {
