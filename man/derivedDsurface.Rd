@@ -17,7 +17,7 @@ The \code{\link{derived}} method for `secr' objects performs the same calculatio
 
 \usage{
 
-derivedDcoef(object, sessnum = 1, groups = NULL, se = FALSE)
+derivedDcoef(object, se = FALSE)
 
 derivedDsurface(object, mask = NULL, sessnum = NULL, groups = NULL)
 
@@ -26,10 +26,10 @@ derivedDsurface(object, mask = NULL, sessnum = NULL, groups = NULL)
 \arguments{
 
   \item{object}{fitted secr relative density model}
+  \item{se}{logical; if TRUE the variance of beta0 is estimated by the delta method}
   \item{mask}{new mask for which to compute densities}
   \item{sessnum}{integer session number}
   \item{groups}{character vector of covariate names to define groups (optional)}
-  \item{se}{logical; if TRUE the variance of beta0 is estimated by the delta method}
 
 }
 
@@ -37,7 +37,8 @@ derivedDsurface(object, mask = NULL, sessnum = NULL, groups = NULL)
 
 The theory is provided by Efford in prep. 
 
-\code{derivedDcoef(object, se = TRUE)} is equivalent to \code{derived(object, Dweight = TRUE)}, although \code{derivedDcoef} returns estimates on the link scale.
+\code{derivedDcoef(object, se = TRUE)} is equivalent to \code{derived(object, Dweight = TRUE)}, 
+although \code{derivedDcoef} returns estimates on the link scale.
 
 }
 
@@ -45,7 +46,8 @@ The theory is provided by Efford in prep.
 
 For derivedDcoef -- 
 
-A dataframe mimicking \code{coef(object)} with an initial row for the derived density intercept  \eqn{\beta_0}. For an identity link, subsequent density coefficients are scaled by the derived \eqn{\beta_0}.
+A dataframe mimicking \code{coef(object)} with an initial row for the derived density intercept  \eqn{\beta_0}.
+For an identity link, subsequent density coefficients are scaled by the derived \eqn{\beta_0}.
 
 For derivedDsurface --
 
