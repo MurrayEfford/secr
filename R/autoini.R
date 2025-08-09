@@ -62,6 +62,7 @@ autoini <- function (capthist, mask, detectfn = 0, thin = 0.2, tol = 0.001,
           gkhk = gkhk, 
           pi.density = matrix(1/m, nrow=m, ncol=1), 
           PIA0 = PIA0, 
+          ngroup = 1,
           CH0 = CH0, 
           binomNcode = binomNcode, 
           MRdata = list(markocc = rep(1,s), firstocc = -1),  ## all marking
