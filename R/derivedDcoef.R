@@ -49,7 +49,7 @@ derivedDcoef <- function (object, se = FALSE) {
         beta <- object$fit$par
         linkk <- onelinkk(beta)
         if (se) {
-            warning ("derivedDcoef() underestimates se(beta0)", call. = FALSE)
+            warning ("se(beta0) from derivedDcoef() is approximate", call. = FALSE)
             vcv <- vcv.derivedk(object) 
         }
         else {
