@@ -1,4 +1,4 @@
-Changes in version 5.3.0 (2025-08-10)
+Changes in version 5.3.0 (2025-08-12)
 
 New features or changed behaviour of old functions
     o  t2r2() index of serial correlation
@@ -25,7 +25,7 @@ Other
     o  sim.secr() start argument now defaults to 'true'
     o  update secr-package.Rd
     o  many internal functions renamed with prefix 'secr_' 
-    o  bufferbiascheck() exported
+    o  bufferBiasCheck() exported
     o  derivedDcoef() extended to multi-session relative density
 
 Changes in version 5.2.4 (2025-06-03)

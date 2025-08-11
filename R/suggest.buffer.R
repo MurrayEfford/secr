@@ -25,7 +25,6 @@ bias.D <- function (buffer, traps, detectfn, detectpar, noccasions, binomN = NUL
             mu <- detectpar$beta0 - 10 * log ( r^2 ) / 2.302585 + detectpar$beta1 * (r-1)
             mu[r<1] <- detectpar$beta0
         }
-
         switch (detectfn+1,
                 detectpar$g0 * exp(-r^2/2/detectpar$sigma^2),
                 detectpar$g0 * ( 1 - exp(-(r/detectpar$sigma)^-detectpar$z)),
@@ -312,7 +311,7 @@ suggest.buffer <- function (object, detectfn = NULL, detectpar = NULL, noccasion
     }
 }
 
-bufferbiascheck <- function (object, buffer, biasLimit) {
+bufferBiasCheck <- function (object, buffer, biasLimit) {
     ############################################
     ## buffer bias check
     ## not for polygon & transect detectors

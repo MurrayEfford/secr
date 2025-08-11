@@ -1142,7 +1142,7 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     class(output) <- 'secr'
     
     if (usebuffer & !is.na(biasLimit)) {
-        test <- try(bufferbiascheck(output, buffer, biasLimit), silent = TRUE)
+        test <- try(bufferBiasCheck(output, buffer, biasLimit), silent = TRUE)
         if (inherits(test, 'try-error'))
             warning("test for mask truncation bias could not be performed")
     }
