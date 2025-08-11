@@ -115,6 +115,20 @@ detectpar.secr <- function(object, ..., byclass = FALSE, bytrap = FALSE) {
     
     # temppred is a list, one component per session
 
+    #-----------------------------------------
+    # 2025-08-12 apply overall tempxy
+    fixxy <- function (onepred) {
+        if ('sigmaxy'   %in% names(onepred)) onepred$sigma   <- onepred$sigma * onepred$sigmaxy
+        if ('lambda0xy' %in% names(onepred)) onepred$lambda0 <- onepred$lambda0 * onepred$lambda0xy
+        if ('a0xy'      %in% names(onepred)) onepred$a0      <- onepred$a0 * onepred$a0xy
+        if ('sigmakxy'  %in% names(onepred)) onepred$sigmak  <- onepred$sigmak * onepred$sigmakxy
+        onepred
+    }
+    if (any(.localstuff$spatialparameters %in% names(object$model))) {
+        temppred <- lapply(temppred, fixxy)    
+    }
+    #-----------------------------------------
+    
     if (ms(object)) 
         lapply(temppred, extractpar)
     else 
