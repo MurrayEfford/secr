@@ -755,10 +755,16 @@ secr_generalsecrloglikfn <- function (
           # assume no groups for now, only sessions
           # add multinomial probability of session counts
           # first column of Eng has (relative) expected count for group 1
-          loglik <- loglik + dmultinom(
-              x    = sapply(data,'[[','nc'),    # nc per session
-              prob = .localstuff$Eng[,1] / sum(.localstuff$Eng), 
-              log  = TRUE)
+          prob <- .localstuff$Eng[,1] / sum(.localstuff$Eng)
+          if (any(is.na(prob)) || all(prob<=0) || !all(is.finite(prob))) {
+              loglik <- NA 
+          }
+          else {
+              loglik <- loglik + dmultinom(
+                  x    = sapply(data,'[[','nc'),    # nc per session
+                  prob = prob, 
+                  log  = TRUE)
+          }
       }
       #---------------------------------------------------------
       .localstuff$iter <- .localstuff$iter + 1  
