@@ -7,10 +7,10 @@
 Dfn2 <- function (designD, beta = NULL, ...) {
     # function to reinterpret beta values as log(D1), log(lambda1), log(lambda2) etc.
     # used for Dlambda parameterization (details$Dlambda == TRUE)
-    if (is.null(beta)) return(ncol(designD)) # number of beta parameters
     dimD <- attr(designD, 'dimD')
     designD[1:dimD[1],] <- 0
     designD <- cbind(rep(c(1,0), c(dimD[1], nrow(designD)-dimD[1])), designD)
+    if (is.null(beta)) return(ncol(designD)) # number of beta parameters
     lp <- designD %*% beta
     lp <- array(lp, dim = dimD[-2])   # mask x session matrix
     t(apply(lp, 1, cumsum))           # density on link scale
