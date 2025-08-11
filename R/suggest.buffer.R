@@ -364,5 +364,6 @@ bufferBiasCheck <- function (object, buffer, biasLimit) {
         if (any(bias > biasLimit))
             warning ("predicted relative bias exceeds ", biasLimit, " with ",
                      "buffer = ", buffer, call. = FALSE)
+        all(bias <= biasLimit)
     }
 }

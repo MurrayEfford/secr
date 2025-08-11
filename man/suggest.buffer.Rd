@@ -1,7 +1,7 @@
 \name{suggest.buffer}
 \alias{suggest.buffer}
 \alias{bias.D}
-\alias{bufferbiascheck}
+\alias{bufferBiasCheck}
 
 \title{
 Mask Buffer Width
@@ -15,7 +15,7 @@ constructed using \code{make.mask} with \code{type = "trapbuffer"}.  The
 method relies on an approximation to the bias of maximum likelihood
 density estimates (M. Efford unpubl).
 
-\code{bufferbiascheck} is the post hoc test implemented in 
+\code{bufferBiasCheck} is the post hoc test implemented in 
 \code{\link{secr.fit}} when 'biasLimit' is not NA.
 
 }
@@ -28,7 +28,7 @@ suggest.buffer(object, detectfn = NULL, detectpar = NULL,
 bias.D (buffer, traps, detectfn, detectpar, noccasions, binomN = NULL,
     control = NULL)
 
-bufferbiascheck(object, buffer, biasLimit)
+bufferBiasCheck(object, buffer, biasLimit)
 
 }
 
@@ -103,7 +103,7 @@ too small.
   (approximate bias of density estimate using finite buffer width,
   relative to estimate with infinite buffer).
   
-  \code{bufferbiascheck} returns a logical value, FALSE if the predicted bias 
+  \code{bufferBiasCheck} returns a logical value, FALSE if the predicted bias 
   exceeds biasLimit.
 }
 
