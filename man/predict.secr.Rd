@@ -93,7 +93,9 @@ When \code{newdata} has only one row, the structure of the list is
 For \code{detectpar}, a list with the estimated values of detection
 parameters (e.g., g0 and sigma if detectfn = "halfnormal"). In the case
 of multi-session data the result is a list of lists (one list per
-session).
+session). For models that include spatial variation in detection parameters 
+(i.e. XXXXxy = sigmaxy, lambda0xy, a0xy or sigmakxy) the reported value is the product of 
+XXXX and XXXXxy evaluated at the mask centre (coordinates in attr(fit$mask, 'meanSD')).
 
 }
 
