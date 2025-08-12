@@ -7,7 +7,7 @@
 
 # exported
 derivedDcoef.secrlist <- function (object, se = FALSE, ...) {
-    lapply(object, se = se, ...)
+    lapply(object, derivedDcoef, se = se, ...)
 }
 
 derivedDcoef.secr <- function (object, se = FALSE, ...) {
