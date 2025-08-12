@@ -1,6 +1,8 @@
 \name{derivedDsurface}
 \alias{derivedDsurface}
 \alias{derivedDcoef}
+\alias{derivedDcoef.secr}
+\alias{derivedDcoef.secrlist}
 
 \title{Derived Absolute Density}
 
@@ -17,7 +19,8 @@ The \code{\link{derived}} method for `secr' objects performs the same calculatio
 
 \usage{
 
-derivedDcoef(object, se = FALSE)
+\method{derivedDcoef}{secr}(object, se = FALSE, ...)
+\method{derivedDcoef}{secrlist}(object, se = FALSE, ...)
 
 derivedDsurface(object, mask = NULL, sessnum = NULL, groups = NULL)
 
@@ -30,6 +33,7 @@ derivedDsurface(object, mask = NULL, sessnum = NULL, groups = NULL)
   \item{mask}{new mask for which to compute densities}
   \item{sessnum}{integer session number}
   \item{groups}{character vector of covariate names to define groups (optional)}
+  \item{\dots}{other arguments (not used)}
 
 }
 

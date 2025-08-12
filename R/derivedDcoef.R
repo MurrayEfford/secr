@@ -6,8 +6,11 @@
 #-------------------------------------------------------------------------------
 
 # exported
-derivedDcoef <- function (object, se = FALSE) {
-    ## object is a fitted secr object 
+derivedDcoef.secrlist <- function (object, se = FALSE, ...) {
+    lapply(object, se = se, ...)
+}
+
+derivedDcoef.secr <- function (object, se = FALSE, ...) {
     #-------------------------------------------------------------------------------
     onelinkk <- function (beta)
     {

@@ -47,6 +47,7 @@ noise      <- function (object, ...) UseMethod("noise")
 
 esa        <- function (object, ...) UseMethod("esa")
 derived    <- function (object, ...) UseMethod("derived")
+derivedDcoef <- function (object, ...) UseMethod("derivedDcef")
 MCgof      <- function (object, ...) UseMethod("MCgof")
 fxi        <- function (object, ...) UseMethod("fxi")
 fxTotal    <- function (object, ...) UseMethod("fxTotal")

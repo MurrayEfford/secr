@@ -1,4 +1,4 @@
-Changes in version 5.3.0 (2025-08-12)
+Changes in version 5.3.0 (2025-08-13)
 
 New features or changed behaviour of old functions
     o  t2r2() index of serial correlation
@@ -26,7 +26,8 @@ Other
     o  update secr-package.Rd
     o  many internal functions renamed with prefix 'secr_' 
     o  bufferBiasCheck() exported
-    o  derivedDcoef() extended to multi-session relative density
+    o  derivedDcoef() extended to multi-session relative density and now a 
+       generic with methods for secr, secrlist
 
 Changes in version 5.2.4 (2025-06-03)
 
