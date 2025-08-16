@@ -1,4 +1,4 @@
-Changes in version 5.3.0 (2025-08-13)
+Changes in version 5.3.0 (2025-08-17)
 
 New features or changed behaviour of old functions
     o  t2r2() index of serial correlation
@@ -7,7 +7,7 @@ New features or changed behaviour of old functions
     o  models for spatial variation in sigma (sigmaxy) and lambda0 (lambda0xy), 
        with restrictions
     o  secr.refit() computes variances for relative density model 
-       (set args CL = F, method = "none")
+       (set args CL = F, method = "none") when no individual covariates
     o  multi-session relative density models condition on sum(session-n), 
        using multinomial session-n.
 
@@ -28,6 +28,8 @@ Other
     o  bufferBiasCheck() exported
     o  derivedDcoef() extended to multi-session relative density and now a 
        generic with methods for secr, secrlist
+    o  sim.popn() mechanism for generating individual covariates extended to 
+       multi-session populations
 
 Changes in version 5.2.4 (2025-06-03)
 
