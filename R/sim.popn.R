@@ -311,7 +311,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
             if (ms(core)) core <- core[[s]]
             sim.popn (D, core, buffer, model2D, buffertype, poly,
                 covariates, number.from = .local$lastnumber+1, Ndist, nsessions = 1, details, seed,
-                keep.mask, Nbuffer[1])
+                keep.mask, Nbuffer[1], ...)
         }
         turnover <- function (oldpopn, t) {
             ## project existing population
@@ -336,7 +336,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                 newpopn <- sim.popn(D = D, core = core, buffer = buffer,
                     model2D = model2D, buffertype = buffertype, poly = poly,
                     covariates = covariates, Ndist = 'specified', Nbuffer = nsurv,
-                    nsessions = 1, details = details)
+                    nsessions = 1, details = details, ...)
                 row.names(newpopn) <- row.names(oldpopn)[survive]
                 
                 ## 2021-10-15 INDzi
@@ -430,7 +430,7 @@ sim.popn <- function (D, core, buffer = 100, model2D = c("poisson",
                     model2D = model2D, buffertype = buffertype, poly = poly,
                     covariates = covariates, number.from = .local$lastnumber + 1, 
                     Ndist = 'specified', Nbuffer = nrecruit,
-                    nsessions = 1, details = details)
+                    nsessions = 1, details = details, ...)
                 # 2021-04-09
                 if (age) {
                     if (is.null(covariates(recruits))) {
