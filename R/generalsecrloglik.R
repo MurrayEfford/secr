@@ -751,7 +751,7 @@ secr_generalsecrloglikfn <- function (
       #---------------------------------------------------------
       ## 2025-08-05
       ## relative density across sessions
-      if (details$relativeD) {
+      if (details$relativeD && nsession>1) {
           # assume no groups for now, only sessions
           # add multinomial probability of session counts
           # first column of Eng has (relative) expected count for group 1
