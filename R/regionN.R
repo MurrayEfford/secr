@@ -12,37 +12,7 @@
 ## 2023-02-06 sumDpdot tweaked for robustness to varying detectors/session
 ## 2024-12-15 sumDpdot ignored varying relative density
 ## 2025-01-09 relativeD tweaks
-
-#-------------------------------------------------------------------------------
-# function to convert fitted single-session CL relative D model to a full model
-# used by region.N
-# variances not reliable
-
-completeDbeta <- function(object, vcv = FALSE) {
-    if (ms(object)) stop ("completeDbeta is not ready for multisession secr")
-    intercept <- unlist(derivedDcoef(object, se = vcv)[1,1:2])
-    Dpar <- object$parindx$D
-    Dpar1 <- Dpar[-length(Dpar)]
-    beta.vcv <- secr_complete.beta.vcv (object)        
-    if (vcv) {
-        if (object$link$D == 'identity') {
-            beta.vcv[Dpar,Dpar] <- beta.vcv[Dpar,Dpar] * intercept[1]^2
-        }
-        beta.vcv[is.na(beta.vcv)] <- 0    # assume zero covariances for now
-        beta.vcv[1,1] <- intercept[2]^2
-    }
-    if (object$link$D == 'identity') {
-        # rescale density coefficients
-        object$fit$par[Dpar1] <- object$fit$par[Dpar1] * intercept[1]
-    }
-    object$beta.vcv <- beta.vcv
-    object$fit$par <- c(intercept[1], object$fit$par)
-    object$fit$estimate <- object$fit$par
-    object$details$fixedbeta[1] <- NA  # inferred, not fixed
-    object$betanames <- c('D', object$betanames)
-    object$CL <- FALSE
-    object
-}
+## 2025-08-21 relativeD uses derivedDfit()
 
 ################################################################################
 
@@ -71,8 +41,7 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
         ## indx identifies beta parameters for density D
         object$fit$par[indx] <- betaD
         if (object$CL) {
-            object <- completeDbeta (object, sessnum)
-            object$CL <- FALSE  # for this call
+            object <- derivedDfit(object, vcv = FALSE)
         }
         region.N(object, regionmask, spacing = NULL, session = session,
             group = group, se.N = FALSE, keep.region = FALSE,
@@ -249,12 +218,11 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
                 indx <- object$parindx$D
                 
                 if (object$CL) {
-                    # using approximate conversion of conditional to full model for variances
-                    object <- completeDbeta(object, vcv = TRUE)   # vcv unreliable
+                    object <- derivedDfit(object, vcv = TRUE)
                 }
-                dENdphi <- nlme::fdHess (object$fit$par[indx],
-                                         betaEN, object = object, region = regionmask, group = group,
-                                         session = session)$gradient
+                dENdphi <- nlme::fdHess (
+                    object$fit$par[indx], betaEN, object = object, 
+                    region = regionmask, group = group, session = session)$gradient
                 beta.vcv <- object$beta.vcv[indx,indx, drop = FALSE]
                 seEN <- (dENdphi %*% beta.vcv %*% dENdphi)^0.5
             }
