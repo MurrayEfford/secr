@@ -64,13 +64,21 @@ derivedDcoef.secr <- function (object, se = FALSE, ...) {
         oldcoef <- coef(object)
         alpha <- attr(oldcoef, 'alpha')
         z <- abs(qnorm(1 - alpha/2))
+        
         Dcoef <- c(beta0, se.beta0, beta0 - z * se.beta0, beta0 + z * se.beta0)
-        tmp <- rbind(D = Dcoef, oldcoef)
+        tmpcoef <- rbind(D = Dcoef, oldcoef)
         if (object$link$D == 'identity') {
-            tmp[grepl('D.', rownames(tmp)),] <- tmp[grepl('D.', rownames(tmp)),] * tmp[1,1]
+            np <- nrow(tmpcoef)
+            Dcoef <- grepl('D.', rownames(tmpcoef))
+            tmpcoef[Dcoef,] <- tmpcoef[Dcoef,] * beta0
+            if (se) {
+                vcv[Dcoef, 2:np] <- vcv[Dcoef, 2:np] * beta0
+                vcv[2:np, Dcoef] <- vcv[2:np, Dcoef] * beta0
+            }
         }
-        attr(tmp, 'vcv') <- vcv
-        tmp
+        
+        attr(tmpcoef, 'vcv') <- vcv
+        tmpcoef
         
         # NB gives same (estimate, SE.estimate) as derived(object, Dweight=T), 
         # and takes about the same time
