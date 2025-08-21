@@ -2,7 +2,7 @@
 ## package 'secr'
 ## derived density from conditional (relativeD) models
 ## 2025-08-08 derivedDcoef moved from derivedDsurface and greatly modified
-
+## 2025-08-21 derivedDfit() new function
 #-------------------------------------------------------------------------------
 
 # exported
@@ -52,7 +52,6 @@ derivedDcoef.secr <- function (object, se = FALSE, ...) {
         beta <- object$fit$par
         linkk <- onelinkk(beta)
         if (se) {
-            warning ("se(beta0) from derivedDcoef() is approximate", call. = FALSE)
             vcv <- vcv.derivedk(object) 
         }
         else {
@@ -60,8 +59,8 @@ derivedDcoef.secr <- function (object, se = FALSE, ...) {
         }
         
         # return on link scale
-        beta0 <- linkk # transform(k, object$link$D)
-        se.beta0 <- sqrt(vcv[1,1]) # se.transform(k, sqrt(vcv[1,1]), object$link$D)
+        beta0 <- linkk 
+        se.beta0 <- sqrt(vcv[1,1])
         oldcoef <- coef(object)
         alpha <- attr(oldcoef, 'alpha')
         z <- abs(qnorm(1 - alpha/2))
@@ -80,15 +79,21 @@ derivedDcoef.secr <- function (object, se = FALSE, ...) {
 }
 #-------------------------------------------------------------------------------
 
-# not exported
-predictD <- function (object, ...) {
-    der <- derivedDcoef(object, se = TRUE)
-    object$details$relativeD <- FALSE
-    object$betanames <- c('D', object$betanames)
-    tmp <- attr(der, 'vcv')
-    object$beta.vcv <- tmp
-    object$details$fixedbeta[1] <- NA
+# function to convert fitted single-session CL relative D model to a full model
+# used by region.N etc.
+
+derivedDfit <- function(object, vcv = TRUE) {
+    if (is.null(object$model$D) || is.null(object$link$D) || !object$CL) {
+        return(object) # unchanged
+    }
+    der <- derivedDcoef(object, se = vcv)
     object$fit$par <- der$beta
-    predict(object, ...)    
+    object$fit$estimate <- object$fit$par
+    object$beta.vcv <- attr(der, 'vcv')
+    object$details$fixedbeta[1] <- NA  # inferred, not fixed
+    object$betanames <- c('D', object$betanames)
+    object$CL <- FALSE
+    object$details$relativeD <- FALSE
+    object
 }
 #-------------------------------------------------------------------------------
