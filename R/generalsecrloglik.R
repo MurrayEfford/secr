@@ -747,6 +747,7 @@ secr_generalsecrloglikfn <- function (
           secr_saveprogress(pbeta, NA, details$progressfilename)
       }
       .localstuff$Eng <- matrix(0, nrow = nsession, ncol = ngroup)
+      ## sessionLL updates .localstuff$Eng for each session and group
       loglik <- sum(sapply (data, sessionLL)) 
       #---------------------------------------------------------
       ## 2025-08-05
