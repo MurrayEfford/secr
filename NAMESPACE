@@ -234,7 +234,8 @@ export (region.N)
 export (AICcompatible)
 export (modelAverage)
 
-export(derivedDcoef)
+export (derivedDcoef)
+export (derivedDfit)
 
 S3method(derivedDcoef, secr)
 S3method(derivedDcoef, secrlist)

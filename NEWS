@@ -1,4 +1,4 @@
-Changes in version 5.3.0 (2025-08-17)
+Changes in version 5.3.0 (2025-08-21)
 
 New features or changed behaviour of old functions
     o  t2r2() index of serial correlation
@@ -10,6 +10,8 @@ New features or changed behaviour of old functions
        (set args CL = F, method = "none") when no individual covariates
     o  multi-session relative density models condition on sum(session-n), 
        using multinomial session-n.
+    o  derivedDfit() new function complements derivedDcoef()
+           
 
 Bugs fixed
     o  print method failed for Dsurface generated from 'nonueuc' parameter
