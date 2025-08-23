@@ -835,7 +835,7 @@ secr_complete.beta <- function (object) {
 
 secr_complete.beta.vcv <- function (object) {
     fb <- object$details$fixedbeta
-    if (!is.null(fb)) {
+    if (!is.null(fb) && !is.null(object$beta.vcv)) {
         nbeta <- length(fb)
         beta.vcv <- matrix(NA, nrow = nbeta, ncol = nbeta)
         beta.vcv[is.na(fb[row(beta.vcv)]) & is.na(fb[col(beta.vcv)])] <- object$beta.vcv
