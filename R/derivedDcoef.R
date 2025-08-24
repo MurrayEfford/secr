@@ -25,6 +25,10 @@ derivedDcoef.secr <- function (object, se = FALSE, ...) {
         warning ("not relative density model")
         return(NULL)
     }
+    else if (!is.null(object$details$Dlambda) && object$details$Dlambda) {
+        warning ("derivedDcoef not suitable for Dlambda parameterization")
+        return(NULL)
+    }
     else {
 
         vcv.derivedk <- function (object) {
@@ -47,7 +51,6 @@ derivedDcoef.secr <- function (object, se = FALSE, ...) {
             completevcv[1,2:np]    <- object$beta.vcv %*% linkkgrad
             completevcv
         }
-        
         nsessions <- if (ms(object)) length(object$capthist) else 1
         beta <- object$fit$par
         linkk <- onelinkk(beta)
