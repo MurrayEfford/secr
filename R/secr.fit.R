@@ -702,9 +702,6 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
                     stop ("only session and group models allowed for density when details$param = ",
                         details$param)
             }
-            if (any(sessionDvars) && details$relativeD) {
-                warning("session and group models for relative density may be misleading")
-            }
             temp <- D.designdata( mask, model$D, grouplevels, session(capthist), sessioncov)
             if (any(secr_smooths(model$D))) {
                 smoothsetup$D <- secr_gamsetup(model$D, temp)
