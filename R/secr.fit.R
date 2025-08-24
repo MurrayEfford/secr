@@ -10,9 +10,10 @@
 ## 2023-12-22 no separate verify for multi-session masks (allows sharefactorLevels warning)
 ## 2024-07-03 fastproximity losses warning
 ## 2024-12-22 relativeD merged with CL
+## 2025-08-24 default for model not in args
 ###############################################################################
 
-secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
+secr.fit <- function (capthist,  model = list(), mask = NULL,
                       buffer = NULL, CL = FALSE, detectfn = NULL, binomN = NULL, start = NULL,
                       link = list(), fixed = list(), timecov = NULL, sessioncov = NULL, hcov = NULL,
                       groups = NULL, dframe = NULL, details = list(), method = 'Newton-Raphson',
@@ -381,12 +382,13 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     model <- secr_stdform (model)  ## named, no LHS
     if (details$relativeD) {
         CL <- TRUE
-        if (!is.null(model$D) && model$D == ~1) model$D <- NULL
+        # if (!is.null(model$D) && model$D == ~1) model$D <- NULL
     }
     else if (CL) {
         # if (!is.null(model$D) && model$D == ~1) model$D <- NULL
-        if (!is.null(model$D) && model$D == ~1 && 
-            (is.null(details$Dlambda) || !details$Dlambda)) model$D <- NULL
+        # constantD <- !is.null(model$D) && model$D == ~1
+        # notDlambda <- is.null(details$Dlambda) || !details$Dlambda
+        # if (constantD && notDlambda) model$D <- NULL
         details$relativeD <- !is.null(model$D)
     }
     else {
@@ -555,6 +557,7 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
                          noneuc=~1, sigmaxy=NULL, lambda0xy=NULL, a0xy=NULL,
                          sigmakxy=NULL, beta0=~1, beta1=~1,
                          sdS=~1, b0=~1, b1=~1, pID=~1, pmix=~1)
+    if (CL) defaultmodel$D <- NULL
     defaultmodel <- replace (defaultmodel, names(model), model)
     
     #################################################
@@ -671,6 +674,7 @@ secr.fit <- function (capthist,  model = list(D~1, g0~1, sigma~1), mask = NULL,
     ############################################
     # Prepare density design matrix
     ############################################
+  
     D.modelled <- (!CL || details$relativeD) && is.null(fixed$D)
     smoothsetup <- list(D = NULL, noneuc = NULL, sigmaxy = NULL, 
                         lambda0xy = NULL, a0xy = NULL, sigmakxy=NULL)

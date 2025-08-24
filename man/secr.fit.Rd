@@ -15,7 +15,7 @@ likelihood. Data must have been assembled as an object of class
 
 \usage{
 
-secr.fit (capthist, model = list(D~1, g0~1, sigma~1), mask = NULL, buffer = NULL,
+secr.fit (capthist, model = list(), mask = NULL, buffer = NULL,
     CL = FALSE, detectfn = NULL, binomN = NULL, start = NULL, link = list(),
     fixed = list(), timecov = NULL, sessioncov = NULL, hcov = NULL,
     groups = NULL, dframe = NULL, details = list(), method =
@@ -26,6 +26,7 @@ secr.fit (capthist, model = list(D~1, g0~1, sigma~1), mask = NULL, buffer = NULL
 
 \arguments{
   \item{capthist}{ \code{\link{capthist}} object including capture data and detector (trap) layout }
+  \item{model}{ list with optional components each symbolically defining a linear predictor for one real parameter using \code{formula} notation }
   \item{mask}{ \code{\link{mask}} object or (for a multi-session analysis) a list of \code{mask} objects, one for each session}
   \item{buffer}{ scalar mask buffer radius if \code{mask} not specified
   (default 100 m)}
@@ -39,7 +40,6 @@ secr.fit (capthist, model = list(D~1, g0~1, sigma~1), mask = NULL, buffer = NULL
   parameters (e.g., `D', `g0', `sigma'), each a character string in
   \{"log", "logit", "identity", "sin"\} for the link function of one real parameter }
   \item{fixed}{ list with optional components corresponding to real parameters giving the scalar value to which the parameter is to be fixed }
-  \item{model}{ list with optional components each symbolically defining a linear predictor for one real parameter using \code{formula} notation }
   \item{timecov}{ optional dataframe of values of time (occasion-specific) covariate(s). }
   \item{sessioncov}{ optional dataframe of values of session-specific covariate(s). }
   \item{hcov}{ character name of individual covariate for known
