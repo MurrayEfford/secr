@@ -301,16 +301,14 @@ fastsecrloglikfn <- function (
     .localstuff$Eng <- matrix(0, nrow = nsession, ncol = ngroup)
     loglik <- sum(mapply (sessionLL, data, 1:nsession))
     #---------------------------------------------------------
-    ## 2025-08-05
+    ## 2025-08-05, 2025-08-28
     ## relative density across sessions
     if (details$relativeD && nsession>1) {
         # assume no groups for now, only sessions
         # add multinomial probability of session counts
         # first column of Eng has (relative) expected count for group 1
-        loglik <- loglik + dmultinom(
-            x    = sapply(data,'[[','nc'),    # nc per session
-            prob = .localstuff$Eng[,1] / sum(.localstuff$Eng), 
-            log  = TRUE)
+        loglik <- loglik + secr_multinomLL(sapply(data,'[[','nc'), 
+                                           .localstuff$Eng[,1])
     }
     #---------------------------------------------------------
     .localstuff$iter <- .localstuff$iter + 1 

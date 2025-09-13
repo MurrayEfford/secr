@@ -1681,6 +1681,23 @@ secr_maskboolean <- function (ch, mask, threshold) {
 
 #-------------------------------------------------------------------------------
 
+secr_multinomLL <- function (nc, En) {
+    # nc is vector of number detected per session
+    # En is vector of expected number
+    # assume no groups for now, only sessions
+    prob <- En / sum(En)
+    if (any(is.na(prob)) || all(prob<=0) || !all(is.finite(prob))) {
+        NA 
+    }
+    else {
+        dmultinom(
+            x    = nc,   
+            prob = prob, 
+            log  = TRUE)
+    }
+}
+
+
 # captinhood and filterw are used for novel Br behavioural response 2025-06-18
 
 captinhood <- function (CH, maxd = NULL) {
