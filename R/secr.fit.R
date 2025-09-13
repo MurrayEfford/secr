@@ -1,4 +1,3 @@
-## package 'secr'
 ## secr.fit.R
 
 ## 2019-12-03 secr.design.MS uses CL argument
@@ -234,7 +233,7 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
         details$chat <- matrix(1, nrow = length(session(capthist)), ncol = 3)
     else
         details$chat <- rep(details$chat,3)[1:3]  ## duplicate scalar
-    
+  
     #################################################
     # 2025-06-17 experimental 
     # passing temporal and spatial scale of behavioural response
@@ -380,21 +379,7 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
    
     if ('formula' %in% class(model)) model <- list(model)
     model <- secr_stdform (model)  ## named, no LHS
-    if (details$relativeD) {
-        CL <- TRUE
-        # if (!is.null(model$D) && model$D == ~1) model$D <- NULL
-    }
-    else if (CL) {
-        # if (!is.null(model$D) && model$D == ~1) model$D <- NULL
-        # constantD <- !is.null(model$D) && model$D == ~1
-        # notDlambda <- is.null(details$Dlambda) || !details$Dlambda
-        # if (constantD && notDlambda) model$D <- NULL
-        details$relativeD <- !is.null(model$D)
-    }
-    else {
-        # full likelihood
-        details$relativeD <- FALSE   # default
-    }
+    if (details$relativeD)  CL <- TRUE
     if (all(detectortype %in% c('telemetry'))) {
         model$g0 <- NULL
         model$lambda0 <- NULL
@@ -551,14 +536,19 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     #################################################
     ## build default model and update with user input
     #################################################
-    
     defaultmodel <- list(D=~1, g0=~1, lambda0=~1,  esa=~1, a0=~1,
                          sigma=~1, sigmak=~1, z=~1, w=~1, c=~1, d=~1,
                          noneuc=~1, sigmaxy=NULL, lambda0xy=NULL, a0xy=NULL,
                          sigmakxy=NULL, beta0=~1, beta1=~1,
                          sdS=~1, b0=~1, b1=~1, pID=~1, pmix=~1)
-    if (CL) defaultmodel$D <- NULL
+    # no density model for CL unless 
+    # i.  specified by user or 
+    # ii. 'Dlambda' parameterisation
+    if (CL) {
+        if (!is.null(details$Dlambda) && !details$Dlambda) defaultmodel$D <- NULL
+    }
     defaultmodel <- replace (defaultmodel, names(model), model)
+    details$relativeD <- CL && !is.null(defaultmodel$D)
     
     #################################################
     # finite mixtures 
@@ -612,7 +602,6 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     #################################################
     ## finalise model
     #################################################
-
     pnames <- pnames[!(pnames %in% fnames)]   ## drop fixed real parameters
     model <- defaultmodel[pnames]             ## select real parameters
     secr_valid.model(model, CL, detectfn, hcov, details$userdist, names(sessioncov))
