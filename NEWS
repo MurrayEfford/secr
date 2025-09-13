@@ -1,4 +1,4 @@
-Changes in version 5.3.0 (2025-08-24)
+Changes in version 5.3.0 (2025-09-14)
 
 New features or changed behaviour of old functions
     o  t2r2() index of serial correlation
@@ -21,6 +21,7 @@ Bugs fixed
        See GitHub Issue for more
     o  AIC method for fitted secr objects failed when the first object was one 
        component of a list ("Error in names(allargs) <- modelnames" etc.)
+    o  Dlambda parameterization sometimes added spurious beta
     
 Other
     o  sim.secr() start argument now defaults to 'true'
