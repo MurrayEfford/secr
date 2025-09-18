@@ -1,11 +1,11 @@
 ############################################################################################
 ## package 'secr'
+## Write capture histories to text file in DENSITY format
 ## write.captures.R (was write.capthist - changed 2010-05-02)
-## last changed 2009 03 30, 2009 06 11, 2009 07 08 2009 11 17
 ## revised 2010 04 01 with new argument append and character value allowed for header
 ## bug fixed 2010-06-07: use row names when single/multi
 ## 2011-09-09 trivial: ms()
-## Write capture histories to text file in DENSITY format
+## 2025-09-18 fixed bug when covariates=FALSE
 ############################################################################################
 
 write.captures <- function (object, file='', deblank = TRUE, header = TRUE,
@@ -64,7 +64,9 @@ write.captures <- function (object, file='', deblank = TRUE, header = TRUE,
             temp <- data.frame (Session=session, ID=ID, Occasion=occ, Detector=trap)
         }
 
-        if (!is.null(covariates) & !is.null(covariates(object))) {
+        if (!is.null(covariates) && 
+            !is.null(covariates(object)) &&
+            !(is.logical(covariates) && !covariates)) {
             covs <- covariates(object)
             if (is.character(covariates)) {
                 covlist <- match(covariates, names(covs))

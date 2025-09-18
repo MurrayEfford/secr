@@ -1,4 +1,4 @@
-Changes in version 5.3.0 (2025-09-14)
+Changes in version 5.3.0 (2025-09-18)
 
 New features or changed behaviour of old functions
     o  t2r2() index of serial correlation
@@ -7,7 +7,7 @@ New features or changed behaviour of old functions
     o  models for spatial variation in sigma (sigmaxy) and lambda0 (lambda0xy), 
        with restrictions
     o  secr.refit() computes variances for relative density model 
-       (set args CL = F, method = "none") when no individual covariates
+       (set args CL = FALSE, method = "none") when no individual covariates
     o  multi-session relative density models condition on sum(session-n), 
        using multinomial session-n.
     o  derivedDfit() new function complements derivedDcoef()
@@ -22,6 +22,7 @@ Bugs fixed
     o  AIC method for fitted secr objects failed when the first object was one 
        component of a list ("Error in names(allargs) <- modelnames" etc.)
     o  Dlambda parameterization sometimes added spurious beta
+    o  write.captures() and write.traps() ignored covariates = FALSE
     
 Other
     o  sim.secr() start argument now defaults to 'true'

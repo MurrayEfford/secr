@@ -6,6 +6,7 @@
 ## should remove conflict between row and ...
 ## 2018-10-02 fixed bug in write.traps from as.data.frame applied to traps
 ## 2019-01-09 removed single quotes around objectname
+## 2025-09-18 fixed bug when covariates=FALSE
 ############################################################################################
 
 write.traps <- function (object, file='', deblank = TRUE, header = TRUE, ndec = 2,
@@ -40,7 +41,9 @@ write.traps <- function (object, file='', deblank = TRUE, header = TRUE, ndec = 
     }
 
     covlist <- numeric(0)
-    if (!is.null(covariates) & !is.null(covariates(object))) {
+    if (!is.null(covariates) && 
+        !is.null(covariates(object)) &&
+        !(is.logical(covariates) && !covariates)) {
         covs <- covariates(object)
         if (is.character(covariates)) {
             covlist <- match(covariates, names(covs))
