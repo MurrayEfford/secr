@@ -1,15 +1,15 @@
 ############################################################################################
 ## package 'secr'
 ## trend.R
-## 2023-09-29 2025-08-12 (annotation) 
+## 2023-09-29 2025-08-12 2025-09-18 (annotation) 
 ############################################################################################
 
 Dfn2 <- function (designD, beta = NULL, ...) {
-    # function to reinterpret beta values as log(D1), log(lambda1), log(lambda2) etc.
-    # used for Dlambda parameterization (details$Dlambda == TRUE)
+    # function to infer linear predictor (lp) of log(D1), log(lambda1), log(lambda2) etc.
+    # and compute the cumulative sum of these to infer session-specific log(D)
+    # used for Dlambda parameterization (details$Dlambda == TRUE) by secr_getD()
     dimD <- attr(designD, 'dimD')
     designD[1:dimD[1],] <- 0
-    # designD <- cbind(rep(c(1,0), c(dimD[1], nrow(designD)-dimD[1])), designD)
     designD <- cbind(rep(c(1,0), c(dimD[1], nrow(designD)-dimD[1])), designD[,-1])
     if (is.null(beta)) return(ncol(designD)) # number of beta parameters
     lp <- designD %*% beta
