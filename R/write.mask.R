@@ -19,7 +19,9 @@ write.mask <- function (object, file='', header = TRUE, ndec = 2, covariates = T
     class(temp) <- "data.frame"  ## 2018-10-02
 
     covlist <- numeric(0)
-    if (!is.null(covariates) & !is.null(covariates(object))) {
+    if (!is.null(covariates) && 
+        !is.null(covariates(object)) &&
+        !(is.logical(covariates) && !covariates)) {
         covs <- covariates(object)
         if (is.character(covariates)) {
             covlist <- match(covariates, names(covs))
