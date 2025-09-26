@@ -869,14 +869,3 @@ double pski ( int binomN,
 }
 //--------------------------------------------------------------------------
 
-// [[Rcpp::export]]
-IntegerMatrix movematcpp (int ntrap, const IntegerVector &trapno) {
-    IntegerMatrix out (ntrap, ntrap);
-    int i;
-    int nobs = trapno.size();
-    if (nobs>1) {
-        for (i=0; i<(nobs-1); i++) out(trapno(i)-1, trapno(i+1)-1) += 1;
-    }
-    return(out);
-}
-//------------------------------------------------------------------------------
