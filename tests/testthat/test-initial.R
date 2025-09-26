@@ -139,7 +139,7 @@ test_that("correct likelihood (hcov, pmix with knownclass, missing one level, fa
 
 test_that("correct likelihood (fastproximity, usage, ignoreusage)", {
     CH <- ovenCHp[[1]]
-    usage(traps(CH)) <- matrix(1, 44, 9) ## or CH <- secr:::uniformusage(CH)
+    usage(traps(CH)) <- matrix(1, 44, 9) ## or CH <- secr:::secr_uniformusage(CH)
     msk <- make.mask(traps(CH), buffer = 200, nx = 20, type = 'trapbuffer')
     
     argssecr <- list(capthist = CH, mask = msk, detectfn = 'HHN',
