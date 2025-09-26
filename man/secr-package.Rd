@@ -61,7 +61,7 @@ This reference includes material previously covered in separate vignettes:
 
 Efford, M. G. (2025) The SECR book. A handbook of spatially explicit 
 capture--recapture methods. Version 1.0. \url{https://murrayefford.github.io/SECRbook/} and 
-Zenodo \url{https://doi.org/10.5281/zenodo.15109937}.
+Zenodo \doi{10.5281/zenodo.15109937}.
 
 The datasets \code{\link{captdata}} and \code{\link{ovenbird}} include examples of fitted
 models. For models fitted to other datasets see \href{https://www.otago.ac.nz/density/pdfs/secr-version4.pdf}{secr-version4.pdf} Appendix 2.

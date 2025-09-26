@@ -56,7 +56,7 @@ The primary data for SECR are (i) the locations of the detectors, and (ii) detec
   etc.       
 ```
 
-In SECR, a spatial model of the population and a spatial model of the detection process are fitted to the spatial detection histories. The resulting estimates of population density are unbiased by edge effects and incomplete detection (other sources of bias may remain). Inverse prediction (IP SECR) and maximum likelihood (ML SECR) are alternative methods for fitting the spatial detection model (Efford 2004, Borchers and Efford 2008). Of these, ML SECR is the more flexible, with a caveat for data from single-catch traps. Data augmentation and Markov chain Monte Carlo (MCMC) methods have also been used for SECR (Royle and Young 2008, Royle et al. 2009, Singh et al. 2010, Royle and Gardner 2011, Royle et al. 2014); this approach is slower than ML SECR and is not considered here.
+In SECR, a spatial model of the population and a spatial model of the detection process are fitted to the spatial detection histories. The resulting estimates of population density are unbiased by edge effects and incomplete detection (other sources of bias may remain). Inverse prediction (IP SECR) and maximum likelihood (ML SECR) are alternative methods for fitting the spatial detection model (Efford 2004, Borchers and Efford 2008). Of these, ML SECR is the more flexible, with a caveat for data from single-catch traps. Data augmentation and Markov chain Monte Carlo (MCMC) methods have also been used for SECR (Royle and Young 2008, Royle et al. 2009, Singh et al. 2010, Royle and Gardner 2011, Royle et al. 2014, Turek et al. 2021); this approach is slower than ML SECR and is not considered here.
 
 ## State and observation models
 
@@ -332,14 +332,6 @@ Borchers, D. L., Buckland, S. T. and Zucchini, W. (2002)
 
 Borchers, D. L. and Efford, M. G. (2008) Spatially explicit maximum likelihood methods for capture--recapture studies. *Biometrics* **64**, 377--385.
 
-<!-- Borchers, D. L. and Fewster, R. M. (2016)  Spatial capture--recapture models.  *Statistical Science* **31**, 219--232. -->
-
-<!-- Borchers, D. L. and Kidney, D. (2014) Flexible density surface estimation for spatially explicit capture--recapture surveys. Technical Report, University of St Andrews. -->
-
-<!-- Chandler, R. B. and Royle, J. A. (2013) Spatially explicit models for inference about density in unmarked or partially marked populations. *Annals of Applied Statistics* **7**, 936--954. -->
-
-<!-- Cooch, E. and White, G. (eds) (2014) *Program MARK: A Gentle Introduction*. 13th edition. Most recent edition available online at www.phidot.org/software/mark/docs/book/. -->
-
 Distiller, G. and Borchers, D. L. (2015) A spatially explicit capture--recapture estimator for single-catch traps. *Ecology and Evolution* **5**, 5075--5087.
 
 Eddelbuettel, D. and Francois, R. (2011) Rcpp: Seamless R and C++ Integration. *Journal of
@@ -364,8 +356,6 @@ Efford, M. G., Borchers D. L. and Mowat, G. (2013) Varying effort in capture--re
 
 Efford, M. G., Dawson, D. K. and Borchers, D. L. (2009) Population density estimated from locations of individuals on a passive detector array. *Ecology* **90**, 2676--2682.
 
-<!-- Efford, M. G., Dawson, D. K., Jhala, Y. V. and Qureshi, Q. (2016) Density-dependent home-range size revealed by spatially explicit capture-recapture. Ecography **39**, 676--688. -->
-
 Efford, M. G. and Fewster, R. M. (2013) Estimating population size by spatially explicit capture--recapture. *Oikos* **122**, 918--928.
 
 Efford, M. G. and Mowat, G. (2014) Compensatory heterogeneity in spatially explicit capture--recapture data. *Ecology*  **95**, 1341--1348.
@@ -373,29 +363,17 @@ Efford, M. G. and Mowat, G. (2014) Compensatory heterogeneity in spatially expli
 Efford, M. G. and Schofield, M. R. (2020) A spatial open-population capture--recapture model.
   *Biometrics* **76**, 392--402.
 
-<!-- Huggins, R. M. (1989) On the statistical analysis of capture experiments.  *Biometrika* **76**, 133--140. -->
-
-<!-- Laake, J. and Rexstad E. (2014) Appendix C. RMark - an alternative approach to building linear models in MARK. In: Cooch, E. and White, G. (eds) *Program MARK: A Gentle -->
-<!--     Introduction*. 13th edition. most recent edition available at -->
-<!--     www.phidot.org/software/mark/docs/book/. -->
-
-<!-- Lebreton, J.-D., Burnham, K. P., Clobert, J., and Anderson, D. R. (1992) Modeling survival and testing biological hypotheses using marked animals: a unified approach with case studies. *Ecological Monographs* **62**, 67--118. -->
-
 Otis, D. L., Burnham, K. P., White, G. C. and Anderson, D. R. (1978) Statistical inference from capture data on closed animal populations. *Wildlife Monographs* **62**.
-
-<!-- Royle, J. A., Chandler, R. B., Gazenski, K. D. and Graves, T. A. (2013) Spatial capture--recapture models for jointly estimating population density and landscape connectivity. *Ecology* **94** 287--294. -->
 
 Royle, J. A., Chandler, R. B., Sollmann, R. and Gardner, B. (2014) *Spatial capture--recapture.* Academic Press.
 
 Royle, J. A. and Gardner, B. (2011) Hierarchical spatial capture--recapture models for estimating density from trapping arrays. In: A.F. O'Connell, J.D. Nichols and K.U. Karanth (eds) *Camera Traps in Animal Ecology: Methods and Analyses*. Springer, Tokyo.  Pp. 163--190.
 
-Royle, J. A., Nichols, J. D., Karanth, K. U. and Gopalaswamy, A. M. (2009). A hierarchical model for estimating density in camera-trap studies. *Journal of Applied Ecology* **46**, 118--127.
+Royle, J. A., Nichols, J. D., Karanth, K. U. and Gopalaswamy, A. M. (2009) A hierarchical model for estimating density in camera-trap studies. *Journal of Applied Ecology* **46**, 118--127.
 
 Royle, J. A. and Young, K. V. (2008) A hierarchical model for spatial capture--recapture data. *Ecology* **89**, 2281--2289.
 
-<!-- Sollmann, R., Gardner, B., Parsons, A. W., Stocking, J. J., McClintock, B. T., Simons, T. R., Pollock, K. H. and O'Connell, A. F. (2013) A spatial mark--resight model augmented with telemetry data. *Ecology* **94**, 553--559. -->
-
-<!-- Stanley, T. R. and Burnham, K. P. (1999) A closure test for time-specific capture--recapture data. *Environmental and Ecological Statistics* **6**, 197--209. -->
+Turek, D., Milleret, C., Ergon, T., Brøseth, H., Dupont, P., Bischof, R., and Valpine, P. de. (2021) Efficient estimation of large‐scale spatial capture--recapture models.*Ecosphere* **12(2)** https://doi.org/10.1002/ecs2.3385
 
 \pagebreak
 
