@@ -89,11 +89,7 @@ Pebesma, E.J. and Bivand, R. S. (2005) Classes and methods for spatial data in R
 
 \examples{
 
-\dontrun{
-
 poly <- cbind(x = c(0,6,6,0,0), y = c(0,0,6,6,0))  
-secr:::boundarytoSF(poly)
-
-}
+boundarytoSF(poly)
 
 }
