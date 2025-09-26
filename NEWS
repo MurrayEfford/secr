@@ -1,16 +1,15 @@
-Changes in version 5.3.0 (2025-09-18)
+Changes in version 5.3.0 (2025-09-26)
 
 New features or changed behaviour of old functions
-    o  t2r2() index of serial correlation
-    o  simOU() and simOU.capthist() moved from secrdesign
-    o  simOU() allows matrix or dataframe input (e.g. popn) 
-    o  models for spatial variation in sigma (sigmaxy) and lambda0 (lambda0xy), 
-       with restrictions
-    o  secr.refit() computes variances for relative density model 
-       (set args CL = FALSE, method = "none") when no individual covariates
+    o  models for spatial variation in sigma (sigmaxy) and lambda0 (lambda0xy)
     o  multi-session relative density models condition on sum(session-n), 
        using multinomial session-n.
     o  derivedDfit() new function complements derivedDcoef()
+    o  t2r2() index of serial correlation
+    o  simOU() and simOU.capthist() moved from secrdesign
+    o  simOU() allows matrix or dataframe input (e.g. popn) 
+    o  secr.refit() computes variances for relative density model 
+       (set args CL = FALSE, method = "none") when no individual covariates
            
 Bugs fixed
     o  print method failed for Dsurface generated from 'nonueuc' parameter
@@ -25,6 +24,7 @@ Bugs fixed
     o  write.captures() and write.traps() ignored covariates = FALSE
     
 Other
+    o  secr.fit() model argument defaults to list() 
     o  sim.secr() start argument now defaults to 'true'
     o  update secr-package.Rd
     o  many internal functions renamed with prefix 'secr_' 
@@ -33,7 +33,6 @@ Other
        generic with methods for secr, secrlist
     o  sim.popn() mechanism for generating individual covariates extended to 
        multi-session populations
-    o  secr.fit() model argument defaults to list() 
 
 Changes in version 5.2.4 (2025-06-03)
 
