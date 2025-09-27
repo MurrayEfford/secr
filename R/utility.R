@@ -250,7 +250,7 @@ secr_getuserdist <- function (traps, mask, userdist, sessnum, NElist, density, .
         
         ## pass miscellaneous unmodelled parameter(s)
         extra <- list(...)
-        for (n in names(extra)) attr(mask, n) <- extra[n]
+        for (n in names(extra)) attr(mask, n) <- extra[[n]]
         
         distmat2 <- secr_valid.userdist (userdist,
                                          detector(traps),
@@ -1495,9 +1495,9 @@ secr_lambda0xydistfn <- function (xy1, xy2, mask, scale = 1) {
 }
 #-------------------------------------------------------------------------------
 
-secr_setfixedbeta <- function (fb, parindx, link, CL) {
+secr_setfixedbeta <- function (fb, parindx, link, CL, nmiscparm) {
     if (is.null(fb)) 
-        fb <- rep(NA, max(unlist(parindx)))
+        fb <- rep(NA, max(unlist(parindx)) + nmiscparm)
     if (CL && !is.null(parindx$D)) {     # details$relativeD
         if (!(link$D %in% c('log','identity')))
             warning ("density link ", link$D, " not implemented for relativeD")
