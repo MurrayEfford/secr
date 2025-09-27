@@ -67,6 +67,9 @@ coverage sampling and random sampling from compact geographical strata by k-mean
 
 \examples{
 
+# check package 'spcosa' installed
+if (requireNamespace("spcosa")) {
+
 # preliminaries
 polygonfile <- system.file("extdata/possumarea.txt", package = "secr")
 poly <- read.table(polygonfile, header = TRUE)
@@ -81,5 +84,6 @@ plot(attr(tr,'mask'), dots = FALSE, cov = 'stratum', legend = FALSE)
 plot(tr, add = TRUE)
 lines(poly)
 
+}
 
 }
