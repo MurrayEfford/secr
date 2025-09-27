@@ -8,7 +8,7 @@
 
 Non-Euclidean distances have a variety of uses, some obscure. You
 probably do not need them unless you have data from linear habitats,
-covered in the forthcoming package \pkg{secrlinear}. On the other hand,
+covered in the package \pkg{secrlinear}. On the other hand,
 they open up some intriguing possibilities for the advanced user. The
 key is to provide an appropriate value for the component `userdist' of
 the \code{details} argument of \code{\link{secr.fit}}.
