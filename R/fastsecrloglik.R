@@ -69,7 +69,7 @@ secr_integralprw1fast <- function (realparval0, gkhk, pi.density, PIA0,
 }
 
 #######################################################################################
-fastsecrloglikfn <- function (
+secr_fastsecrloglikfn <- function (
     beta, 
     parindx, 
     link, 
@@ -125,7 +125,7 @@ fastsecrloglikfn <- function (
         ## check valid parameter values
         if (!all(is.finite(Xrealparval))) {
             cat ('beta vector :', beta, '\n')
-            warning ("extreme 'beta' in 'fastsecrloglikfn' ",
+            warning ("extreme 'beta' in 'secr_fastsecrloglikfn' ",
                      "(try smaller stepmax in nlm Newton-Raphson?)")
             return (1e10)
         }
@@ -259,7 +259,7 @@ fastsecrloglikfn <- function (
     } ## end sessionLL
     
     ###############################################################################################
-    ## Main line of fastsecrloglikfn
+    ## Main line of secr_fastsecrloglikfn
     nsession <- length(sessionlevels)
 
     #--------------------------------------------------------------------
@@ -329,6 +329,6 @@ fastsecrloglikfn <- function (
     
     loglik <- ifelse(is.finite(loglik), loglik, -1e10)
     ifelse (neglik, -loglik, loglik)
-}  ## end of fastsecrloglikfn
+}  ## end of secr_fastsecrloglikfn
 ############################################################################################
 
