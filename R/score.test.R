@@ -88,7 +88,8 @@ prepare <- function (secr, newmodel, betaindex) {
     names(parindx) <- names(np)[np>0]
     if (!D.modelled) parindx$D <- NULL
     fb <- secr_mapbeta (secr$parindx, parindx, secr$details$fixedbeta, betaindex, default = NA)
-    details$fixedbeta <- secr_setfixedbeta (fb, parindx, link, CL)
+    # 2025-09-27 nmiscparm assumed zero
+    details$fixedbeta <- secr_setfixedbeta (fb, parindx, link, CL, 0)
     
     ## DOES THIS DEAL WITH SESSION COVARIATES OF DENSITY? 2009 08 16
 
