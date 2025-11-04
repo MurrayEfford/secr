@@ -1,3 +1,11 @@
+Changes in version 5.3.1 (2025-11-05)
+
+New features or changed behaviour of old functions
+    o  none
+
+Bugs fixed
+    o  addCovariates failed with some polygon input (points on boundary?)
+
 Changes in version 5.3.0 (2025-09-27)
 
 New features or changed behaviour of old functions
