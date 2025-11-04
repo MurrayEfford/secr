@@ -13,6 +13,7 @@
 ## 2022-08-28 extended to popn objects
 ## 2024-11-13 fixed st_join() call to avoid spurious warning "attribute variables 
 #             are assumed to be spatially constant throughout all geometries"
+## 2025-11-05 revisited st_join
 ###############################################################################
 
 addCovariates <- function (object, spatialdata, columns = NULL, strict = FALSE, replace = FALSE) {
@@ -75,7 +76,16 @@ addCovariates <- function (object, spatialdata, columns = NULL, strict = FALSE, 
             xy <- as.data.frame(object)
             xy <- st_as_sf(xy, coords=1:2, crs = st_crs(spatialdata))
             # removed 'largest' argument 2024-11-13
-            df <- st_join(xy, spatialdata, join = st_within)
+            # df <- st_join(xy, spatialdata, join = st_within)
+            # restored 2025-11-05
+            df <- suppressWarnings(
+                st_join(
+                    xy, 
+                    spatialdata, 
+                    join = st_intersects, # default and correct for points-on-boundary
+                    left = TRUE, 
+                    largest = TRUE)
+            )
             df <- st_drop_geometry(df)
         }
         else if (inherits(spatialdata, "SpatRaster")) {
