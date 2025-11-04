@@ -25,4 +25,4 @@ Please report bugs as Issues on this GitHub page.
 Help is also available from the
 DENSITY | secr forum at [phidot.org](http://www.phidot.org/forum/index.php) or the Google group [secr](https://groups.google.com/g/secrgroup).
 
-See [www.otago.ac.nz/density](https://www.otago.ac.nz/density/) for general background.
+See [www.otago.ac.nz/density](https://www.otago.ac.nz/density/) and [The SECR Book](https://murrayefford.github.io/SECRbook/) for general background.
