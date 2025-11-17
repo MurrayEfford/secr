@@ -47,14 +47,14 @@ Many functions in \pkg{secr} call on random numbers, sometimes in unexpected pla
 However, control of the RNG seed is required for reproducible data generation in simulation functions. These functions typically have a `seed' argument that is used internally in a call to \code{set.seed}. Handling of seeds in the simulation functions of \pkg{secr} largely follows \code{stats::simulate} as described in the preceding section.
 
 The relevant functions are --
-\tabular{lll}{
+\tabular{llll}{
 Function \tab Default \tab Saved attribute \tab Note \cr
-\code{\link{randomHabitat}} \tab NULL \tab seed or RNGstate\cr
+\code{\link{randomHabitat}} \tab NULL \tab seed or RNGstate \tab \cr
 \code{\link{secr.test}} \tab NULL \tab seed or RNGstate \tab calls and retains seed from \code{simulate.secr} \cr
-\code{\link{sim.capthist}} \tab NULL \tab seed or RNGstate \cr
-\code{\link{sim.resight}} \tab NULL \tab seed or RNGstate \tab Seed may be passed in \dots argument \cr
-\code{\link{sim.popn}} \tab NULL \tab seed or RNGstate \cr
-\code{\link{sim.secr}} \tab NULL \tab seed or RNGstate \cr
+\code{\link{sim.capthist}} \tab NULL \tab seed or RNGstate \tab \cr
+\code{\link{sim.resight}} \tab NULL \tab seed or RNGstate \tab seed may be passed in \dots argument \cr
+\code{\link{sim.popn}} \tab NULL \tab seed or RNGstate \tab \cr
+\code{\link{sim.secr}} \tab NULL \tab seed or RNGstate \tab \cr
 \code{\link{simulate.secr}} \tab NULL \tab seed or RNGstate \tab S3 method called by \code{sim.secr}\cr
 }
 

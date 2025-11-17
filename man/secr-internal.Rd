@@ -36,12 +36,12 @@ Dfn2(designD, beta = NULL, ...)
   
   Possible inputs are:
   
-  \tabular{ll}{
+  \tabular{lll}{
   Input \tab From \tab Note \cr
-  2-column matrix or dataframe \tab base R\cr
-  SpatialPolygons \tab \pkg{sp} \cr
-  SpatialPolygonsDataFrame \tab \pkg{sp} \cr
-  SpatVector \tab \pkg{terra} \cr
+  2-column matrix or dataframe \tab base R \tab \cr
+  SpatialPolygons \tab \pkg{sp} \tab \cr
+  SpatialPolygonsDataFrame \tab \pkg{sp} \tab \cr
+  SpatVector \tab \pkg{terra} \tab  \cr
   sf \tab \pkg{sf} \tab geometry type POLYGON or MULTIPOLYGON \cr
   sfc \tab \pkg{sf} \tab geometry type POLYGON or MULTIPOLYGON \cr
   }
