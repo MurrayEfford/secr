@@ -89,7 +89,7 @@ cluster.centres (object)
   \code{frame}; ties are resolved by drawing a site at random.
   
   Options for \code{edgemethod} are --
-  \tabular{llll}{
+  \tabular{lll}{
   \code{edgemethod} \tab Description\cr
   \code{"clip"} \tab reject any individual detectors outside \code{region} \cr
   \code{"allowoverlap"} \tab no action \cr

@@ -61,7 +61,7 @@ Functions par.derived and par.region.N can be replaced by a simple call of lappl
 
 Some functions have been renamed to avoid the ambiguous ".":
 
-\tabular{lll}{
+\tabular{ll}{
 Old \tab New \cr
 fxi.secr \tab \code{\link{fxi}} (S3 generic with method for secr objects) \cr
 fxi.contour \tab \code{\link{fxiContour}} \cr

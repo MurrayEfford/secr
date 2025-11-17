@@ -36,7 +36,7 @@ Dfn2(designD, beta = NULL, ...)
   
   Possible inputs are:
   
-  \tabular{lll}{
+  \tabular{ll}{
   Input \tab From \tab Note \cr
   2-column matrix or dataframe \tab base R\cr
   SpatialPolygons \tab \pkg{sp} \cr

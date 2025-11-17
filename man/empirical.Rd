@@ -116,7 +116,7 @@ derivedExternal ( object, sessnum = NULL, nj, cluster, buffer = 100,
 
   Spatial variance is calculated by one of these methods
   
-  \tabular{llll}{
+  \tabular{ll}{
   Method \tab Description \cr
 
 \code{"SRS"} \tab simple random sampling with identical clusters \cr

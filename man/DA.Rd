@@ -88,7 +88,7 @@ write.DA(capthist, buffer, nzeros = 200, units = 1)
   
   For \code{write.DA}, a list with the components
 
-\tabular{lll}{
+\tabular{ll}{
 Xl \tab left edge of state space \cr
 Xu \tab right edge of state space \cr
 Yl \tab bottom edge of state space \cr

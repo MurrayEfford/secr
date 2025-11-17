@@ -98,7 +98,7 @@ A single-session `traps' object.
 
 From 3.2.0 these additional attributes are set --
 
-\tabular{lll}{
+\tabular{ll}{
 origin \tab coordinates of grid origin \cr
 centres \tab coordinates of true cluster centres (cf \code{\link{cluster.centres}}) \cr
 originbox \tab vertices of rectangular spatial sampling frame for random origin \cr

@@ -47,7 +47,7 @@ Many functions in \pkg{secr} call on random numbers, sometimes in unexpected pla
 However, control of the RNG seed is required for reproducible data generation in simulation functions. These functions typically have a `seed' argument that is used internally in a call to \code{set.seed}. Handling of seeds in the simulation functions of \pkg{secr} largely follows \code{stats::simulate} as described in the preceding section.
 
 The relevant functions are --
-\tabular{llll}{
+\tabular{lll}{
 Function \tab Default \tab Saved attribute \tab Note \cr
 \code{\link{randomHabitat}} \tab NULL \tab seed or RNGstate\cr
 \code{\link{secr.test}} \tab NULL \tab seed or RNGstate \tab calls and retains seed from \code{simulate.secr} \cr

@@ -10,7 +10,7 @@
 From version 4.0 \pkg{secr} uses multi-threading in C++ (package \pkg{RcppParallel}, Allaire et al. 2021) to speed likelihood evaluation and hence model fitting in \code{secr.fit}. Detection histories are distributed over threads. Setting \code{ncores = NULL} in functions with multi-threading uses the existing value from the environment variable RCPP_PARALLEL_NUM_THREADS (see \code{\link{setNumThreads}}).
 
 These functions use multi-threading and call \code{setNumThreads} internally:
-\tabular{llll}{
+\tabular{l}{
   \code{\link{autoini}} \cr
   \code{\link{confint.secr}} \cr
   \code{\link{derived.secr}} \cr
@@ -24,7 +24,7 @@ These functions use multi-threading and call \code{setNumThreads} internally:
 
 
 These functions use multi-threading without calling \code{setNumThreads}:
-\tabular{llll}{
+\tabular{l}{
   \code{\link{LLsurface.secr}} \cr
   \code{\link{mask.check}} \cr
   \code{\link{expected.n}} \cr

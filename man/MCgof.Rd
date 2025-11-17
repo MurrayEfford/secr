@@ -62,7 +62,7 @@ The key output of \code{MCgof} is the proportion of replicates in which the simu
 
 By default, tests are performed separately for three types of count: the numbers of detections of each individual (yi), at each detector (yk), and for each individual at each detector (yik) extracted by the default \code{statfn} from the margins of the observed and simulated capture histories.
 
-\tabular{llll}{
+\tabular{lll}{
 \eqn{y_{ik} = \sum_j y_{ijk}} \tab \tab individual x detector \cr 
 \eqn{y_{i} = \sum_j \sum_k y_{ijk}} \tab\tab individual \cr
 \eqn{y_{k} = \sum_i \sum_j y_{ijk}}  \tab\tab detector \cr 
