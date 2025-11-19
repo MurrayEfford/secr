@@ -562,18 +562,18 @@ export (Dfn2)                  # internal.Rd
 #---------------------------------------
 # internal functions not exported
 
-# export (add.cl)                
-# export (parnames)              
-# export (detectorcode)          
+# export (secr_add.cl)                
+# export (secr_parnames)              
+# export (secr_detectorcode)          
 # export (esaPlotsecr)           
-# export (gethazard)             
-# export (group.factor)
-# export (group.levels)
-# export (prepareSessionData)    
-# export (reparameterize)        
-# export (secr.lpredictor)
-# export (stdform)               
-# export (valid.detectfn)        
+# export (secr_gethazard)             
+# export (secr_group.factor)
+# export (secr_group.levels)
+# export (secr_prepareSessionData)    
+# export (secr_reparameterize)        
+# export (secr_lpredictor)
+# export (secr_stdform)               
+# export (secr_valid.detectfn)        
 
 # ===========================
 useDynLib (secr)
