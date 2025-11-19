@@ -108,7 +108,7 @@ esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL,
         if (is.null(beta)) {
             if (is.null(real))
                 stop ("requires real parameter values")
-            PIA0 <- array(1, dim=c(1,n,s,k,nmix))
+            PIA0 <- array(1, dim=c(1,n,s,K,nmix))     # k > K 2025-11-20
             realparval0 <- matrix(rep(real, rep(n,length(real))), nrow = n)   ## UNTRANSFORMED
         }
         else {
@@ -158,8 +158,6 @@ esa.secr <- function (object, sessnum = 1, beta = NULL, real = NULL,
             out <- NA
         }
         else {
-          # NE <- NULL   ## no NE covariates (yet)
-          # pi.density <- matrix(1/m, nrow=m, ncol=1)
           ncores <- setNumThreads(ncores)  
           grain <- if (ncores==1) 0 else 1
           gkhk <- secr_makegk (dettype, object$detectfn, trps, mask, 
