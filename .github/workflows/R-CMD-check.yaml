@@ -53,6 +53,7 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
+          extra-repositories: 'https://murrayefford.r-universe.dev'
           
       # see https://github.com/r-lib/actions Common questions (1)
       - if: runner.os == 'macOS'
