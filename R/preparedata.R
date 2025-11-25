@@ -341,7 +341,7 @@ secr_prepareSessionData <- function (capthist, mask, maskusage,
         # 2023-06-09 tentatively remove hcov from condition
         # this leaves some uncertainty: 
         # when is full CH0 (1 row per animal) really needed?
-        # why is this an issue for polygonhistoriescpp and not simplehistoriescpp?
+        # why is this an issue for secrfunc::polygonhistoriescpp and not simplehistoriescpp?
         
         CH0 <- secr_nullCH(dim(CH), packageVersion('secr')<'4.0.0' || design0$individual || ngroup>1)   ## all-zero CH
         

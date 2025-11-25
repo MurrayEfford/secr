@@ -292,7 +292,7 @@ allhistpolygonfxi <- function (detectfn, realparval, haztemp, hk, H, pi.density,
     for (x in 1:nmix) {
         hx <- if (any(binomNcode==-2)) matrix(haztemp$h[x,,], nrow = m) else -1 ## lookup sum_k (hazard)
         hi <- if (any(binomNcode==-2)) haztemp$hindex else -1                   ## index to hx
-        temp <- polygonfxicpp(
+        temp <- secrfunc::polygonfxicpp(
             as.integer(nc),
             as.integer(detectfn[1]),
           as.integer(grain),
@@ -312,8 +312,8 @@ allhistpolygonfxi <- function (detectfn, realparval, haztemp, hk, H, pi.density,
             as.integer(PIA[1,,,,x]),
             as.matrix(usge),
             as.matrix (hx),                
-            as.matrix (hi),      
-            as.matrix(maskusage)
+            as.matrix (hi)
+            # WAS, as.matrix(maskusage)
         )
         sump <- sump + sweep(temp, MARGIN=1, STATS = pmixn[x,], FUN = "*")
     }

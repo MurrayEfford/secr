@@ -176,7 +176,7 @@ allhistpolygon <- function (detectfn, realparval, haztemp, hk, H, pi.density, PI
   for (x in 1:nmix) {
       hx <- if (any(binomNcode==-2)) matrix(haztemp$h[x,,], nrow = m) else -1 ## lookup sum_k (hazard)
       hi <- if (any(binomNcode==-2)) haztemp$hindex else -1                   ## index to hx
-      temp <- polygonhistoriescpp(
+      temp <- secrfunc::polygonhistoriescpp(
         as.integer(nc),
         as.integer(detectfn[1]),
         as.integer(grain),
@@ -197,8 +197,7 @@ allhistpolygon <- function (detectfn, realparval, haztemp, hk, H, pi.density, PI
         as.matrix(usge),
         as.matrix (hx),                
         as.matrix (hi),      
-        as.matrix(maskusage),
-        as.integer(debug)
+        as.integer (debug)    # WAS as.matrix(maskusage)
       )
       sump <- sump + pmixn[x,] * temp
   }
@@ -267,7 +266,7 @@ secr_integralprw1poly <- function (detectfn, realparval0, haztemp, hk, H,
   for (x in 1:nmix) {
       hx <- if (any(binomNcode==-2)) matrix(haztemp$h[x,,], nrow = m) else -1 ## sum_k (hazard)
       hi <- if (any(binomNcode==-2)) haztemp$hindex else -1                   ## index to hx
-      temp <- polygonhistoriescpp(
+      temp <- secrfunc::polygonhistoriescpp(
         as.integer(nr),
         as.integer(detectfn[1]),
         as.integer(grain),
@@ -288,8 +287,7 @@ secr_integralprw1poly <- function (detectfn, realparval0, haztemp, hk, H,
         as.matrix(usge),
         as.matrix (hx),                
         as.matrix (hi),      
-        as.matrix(maskusage),
-        as.integer(debug)
+        as.integer (debug)   # WAS as.matrix(maskusage)
       )
       if (nr == 1) temp <- rep(temp, nc)
       for (g in 1:ngroup) {
@@ -443,7 +441,7 @@ secr_generalsecrloglikfn <- function (
       # 2019-11-25 not safe to use multithreading with 2-D integration 
       # 2019-11-25 therefore using repeated 1-D integration
       convexpolygon <- is.null(details$convexpolygon) || details$convexpolygon
-      gkhk <- makegkPolygoncpp (
+      gkhk <- secrfunc::makegkPolygoncpp (
         as.integer(detectfn), 
         as.integer(dimension), 
         as.logical(convexpolygon), 
@@ -524,7 +522,7 @@ secr_generalsecrloglikfn <- function (
         ## polygon types
     if (all(data$dettype %in% c(3,4,6,7))) {
         if (learnedresponse) {   ## overwrite gk,hk with model for naive animal
-            gkhk <- makegkPolygoncpp (
+            gkhk <- secrfunc::makegkPolygoncpp (
               as.integer(detectfn), 
               as.integer(details$grain),
               as.integer(details$ncores),

@@ -113,7 +113,7 @@ pdot <- function (X, traps, detectfn = 0, detectpar = list(g0 = 0.2, sigma = 25,
         dim <- if (any(detector(traps) %in% c('transect', 'transectX'))) 1 else 2
             
         warning("assuming convex polygons in pdot()")
-        temp <- hdotpolycpp (
+        temp <- secrfunc::hdotpolycpp (
           as.matrix(X),
           as.matrix(traps),
           as.matrix(usge),

@@ -39,6 +39,7 @@
 ## 2025-06-25 detectfn 20 OU
 ## 2025-07-20 5.3.0
 ## 2025-07-24 secr_ prefix attached to most functions used in other .R files
+## 2025-11-26 5.4.0
 ################################################################################
 
 # Global variables in namespace

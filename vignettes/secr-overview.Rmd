@@ -1,5 +1,5 @@
 ---
-title: '**secr** 5.3 - spatially explicit capture--recapture in R'
+title: '**secr** 5.4 - spatially explicit capture--recapture in R'
 author: "Murray Efford"
 date: "`r Sys.Date()`"
 output: 
@@ -14,7 +14,7 @@ vignette: >
 
 \vspace{12pt}
 
-This document provides a compact overview of **secr** 5.3, an R package for spatially explicit capture--recapture analysis (SECR).  For background on SECR and a tutorial see the SECR book, [Efford (2025)].  
+This document provides a compact overview of **secr** 5.4, an R package for spatially explicit capture--recapture analysis (SECR).  For background on SECR and a tutorial see the SECR book, [Efford (2025)].  
 
 Add-on packages extend the capability of **secr** and are documented separately. 
 
@@ -211,7 +211,7 @@ There is limited support in **secr** for the analysis of locational data from te
 The program DENSITY (Efford et al. 2004, Efford 2012) provides a graphical interface to SECR methods that was used by many
 biologists. However, DENSITY has significant drawbacks: it requires the Windows operating system, its algorithms are not always transparent or well-documented, it fits only homogeneous Poisson models, and it omits recent advances in SECR.
 
-The R package **secr** was written to address these weaknesses and allow for further development. It implements almost all the methods described by Borchers and Efford (2008), Efford et al. (2009), Efford (2011), Efford and Fewster (2013), Efford et al. (2013) and Efford and Mowat (2014). **secr** 5.3 uses external C++ code via package **Rcpp** for computationally intensive operations (Eddelbuettel and Francois 2011); Multi-threading on multiple CPUs with **RcppParallel** (Allaire et al. 2021) gives major speed gains. The most important functions of **secr** are listed in [Appendix 1](#appendix1).
+The R package **secr** was written to address these weaknesses and allow for further development. It implements almost all the methods described by Borchers and Efford (2008), Efford et al. (2009), Efford (2011), Efford and Fewster (2013), Efford et al. (2013) and Efford and Mowat (2014). **secr** 5.4 uses external C++ code via package **Rcpp** for computationally intensive operations (Eddelbuettel and Francois 2011); Multi-threading on multiple CPUs with **RcppParallel** (Allaire et al. 2021) gives major speed gains. The most important functions of **secr** are listed in [Appendix 1](#appendix1).
 
 ## How **secr** works
 
@@ -379,7 +379,7 @@ Turek, D., Milleret, C., Ergon, T., Brøseth, H., Dupont, P., Bischof, R., and V
 
 # Appendix 1. Core functions of **secr** {#appendix1}
 
-These are the core functions of **secr** 5.3 -- the ones that you are most likely to use. S3 methods are marked with an asterisk.
+These are the core functions of **secr** 5.4 -- the ones that you are most likely to use. S3 methods are marked with an asterisk.
 
 |  Function       | Purpose                                           |
 |-----------------|---------------------------------------------------|

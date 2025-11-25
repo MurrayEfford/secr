@@ -1,4 +1,4 @@
-Changes in version 5.3.1 (2025-11-20)
+Changes in version 5.4.0 (2025-11-26)
 
 New features or changed behaviour of old functions
     o  none
@@ -6,6 +6,10 @@ New features or changed behaviour of old functions
 Bugs fixed
     o  addCovariates failed with some polygon input (points on boundary?)
     o  esa.secr failed with non-point detectors when 'real' specified
+
+Other
+    o  does not use RcppNumerical, RcppEigen directly
+    o  polygon functions imported from new package secrfunc
 
 Changes in version 5.3.0 (2025-09-27)
 

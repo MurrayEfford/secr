@@ -1,8 +1,8 @@
 Package: secr
 Type: Package
 Title: Spatially Explicit Capture-Recapture
-Version: 5.3.1
-Date: 2025-11-05
+Version: 5.4.0
+Date: 2025-11-26
 Description: Functions to estimate the density and size of a spatially 
   distributed animal population sampled with an array of passive detectors, 
   such as traps, or by searching polygons or transects. Models incorporating 
@@ -26,6 +26,7 @@ Depends:
     R (>= 3.5.0), 
     methods
 Imports: 
+    secrfunc,
     abind, 
     graphics, 
     grDevices, 
@@ -36,7 +37,6 @@ Imports:
     parallel, 
     raster (>= 3.5-15), 
     Rcpp (>= 0.12.14), 
-    RcppNumerical,
     RcppParallel (>= 5.1.1),
     sf,
     stats, 
@@ -60,8 +60,6 @@ Suggests:
 LinkingTo: 
     BH,
     Rcpp, 
-    RcppEigen, 
-    RcppNumerical, 
     RcppParallel
 VignetteBuilder: knitr
 License: GPL (>= 2)
@@ -69,3 +67,5 @@ LazyData: yes
 LazyDataCompression: xz
 SystemRequirements: GNU make
 URL: https://www.otago.ac.nz/density/, https://github.com/MurrayEfford/secr/
+Additional_repositories: https://MurrayEfford.r-universe.dev
+

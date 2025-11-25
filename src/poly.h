@@ -8,11 +8,6 @@
 #define BOOST_MATH_DOMAIN_ERROR_POLICY ignore_error
 #include <boost/math/distributions.hpp>       // gamma, normal, lognormal distributions
 
-// [[Rcpp::depends(RcppEigen)]]
-// [[Rcpp::depends(RcppNumerical)]]
-// next two lines must be in order (RcppNumerical precedes secr.h)
-#include <RcppNumerical.h>
-
 #include "secr.h"
 
 using namespace Rcpp;
@@ -53,39 +48,6 @@ double integral1Dcpp (
 //         const int &n1,
 //         const int &n2,
 //         double ex[]);
-
-//-----------------------------------------------------
-// alternative 2-D using RcppNumerical Numer::integrate
-//-----------------------------------------------------
-
-double hintegral1DNRcpp (
-        const int fn, 
-        const std::vector<double> &gsb);
-
-double hintegral2DNRcpp (
-        const int fn, 
-        const std::vector<double> &gsb); 
-
-double integral1DNRcpp (
-        const int fn, 
-        const int m, 
-        const int c, 
-        const RcppParallel::RMatrix<double> &gsbval, 
-        const RcppParallel::RMatrix<double> &traps,
-        const RcppParallel::RMatrix<double> &mask, 
-        const int n1, 
-        const int n2);
-
-double integral2DNRcpp  (
-        const int &fn,
-        const int &m,
-        const int &c,
-        const RcppParallel::RMatrix<double> &gsbval,
-        const RcppParallel::RMatrix<double> &poly,
-        const RcppParallel::RMatrix<double> &mask,
-        const int &n1,
-        const int &n2,
-        const bool &convex);
 
 #endif
 

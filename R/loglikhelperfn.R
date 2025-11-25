@@ -238,7 +238,7 @@ secr_makegk <- function(dettype, detectfn, trps, mask, details, sessnum, NElist,
         cumk <- cumsum(c(0,k))[1:length(k)]
         dimension <- (dettype[1] %in% c(3,6)) + 1   ## 1 = 1D, 2 = 2D
         convexpolygon <- is.null(details$convexpolygon) || details$convexpolygon
-        gkhk <- makegkPolygoncpp (
+        gkhk <- secrfunc::makegkPolygoncpp (
             as.integer(detectfn), 
             as.integer(dimension), 
             as.logical(convexpolygon), 
