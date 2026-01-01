@@ -1189,7 +1189,7 @@ NumericVector expdetectpointcpp (
     int    ss = Tsk.ncol();            // number of occasions
     
     double p, ps, p0, p1;
-    int    i,ik,k,s,x;
+    int    i,k,s,x;
     int    wxi     = 0;
     int    c       = 0;
     int    c0      = 0;
