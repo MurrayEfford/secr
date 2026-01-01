@@ -6,11 +6,12 @@
 ## 2017-05-23 markocc argument
 ## 2019-12-29 leadingzero argument
 ## 2021-03-26 spacing attribute initially inferred from min(spacex, spacey)
+## 2026-01-01 centre argument
 ###############################################################################
 
 make.grid <- function (nx = 6, ny = 6, spacex = 20, spacey = spacex, spacing=NULL, 
     detector = 'multi', originxy = c(0,0), hollow = FALSE, ID = 'alphay', 
-    leadingzero = TRUE, markocc = NULL)
+    leadingzero = TRUE, markocc = NULL, centre = FALSE)
 
 {
     if (!all( detector %in% .localstuff$validdetectors ))
@@ -94,6 +95,11 @@ make.grid <- function (nx = 6, ny = 6, spacex = 20, spacey = spacex, spacing=NUL
 
     if (leadingzero && (ID %in% c('numy','numx','numyb','numxb') )) {
         row.names(grid) <- secr_leadingzero(as.numeric(row.names(grid)))
+    }
+    
+    ## centre argument added 5.4.0
+    if (centre) {
+        grid[] <- sweep(grid, MARGIN = 2, STATS = apply(grid,2,mean), FUN = "-")
     }
     
     attr(grid, 'detector')    <- detector
