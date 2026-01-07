@@ -324,8 +324,9 @@ append.capthist <- function (..., synchronous = TRUE)
     if (!is.null(usage(traplist[[i]]))) {
       if (synchronous) {
         # fill extra occasions as needed
-        usage(traplist[[i]]) <- cbind(usage(traplist[[i]], 
-            matrix(0, nrow=k, ncol = dimsum[2] - dims[2,i])))
+        # 2026-01-08 fixed misplaced parenthesis in following  
+        usage(traplist[[i]]) <- cbind(usage(traplist[[i]]), 
+            matrix(0, nrow=k, ncol = dimsum[2] - dims[2,i]))
       }
       else {
         # construct usage matrix for all occasions
