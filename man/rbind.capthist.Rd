@@ -48,9 +48,7 @@
   session is the sum of the number of rows in the input sessions
   (i.e. each animal appears in only one session). Sessions to be pooled with 
   \code{rbind} must have the same number of capture occasions and use the 
-  same detectors (traps). At present there is no function to pool capthist 
-  data from different detector arrays. For this it is recommended that you 
-  merge the input files and rebuild the capthist object from scratch.
+  same detectors (traps). 
 
   For \code{rbind.capthist}, the \dots argument may be \enumerate{
       \item A series of single-session capthist objects, which are
