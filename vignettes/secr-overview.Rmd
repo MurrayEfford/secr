@@ -342,7 +342,7 @@ Efford, M. G. (2004) Density estimation in live-trapping studies. *Oikos* **106*
 Efford, M. G. (2011) Estimation of population density by spatially explicit capture--recapture analysis of data from area searches. *Ecology* **92**, 2202--2207.
 
 Efford, M. G. (2012) *DENSITY 5.0: software for spatially explicit capture--recapture*.  Department of Mathematics and Statistics, University of Otago, Dunedin, New Zealand
-  https://www.otago.ac.nz/density.
+  https://www.otago.ac.nz/density/.
 
 Efford, M. G. (2023) ipsecr: An R package for awkward spatial capture--recapture data.
   *Methods in Ecology and Evolution* **14**, 1182--1189.

@@ -439,7 +439,7 @@ likelihood methods for capture--recapture studies. *Biometrics* **64**,
 
 Efford, M. G. (2012) *DENSITY 5.0: software for spatially
     explicit capture--recapture*.  University of Otago, Dunedin, New
-  Zealand https://www.otago.ac.nz/density.
+  Zealand https://www.otago.ac.nz/density/.
 
 Efford, M. G., Dawson, D. K. and Borchers, D. L. (2009) Population
 density estimated from locations of individuals on a passive detector
