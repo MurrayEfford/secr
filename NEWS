@@ -1,3 +1,11 @@
+Changes in version 5.4.1 (2026-01-10)
+
+New features or changed behaviour of old functions
+    o  none
+
+Other
+    o  alias some function names to protect reverse dependencies ipsecr, openCR
+
 Changes in version 5.4.0 (2026-01-09)
 
 New features or changed behaviour of old functions
