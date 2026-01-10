@@ -2000,10 +2000,10 @@ mlogit <- function (x) {
 # 2025-09-26 temporary synonyms to not break packages that call these with :::
 
 # # ipsecr 1.4.4
-# detectorcode <- secr_detectorcode
-# parnames <- secr_parnames
-# stdform <- secr_stdform
-#             
+detectorcode <- secr_detectorcode
+parnames <- secr_parnames
+stdform <- secr_stdform
+
 # # secrdesign 2.10.0
 # detectionfunctionnumber <- secr_detectionfunctionnumber
 # model.string <- secr_model.string
@@ -2012,4 +2012,4 @@ mlogit <- function (x) {
 # # secrlinear 1.2.4 - none
 # 
 # # openCR 2.2.7
-# getuserdistnames <- secr_getuserdistnames
+getuserdistnames <- secr_getuserdistnames
