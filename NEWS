@@ -1,12 +1,9 @@
-Changes in version 5.4.1 (2026-01-10)
+Changes in version 5.4.2 (2026-01-18)
 
 New features or changed behaviour of old functions
     o  none
 
-Other
-    o  alias some function names to protect reverse dependencies ipsecr, openCR
-
-Changes in version 5.4.0 (2026-01-09)
+Changes in version 5.4.1 (2026-01-10)
 
 New features or changed behaviour of old functions
     o  make.grid() acquires logical argument 'centre' (centre on 'originxy')
@@ -19,6 +16,7 @@ Bugs fixed
 Other
     o  does not use RcppNumerical, RcppEigen directly
     o  polygon functions imported from new package secrfunc
+    o  alias some function names to protect reverse dependencies ipsecr, openCR
 
 Changes in version 5.3.0 (2025-09-27)
 
