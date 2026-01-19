@@ -1,7 +1,7 @@
 ############################################################################################
 ## package 'secr'
 ## trend.R
-## 2023-09-29 2025-08-12 2025-09-18 (annotation) 
+## 2023-09-29 2025-08-12 2025-09-18 (annotation) 2026-01-20 revert Dfn2
 ############################################################################################
 
 Dfn2 <- function (designD, beta = NULL, ...) {
@@ -10,7 +10,9 @@ Dfn2 <- function (designD, beta = NULL, ...) {
     # used for Dlambda parameterization (details$Dlambda == TRUE) by secr_getD()
     dimD <- attr(designD, 'dimD')
     designD[1:dimD[1],] <- 0
-    designD <- cbind(rep(c(1,0), c(dimD[1], nrow(designD)-dimD[1])), designD[,-1])
+    # designD <- cbind(rep(c(1,0), c(dimD[1], nrow(designD)-dimD[1])), designD[,-1])
+    # revert 2026-01-20
+    designD <- cbind(rep(c(1,0), c(dimD[1], nrow(designD)-dimD[1])), designD)
     if (is.null(beta)) return(ncol(designD)) # number of beta parameters
     lp <- designD %*% beta
     lp <- array(lp, dim = dimD[-2])   # mask x session matrix
@@ -25,17 +27,22 @@ predictDlambda <- function (object, alpha = 0.05) {
     beta.vcv <- secr_complete.beta.vcv(object)
     beta.vcv[is.na(beta.vcv)] <- 0
     Dpar <- object$parindx[['D']]
+    # 2026-01-20 revert (remove check)
     # ad hoc patch for changed beta, drop last
-    if (length(Dpar) > ncol(object$designD)) {
-        stop("fitted Dlambda model not compatible with 5.3.0")
-    }
+    # if (length(Dpar) > ncol(object$designD)) {
+    #     stop("fitted Dlambda model not compatible with 5.3.0")
+    # }
     beta <- beta[Dpar]
     beta.vcv <- beta.vcv[Dpar,Dpar, drop = FALSE]
     
+    # use subset of design matrix, just first row per session
     
-    # use subset of design matrix, just 1 row per session
-    mat <- object$designD[dimD[1]*(0:(nsessions-1))+1,,drop=FALSE]
-
+    # 2026-01-20 revert (set [1,1] = 1)
+    # mat <- object$designD[dimD[1]*(0:(nsessions-1))+1,,drop=FALSE]
+    vars <- object$designD[dimD[1]*(0:(nsessions-1))+1,,drop=FALSE]
+    vars[1,1] <- 0
+    mat <- cbind(rep(c(1,0), c(1, nrow(vars)-1)), vars)
+    
     if (object$CL) warning("predictDlambda does not yet infer D1 when CL = TRUE")
     lp <- mat %*% beta
     prepost <- function(i) mat[i,, drop = FALSE] %*% beta.vcv %*% t(mat[i,, drop = FALSE])
