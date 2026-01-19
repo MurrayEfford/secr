@@ -1,7 +1,10 @@
-Changes in version 5.4.2 (2026-01-18)
+Changes in version 5.4.2 (2026-01-20)
 
 New features or changed behaviour of old functions
     o  none
+
+Bugs fixed
+    o  Dlambda broken in 5.3.0, 5.4.1
 
 Changes in version 5.4.1 (2026-01-10)
 
