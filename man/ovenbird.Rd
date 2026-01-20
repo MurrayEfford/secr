@@ -22,6 +22,7 @@ ovenCH
 ovenCHp
 ovenbird.model.1
 ovenbird.model.D
+ovenbird.model.Dl
 ovenmask
 
 }
@@ -78,7 +79,7 @@ the number of detections in any one year was too small to give reliable
 estimates of density; pooling of detection parameters across years
 helped to improve precision.
 
-Included with the data are a mask and two models fitted to \code{ovenCH} as in
+Included with the data are a mask and three models fitted to \code{ovenCH} as in
 Examples. 
 
 \tabular{ll}{
@@ -87,6 +88,7 @@ Examples.
   ovenCHp \tab multi-session capthist object (as binary proximity) \cr
   ovenbird.model.1 \tab fitted secr model -- null \cr
   ovenbird.model.D \tab fitted secr model -- trend in density across years
+  ovenbird.model.Dl \tab fitted secr model -- trend in density across years, Dlambda parameterization
   \cr
   ovenmask \tab mask object \cr
 }
@@ -150,6 +152,7 @@ counts(ovenCHp, "n")
 ovenCH <- reduce(ovenCHp, outputdetector = "multi", dropunused = FALSE)
 
 ## array constant over years, so build mask only once
+## "pdot" type is no longer favoured, but kept here for consistency
 ovenmask <- make.mask(traps(ovenCH)[["2005"]], type = "pdot", 
     buffer = 400, spacing = 15, detectpar = list(g0 = 0.03, 
     sigma = 90), nocc = 10)
@@ -161,7 +164,12 @@ ovenbird.model.1 <- secr.fit(ovenCH, mask = ovenmask)
 ovenbird.model.D <- secr.fit(ovenCH, mask = ovenmask, 
     model = list(D ~ Session))
 
-## compare pre-fitted models
+## fit temporal trend in density, Dlambda parameterization (Efford 2025 Appendix J)
+ovenbird.model.Dl <- secr.fit(ovenCH, mask = ovenmask, 
+    model = list(D ~ 1), details = list(Dlambda = TRUE))
+predictDlambda(ovenbird.model.Dl)
+
+## compare compatible pre-fitted models
 AIC(ovenbird.model.1, ovenbird.model.D)
 
 }
