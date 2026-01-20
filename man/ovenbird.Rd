@@ -6,6 +6,7 @@
 \alias{ovenCHp}
 \alias{ovenbird.model.1}
 \alias{ovenbird.model.D}
+\alias{ovenbird.model.Dl}
 \alias{ovenmask}
 
 \title{ Ovenbird Mist-netting Dataset }
@@ -87,9 +88,8 @@ Examples.
   ovenCH \tab multi-session capthist object (as multi-catch) \cr
   ovenCHp \tab multi-session capthist object (as binary proximity) \cr
   ovenbird.model.1 \tab fitted secr model -- null \cr
-  ovenbird.model.D \tab fitted secr model -- trend in density across years
-  ovenbird.model.Dl \tab fitted secr model -- trend in density across years, Dlambda parameterization
-  \cr
+  ovenbird.model.D \tab fitted secr model -- trend in density across years \cr
+  ovenbird.model.Dl \tab fitted secr model -- trend in density across years, Dlambda parameterization \cr
   ovenmask \tab mask object \cr
 }
 
