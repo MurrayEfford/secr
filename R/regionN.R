@@ -117,9 +117,9 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
     ####################################################################
     ## otherwise, this is a non-recursive call for one session...
     else {
-        # 2026-02-22
+        # 2026-02-24
         if (tolower(object$details$distribution) == "binomial") {
-            warning ("Model fitted with distribution = 'binomial'; binomial expected-N corresponds to Poisson realised-N")
+            warning ("Model fitted with distribution = 'binomial’; the results reported as R.N do not apply for this model")
         }
         
         if (ms(object$mask))
