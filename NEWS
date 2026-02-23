@@ -1,10 +1,13 @@
-Changes in version 5.4.2 (2026-01-20)
+Changes in version 5.4.2 (2026-02-24)
 
 New features or changed behaviour of old functions
     o  none
 
 Bugs fixed
     o  Dlambda broken in 5.3.0, 5.4.1
+
+Other
+    o  region.N() warning for binomial fitted model
 
 Changes in version 5.4.1 (2026-01-10)
 
