@@ -119,7 +119,7 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
     else {
         # 2026-02-24
         if (tolower(object$details$distribution) == "binomial") {
-            warning ("Model fitted with distribution = 'binomial’; the results reported as R.N do not apply for this model")
+            warning ("Model fitted with distribution = 'binomial'; the results reported as R.N do not apply for this model")
         }
         
         if (ms(object$mask))
