@@ -1,3 +1,8 @@
+Changes in version 5.4.3 (2026-02-26)
+
+New features or changed behaviour of old functions
+    o  boundarytoSF() acquires ... args
+
 Changes in version 5.4.2 (2026-02-24)
 
 New features or changed behaviour of old functions

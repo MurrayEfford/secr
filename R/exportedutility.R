@@ -176,7 +176,8 @@ insertdim <- function (x, dimx, dims) {
 }
 #-------------------------------------------------------------------------------
 
-boundarytoSF <- function (poly) {
+# 2026-02-26 dots added
+boundarytoSF <- function (poly, ...) {
     if (is.null(poly)) {
         NULL
     }
@@ -192,16 +193,16 @@ boundarytoSF <- function (poly) {
         poly
     }
     else if (inherits(poly, 'SpatialPolygons')) {   # also SPDF?
-        st_as_sfc(poly)
+        st_as_sfc(poly, ...)
     }
     else if (inherits(poly, 'SpatVector')) {
-        st_as_sfc(as(poly,"Spatial"))
+        st_as_sfc(as(poly,"Spatial"), ...)
     }
     else if (inherits(poly, c('matrix', 'data.frame'))) {
         ## input is 2-column matrix for a single polygon
         poly <- matrix(unlist(poly), ncol = 2)
         poly <- rbind (poly, poly[1,])  ## force closure of polygon
-        st_sfc(st_polygon(list(poly)))
+        st_sfc(st_polygon(list(poly)), ...)
     }
     else stop (class(poly), " not valid input to boundarytoSF")
 }

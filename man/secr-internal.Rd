@@ -13,7 +13,7 @@ Functions called internally by \pkg{secr} and exported but not usually called by
 
 \usage{
 
-boundarytoSF (poly)
+boundarytoSF (poly, ...)
 
 Dfn2(designD, beta = NULL, ...)
 
@@ -25,7 +25,7 @@ Dfn2(designD, beta = NULL, ...)
 
   \item{designD}{dataframe of density design data (output from \code{\link{D.designdata}})}
   \item{beta}{numeric vector of beta values (see Details for NULL)}
-  \item{...}{other arguments (not used)}
+  \item{...}{other arguments passed to sf::st_sfc or sf::st_as_sfc (e.g. \code{\link[sf]{st_crs})}}
 
 }
 
