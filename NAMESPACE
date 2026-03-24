@@ -215,6 +215,8 @@ export (append.capthist)
 export (simOU)
 export (simOU.capthist)
 
+export(fillNA)
+
 #---------------------------------------
 # new generics in secr
 export (reduce)
