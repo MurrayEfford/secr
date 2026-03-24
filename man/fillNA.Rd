@@ -6,31 +6,33 @@
 \description{
 
 Missing covariate values are not allowed in a habitat mask. This function replaces 
-each missing value with the closest non-missing value. It is intended for when a 
-few cells have missing values.
+each missing value with a given value or the closest non-missing value. 
+This is not recommended if more than a few cells have missing values. 
 
 }
 
 \usage{
 
-fillNA(mask, cov = NULL, method = "nearest", verbose = TRUE)
+fillNA(mask, cov = NULL, method = c("nearest", "value"), value = NULL, verbose = TRUE)
 
 }
 
 \arguments{
   \item{mask}{habitat mask or similar}
   \item{cov}{character vector of covariate names}
-  \item{method}{character (only 'nearest' implemented)}
+  \item{method}{character}
+  \item{value}{character, numeric, or factor value to replace all NA}
   \item{verbose}{logical; if TRUE the replacements are reported}
 }
 
-}
 \details{
 
 If there is more than one covariate then each is handled separately. 
 If no covariate is named then all covariates are filled.
 
-The `method' argument is included to allow for other fill algorithms in the future.
+When method = "value" all NA values are replaced with the given value.
+
+The method argument switches automatically to `value' if value is specified.
 
 }
 
@@ -57,5 +59,11 @@ msk2 <- fillNA(msk)
 par(mfrow = c(1,2))
 plot(msk, cov='rand', dots = FALSE)
 plot(msk2, cov='rand', dots = FALSE)
+
+msk3 <- fillNA(msk, value = factor(2, levels=1:2))
+
+# a call to fillNA shows whether any covariate has missing values
+# assign result to tmp to avoid unwanted output
+tmp <- fillNA(msk2)
 
 }

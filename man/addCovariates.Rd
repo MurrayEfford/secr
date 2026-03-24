@@ -53,6 +53,8 @@ lie outside \code{spatialdata} (mask data sources only)}
   \code{covariates(spatialdata)}. By default (\code{strict = FALSE}),
   values are returned even when the points lie outside any cell of the mask.
   
+  If a covariate has a few missing values these may be filled cheaply using \code{\link{fillNA}}.
+  
 }
 
 \value{
@@ -64,7 +66,7 @@ lie outside \code{spatialdata} (mask data sources only)}
 
 \seealso{
 
-  \code{\link{make.mask}}, \code{\link{read.mask}}, \code{\link{read.traps}}
+  \code{\link{fillNA}}, \code{\link{make.mask}}, \code{\link{read.mask}}, \code{\link{read.traps}}
 
 }
 
@@ -84,6 +86,8 @@ LSmask <- make.mask(LStraps, buffer = 30, type = "trapbuffer")
 tempmask <- addCovariates(LSmask, LStraps)
 ## show first few lines
 head(covariates(tempmask))
+
+## Missing covariates at a fraction of mask locations may also be filled with fillNA()
 
 }
 
