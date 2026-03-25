@@ -5,13 +5,14 @@
 
 \description{
 
-Forms a new covariate, replacing values of an old covariate by the central value of equal-width bins.
+Forms a new covariate, replacing values of an old numeric covariate either by the 
+central value of equal-width bins (a new numeric covariate) or factor levels from \code{\link{cut}}.
 
 }
 
 \usage{
 
-binCovariate(object, covname, width)
+binCovariate(object, covname, width, breaks = NULL, replace = FALSE, ...)
 
 }
 
@@ -20,14 +21,21 @@ binCovariate(object, covname, width)
   \item{object}{secr object with covariates attribute (capthist, traps, mask)}
   \item{covname}{character name of covariate}
   \item{width}{numeric bin width}
+  \item{breaks}{numeric (see \code{\link{cut}}) }
+  \item{replace}{logical; if TRUE any existing covariate of the new name is replaced}
+  \item{...}{arguments passed to cut when breaks is provided}
 
 }
 
 \details{
 
-The name of the new covariate is \code{paste0(covname, width)}.
+Argument `width' is ignored if `breaks' is specified.
 
-Fails if covariate not found or is not numeric or there is already a covariate with the new name.
+By default (breaks not specified) the name of the new covariate is \code{paste0(covname, width)}. 
+Otherwise, the new covariate name is  \code{paste0(covname, 'cut')}.
+
+Fails if covariate not found or is not numeric or there is already a covariate with 
+the new name and replace = FALSE.
 
 Multi-session objects are handled appropriately. 
 

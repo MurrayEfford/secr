@@ -1,8 +1,9 @@
-Changes in version 5.4.3 (2026-03-25)
+Changes in version 5.4.3 (2026-03-26)
 
 New features or changed behaviour of old functions
     o  boundarytoSF() acquires ... args
     o  fillNA() new utility function to replace missing covariate values
+    o  binCovariate() utility acquires breaks argument (factor output)
 
 Changes in version 5.4.2 (2026-02-24)
 
