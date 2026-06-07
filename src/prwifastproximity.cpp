@@ -151,7 +151,7 @@ struct fasthistories : public Worker {
     }
     //==============================================================================
     
-    double onehistory (int n) {
+    double onefasthistory (int n) {
         std::vector<double> pm(mm);
         prwL (n, pm);           
         for (int m=0; m<mm; m++) {
@@ -165,7 +165,7 @@ struct fasthistories : public Worker {
     // function call operator that works for the specified range (begin/end)
     void operator()(std::size_t begin, std::size_t end) {        
         for (std::size_t n = begin; n < end; n++) {
-            output[n] = onehistory (n);
+            output[n] = onefasthistory (n);
         }
     }
     //==============================================================================
@@ -192,7 +192,7 @@ NumericVector fasthistoriescpp (
     NumericVector output(nc); 
 
     // Construct and initialise
-    fasthistories somehist (mm, nc, cc, grain, binomN, indiv,
+    fasthistories fasthist (mm, nc, cc, grain, binomN, indiv,
                             w, ki, gk, hk,
                             density, PIA, Tsk, mbool, 
                             // pm0base, pm0kbase, 
@@ -200,11 +200,11 @@ NumericVector fasthistoriescpp (
     
     if (ncores>1) {
         // Run operator() on multiple threads
-        parallelFor(0, nc, somehist, grain, ncores);
+        parallelFor(0, nc, fasthist, grain, ncores);
     }
     else {
         // for debugging avoid multithreading and allow R calls e.g. Rprintf
-        somehist.operator()(0,nc);    
+        fasthist.operator()(0,nc);    
     }
     
     // Return consolidated result
