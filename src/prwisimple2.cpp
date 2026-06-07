@@ -4,8 +4,11 @@
 // 2019-08-10, 2019-10-18
 // detector types multi, proximity, count, telemetry
 
+// 2026-06-06 experimental use of LSE: convert pm to log(pm)
+// 2026-06-07 rename gethr to gethrcpp
+
 // [[Rcpp::export]]
-NumericVector gethr(
+NumericVector gethrcpp(
         const int nc,
         const int fn, 
         const IntegerVector &start,
@@ -13,7 +16,8 @@ NumericVector gethr(
         const NumericMatrix &mask, 
         const NumericMatrix &gsbval, 
         const double telemscale) {
-    // precompute all telemetry-to-mask detectfn values  
+    // precompute all telemetry-to-mask detectfn values
+    // 2026-06-06 convert to logarithm
     int c,m,t,hri;
     double r;
     int nt = xy.nrow();
@@ -21,8 +25,8 @@ NumericVector gethr(
     int cc = gsbval.nrow();
     NumericVector gsb(3);  
     NumericVector hr(nt * mm * cc);
-    fnptr zfnr;
-    zfnr = getzfnr(fn);                                          
+    fnptr lfnr;
+    lfnr = getlfnr(fn);                  // log!                        
     for (c=0; c<cc; c++) {
         gsb(1) = gsbval(c,1);
         // normalising coefficient 1/c, c = 2.pi.sigma^2
@@ -34,8 +38,8 @@ NumericVector gethr(
             for (t=0; t<nt; t++) {
                 r = std::sqrt(d2cpp (m, t, mask, xy)); 
                 hri = i3(c, m, t, cc, mm); 
-                if (hri>1e8) Rcpp::stop ("c,m,t combinations exceed 1e8 in gethr");
-                hr[hri] = zfnr(gsb, r);
+                if (hri>1e8) Rcpp::stop ("c,m,t combinations exceed 1e8 in gethrcpp");
+                hr[hri] = lfnr(gsb, r);
             }	    
         }
     }
@@ -162,8 +166,10 @@ struct simplehistories : public Worker {
                 for (i=cumcount; i<(cumcount+count); i++) {
                     t = telemstart[n] + i;
                     for (int m=0; m<mm; m++) {
-                        hri  = i3(c, m, t, cc, mm); 
-                        pm[m] *= telemhr[hri]; 
+                        if (mbool(n,m)) {
+                            hri  = i3(c, m, t, cc, mm); 
+                            pm[m] += telemhr[hri];         // log from 2026-06-06
+                        }
                     }
                 }
                 cumcount += count;
@@ -199,10 +205,10 @@ struct simplehistories : public Worker {
                 if (mbool(n,m)) {
                     H = h(m, hindex(n,s));
                     if (H > fuzz)
-                        pm[m] *= exp(-H);
+                        pm[m] -= H;    // log 2026-06-06
                 }
                 else {
-                    pm[m] = 0.0; 
+                    pm[m] = -huge;     // log 2026-06-06 
                 }
             }
         }
@@ -215,14 +221,14 @@ struct simplehistories : public Worker {
                     if (mbool(n,m)) {
                         H = h(m, hindex(n,s));
                         if (H>fuzz) {
-                            pm[m] *= Tsk(k,s) * (1-exp(-H)) *  hk[i3(c, k, m, cc, kk)] / H;
+                            pm[m] += log(Tsk(k,s) * (1-exp(-H)) *  hk[i3(c, k, m, cc, kk)] / H);
                         }
                         else {
-                            pm[m] = 0.0;
+                            pm[m] = -huge;    // log 2026-06-06
                         }
                     }
                     else {
-                        pm[m] = 0.0; 
+                        pm[m] = -huge;       // log 2026-06-06 
                     }
                 }
             }
@@ -241,13 +247,14 @@ struct simplehistories : public Worker {
                 for (m=0; m<mm; m++) {
                     if (mbool(n,m)) {
                         // bug fix 2023-03-09 for Poisson counts
+                        // log 2026-06-06
                         if (binomN[s]==0)
-                            pm[m] *= pski(binomN[s], count, Tsk(k,s), hk[i3(c, k, m, cc, kk)], pID[s]);  
+                            pm[m] += log(pski(binomN[s], count, Tsk(k,s), hk[i3(c, k, m, cc, kk)], pID[s]));  
                         else 
-                            pm[m] *= pski(binomN[s], count, Tsk(k,s), gk[i3(c, k, m, cc, kk)], pID[s]);  
+                            pm[m] += log(pski(binomN[s], count, Tsk(k,s), gk[i3(c, k, m, cc, kk)], pID[s]));  
                     }
                     else {
-                        pm[m] = 0.0; 
+                        pm[m] = -huge;      // log 2026-06-06 
                     }
                 }
             }
@@ -322,11 +329,12 @@ struct simplehistories : public Worker {
     }
     //----------------------------------------------------------------------------
     
-    double onehistory (int n) {
+    double onehistory (std::size_t n) {
         bool dead = false;
-        double sumpm = 0.0;
+        double sumpm;
+        double maxpm = -huge;
         int cumcount = 0;
-        std::vector<double> pm(mm, 1.0);  
+        std::vector<double> pm(mm, 0.0);    // log 2026-06-06  
         for (int s = 0; s < ss; s++) {      // over occasions
             // firstocc[n] used to exclude pre-marking sightings
             if (markocc[s]>0 || (s > firstocc[n])) {         
@@ -341,10 +349,19 @@ struct simplehistories : public Worker {
         }
         
         for (int m=0; m<mm; m++) {
-            pm[m] *= density(m,group[n]); 
+            pm[m] += log(density(m,group[n])); 
+            if (pm[m]>maxpm) maxpm = pm[m];
         }
-        sumpm = std::accumulate(pm.begin(), pm.end(), 0.0);
-
+        
+        // LSE trick 2026-06-06
+        for (int m=0; m<mm; m++) {
+            pm[m] = exp(pm[m] - maxpm); 
+        }
+        sumpm = maxpm + log(std::accumulate(pm.begin(), pm.end(), 0.0));
+        if (grain==0) {
+            Rprintf("Debug n %4lld sumpm %8.6e \n", n, sumpm);
+        }
+        
         // if (grain==0)
         //     Rprintf("n %4d sumpm %8.6g\n", n,sumpm);
         
@@ -375,14 +392,14 @@ struct simplehistories : public Worker {
                 // }
                 // else 
         
-        return sumpm; // may be zero 
+        return sumpm; // may be -huge
     }
     //----------------------------------------------------------------------------
     
     // function call operator that works for the specified range (begin/end)
     void operator()(std::size_t begin, std::size_t end) {        
         for (std::size_t n = begin; n < end; n++) {
-            output[n] = onehistory (n);
+            output[n] = onehistory (n);   // 2026-06-06 log
         }
     }
     //----------------------------------------------------------------------------
@@ -432,8 +449,8 @@ List simplehistoriescpp (
     }
     
     // Return consolidated result
-    // return output;
-    return List::create(Named("prwi") = output);
+    // return output (log scale);
+    return List::create(Named("logprwi") = output);
     
 }
 //==============================================================================
