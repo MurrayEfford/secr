@@ -1682,6 +1682,41 @@ secr_maskboolean <- function (ch, mask, threshold) {
 
 #-------------------------------------------------------------------------------
 
+secr_maskboolean2 <- function (ch, mask, threshold) {
+    if (ms(ch)) {
+        if (!ms(mask)) stop ("masklookup: multisession ch requires multisession mask")
+        outlist <- mapply(secr_maskboolean, ch, mask, MoreArgs = list(threshold = threshold), SIMPLIFY = FALSE)
+        outlist
+    }
+    else {
+        id <- animalID(ch, names = FALSE, sortorder = 'snk')
+        tr <- trap(ch, names = FALSE, sortorder = 'snk')
+        trps <- traps(ch)
+        m <- nrow(mask)
+        out <- matrix(TRUE, nrow = nrow(ch), ncol = m)   # default
+        if (!is.null(threshold)) {
+            if (all(detector(trps) %in% .localstuff$pointdetectors)) {
+                df <- data.frame(id = id, x = trps$x[tr], y = trps$y[tr])
+                x <- tapply(df$x, df$id, mean, na.rm=T)
+                y <- tapply(df$y, df$id, mean, na.rm=T)
+                xy <- data.frame(x=x,y=y)
+                d2 <- edist2cpp(as.matrix(xy), as.matrix(mask))
+                out <- (d2 <= threshold^2)
+            }
+            else {
+                if (all(detector(trps) %in% 'telemetry')) {
+                    xy <- t(sapply(telemetryxy(ch), colMeans))
+                    d2 <- edist2cpp(as.matrix(xy), as.matrix(mask))
+                    out <- (d2 <= threshold^2)
+                }
+            }
+        }
+        out
+    }
+}
+
+#-------------------------------------------------------------------------------
+
 secr_multinomLL <- function (nc, En) {
     # nc is vector of number detected per session
     # En is vector of expected number

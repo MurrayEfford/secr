@@ -349,13 +349,17 @@ struct simplehistories : public Worker {
         }
         
         for (int m=0; m<mm; m++) {
-            pm[m] += log(density(m,group[n])); 
-            if (pm[m]>maxpm) maxpm = pm[m];
+            if (mbool(n,m)) {
+                pm[m] += log(density(m,group[n])); 
+                if (pm[m]>maxpm) maxpm = pm[m];
+            }
         }
         
         // LSE trick 2026-06-06
         for (int m=0; m<mm; m++) {
-            pm[m] = exp(pm[m] - maxpm); 
+            if (mbool(n,m)) {
+                pm[m] = exp(pm[m] - maxpm); 
+            }
         }
         sumpm = maxpm + log(std::accumulate(pm.begin(), pm.end(), 0.0));
         if (grain==0) {

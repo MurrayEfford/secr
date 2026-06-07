@@ -301,7 +301,7 @@ secr_prepareSessionData <- function (capthist, mask, maskusage,
             usge <- matrix(1, nrow = K, ncol = s)
         }
         if (is.null(maskusage)) {
-            maskusage <- secr_maskboolean(capthist, mask, details$maxdistance)
+            maskusage <- secr_maskboolean2(capthist, mask, details$maxdistance)
         }
         else {
             if (!is.matrix(maskusage) || nrow(maskusage) != nrow(capthist) || ncol(maskusage) != nrow(mask))
