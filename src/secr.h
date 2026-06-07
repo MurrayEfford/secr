@@ -51,6 +51,7 @@ int i4 (int i, int j, int k, int l, int ii, int jj, int kk);
 typedef double (*fnptr)(const Rcpp::NumericVector&, const double);
 typedef double (*fnptrC)(const std::vector<double>&, const double);
 fnptr getzfnr (int fn);
+fnptr getlfnr (int fn);
 fnptrC getgfns (int fn);
 fnptrC getzfnrC (int fn);
 
