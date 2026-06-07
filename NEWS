@@ -1,7 +1,10 @@
-Changes in version 5.4.4 (2026-05-28)
+Changes in version 5.4.4 (2026-06-07)
 
 New features or changed behaviour of old functions
-    o  none
+    o  more robust telemetry likelihood probably makes telemetryscale redundant
+
+Other
+    o  increased buffer width in read.telemetry() example
 
 Changes in version 5.4.3 (2026-05-26)
 
