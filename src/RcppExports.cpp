@@ -269,9 +269,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// gethr
-NumericVector gethr(const int nc, const int fn, const IntegerVector& start, const NumericMatrix& xy, const NumericMatrix& mask, const NumericMatrix& gsbval, const double telemscale);
-RcppExport SEXP _secr_gethr(SEXP ncSEXP, SEXP fnSEXP, SEXP startSEXP, SEXP xySEXP, SEXP maskSEXP, SEXP gsbvalSEXP, SEXP telemscaleSEXP) {
+// gethrcpp
+NumericVector gethrcpp(const int nc, const int fn, const IntegerVector& start, const NumericMatrix& xy, const NumericMatrix& mask, const NumericMatrix& gsbval, const double telemscale);
+RcppExport SEXP _secr_gethrcpp(SEXP ncSEXP, SEXP fnSEXP, SEXP startSEXP, SEXP xySEXP, SEXP maskSEXP, SEXP gsbvalSEXP, SEXP telemscaleSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -282,7 +282,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const NumericMatrix& >::type mask(maskSEXP);
     Rcpp::traits::input_parameter< const NumericMatrix& >::type gsbval(gsbvalSEXP);
     Rcpp::traits::input_parameter< const double >::type telemscale(telemscaleSEXP);
-    rcpp_result_gen = Rcpp::wrap(gethr(nc, fn, start, xy, mask, gsbval, telemscale));
+    rcpp_result_gen = Rcpp::wrap(gethrcpp(nc, fn, start, xy, mask, gsbval, telemscale));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -790,7 +790,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_secr_pdotpointcpp", (DL_FUNC) &_secr_pdotpointcpp, 15},
     {"_secr_fasthistoriescpp", (DL_FUNC) &_secr_fasthistoriescpp, 15},
     {"_secr_signalhistoriescpp", (DL_FUNC) &_secr_signalhistoriescpp, 16},
-    {"_secr_gethr", (DL_FUNC) &_secr_gethr, 7},
+    {"_secr_gethrcpp", (DL_FUNC) &_secr_gethrcpp, 7},
     {"_secr_simplehistoriescpp", (DL_FUNC) &_secr_simplehistoriescpp, 21},
     {"_secr_simplehistoriesfxicpp", (DL_FUNC) &_secr_simplehistoriesfxicpp, 16},
     {"_secr_Tsightinglikcpp", (DL_FUNC) &_secr_Tsightinglikcpp, 6},
