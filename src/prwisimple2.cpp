@@ -363,7 +363,7 @@ struct simplehistories : public Worker {
         }
         sumpm = maxpm + log(std::accumulate(pm.begin(), pm.end(), 0.0));
         if (grain==0) {
-            Rprintf("Debug n %4d sumpm %8.6e \n", n, sumpm);
+            Rprintf("Debug n %zu sumpm %8.6e \n", n, sumpm);
         }
         
         // if (grain==0)
