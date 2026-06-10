@@ -9,6 +9,7 @@
 //            this is hoped to avoid test error
 //            ERROR: AddressSanitizer: container-overflow on address 
 //            in pr0()
+// 2026-06-08 dump mbool, new individual masks
 
 struct fasthistories : public Worker {
     
@@ -19,14 +20,16 @@ struct fasthistories : public Worker {
     const int   grain;
     const int   binomN;
     const bool  indiv;
-    const RMatrix<int>    w;          // n x k
-    const RMatrix<int>    ki;         // n x k
+    const RMatrix<int>    w;            // n x k
+    const RMatrix<int>    ki;           // n x k
     const RVector<double> gk; 
     const RVector<double> hk; 
-    const RVector<double> density;    // n
+    const RVector<double> density;      // n
     const RVector<int>    PIA;
-    const RVector<int>    Tsk;        // k
-    const RMatrix<int>    mbool;      // appears cannot use RMatrix<bool>
+    const RVector<int>    Tsk;          // k
+    const RVector<int>    mask_indices;
+    const RVector<int>    mask_offsets;
+    const RVector<int>    mask_id;      // Maps individual to mask row
     
     // internal work arrays
     std::vector<double> pm0base;
@@ -53,7 +56,10 @@ struct fasthistories : public Worker {
         const NumericVector density,
         const IntegerVector PIA,
         const IntegerVector Tsk,
-        const LogicalMatrix mbool,
+        const IntegerVector mask_indices, 
+        const IntegerVector mask_offsets,
+        const IntegerVector mask_id,
+                          
         NumericVector output)
         : 
         mm(mm), 
@@ -69,7 +75,9 @@ struct fasthistories : public Worker {
         density(density), 
         PIA(PIA), 
         Tsk(Tsk), 
-        mbool(mbool),
+        mask_indices(mask_indices), 
+        mask_offsets(mask_offsets), 
+        mask_id(mask_id),
         output(output) {
         
         kk = Tsk.size();        // assuming single occasion
@@ -82,18 +90,20 @@ struct fasthistories : public Worker {
     //==============================================================================
     
     void pr0 (const int n, std::vector<double> &pm0n, std::vector<double> &pm0kn) { 
-            int c, k, m, w3;
-        for (m=0; m<mm; m++) pm0n[m] = 1.0;
+        int c, j, k, m, w3;
+        int m_row = mask_id[n];
+        for (m=0; m<mm; m++) pm0n[m] = 0.0;
         for (k=0; k<kk; k++) {
             w3 =  i3(n, 0, k, nc, 1);    // allow individual or trap covariate 2019-12-06
             c = PIA[w3] - 1;
             if (c >= 0) {    // ignore unset traps
-                for (m=0; m<mm; m++) {
+                for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                    m = mask_indices[j];
                     if (binomN==0)
-                        pm0kn[kk * m + k] = gpois (0, Tsk[k] * hk[i3(c, k, m, cc, kk)]);
+                        pm0kn[kk * m + k] = log(gpois (0, Tsk[k] * hk[i3(c, k, m, cc, kk)]));
                     else
-                        pm0kn[kk * m + k] = gbinom (0, Tsk[k], gk[i3(c, k, m, cc, kk)]);
-                    pm0n[m] *= pm0kn[kk * m + k];
+                        pm0kn[kk * m + k] = log(gbinom (0, Tsk[k], gk[i3(c, k, m, cc, kk)]));
+                    pm0n[m] += pm0kn[kk * m + k];
                 }
             }
         }
@@ -101,7 +111,7 @@ struct fasthistories : public Worker {
     //==============================================================================
     
     void prwL (const int n, std::vector<double> &pm) {
-        int c, i, k, m, w3;
+        int c, i, j, k, m, w3;
         
         std::vector<double> pm0(mm);
         std::vector<double> pm0k(kk*mm);
@@ -112,10 +122,14 @@ struct fasthistories : public Worker {
             pr0(n, pm0, pm0k); // update for this animal - expt 2019-12-06, 2020-04-04
         }
 
-        if (base) 
-            for (m=0; m<mm; m++) pm[m] = pm0base[m];
-        else 
-            for (m=0; m<mm; m++) pm[m] = pm0[m];  
+        int m_row = mask_id[n];
+        for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+            m = mask_indices[j];
+            if (base) 
+                pm[m] = pm0base[m];
+            else 
+                pm[m] = pm0[m];  
+        }
         
         for (i=0; i<kk; i++) {
             k = ki(n,i);
@@ -123,42 +137,49 @@ struct fasthistories : public Worker {
             w3 =  i3(n, 0, k, nc, 1);
             c = PIA[w3] - 1;
             if (c >= 0) {    // ignore unset traps
-                for (m=0; m<mm; m++) {
-                    if (mbool(n,m)) {
-                        if (base) 
-                            pm0ktmp = pm0kbase[kk * m + k]; 
-                        else 
-                            pm0ktmp = pm0k[kk * m + k];
-                        if (binomN==0) {
-                            // if (grain==0) {
-                            //     Rprintf("w(n,i) %8.6g, TSKetc %8.6g dpois %8.6g \n", 
-                            //         w(n,i), 
-                            //         Tsk[k] * hk[i3(c, k, m, cc, kk)],
-                            //         gpois (w(n,i), Tsk[k] * hk[i3(c, k, m, cc, kk)]) / pm0ktmp);
-                            // }
-                            pm[m] *= gpois (w(n,i), Tsk[k] * hk[i3(c, k, m, cc, kk)]) / pm0ktmp;
-                        }
-                        else {
-                            pm[m] *= gbinom (w(n,i), Tsk[k], gk[i3(c, k, m, cc, kk)]) / pm0ktmp;
-                        }
+                for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                    m = mask_indices[j];
+                    if (base) 
+                        pm0ktmp = pm0kbase[kk * m + k]; 
+                    else 
+                        pm0ktmp = pm0k[kk * m + k];
+                    if (binomN==0) {
+                        pm[m] += log(gpois (w(n,i), Tsk[k] * hk[i3(c, k, m, cc, kk)])) - pm0ktmp;
                     }
                     else {
-                        pm[m] = 0.0; 
+                        pm[m] += log(gbinom (w(n,i), Tsk[k], gk[i3(c, k, m, cc, kk)])) -pm0ktmp;
                     }
                 }
             }
         }
+    
     }
     //==============================================================================
     
     double onefasthistory (int n) {
+        
         std::vector<double> pm(mm);
         prwL (n, pm);           
-        for (int m=0; m<mm; m++) {
-            pm[m] *= density[m];
+        
+        int m_row = mask_id[n];
+        double sumpm = 0.0;
+        double maxpm = -huge;
+        int j,m;
+        
+        for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+            m = mask_indices[j];
+            pm[m] += log(density[m]);
+            if (pm[m]>maxpm) maxpm = pm[m];
         }
-        double value = std::accumulate(pm.begin(), pm.end(), 0.0); // may be zero
-        return value;
+        // LSE trick 2026-06-08
+        sumpm = 0.0;
+        for (int j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+            int m = mask_indices[j];
+            sumpm += exp(pm[m] - maxpm); 
+        }
+        sumpm = maxpm + log(sumpm);
+        
+        return sumpm;
     }
     //==============================================================================
     
@@ -187,15 +208,21 @@ NumericVector fasthistoriescpp (
         const NumericVector density,
         const IntegerVector PIA, 
         const IntegerVector Tsk,
-        const LogicalMatrix mbool) {
+        const IntegerVector mask_indices,
+        const IntegerVector mask_offsets,
+        const IntegerVector mask_id       // Maps individual to mask row
+        
+        ) {
     
     NumericVector output(nc); 
 
     // Construct and initialise
     fasthistories fasthist (mm, nc, cc, grain, binomN, indiv,
                             w, ki, gk, hk,
-                            density, PIA, Tsk, mbool, 
-                            // pm0base, pm0kbase, 
+                            density, PIA, Tsk, 
+                            mask_indices,
+                            mask_offsets,
+                            mask_id,
                             output); 
     
     if (ncores>1) {
@@ -208,6 +235,7 @@ NumericVector fasthistoriescpp (
     }
     
     // Return consolidated result
+    // return output (log scale);
     return output;
 }
 //==============================================================================

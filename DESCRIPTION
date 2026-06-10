@@ -1,8 +1,8 @@
 Package: secr
 Type: Package
 Title: Spatially Explicit Capture-Recapture
-Version: 5.4.4
-Date: 2026-06-07
+Version: 5.5.0
+Date: 2026-06-09
 Description: Functions to estimate the density and size of a spatially 
   distributed animal population sampled with an array of passive detectors, 
   such as traps, or by searching polygons or transects. Models incorporating 
@@ -26,7 +26,7 @@ Depends:
     R (>= 3.5.0), 
     methods
 Imports: 
-    secrfunc,
+    secrfunc (>= 1.1.0),
     abind, 
     graphics, 
     grDevices, 

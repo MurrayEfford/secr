@@ -13,3 +13,4 @@ secr.Rproj
 extracpp/*.*
 .gitignore
 progress.RDS
+Rprof.out

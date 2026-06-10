@@ -170,7 +170,7 @@ pxi <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL, ...) {
             prmat <- allhistpolygonfxi (
                 object$detectfn, Xrealparval, haztemp, gkhk$hk, gkhk$H, pimask, PIA, 
                 CH, xy, data$binomNcode, grp, data$usge, data$mask,
-                pmix, data$maskusage, grain, ncores, object$details$minprob)
+                pmix, data$maskcond, grain, ncores, object$details$minprob)
         }
         1-prmat
     })

@@ -40,6 +40,7 @@
 ## 2025-07-20 5.3.0
 ## 2025-07-24 secr_ prefix attached to most functions used in other .R files
 ## 2025-11-26 5.4.0
+## 2026-06-09 5.5.0
 ################################################################################
 
 # Global variables in namespace
@@ -1682,36 +1683,74 @@ secr_maskboolean <- function (ch, mask, threshold) {
 
 #-------------------------------------------------------------------------------
 
-secr_maskboolean2 <- function (ch, mask, threshold) {
+secr_captxy <- function (ch) {
+    det <- secr_expanddet(ch)
+    # avoid telemetry occasions
+    ch <- subset(ch, occasions = det %in% .localstuff$pointdetectors)
+    if (nrow(ch)==0) return (NULL)
+    id <- animalID(ch, names = FALSE)
+    tr <- trap(ch, names = FALSE)
+    df <- data.frame(x = traps(ch)$x[tr], y = traps(ch)$y[tr])
+    split(df, id)
+}
+
+secr_mergelists <- function (list1, list2) {
+    if (is.null(list1)) return(list2) else if (is.null(list2)) return(list1)
+    all_ids <- unique(c(names(list1), names(list2)))
+    # [all_ids] forces R to look for every ID, returning NULL for missing ones
+    merged_list <- Map(rbind, list1[all_ids], list2[all_ids])
+    # Fix the names (Map strips list names if they don't match perfectly)
+    names(merged_list) <- all_ids
+    merged_list
+}
+
+secr_maskboolean2 <- function (ch, mask, threshold, maskusage = NULL) {
+    # 2026-06-08 modified to allow individual-specific masks
+    # maskusage included for backwards compatibility only
     if (ms(ch)) {
         if (!ms(mask)) stop ("masklookup: multisession ch requires multisession mask")
-        outlist <- mapply(secr_maskboolean, ch, mask, MoreArgs = list(threshold = threshold), SIMPLIFY = FALSE)
+        outlist <- mapply(
+            secr_maskboolean2, ch, mask, 
+            MoreArgs = list(threshold = threshold, maskusage = maskusage), 
+            SIMPLIFY = FALSE)
         outlist
     }
     else {
-        id <- animalID(ch, names = FALSE, sortorder = 'snk')
-        tr <- trap(ch, names = FALSE, sortorder = 'snk')
-        trps <- traps(ch)
-        m <- nrow(mask)
-        out <- matrix(TRUE, nrow = nrow(ch), ncol = m)   # default
-        if (!is.null(threshold)) {
-            if (all(detector(trps) %in% .localstuff$pointdetectors)) {
-                df <- data.frame(id = id, x = trps$x[tr], y = trps$y[tr])
-                x <- tapply(df$x, df$id, mean, na.rm=T)
-                y <- tapply(df$y, df$id, mean, na.rm=T)
-                xy <- data.frame(x=x,y=y)
-                d2 <- edist2cpp(as.matrix(xy), as.matrix(mask))
-                out <- (d2 <= threshold^2)
-            }
-            else {
-                if (all(detector(trps) %in% 'telemetry')) {
-                    xy <- t(sapply(telemetryxy(ch), colMeans))
-                    d2 <- edist2cpp(as.matrix(xy), as.matrix(mask))
-                    out <- (d2 <= threshold^2)
-                }
-            }
+        if (!is.null(maskusage)) {
+            if (!is.matrix(maskusage) || nrow(maskusage) != nrow(ch) || ncol(maskusage) != nrow(mask))
+                stop ('specified maskusage should be n x m matrix of logical values')
+            maskusage[] <- as.logical(maskusage)
+            ind_usage <- split(maskusage, row(maskusage))
+            mask_list <- lapply(ind_usage, which)
         }
-        out
+        else if (is.null(threshold)) {
+            mask_list <- list(1:nrow(mask))
+            # Map every individual to the first (and only) mask entry
+            mask_id <- rep(0, nrow(ch))
+        }
+        else {
+            one_ind <- function (dfi) {
+                xy <- t(colMeans(dfi))
+                d2 <- edist2cpp(as.matrix(xy), as.matrix(mask))
+                which(d2 <= threshold^2)
+            }
+            ind_xy <- secr_mergelists(secr_captxy(ch), telemetryxy(ch))
+            if (!is.null(xy(ch))) {
+                polyxy <- split(xy(ch), animalID(ch))
+                ind_xy <- secr_mergelists(ind_xy, polyxy)
+            }
+            mask_list <- lapply(ind_xy, one_ind)
+            mask_id <- 0:(nrow(ch)-1)
+        }
+        mask_indices <- unlist(mask_list) - 1 # Convert to 0-based indexing for C++
+        lengths <- lengths(mask_list)
+        if (any (lengths==0)) {
+            stop (paste(sum(lengths==0), " centroids are not within maxdistance ", threshold, " of any mask point"))
+        }
+        mask_offsets <- c(0, cumsum(lengths))
+        list(mask_id      = mask_id, 
+             mask_indices = mask_indices, 
+             mask_offsets = mask_offsets)
     }
 }
 

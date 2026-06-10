@@ -20,7 +20,9 @@ struct signalhistories : public Worker {
     const RMatrix<double> density;    // n x g
     const RVector<int>    PIA;        // 1,n,s,k,1   for given x
     const RVector<double> miscparm;
-    const RMatrix<int>    mbool;      // appears cannot use RMatrix<bool>
+    const RVector<int>    mask_indices;
+    const RVector<int>    mask_offsets;
+    const RVector<int>    mask_id;       // Maps individual to mask row
     
     // working variables
     int  kk, ss, cc;
@@ -45,13 +47,18 @@ struct signalhistories : public Worker {
         const NumericMatrix density,
         const IntegerVector PIA,
         const NumericVector miscparm,
-        const LogicalMatrix mbool,
+        const IntegerVector mask_indices, 
+        const IntegerVector mask_offsets,
+        const IntegerVector mask_id,
         NumericVector output)
         :
         mm(mm), nc(nc), detectfn(detectfn), grain(grain), 
         binomN(binomN), w(w), signal(signal), group(group), gk(gk), gsbval(gsbval), 
         dist2(dist2), density(density), PIA(PIA), miscparm(miscparm),
-        mbool(mbool), output(output) {
+        mask_indices(mask_indices), 
+        mask_offsets(mask_offsets), 
+        mask_id(mask_id),
+        output(output) {
         // now can initialise these derived counts
         kk = dist2.nrow();          // number of detectors
         ss = 1;                     // number of occasions
@@ -120,8 +127,10 @@ struct signalhistories : public Worker {
         else (Rcpp::stop("unknown or invalid detection function"));
     }
     void prwsignal (const int n, std::vector<double> &pm) {
-        int c, gi, k, m, s, w3, count;
+        int c, gi, j, k, m, s, w3, count;
         double sig, mu, sdS;
+        int m_row = mask_id[n];
+        
         for (s=0; s < ss; s++) {   // over occasions
             for (k=0; k<kk; k++) {
                 w3 = i3(n, s, k, nc, ss);
@@ -129,36 +138,27 @@ struct signalhistories : public Worker {
                 if (c >= 0) {    // ignore unset traps
                     count = abs(w[w3]);
                     if (count == 0) {   // not detected at this mic
-                        for (m=0; m<mm; m++) {
-                            if (mbool(n,m)) {
-                                gi  = i3(c, k, m, cc, kk);
-                                pm[m] *= pski(binomN[s], 0, 1, gk[gi], 1.0);
-                            }
-                            else {
-                                pm[m] = 0.0;
-                            }
+                        for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                            m = mask_indices[j];
+                            gi  = i3(c, k, m, cc, kk);
+                            pm[m] += log(pski(binomN[s], 0, 1, gk[gi], 1.0));
                         }
                     }
                     else {   // detected at this mic
                         sig = signal(n,k);
-                        for (m=0; m<mm; m++) {
-                            if (mbool(n,m)) {
-                                if (sig >= 0) {
-                                    // valid measurement of signal
-                                    mu  = mufnL (k, m, gsbval(c,0), gsbval(c,1), dist2, detectfn==11);
-                                    sdS = gsbval(c,2);
-                                    // pm[m] *= R::dnorm((sig - mu), 0, sdS, 0);
-                                    boost::math::normal_distribution<> n(0,sdS);
-                                    pm[m] *= boost::math::pdf(n,(sig - mu));
-                                }
-                                else  {
-                                    // signal value missing; detection only
-                                    gi = i3(c,k,m,cc,kk);
-                                    pm[m] *= countp (1, binomN[s], gk[gi]);
-                                }
+                        for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                            m = mask_indices[j];
+                            if (sig >= 0) {
+                                // valid measurement of signal
+                                mu  = mufnL (k, m, gsbval(c,0), gsbval(c,1), dist2, detectfn==11);
+                                sdS = gsbval(c,2);
+                                boost::math::normal_distribution<> n(0,sdS);
+                                pm[m] += log(boost::math::pdf(n,(sig - mu)));
                             }
-                            else {
-                                pm[m] = 0.0;
+                            else  {
+                                // signal value missing; detection only
+                                gi = i3(c,k,m,cc,kk);
+                                pm[m] += log(countp (1, binomN[s], gk[gi]));
                             }
                         }
                     }
@@ -166,18 +166,34 @@ struct signalhistories : public Worker {
             }
         }
     }
-    
+
+
     //==============================================================================
     double onehistorycpp (int n) {
-        double prwi;
-        std::vector<double> pm(mm, 1.0);
+        int j,m;
+        int m_row = mask_id[n];
+        double maxpm = -huge;
+        double sumpm = 0.0;
+        
+        std::vector<double> pm(mm, 0.0);
         prwsignal(n,pm);
-        for (int m=0; m<mm; m++) {
-            pm[m] *= density(m,group[n]);
+        
+        for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+            m = mask_indices[j];
+            pm[m] += log(density(m,group[n]));
+            if (pm[m]>maxpm) maxpm = pm[m];
         }
-        prwi = std::accumulate(pm.begin(), pm.end(), 0.0);
-        return prwi;    // may be zero
+        
+        // LSE trick 2026-06-06
+        for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+            m = mask_indices[j];
+            sumpm += exp(pm[m] - maxpm); 
+        }
+        sumpm = maxpm + log(sumpm);
+        
+        return sumpm;    // log scale 2026-06-09
     }
+    
     // function call operator that works for the specified range (begin/end)
     void operator()(std::size_t begin, std::size_t end) {
         for (std::size_t n = begin; n < end; n++) {
@@ -203,13 +219,17 @@ NumericVector signalhistoriescpp (
         const NumericMatrix density,
         const IntegerVector PIA,
         const NumericVector miscparm,
-        const LogicalMatrix mbool) {
+        const IntegerVector mask_indices,
+        const IntegerVector mask_offsets,
+        const IntegerVector mask_id       // Maps individual to mask row
+) {
     
     NumericVector output(nc);
     
     // Construct and initialise
     signalhistories somehist (mm, nc, detectfn, grain, binomN, w, signal, 
-                              group, gk, gsbval, dist2, density, PIA, miscparm, mbool, 
+                              group, gk, gsbval, dist2, density, PIA, miscparm,
+                              mask_indices, mask_offsets, mask_id, 
                               output);
     if (ncores>1) {
         // Run operator() on multiple threads
@@ -219,7 +239,8 @@ NumericVector signalhistoriescpp (
         // for debugging avoid multithreading and allow R calls e.g. Rprintf
         somehist.operator()(0,nc);
     }
-    // Return consolidated result
+    // Return consolidated result 
+    // return output (log scale)  2026-06-09
     return output;
 }
 //==============================================================================

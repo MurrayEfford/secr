@@ -300,30 +300,12 @@ secr_prepareSessionData <- function (capthist, mask, maskusage,
         if (is.null(usge) || details$ignoreusage) {
             usge <- matrix(1, nrow = K, ncol = s)
         }
-        if (is.null(maskusage)) {
-            maskusage <- secr_maskboolean2(capthist, mask, details$maxdistance)
-        }
-        else {
-            if (!is.matrix(maskusage) || nrow(maskusage) != nrow(capthist) || ncol(maskusage) != nrow(mask))
-                stop ('specified maskusage should be n x m matrix of logical values')
-            maskusage[] <- as.logical(maskusage)
-        }
-        
-        if (!is.null(details$externalpdot)) {
-            if (!(details$externalpdot %in% names(covariates(mask)))) 
-                stop ("externalpdot '", details$externalpdot, "' not found in mask covariates")
-            externalpdot <- covariates(mask)[, details$externalpdot]
-            message("using external pdot")
-        }
-        else {
-            externalpdot <- NULL
-        }
+        maskcond <- secr_maskboolean2(capthist, mask, details$maxdistance, maskusage)
         
         if (!is.null(details$externalqx)) {
             if (!(details$externalqx %in% names(covariates(mask)))) 
                 stop ("externalqx '", details$externalqx, "' not found in mask covariates")
             externalqx <- covariates(mask)[, details$externalqx]
-            if (!is.null(externalpdot)) stop ("specify only one of externalqx, externalpdot")
             message("using external q(x)")
         }
         else {
@@ -370,7 +352,6 @@ secr_prepareSessionData <- function (capthist, mask, maskusage,
             binomNcode = binomNcode,
             usge = usge,
             mask = mask,
-            externalpdot = externalpdot,
             externalqx = externalqx,
             distmat2 = distmat2,
             knownclass = knownclass,
@@ -379,7 +360,7 @@ secr_prepareSessionData <- function (capthist, mask, maskusage,
             signal = signal,
             xy = xy,
             grp = grp,
-            maskusage = maskusage,
+            maskcond = maskcond,
             logmult = logmult
         )
     if (aslist) list(data=data)

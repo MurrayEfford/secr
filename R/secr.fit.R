@@ -186,7 +186,6 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
         Dfn = NULL,              ## optional density reparameterization for trend etc.
         Dlambda = FALSE,
         relativeD = FALSE,
-        externalpdot = NULL,
         externalqx = NULL,
         saveprogress = FALSE,
         progressfilename = "progress.RDS"

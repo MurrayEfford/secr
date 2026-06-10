@@ -3,39 +3,58 @@
 ## fastsecrloglik.R
 ## likelihood evaluation functions
 ## 2020-10-11 knownclass bug when not all classes present in session fixed
+## 2026-06-08 new maskcon maxdistance implementation
 ###############################################################################
 
 #--------------------------------------------------------------------------------
 allhistfast <- function (realparval, gkhk, pi.density, PIA, 
-                         nk2ch, usge, pmixn, maskusage,
+                         nk2ch, usge, pmixn, maskcond,
                          grain, ncores, binomN, indiv) {
     nc <- dim(nk2ch)[1] # dim(PIA)[2]
-    ## 2022-01-04
     if (nc<1) return(1)
     nmix <- dim(PIA)[5]
     m <- length(pi.density)
-    sump <- numeric(nc)
-    
+    logprwi <- matrix(nrow=nc, ncol=nmix)
     for (x in 1:nmix) {
-      temp <- fasthistoriescpp(
-        as.integer(m),
-        as.integer(nc),
-        as.integer(nrow(realparval)),
-        as.integer(grain),
-        as.integer(ncores),
-        as.integer(binomN),
-        as.logical(indiv),
-        matrix(nk2ch[,,1], nrow=nc),
-        matrix(nk2ch[,,2], nrow=nc),
-        as.double (gkhk$gk),  ## precomputed probability 
-        as.double (gkhk$hk),  ## precomputed hazard 
-        as.double (pi.density),
-        as.integer(PIA[1,,,,x]),
-        as.integer(usge),
-        as.matrix (maskusage))
-      sump <- sump + pmixn[x,] * temp
+        logprwi[,x] <- fasthistoriescpp(
+            as.integer(m),
+            as.integer(nc),
+            as.integer(nrow(realparval)),
+            as.integer(grain),
+            as.integer(ncores),
+            as.integer(binomN),
+            as.logical(indiv),
+            matrix(nk2ch[,,1], nrow=nc),
+            matrix(nk2ch[,,2], nrow=nc),
+            as.double (gkhk$gk),  ## precomputed probability 
+            as.double (gkhk$hk),  ## precomputed hazard 
+            as.double (pi.density),
+            as.integer(PIA[1,,,,x]),
+            as.integer(usge),
+            as.integer(maskcond$mask_indices),
+            as.integer(maskcond$mask_offsets),
+            as.integer(maskcond$mask_id)
+        )
     }
-    sump
+    if (nmix==1) {
+        return(logprwi[,1])
+    }
+    else {
+        # 1. Add the log-weights (0 becomes -Inf, 1 becomes 0)
+        logprwi <- logprwi + log(t(pmixn))
+        
+        # 2. Find the row maximums
+        vmaxi <- apply(logprwi, 1, max)
+        
+        # 3. Sweep 
+        logprwi <- sweep(logprwi, MARGIN = 1, STATS = vmaxi, FUN = "-")
+        
+        # 4. Compute the final logsum using high-performance rowSums
+        logsum <- vmaxi + log(rowSums(exp(logprwi)))
+        
+        logsum
+    }
+    
 }
 #--------------------------------------------------------------------------------
 
@@ -45,15 +64,16 @@ secr_integralprw1fast <- function (realparval0, gkhk, pi.density, PIA0,
     nr <- nrow(nk2ch0)
     nmix <- dim(PIA0)[5]
     m <- length(pi.density)
-    sump <- numeric(nc)
+    logprwi <- matrix(nrow=nc, ncol=nmix)
     for (x in 1:nmix) {
-        temp <- fasthistoriescpp(
+        # if fasthistoriescpp returns a scalar it replicates automatically to the column length
+        logprwi[,x] <- fasthistoriescpp(
             as.integer(m),
             as.integer(nr),    ## 1 
             as.integer(nrow(realparval0)),
-          as.integer(grain),
-          as.integer(ncores),
-          as.integer(binomN),
+            as.integer(grain),
+            as.integer(ncores),
+            as.integer(binomN),
             as.logical(indiv),
             matrix(nk2ch0[,,1], nrow = nr),
             matrix(nk2ch0[,,2], nrow = nr),
@@ -62,10 +82,22 @@ secr_integralprw1fast <- function (realparval0, gkhk, pi.density, PIA0,
             as.double (pi.density),
             as.integer(PIA0[1,1:nr,,,x]),
             as.integer(usge),
-            as.matrix (matrix(TRUE, nrow = nr, ncol = m)))
-        sump <- sump + pmixn[x,1:nc] * (1 - temp)
+            as.integer(0:(m-1)),       # mask_indices (whole mask)
+            as.integer(c(0,m)),        # mask_offsets
+            as.integer(rep(0,nr))     # mask_id
+        )
     }
-    sump
+    if (nmix==1) {
+        return (1-exp(logprwi[,1]))
+    }
+    else {
+        # see allhistsimple for this case
+        logprwi <- logprwi + log(t(pmixn))
+        vmaxi <- apply(logprwi,1,max)
+        logprwi <- sweep(logprwi, MARGIN = 1, STATS = vmaxi, FUN = "-")
+        logsum <- vmaxi + log(apply(exp(logprwi),1,sum))
+        1-exp(logsum)
+    }
 }
 
 #######################################################################################
@@ -174,24 +206,19 @@ secr_fastsecrloglikfn <- function (
             }
         }
         
-        prw <- allhistfast (Xrealparval, gkhk, pi.density, PIA, 
-          data$CH, data$usge, pmixn, data$maskusage, 
+        lnprw <- allhistfast (Xrealparval, gkhk, pi.density, PIA, 
+          data$CH, data$usge, pmixn, data$maskcond, 
           details$grain, details$ncores, details$binomN, design$individual)
-        if (!is.null(details$externalpdot)) {
-            pdot <- rep(sum(data$externalpdot * pi.density), data$nc)
-        }
-        else {
-            pdot <- secr_integralprw1fast (Xrealparval, gkhk, pi.density, PIA, 
+        pdot <- secr_integralprw1fast (Xrealparval, gkhk, pi.density, PIA, 
                   data$CH0, data$usge, pmixn, details$grain, details$ncores, 
                   details$binomN, design$individual)
-        }
         if (details$debug>2) browser()
         
         comp <- matrix(0, nrow = 6, ncol = 1)   # no groups
         
         #----------------------------------------------------------------------
         
-        comp[1,1] <- if (any(is.na(prw)) || any(prw<=0)) NA else sum(log(prw))
+        comp[1,1] <- if (any(is.na(lnprw)) || any(is.infinite(lnprw))) NA else sum(lnprw)
         
         #----------------------------------------------------------------------
         
@@ -234,13 +261,6 @@ secr_fastsecrloglikfn <- function (
             #     comp[4,1] <- comp[4,1] + nm[x+1] * log(pmix[x]) 
             # }
             
-            ## 2022-01-16 bug fix
-            # firstx <- match ((1:details$nmix)+1, data$knownclass)
-            # tempsum <- sum(pdot[firstx] * pmix)
-            # comp[4,1] <- sum(nm[-1] * log(pdot[firstx] * pmix / tempsum))
-            ##
-
-            ## 2022-10-25 bug fix
             firstx <- match ((1:details$nmix)+1, data$knownclass)
             pdpmix <- pdot[firstx] * pmix
             pdpmix <- pdpmix[!is.na(pdpmix)]

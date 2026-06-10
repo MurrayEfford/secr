@@ -53,20 +53,20 @@ pdotpointcpp <- function(xy, traps, dist2, detect, Tsk, markocc, fn, gl0, sig, o
     .Call(`_secr_pdotpointcpp`, xy, traps, dist2, detect, Tsk, markocc, fn, gl0, sig, otherdetpar, miscparm, w2, binomN, grain, ncores)
 }
 
-fasthistoriescpp <- function(mm, nc, cc, grain, ncores, binomN, indiv, w, ki, gk, hk, density, PIA, Tsk, mbool) {
-    .Call(`_secr_fasthistoriescpp`, mm, nc, cc, grain, ncores, binomN, indiv, w, ki, gk, hk, density, PIA, Tsk, mbool)
+fasthistoriescpp <- function(mm, nc, cc, grain, ncores, binomN, indiv, w, ki, gk, hk, density, PIA, Tsk, mask_indices, mask_offsets, mask_id) {
+    .Call(`_secr_fasthistoriescpp`, mm, nc, cc, grain, ncores, binomN, indiv, w, ki, gk, hk, density, PIA, Tsk, mask_indices, mask_offsets, mask_id)
 }
 
-signalhistoriescpp <- function(mm, nc, detectfn, grain, ncores, binomN, w, signal, group, gk, gsbval, dist2, density, PIA, miscparm, mbool) {
-    .Call(`_secr_signalhistoriescpp`, mm, nc, detectfn, grain, ncores, binomN, w, signal, group, gk, gsbval, dist2, density, PIA, miscparm, mbool)
+signalhistoriescpp <- function(mm, nc, detectfn, grain, ncores, binomN, w, signal, group, gk, gsbval, dist2, density, PIA, miscparm, mask_indices, mask_offsets, mask_id) {
+    .Call(`_secr_signalhistoriescpp`, mm, nc, detectfn, grain, ncores, binomN, w, signal, group, gk, gsbval, dist2, density, PIA, miscparm, mask_indices, mask_offsets, mask_id)
 }
 
-gethrcpp <- function(nc, fn, start, xy, mask, gsbval, telemscale) {
-    .Call(`_secr_gethrcpp`, nc, fn, start, xy, mask, gsbval, telemscale)
+gethrcpp <- function(nc, fn, start, xy, mask, maskused, gsbval) {
+    .Call(`_secr_gethrcpp`, nc, fn, start, xy, mask, maskused, gsbval)
 }
 
-simplehistoriescpp <- function(mm, nc, cc, grain, ncores, binomN, markocc, firstocc, pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, mbool, telemhr, telemstart) {
-    .Call(`_secr_simplehistoriescpp`, mm, nc, cc, grain, ncores, binomN, markocc, firstocc, pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, mbool, telemhr, telemstart)
+simplehistoriescpp <- function(mm, nc, cc, grain, ncores, binomN, markocc, firstocc, pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, telemhr, telemstart) {
+    .Call(`_secr_simplehistoriescpp`, mm, nc, cc, grain, ncores, binomN, markocc, firstocc, pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, telemhr, telemstart)
 }
 
 simplehistoriesfxicpp <- function(x, mm, nc, cc, grain, ncores, binomN, w, group, gk, hk, density, PIA, Tsk, h, hindex) {
