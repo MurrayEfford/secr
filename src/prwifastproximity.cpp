@@ -91,14 +91,12 @@ struct fasthistories : public Worker {
     
     void pr0 (const int n, std::vector<double> &pm0n, std::vector<double> &pm0kn) { 
         int c, j, k, m, w3;
-        int m_row = mask_id[n];
         for (m=0; m<mm; m++) pm0n[m] = 0.0;
         for (k=0; k<kk; k++) {
             w3 =  i3(n, 0, k, nc, 1);    // allow individual or trap covariate 2019-12-06
             c = PIA[w3] - 1;
             if (c >= 0) {    // ignore unset traps
-                for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
-                    m = mask_indices[j];
+                for (m=0; m<mm; m++) {
                     if (binomN==0)
                         pm0kn[kk * m + k] = log(gpois (0, Tsk[k] * hk[i3(c, k, m, cc, kk)]));
                     else
@@ -171,8 +169,6 @@ struct fasthistories : public Worker {
             pm[m] += log(density[m]);
             if (pm[m]>maxpm) maxpm = pm[m];
         }
-        // LSE trick 2026-06-08
-        sumpm = 0.0;
         for (int j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
             int m = mask_indices[j];
             sumpm += exp(pm[m] - maxpm); 
