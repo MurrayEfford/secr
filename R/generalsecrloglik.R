@@ -32,31 +32,6 @@
 
 #--------------------------------------------------------------------------------
 
-# housekeeping function to return vector of individual logprwi
-# possibly allowing for mixture class probabilities
-
-logsum <- function (logprwi, pmixn) {
-    
-    if (nrow(pmixn) == 1) {
-        return(logprwi[,1])
-    }
-    else {
-        # 1. Add the log-weights (0 becomes -Inf, 1 becomes 0)
-        logprwi <- logprwi + log(t(pmixn))
-        
-        # 2. Find the row maximums
-        vmaxi <- apply(logprwi, 1, max)
-        
-        # 3. Sweep 
-        logprwi <- sweep(logprwi, MARGIN = 1, STATS = vmaxi, FUN = "-")
-        
-        # 4. Compute the final logsum using high-performance rowSums
-        return(vmaxi + log(rowSums(exp(logprwi))))
-        
-    }
-    
-}
-
 allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup, 
                            CH, binomNcode, MRdata, grp, usge, pmixn, pID, maskcond,
                            telemhr = 0, telemstart = 0,
@@ -124,7 +99,7 @@ allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup,
               as.integer (telemstart))
       }
   }
-  logsum(logprwi, pmixn)
+  secr_logsum(logprwi, pmixn)
 }
 
 #--------------------------------------------------------------------------------
@@ -199,7 +174,7 @@ allhistsignal <- function (detectfn, grain, ncores, binomNcode,
           as.integer(maskcond$mask_id)
       )
   }
-  logsum(logprwi, pmixn)
+  secr_logsum(logprwi, pmixn)
 }
 #--------------------------------------------------------------------------------
 allhistpolygon <- function (detectfn, realparval, haztemp, hk, H, pi.density, PIA, ngroup,
@@ -241,7 +216,7 @@ allhistpolygon <- function (detectfn, realparval, haztemp, hk, H, pi.density, PI
         as.integer (debug)    
       )
   }
-  logsum(logprwi, pmixn)
+  secr_logsum(logprwi, pmixn)
 }
 #--------------------------------------------------------------------------------
 
@@ -289,7 +264,7 @@ secr_integralprw1 <- function (cc0, haztemp, gkhk, pi.density, PIA0, ngroup,
         return (1-exp(logprwi[,1]))
     }
     else {
-        # see allhistsimple for this case
+        # see secr_logsum
         logprwi <- logprwi + log(t(pmixn))
         vmaxi <- apply(logprwi,1,max)
         logprwi <- sweep(logprwi, MARGIN = 1, STATS = vmaxi, FUN = "-")
@@ -349,7 +324,7 @@ secr_integralprw1poly <- function (detectfn, realparval0, haztemp, hk, H,
       return (1-exp(logprwi[,1]))
   }
   else {
-      # see also logsum()
+      # see also secr_logsum()
       logprwi <- logprwi + log(t(pmixn))
       vmaxi <- apply(logprwi,1,max)
       logprwi <- sweep(logprwi, MARGIN = 1, STATS = vmaxi, FUN = "-")
