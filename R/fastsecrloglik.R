@@ -9,12 +9,14 @@
 #--------------------------------------------------------------------------------
 allhistfast <- function (realparval, gkhk, pi.density, PIA, 
                          nk2ch, usge, pmixn, maskcond,
-                         grain, ncores, binomN, indiv) {
+                         grain, ncores, binomN, indiv,
+                         debug = FALSE) {
     nc <- dim(nk2ch)[1] # dim(PIA)[2]
     if (nc<1) return(1)
     nmix <- dim(PIA)[5]
     m <- length(pi.density)
     logprwi <- matrix(nrow=nc, ncol=nmix)
+    if (debug) browser()
     for (x in 1:nmix) {
         logprwi[,x] <- fasthistoriescpp(
             as.integer(m),
@@ -36,35 +38,19 @@ allhistfast <- function (realparval, gkhk, pi.density, PIA,
             as.integer(maskcond$mask_id)
         )
     }
-    if (nmix==1) {
-        return(logprwi[,1])
-    }
-    else {
-        # 1. Add the log-weights (0 becomes -Inf, 1 becomes 0)
-        logprwi <- logprwi + log(t(pmixn))
-        
-        # 2. Find the row maximums
-        vmaxi <- apply(logprwi, 1, max)
-        
-        # 3. Sweep 
-        logprwi <- sweep(logprwi, MARGIN = 1, STATS = vmaxi, FUN = "-")
-        
-        # 4. Compute the final logsum using high-performance rowSums
-        logsum <- vmaxi + log(rowSums(exp(logprwi)))
-        
-        logsum
-    }
-    
+    secr_logsum(logprwi, pmixn)  
 }
 #--------------------------------------------------------------------------------
 
 secr_integralprw1fast <- function (realparval0, gkhk, pi.density, PIA0, 
-                              nk2ch0, usge, pmixn, grain, ncores, binomN, indiv) {
+                              nk2ch0, usge, pmixn, grain, ncores, binomN, indiv,
+                              debug = FALSE) {
     nc <- dim(PIA0)[2]
     nr <- nrow(nk2ch0)
     nmix <- dim(PIA0)[5]
     m <- length(pi.density)
     logprwi <- matrix(nrow=nc, ncol=nmix)
+    if (debug) browser()
     for (x in 1:nmix) {
         # if fasthistoriescpp returns a scalar it replicates automatically to the column length
         logprwi[,x] <- fasthistoriescpp(
@@ -87,17 +73,7 @@ secr_integralprw1fast <- function (realparval0, gkhk, pi.density, PIA0,
             as.integer(rep(0,nr))     # mask_id
         )
     }
-    if (nmix==1) {
-        return (1-exp(logprwi[,1]))
-    }
-    else {
-        # see allhistsimple for this case
-        logprwi <- logprwi + log(t(pmixn))
-        vmaxi <- apply(logprwi,1,max)
-        logprwi <- sweep(logprwi, MARGIN = 1, STATS = vmaxi, FUN = "-")
-        logsum <- vmaxi + log(apply(exp(logprwi),1,sum))
-        1-exp(logsum)
-    }
+    1-exp(secr_logsum(logprwi, pmixn))
 }
 
 #######################################################################################
@@ -208,10 +184,13 @@ secr_fastsecrloglikfn <- function (
         
         lnprw <- allhistfast (Xrealparval, gkhk, pi.density, PIA, 
           data$CH, data$usge, pmixn, data$maskcond, 
-          details$grain, details$ncores, details$binomN, design$individual)
+          details$grain, details$ncores, details$binomN, design$individual,
+          debug = details$debug>3)
         pdot <- secr_integralprw1fast (Xrealparval, gkhk, pi.density, PIA, 
                   data$CH0, data$usge, pmixn, details$grain, details$ncores, 
-                  details$binomN, design$individual)
+                  details$binomN, design$individual,
+                  debug = details$debug>3)
+        
         if (details$debug>2) browser()
         
         comp <- matrix(0, nrow = 6, ncol = 1)   # no groups
