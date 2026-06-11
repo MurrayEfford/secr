@@ -1685,8 +1685,10 @@ secr_maskboolean <- function (ch, mask, threshold) {
 
 secr_captxy <- function (ch) {
     det <- secr_expanddet(ch)
+    det <- det %in% .localstuff$pointdetectors
+    if (sum(det)==0) return(NULL)
     # avoid telemetry occasions
-    ch <- subset(ch, occasions = det %in% .localstuff$pointdetectors)
+    ch <- subset(ch, occasions = det)
     if (nrow(ch)==0) return (NULL)
     id <- animalID(ch, names = FALSE)
     tr <- trap(ch, names = FALSE)
@@ -1734,7 +1736,9 @@ secr_maskboolean2 <- function (ch, mask, threshold, maskusage = NULL) {
                 d2 <- edist2cpp(as.matrix(xy), as.matrix(mask))
                 which(d2 <= threshold^2)
             }
-            ind_xy <- secr_mergelists(secr_captxy(ch), telemetryxy(ch))
+            captxy <- secr_captxy(ch)
+            telemxy <- telemetryxy(ch)
+            ind_xy <- secr_mergelists(captxy, telemxy)
             if (!is.null(xy(ch))) {
                 polyxy <- split(xy(ch), animalID(ch))
                 ind_xy <- secr_mergelists(ind_xy, polyxy)
@@ -2087,3 +2091,32 @@ stdform <- secr_stdform
 # 
 # # openCR 2.2.7
 getuserdistnames <- secr_getuserdistnames
+
+#-------------------------------------------------------------------------------
+
+# housekeeping function to return vector of individual logprwi
+# possibly allowing for mixture class probabilities
+# used in generalsecrloglik and fastsecrloglik
+
+secr_logsum <- function (logprwi, pmixn) {
+    
+    if (nrow(pmixn) == 1) {
+        return(logprwi[,1])
+    }
+    else {
+        # 1. Add the log-weights (0 becomes -Inf, 1 becomes 0)
+        logprwi <- logprwi + log(t(pmixn))
+        
+        # 2. Find the row maximums
+        vmaxi <- apply(logprwi, 1, max)
+        
+        # 3. Sweep 
+        logprwi <- sweep(logprwi, MARGIN = 1, STATS = vmaxi, FUN = "-")
+        
+        # 4. Compute the final logsum 
+        return(vmaxi + log(rowSums(exp(logprwi))))
+        
+    }
+}
+
+#-------------------------------------------------------------------------------
