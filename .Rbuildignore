@@ -13,4 +13,4 @@ README.md
 ^\.github$
 progress.RDS
 Rprof.out
-*.pdf
+^[^/]*\.pdf$
