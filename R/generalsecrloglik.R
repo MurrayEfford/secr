@@ -37,8 +37,7 @@ allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup,
                            telemhr = 0, telemstart = 0,
                            grain, ncores, R = FALSE, debug = FALSE) {
   nc <- nrow(CH)
-  ## 2022-01-04
-  if (nc<1) return(1)
+  if (nc<1) return(0)   # log(1)
   k <- nrow(usge)
   m <- nrow(pi.density)
   nmix <- nrow(pmixn)
