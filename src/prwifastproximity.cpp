@@ -90,10 +90,11 @@ struct fasthistories : public Worker {
     //==============================================================================
     
     void pr0 (const int n, std::vector<double> &pm0n, std::vector<double> &pm0kn) { 
-        int c, j, k, m, w3;
+        int c, k, m, w3;
         for (m=0; m<mm; m++) pm0n[m] = 0.0;
         for (k=0; k<kk; k++) {
             w3 =  i3(n, 0, k, nc, 1);    // allow individual or trap covariate 2019-12-06
+            // but could precompute log(gpois (0, Tsk[k] * hk[i3(c, k, m, cc, kk)])) etc. for all n
             c = PIA[w3] - 1;
             if (c >= 0) {    // ignore unset traps
                 for (m=0; m<mm; m++) {
