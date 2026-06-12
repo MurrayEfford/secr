@@ -91,18 +91,17 @@ struct fasthistories : public Worker {
     
     void pr0 (const int n, std::vector<double> &pm0n, std::vector<double> &pm0kn) { 
         int c, k, m, w3;
-        for (m=0; m<mm; m++) pm0n[m] = 0.0;
+        for (m=0; m<mm; m++) pm0n[m] = 1.0;
         for (k=0; k<kk; k++) {
             w3 =  i3(n, 0, k, nc, 1);    // allow individual or trap covariate 2019-12-06
-            // but could precompute log(gpois (0, Tsk[k] * hk[i3(c, k, m, cc, kk)])) etc. for all n
             c = PIA[w3] - 1;
             if (c >= 0) {    // ignore unset traps
                 for (m=0; m<mm; m++) {
                     if (binomN==0)
-                        pm0kn[kk * m + k] = log(gpois (0, Tsk[k] * hk[i3(c, k, m, cc, kk)]));
+                        pm0kn[kk * m + k] = gpois (0, Tsk[k] * hk[i3(c, k, m, cc, kk)]);
                     else
-                        pm0kn[kk * m + k] = log(gbinom (0, Tsk[k], gk[i3(c, k, m, cc, kk)]));
-                    pm0n[m] += pm0kn[kk * m + k];
+                        pm0kn[kk * m + k] = gbinom (0, Tsk[k], gk[i3(c, k, m, cc, kk)]);
+                    pm0n[m] *= pm0kn[kk * m + k];
                 }
             }
         }
@@ -143,10 +142,10 @@ struct fasthistories : public Worker {
                     else 
                         pm0ktmp = pm0k[kk * m + k];
                     if (binomN==0) {
-                        pm[m] += log(gpois (w(n,i), Tsk[k] * hk[i3(c, k, m, cc, kk)])) - pm0ktmp;
+                        pm[m] *= gpois (w(n,i), Tsk[k] * hk[i3(c, k, m, cc, kk)]) / pm0ktmp;
                     }
                     else {
-                        pm[m] += log(gbinom (w(n,i), Tsk[k], gk[i3(c, k, m, cc, kk)])) -pm0ktmp;
+                        pm[m] *= gbinom (w(n,i), Tsk[k], gk[i3(c, k, m, cc, kk)]) / pm0ktmp;
                     }
                 }
             }
@@ -159,7 +158,6 @@ struct fasthistories : public Worker {
         
         std::vector<double> pm(mm);
         prwL (n, pm);           
-        
         int m_row = mask_id[n];
         double sumpm = 0.0;
         double maxpm = -huge;
@@ -167,7 +165,8 @@ struct fasthistories : public Worker {
         
         for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
             m = mask_indices[j];
-            pm[m] += log(density[m]);
+            pm[m] *= density[m];
+            pm[m] = log(pm[m]);
             if (pm[m]>maxpm) maxpm = pm[m];
         }
         for (int j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
