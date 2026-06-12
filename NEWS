@@ -1,4 +1,4 @@
-Changes in version 5.5.0 (2026-06-09)
+Changes in version 5.5.0 (2026-06-12)
 
 New features or changed behaviour of old functions
     o  more robust telemetry likelihood probably makes telemetryscale redundant
