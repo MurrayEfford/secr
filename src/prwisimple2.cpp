@@ -28,8 +28,8 @@ NumericVector gethrcpp(
     int cc = gsbval.nrow();
     NumericVector gsb(3);  
     NumericVector hr(nt * mm * cc);
-    fnptr lfnr;
-    lfnr = getlfnr(fn);                  // log!                        
+    fnptr zfnr;
+    zfnr = getzfnr(fn);     
     for (c=0; c<cc; c++) {
         gsb(1) = gsbval(c,1);
         // normalising coefficient 1/c, c = 2.pi.sigma^2
@@ -43,7 +43,7 @@ NumericVector gethrcpp(
                 r = std::sqrt(d2cpp (m, t, mask, xy)); 
                 hri = i3(c, m, t, cc, mm); 
                 if (hri>1e8) Rcpp::stop ("c,m,t combinations exceed 1e8 in gethrcpp");
-                hr[hri] = lfnr(gsb, r);
+                hr[hri] = zfnr(gsb, r);
             }	    
         }
     }
@@ -179,7 +179,7 @@ struct simplehistories : public Worker {
                     for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
                         m = mask_indices[j];
                         hri  = i3(c, m, t, cc, mm); 
-                        pm[m] += telemhr[hri];         // log from 2026-06-06
+                        pm[m] *= telemhr[hri];         
                         
                     }
                 }
@@ -218,7 +218,7 @@ struct simplehistories : public Worker {
                 m = mask_indices[j];
                 H = h(m, hindex(n,s));
                 if (H > fuzz)
-                    pm[m] -= H;    // log 2026-06-06
+                    pm[m] *= exp(-H);
             }
         }
         // Captured in trap k on occasion s
@@ -230,10 +230,10 @@ struct simplehistories : public Worker {
                     m = mask_indices[j];
                     H = h(m, hindex(n,s));
                     if (H>fuzz) {
-                        pm[m] += log(Tsk(k,s) * (1-exp(-H)) *  hk[i3(c, k, m, cc, kk)] / H);
+                        pm[m] *= Tsk(k,s) * (1-exp(-H)) *  hk[i3(c, k, m, cc, kk)] / H;
                     }
                     else {
-                        pm[m] = -huge;    // log 2026-06-06
+                        pm[m] = 0;
                     }
                 }
             }
@@ -253,12 +253,10 @@ struct simplehistories : public Worker {
                 if (count<0) {count = -count; dead = true; }
                 for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
                     m = mask_indices[j];
-                    // bug fix 2023-03-09 for Poisson counts
-                    // log 2026-06-06
                     if (binomN[s]==0)
-                        pm[m] += log(pski(binomN[s], count, Tsk(k,s), hk[i3(c, k, m, cc, kk)], pID[s]));  
+                        pm[m] *= pski(binomN[s], count, Tsk(k,s), hk[i3(c, k, m, cc, kk)], pID[s]);  
                     else 
-                        pm[m] += log(pski(binomN[s], count, Tsk(k,s), gk[i3(c, k, m, cc, kk)], pID[s]));  
+                        pm[m] *= pski(binomN[s], count, Tsk(k,s), gk[i3(c, k, m, cc, kk)], pID[s]);  
                 }
             }
         }
@@ -340,7 +338,7 @@ struct simplehistories : public Worker {
         int cumcount = 0;
         int m_row = mask_id[n];
         
-        std::vector<double> pm(mm, 0.0);    // log 2026-06-06  
+        std::vector<double> pm(mm, 1.0);
         for (int s = 0; s < ss; s++) {      // over occasions
             // firstocc[n] used to exclude pre-marking sightings
             if (markocc[s]>0 || (s > firstocc[n])) {         
@@ -356,17 +354,19 @@ struct simplehistories : public Worker {
         
         for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
             m = mask_indices[j];
-            pm[m] += log(density(m,group[n])); 
+            pm[m] *= density(m,group[n]);
+            pm[m] = log(pm[m]);
             if (pm[m]>maxpm) maxpm = pm[m];
         }
+        // sumpm = std::accumulate(pm.begin(), pm.end(), 0.0);
         
         // LSE trick 2026-06-06
         for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
             m = mask_indices[j];
-            sumpm += exp(pm[m] - maxpm); 
+            sumpm += exp(pm[m] - maxpm);
         }
         sumpm = maxpm + log(sumpm);
-        
+
         if (grain==0) {
             Rprintf("Debug n %zu sumpm %8.6e \n", n, sumpm);
         }
