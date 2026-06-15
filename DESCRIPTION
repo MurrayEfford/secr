@@ -64,6 +64,7 @@ LinkingTo:
 VignetteBuilder: knitr
 License: GPL (>= 2)
 LazyData: yes
+KeepSource: yes
 LazyDataCompression: xz
 SystemRequirements: GNU make
 URL: https://www.otago.ac.nz/density/, https://github.com/MurrayEfford/secr/
