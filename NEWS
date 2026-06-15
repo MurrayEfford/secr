@@ -1,10 +1,12 @@
-Changes in version 5.5.0 (2026-06-12)
+Changes in version 5.5.0 (2026-06-15)
 
 New features or changed behaviour of old functions
-    o  more robust telemetry likelihood probably makes telemetryscale redundant
-    o  better implementation of mask 'maxdistance'; uses telemetry if available
+    o  none
 
 Other
+    o  more robust telemetry likelihood probably makes details 'telemetryscale' redundant
+    o  better implementation of mask 'maxdistance'; uses telemetry if available
+    o  better implementation of thread workspaces, with speed improvement for multi-threaded fastproximity
     o  increased buffer width in read.telemetry() example
     o  externalpdot option removed from secr.fit details
 
