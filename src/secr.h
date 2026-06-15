@@ -15,6 +15,12 @@
 #include <Rcpp.h>
 #include <RcppParallel.h>
 
+// for ThreadRegistry
+#pragma once
+#include <thread>
+#include <map>
+#include <mutex>
+
 // #include <R.h>       // random numbers 
 
 using namespace Rcpp;
@@ -188,4 +194,53 @@ void fy(double *x, int n, void *ex);
 void fx(double *x, int n, void *ex);
 void fx1 (double *x, int n, void *ex);
     
+//--------------------------------------------------------------------------
+    
+// from Gemini 2026-06-15
+// class ThreadRegistry {
+// private:
+//     std::mutex mtx;
+//     std::map<std::thread::id, int> thread_to_idx;
+//     int next_idx = 0;
+//     
+// public:
+//     // Returns a unique 0-based index for the calling thread
+//     int get_index() {
+//         std::thread::id tid = std::this_thread::get_id();
+//         std::lock_guard<std::mutex> lock(mtx);
+//         
+//         auto it = thread_to_idx.find(tid);
+//         if (it == thread_to_idx.end()) {
+//             thread_to_idx[tid] = next_idx++;
+//             return next_idx - 1;
+//         }
+//         return it->second;
+//     }
+// };
+
+class ThreadRegistry {
+private:
+    std::mutex mtx;
+    std::map<std::thread::id, int> thread_to_idx;
+    int next_idx = 0;
+    
+public:
+    ThreadRegistry() = default;
+    
+    // Explicitly delete copy operations to ensure compiler-enforced reference passing
+    ThreadRegistry(const ThreadRegistry&) = delete;
+    ThreadRegistry& operator=(const ThreadRegistry&) = delete;
+    
+    int get_index() {
+        std::thread::id tid = std::this_thread::get_id();
+        std::lock_guard<std::mutex> lock(mtx);
+        auto it = thread_to_idx.find(tid);
+        if (it == thread_to_idx.end()) {
+            thread_to_idx[tid] = next_idx++;
+            return next_idx - 1;
+        }
+        return it->second;
+    }
+};
+
 #endif  // __secr_h_INCLUDED__

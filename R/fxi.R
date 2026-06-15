@@ -249,7 +249,7 @@ fxTotal.secr <- function (object, sessnum = 1, mask = NULL, ncores = NULL, ...)
 ###############################################################################
 
 allhistfxi <- function (m, realparval, haztemp, gkhk, pi.density, PIA, usge,
-                        CH, binomN, grp, pmixn, grain, ncores) {
+                        CH, binomN, grp, pmixn, grain, ncores, maskcond) {
     nc <- nrow(CH)
     nmix <- nrow(pmixn)
     sump <- matrix(0, nrow = nc, ncol = m)
@@ -273,7 +273,8 @@ allhistfxi <- function (m, realparval, haztemp, gkhk, pi.density, PIA, usge,
           as.integer(PIA),
           as.matrix(usge),
           as.matrix (hx),                
-          as.matrix (hi))
+          as.matrix (hi)
+        )
         ## 2024-09-09 purge uncomputed values for robustness
         temp[is.na(temp)] <- 0
         sump <- sump + sweep(temp, MARGIN=1, STATS = pmixn[x,], FUN = "*")

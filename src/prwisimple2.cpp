@@ -1,4 +1,5 @@
 #include "secr.h"
+#include <algorithm>
 
 //==============================================================================
 // 2019-08-10, 2019-10-18
@@ -9,6 +10,7 @@
 // 2026-06-08 telemscale now redundant as new LSE algrithm here and in 
 //            secr_generalsecrloglikfn takes care of undeflow
 // 2026-06-09 gethrcpp now fills only the required (maskused) elements of hr 
+// 2026-06-15 ThreadRegistry registry;
 
 // [[Rcpp::export]]
 NumericVector gethrcpp(
@@ -58,6 +60,7 @@ struct simplehistories : public Worker {
     const int   nc;
     const int   cc; // number of parameter combinations
     const int   grain;   
+    const bool  safeLL;
     const RVector<int>    binomN;     // s 
     const RVector<int>    markocc;    // s 
     const RVector<int>    firstocc;   // s 
@@ -84,31 +87,49 @@ struct simplehistories : public Worker {
     // output 
     RVector<double> output;
 
+    // Hold as a reference member variable
+    ThreadRegistry& registry;
+    
+    // Workspace to hold thread-specific buffers
+    struct ThreadWorkspace {
+        std::vector<double> pm;
+        ThreadWorkspace(int mm) : pm(mm) {}
+    };
+    std::vector<ThreadWorkspace> workspaces;
+
     // Constructor to initialize an instance of Somehistories 
     // The RMatrix class can be automatically converted to from the Rcpp matrix type
     simplehistories(
         const int mm, 
         const int nc, 
         const int cc,
-        const int grain,    
+        const int grain,
+        const int ncores,
+        
+        const bool safeLL,
         const IntegerVector binomN,  
         const IntegerVector markocc,  
         const IntegerVector firstocc,  
-        const NumericVector pID,  
+        const NumericVector pID, 
+        
         const IntegerVector w,
         const IntegerVector group,
         const NumericVector gk, 
         const NumericVector hk, 
         const NumericMatrix density,
+        
         const IntegerVector PIA,
         const NumericMatrix Tsk,
         const NumericMatrix h,
         const IntegerMatrix hindex, 
         const IntegerVector mask_indices, 
+        
         const IntegerVector mask_offsets,
         const IntegerVector mask_id,
         const NumericVector telemhr,
         const IntegerVector telemstart,
+        ThreadRegistry&     reg_in,
+        
         NumericVector output
         )
         : 
@@ -116,6 +137,7 @@ struct simplehistories : public Worker {
         nc(nc), 
         cc(cc), 
         grain(grain),
+        safeLL(safeLL),
         binomN(binomN), 
         markocc(markocc), 
         firstocc(firstocc), 
@@ -134,17 +156,24 @@ struct simplehistories : public Worker {
         mask_id(mask_id),
         telemhr(telemhr), 
         telemstart(telemstart),
+        registry(reg_in),
         output(output) {
         
         // now can initialise these derived counts
         kk = Tsk.nrow();             // number of detectors
         ss = Tsk.ncol();             // number of occasions
         
+        // Initialize workspaces based on available concurrency
+        int n_threads = (ncores > 0) ? ncores : 1;
+        for(int i = 0; i < n_threads; ++i) {
+            workspaces.emplace_back(mm);
+        }
+        
         for (int s=0; s<ss; s++) if (binomN[s] != -2) allX = false;
     }
     //==============================================================================
 
-    void fnucpp (const int n, const int s, int &cumcount, std::vector<double> &pm) {
+    void fnucpp (const int n, const int s, int &cumcount, ThreadWorkspace& ws) {
         
         // Probability density of telemetry locations for animal n if it belongs to
         // latent class x and is centred at m. It is assumed that telemetry data correspond
@@ -166,6 +195,8 @@ struct simplehistories : public Worker {
         int i, j, m, t, w3;
         int count;
         int m_row = mask_id[n];
+        std::vector<double>& pm = ws.pm; 
+        
         if (telemstart[n+1] > telemstart[n]) {
             w3 = i3(n, s, kk-1, nc, ss);
             count = w[w3];  // number of telemetry fixes 
@@ -190,11 +221,12 @@ struct simplehistories : public Worker {
     
     //----------------------------------------------------------------------------
     
-    void prwX (const int n, const int s, bool &dead, std::vector<double> &pm) {
+    void prwX (const int n, const int s, bool &dead, ThreadWorkspace& ws) {
         // multi-catch traps
         int c, j, k, m, w3;
         double H;
         int m_row = mask_id[n];
+        std::vector<double>& pm = ws.pm; 
         
         if (allX) {
             k = w[s * nc + n];    // all detectors are traps, CH has been compressed to 2-D
@@ -241,9 +273,10 @@ struct simplehistories : public Worker {
     }
     //----------------------------------------------------------------------------
     
-    void prw (const int n, const int s, bool &dead, std::vector<double> &pm) {
+    void prw (const int n, const int s, bool &dead, ThreadWorkspace& ws) {
         int c, j, k, m, w3, count;
         int m_row = mask_id[n];
+        std::vector<double>& pm = ws.pm; 
         
         for (k=0; k<kk; k++) {   // over detectors
             w3 =  i3(n, s, k, nc, ss);
@@ -330,7 +363,7 @@ struct simplehistories : public Worker {
     }
     //----------------------------------------------------------------------------
     
-    double onehistory (std::size_t n) {
+    double onehistory (std::size_t n, ThreadWorkspace& ws) {
         bool dead = false;
         double sumpm = 0.0;
         double maxpm = -huge;
@@ -338,35 +371,44 @@ struct simplehistories : public Worker {
         int cumcount = 0;
         int m_row = mask_id[n];
         
-        std::vector<double> pm(mm, 1.0);
+        std::fill(ws.pm.begin(), ws.pm.end(), 1.0);
+        std::vector<double>& pm = ws.pm;
+        
         for (int s = 0; s < ss; s++) {      // over occasions
             // firstocc[n] used to exclude pre-marking sightings
             if (markocc[s]>0 || (s > firstocc[n])) {         
                 if (binomN[s] == -2)        // multi-catch traps
-                    prwX (n, s, dead, pm);           
+                    prwX (n, s, dead, ws);           
                 else if (binomN[s] >= -1) 
-                    prw (n, s, dead, pm);  
+                    prw (n, s, dead, ws);  
                 else if (binomN[s] == -3) 
-                    fnucpp(n, s, cumcount, pm);
+                    fnucpp(n, s, cumcount, ws);
             }
             if (dead) break;               // out of s loop
         }
         
-        for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
-            m = mask_indices[j];
-            pm[m] *= density(m,group[n]);
-            pm[m] = log(pm[m]);
-            if (pm[m]>maxpm) maxpm = pm[m];
+        if (safeLL) {
+            // LSE trick 2026-06-06
+            for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                m = mask_indices[j];
+                pm[m] *= density(m,group[n]);
+                pm[m] = log(pm[m]);
+                if (pm[m]>maxpm) maxpm = pm[m];
+            }
+            for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                m = mask_indices[j];
+                sumpm += exp(pm[m] - maxpm);
+            }
+            sumpm = maxpm + log(sumpm);
         }
-        // sumpm = std::accumulate(pm.begin(), pm.end(), 0.0);
+        else {
+            for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                m = mask_indices[j];
+                sumpm += pm[m] * density(m,group[n]);
+            }
+            sumpm = log(sumpm);
+        }
         
-        // LSE trick 2026-06-06
-        for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
-            m = mask_indices[j];
-            sumpm += exp(pm[m] - maxpm);
-        }
-        sumpm = maxpm + log(sumpm);
-
         if (grain==0) {
             Rprintf("Debug n %zu sumpm %8.6e \n", n, sumpm);
         }
@@ -406,9 +448,12 @@ struct simplehistories : public Worker {
     //----------------------------------------------------------------------------
     
     // function call operator that works for the specified range (begin/end)
-    void operator()(std::size_t begin, std::size_t end) {        
+    void operator()(std::size_t begin, std::size_t end) {  
+        // Query the reference directly
+        int idx = registry.get_index();
+        ThreadWorkspace& ws = workspaces[idx];
         for (std::size_t n = begin; n < end; n++) {
-            output[n] = onehistory (n);   // 2026-06-06 log
+            output[n] = onehistory (n, ws);   // 2026-06-06 log
         }
     }
     //----------------------------------------------------------------------------
@@ -421,20 +466,25 @@ NumericVector simplehistoriescpp (
         const int cc, 
         const int grain,   
         const int ncores,   
+
+        const bool safeLL,
         const IntegerVector binomN, 
         const IntegerVector markocc, 
         const IntegerVector firstocc, 
         const NumericVector pID, 
+        
         const IntegerVector w,
         const IntegerVector group,
         const NumericVector gk, 
         const NumericVector hk, 
         const NumericMatrix density,        // relative density - sums to 1.0
+        
         const IntegerVector PIA, 
         const NumericMatrix Tsk, 
         const NumericMatrix h,
         const IntegerMatrix hindex, 
         const IntegerVector mask_indices,
+        
         const IntegerVector mask_offsets,
         const IntegerVector mask_id,       // Maps individual to mask row
         const NumericVector telemhr,
@@ -442,14 +492,14 @@ NumericVector simplehistoriescpp (
     {
     
     NumericVector output(nc); 
-
+    ThreadRegistry registry;
+    
     // Construct and initialise
-    simplehistories somehist (mm, nc, cc, grain, 
-                              binomN, markocc, firstocc, pID, w, 
-                              group, gk, hk, density, PIA, Tsk, h, hindex, 
-                              mask_indices, mask_offsets, mask_id, 
-                              telemhr, telemstart, 
-                              output);
+    simplehistories somehist (mm, nc, cc, grain, ncores, 
+                              safeLL, binomN, markocc, firstocc, pID, 
+                              w, group, gk, hk, density,
+                              PIA, Tsk, h, hindex, mask_indices, mask_offsets, 
+                              mask_id, telemhr, telemstart, registry, output);
     
     if (ncores>1) {
         // Run operator() on multiple threads

@@ -6,10 +6,11 @@ using namespace RcppParallel;
 //
 struct signalhistories : public Worker {
     // input data
-    int   mm;
-    int   nc;
-    int   detectfn;
-    int   grain;
+    const int   mm;
+    const int   nc;
+    const int   detectfn;
+    const int   grain;
+    const bool  safeLL;   
     const RVector<int>    binomN;     // s
     const RVector<int>    w;          // n x s x k
     const RMatrix<double> signal;
@@ -27,42 +28,66 @@ struct signalhistories : public Worker {
     // working variables
     int  kk, ss, cc;
     
+    // Workspace to hold thread-specific buffers
+    struct ThreadWorkspace {
+        std::vector<double> pm;
+        ThreadWorkspace(int mm) : pm(mm) {}
+    };
+    std::vector<ThreadWorkspace> workspaces;
+
     // output likelihoods
     RVector<double> output;
+    ThreadRegistry& registry;
     
     // Constructor to initialize an instance of Somehistories
     // The RMatrix class can be automatically converted to from the Rcpp matrix type
     signalhistories(
-        int mm,
-        int nc,
-        int detectfn,
-        int grain,
+        const int mm,
+        const int nc,
+        const int detectfn,
+        const int grain,
+        const int ncores,
+        
+        const bool safeLL,
         const IntegerVector binomN,
         const IntegerVector w,
         const NumericMatrix signal,
         const IntegerVector group,
+        
         const NumericVector gk,
         const NumericMatrix gsbval,
         const NumericMatrix dist2,
         const NumericMatrix density,
         const IntegerVector PIA,
+        
         const NumericVector miscparm,
         const IntegerVector mask_indices, 
         const IntegerVector mask_offsets,
         const IntegerVector mask_id,
+        ThreadRegistry&     reg_in,
+        
         NumericVector output)
         :
-        mm(mm), nc(nc), detectfn(detectfn), grain(grain), 
+        mm(mm), nc(nc), detectfn(detectfn), grain(grain), safeLL(safeLL),
         binomN(binomN), w(w), signal(signal), group(group), gk(gk), gsbval(gsbval), 
         dist2(dist2), density(density), PIA(PIA), miscparm(miscparm),
         mask_indices(mask_indices), 
         mask_offsets(mask_offsets), 
         mask_id(mask_id),
+        registry(reg_in),
         output(output) {
+        
         // now can initialise these derived counts
         kk = dist2.nrow();          // number of detectors
         ss = 1;                     // number of occasions
         cc = gsbval.nrow();         // number of parameter combinations
+        
+        // Initialize workspaces based on available concurrency
+        int n_threads = (ncores > 0) ? ncores : 1;
+        for(int i = 0; i < n_threads; ++i) {
+            workspaces.emplace_back(mm);
+        }
+            
     }
     //==============================================================================
     // local mufnL uses RMatrix input
@@ -126,10 +151,11 @@ struct signalhistories : public Worker {
         }
         else (Rcpp::stop("unknown or invalid detection function"));
     }
-    void prwsignal (const int n, std::vector<double> &pm) {
+    void prwsignal (const int n, ThreadWorkspace& ws) {
         int c, gi, j, k, m, s, w3, count;
         double sig, mu, sdS;
         int m_row = mask_id[n];
+        std::vector<double>& pm = ws.pm; 
         
         for (s=0; s < ss; s++) {   // over occasions
             for (k=0; k<kk; k++) {
@@ -141,7 +167,7 @@ struct signalhistories : public Worker {
                         for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
                             m = mask_indices[j];
                             gi  = i3(c, k, m, cc, kk);
-                            pm[m] += log(pski(binomN[s], 0, 1, gk[gi], 1.0));
+                            pm[m] *= pski(binomN[s], 0, 1, gk[gi], 1.0);
                         }
                     }
                     else {   // detected at this mic
@@ -153,12 +179,12 @@ struct signalhistories : public Worker {
                                 mu  = mufnL (k, m, gsbval(c,0), gsbval(c,1), dist2, detectfn==11);
                                 sdS = gsbval(c,2);
                                 boost::math::normal_distribution<> n(0,sdS);
-                                pm[m] += log(boost::math::pdf(n,(sig - mu)));
+                                pm[m] *= boost::math::pdf(n,(sig - mu));
                             }
                             else  {
                                 // signal value missing; detection only
                                 gi = i3(c,k,m,cc,kk);
-                                pm[m] += log(countp (1, binomN[s], gk[gi]));
+                                pm[m] *= countp (1, binomN[s], gk[gi]);
                             }
                         }
                     }
@@ -169,27 +195,37 @@ struct signalhistories : public Worker {
 
 
     //==============================================================================
-    double onehistorycpp (int n) {
+    double onehistorycpp (int n, ThreadWorkspace& ws) {
         int j,m;
         int m_row = mask_id[n];
         double maxpm = -huge;
         double sumpm = 0.0;
         
-        std::vector<double> pm(mm, 0.0);
-        prwsignal(n,pm);
+        std::fill(ws.pm.begin(), ws.pm.end(), 1.0);
+        std::vector<double>& pm = ws.pm;
+        prwsignal(n,ws);
         
-        for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
-            m = mask_indices[j];
-            pm[m] += log(density(m,group[n]));
-            if (pm[m]>maxpm) maxpm = pm[m];
+        if (safeLL) {
+            for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                m = mask_indices[j];
+                pm[m] *= density(m,group[n]);
+                pm[m] = log(pm[m]);
+                if (pm[m]>maxpm) maxpm = pm[m];
+            }
+            
+            for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                m = mask_indices[j];
+                sumpm += exp(pm[m] - maxpm); 
+            }
+            sumpm = maxpm + log(sumpm);
         }
-        
-        // LSE trick 2026-06-06
-        for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
-            m = mask_indices[j];
-            sumpm += exp(pm[m] - maxpm); 
+        else {
+            for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                m = mask_indices[j];
+                sumpm += pm[m] * density(m,group[n]);
+            }
+            sumpm = log(sumpm);
         }
-        sumpm = maxpm + log(sumpm);
         
         return sumpm;    // log scale 2026-06-09
     }
@@ -197,7 +233,10 @@ struct signalhistories : public Worker {
     // function call operator that works for the specified range (begin/end)
     void operator()(std::size_t begin, std::size_t end) {
         for (std::size_t n = begin; n < end; n++) {
-            output[n] = onehistorycpp (n);
+            // Query the reference directly
+            int idx = registry.get_index();
+            ThreadWorkspace& ws = workspaces[idx];
+            output[n] = onehistorycpp (n, ws);
         }
     }
 };
@@ -209,6 +248,7 @@ NumericVector signalhistoriescpp (
         const int detectfn,
         const int grain,
         const int ncores,
+        const bool safeLL, 
         const IntegerVector binomN,
         const IntegerVector w,
         const NumericMatrix signal,
@@ -225,12 +265,15 @@ NumericVector signalhistoriescpp (
 ) {
     
     NumericVector output(nc);
+    ThreadRegistry registry;
     
     // Construct and initialise
-    signalhistories somehist (mm, nc, detectfn, grain, binomN, w, signal, 
-                              group, gk, gsbval, dist2, density, PIA, miscparm,
-                              mask_indices, mask_offsets, mask_id, 
-                              output);
+    signalhistories somehist (
+            mm, nc, detectfn, grain, ncores, 
+            safeLL, binomN, w, signal, group, 
+            gk, gsbval, dist2, density, PIA, 
+            miscparm, mask_indices, mask_offsets, mask_id, registry,
+            output);
     if (ncores>1) {
         // Run operator() on multiple threads
         parallelFor(0, nc, somehist, grain, ncores);

@@ -22,48 +22,82 @@ struct simplehistoriesfxi : public Worker {
   const RMatrix<double> h;
   const RMatrix<int>    hindex;
   
+  // Workspace to hold thread-specific buffers
+  struct ThreadWorkspace {
+      std::vector<double> pm;
+      ThreadWorkspace(int mm) : pm(mm) {}
+  };
+  std::vector<ThreadWorkspace> workspaces;
+  
   // working variables
   int  kk, ss;
 
   // output likelihoods
   RMatrix<double> output;
+  ThreadRegistry& registry;
   
   // Constructor to initialize an instance of simplehistoriesfxi 
   // The RMatrix class can be automatically converted to from the Rcpp matrix type
   simplehistoriesfxi(
-    int x, 
-    int mm, 
-    int nc, 
-    int cc,
-    int grain,                    
+    const int x, 
+    const int mm, 
+    const int nc, 
+    const int cc,
+    const int grain,  
+
+    const int ncores,
     const IntegerVector binomN,  
     const IntegerVector w,
     const IntegerVector group,
     const NumericVector gk, 
+    
     const NumericVector hk, 
     const NumericMatrix density,
     const IntegerVector PIA,
     const NumericMatrix Tsk,
     const NumericMatrix h,
+    
     const IntegerMatrix hindex, 
+    ThreadRegistry&     reg_in,
     NumericMatrix output)    
     : 
-    x(x), mm(mm), nc(nc), cc(cc), grain(grain), 
-    binomN(binomN), w(w), group(group), gk(gk), hk(hk), density(density), PIA(PIA), 
-    Tsk(Tsk), h(h), hindex(hindex), 
+    x(x), 
+    mm(mm), 
+    nc(nc), 
+    cc(cc), 
+    grain(grain), 
+    binomN(binomN), 
+    w(w), 
+    group(group), 
+    gk(gk), 
+    hk(hk), 
+    density(density), 
+    PIA(PIA), 
+    Tsk(Tsk), 
+    h(h), 
+    hindex(hindex), 
+    registry(reg_in),
     output(output) {
     
     // now can initialise these derived counts
     kk = Tsk.nrow();             // number of detectors
     ss = Tsk.ncol();             // number of occasions
     
+    // Initialize workspaces based on available concurrency
+    int n_threads = (ncores > 0) ? ncores : 1;
+    for(int i = 0; i < n_threads; ++i) {
+        workspaces.emplace_back(mm);
+    }
+    
   }
   //==============================================================================
   
-  void prw (const int n, std::vector<double> &pm) {
+  void prw (const int n, ThreadWorkspace& ws) {
     int c, gi, k, m, s, wi, wxi, count;
     double Tski,H;
     bool dead = false;
+    std::vector<double>& pm = ws.pm; 
+    
     for (s = 0; s < ss; s++) {   // over occasions
       if (binomN[s] == -2) {     // multi-catch traps
         wi = w[s * nc + n]; 
@@ -112,23 +146,26 @@ struct simplehistoriesfxi : public Worker {
   }
   //==============================================================================
   
-  std::vector<double> onehistorymm (int n) {
-    std::vector<double> pm(mm, 1.0);
-    prw (n, pm);           
-    for (int m=0; m<mm; m++) {
-      pm[m] *= density(m,group[n]); 
-    }
-    return pm;   // mm vector
+  std::vector<double> onehistorymm (int n, ThreadWorkspace& ws) {
+      std::fill(ws.pm.begin(), ws.pm.end(), 1.0);
+      std::vector<double>& pm = ws.pm;
+      prw (n, ws);      
+      for (int m=0; m<mm; m++) {
+          pm[m] *= density(m,group[n]); 
+      }
+      return pm;   // mm vector
   }
   //==============================================================================
   
   // function call operator that works for the specified range (begin/end)
   void operator()(std::size_t begin, std::size_t end) {        
-    std::vector<double> pm(mm, 1.0);
-    for (std::size_t n = begin; n < end; n++) {
-      pm = onehistorymm (n);
-      for (int m=0; m<mm; m++) output(n,m) = pm[m];
-    }
+      int idx = registry.get_index();
+      ThreadWorkspace& ws = workspaces[idx];
+      std::vector<double>& pm = ws.pm;
+      for (std::size_t n = begin; n < end; n++) {
+          pm = onehistorymm (n, ws);
+          for (int m=0; m<mm; m++) output(n,m) = pm[m];
+      }
   }
   //==============================================================================
   
@@ -155,11 +192,14 @@ NumericMatrix simplehistoriesfxicpp (
     ) {
   
   NumericMatrix output(nc, mm); 
-  
+  ThreadRegistry registry;
+
   // Construct and initialise
-  simplehistoriesfxi somehist (x, mm, nc, cc, grain, 
-                               binomN, w, group, gk, hk, 
-                              density, PIA, Tsk, h, hindex, output);
+  simplehistoriesfxi somehist (
+          x, mm, nc, cc, grain, 
+          ncores, binomN, w, group, gk, 
+          hk, density, PIA, Tsk, h, 
+          hindex, registry, output);
   
   if (ncores>1) {
     // Run operator() on multiple threads

@@ -1,4 +1,5 @@
 #include "secr.h"
+#include <algorithm>
 
 //==============================================================================
 // 2019-09-05 detector type count
@@ -10,6 +11,7 @@
 //            ERROR: AddressSanitizer: container-overflow on address 
 //            in pr0()
 // 2026-06-08 dump mbool, new individual masks
+// 2026-06-15 ThreadRegistry registry;
 
 struct fasthistories : public Worker {
     
@@ -18,6 +20,7 @@ struct fasthistories : public Worker {
     const int   nc;
     const int   cc; // number of parameter combinations
     const int   grain;
+    const bool  safeLL;
     const int   binomN;
     const bool  indiv;
     const RMatrix<int>    w;            // n x k
@@ -31,7 +34,6 @@ struct fasthistories : public Worker {
     const RVector<int>    mask_offsets;
     const RVector<int>    mask_id;      // Maps individual to mask row
     
-    // internal work arrays
     std::vector<double> pm0base;
     std::vector<double> pm0kbase;
     
@@ -39,33 +41,47 @@ struct fasthistories : public Worker {
     
     // output likelihoods
     RVector<double> output;
+    ThreadRegistry& registry;
     
+    // Workspace to hold thread-specific buffers
+    struct ThreadWorkspace {
+        std::vector<double> pm0, pm0k, pm;
+        ThreadWorkspace(int mm, int kk) : pm0(mm), pm0k(kk * mm), pm(mm) {}
+    };
+    std::vector<ThreadWorkspace> workspaces;
+
     // Constructor to initialize an instance of Somehistories 
     // The RMatrix class can be automatically converted to from the Rcpp matrix type
     fasthistories(
         const int mm, 
         const int nc, 
         const int cc,
-        const int grain,                    
+        const int grain,  
+        const int ncores,
+        
+        const bool safeLL,
         const int binomN,
         const bool indiv,
         const IntegerMatrix w,
         const IntegerMatrix ki,
+        
         const NumericVector gk, 
         const NumericVector hk, 
         const NumericVector density,
         const IntegerVector PIA,
         const IntegerVector Tsk,
+        
         const IntegerVector mask_indices, 
         const IntegerVector mask_offsets,
         const IntegerVector mask_id,
-                          
+        ThreadRegistry&     reg_in,
         NumericVector output)
         : 
         mm(mm), 
         nc(nc), 
         cc(cc), 
         grain(grain), 
+        safeLL(safeLL),
         binomN(binomN), 
         indiv(indiv),
         w(w), 
@@ -78,15 +94,23 @@ struct fasthistories : public Worker {
         mask_indices(mask_indices), 
         mask_offsets(mask_offsets), 
         mask_id(mask_id),
+        registry(reg_in),
         output(output) {
         
         kk = Tsk.size();        // assuming single occasion
-        pm0base.resize(mm);     // for std::vector
-        pm0kbase.resize(kk*mm);
+
+        // Initialize workspaces based on available concurrency
+        int n_threads = (ncores > 0) ? ncores : 1;
+        for(int i = 0; i < n_threads; ++i) {
+            workspaces.emplace_back(mm, kk);
+        }
         
-        // initialise base value of pm arrays (for n = 0)
+        pm0base.resize(mm);
+        pm0kbase.resize(kk * mm);
         pr0(0, pm0base, pm0kbase);
+        
     }
+    
     //==============================================================================
     
     void pr0 (const int n, std::vector<double> &pm0n, std::vector<double> &pm0kn) { 
@@ -108,11 +132,14 @@ struct fasthistories : public Worker {
     }
     //==============================================================================
     
-    void prwL (const int n, std::vector<double> &pm) {
+    void prwL (const int n, ThreadWorkspace& ws) {
         int c, i, j, k, m, w3;
         
-        std::vector<double> pm0(mm);
-        std::vector<double> pm0k(kk*mm);
+        // Use the buffers in the workspace
+        std::vector<double>& pm0 = ws.pm0;
+        std::vector<double>& pm0k = ws.pm0k;
+        std::vector<double>& pm = ws.pm; 
+        
         double pm0ktmp;
         bool base = (n==0) || !indiv;
         
@@ -154,48 +181,60 @@ struct fasthistories : public Worker {
     }
     //==============================================================================
     
-    double onefasthistory (int n) {
-        
-        std::vector<double> pm(mm);
-        prwL (n, pm);           
+    double onefasthistory (int n, ThreadWorkspace& ws) {
+        std::fill(ws.pm.begin(), ws.pm.end(), 1.0);
+        std::vector<double>& pm = ws.pm;
+        prwL (n, ws);           
         int m_row = mask_id[n];
         double sumpm = 0.0;
         double maxpm = -huge;
         int j,m;
         
-        for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
-            m = mask_indices[j];
-            pm[m] *= density[m];
-            pm[m] = log(pm[m]);
-            if (pm[m]>maxpm) maxpm = pm[m];
+        if (safeLL) {
+            for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                m = mask_indices[j];
+                pm[m] *= density[m];
+                pm[m] = log(pm[m]);
+                if (pm[m]>maxpm) maxpm = pm[m];
+            }
+            for (int j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                int m = mask_indices[j];
+                sumpm += exp(pm[m] - maxpm); 
+            }
+            sumpm = maxpm + log(sumpm);
         }
-        for (int j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
-            int m = mask_indices[j];
-            sumpm += exp(pm[m] - maxpm); 
+        else {
+            for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                m = mask_indices[j];
+                sumpm += pm[m] * density[m];
+            }
+            sumpm = log(sumpm);
         }
-        sumpm = maxpm + log(sumpm);
         
         return sumpm;
     }
     //==============================================================================
     
     // function call operator that works for the specified range (begin/end)
-    void operator()(std::size_t begin, std::size_t end) {        
+    void operator()(std::size_t begin, std::size_t end) { 
+        int idx = registry.get_index();
+        ThreadWorkspace& ws = workspaces[idx];
         for (std::size_t n = begin; n < end; n++) {
-            output[n] = onefasthistory (n);
+            output[n] = onefasthistory(n, ws);
         }
+        //==============================================================================
     }
-    //==============================================================================
 };
 
 // [[Rcpp::export]]
 NumericVector fasthistoriescpp (
-        const int mm, 
-        const int nc, 
-        const int cc, 
-        const int grain, 
-        const int ncores, 
-        const int binomN,
+        const int  mm, 
+        const int  nc, 
+        const int  cc, 
+        const int  grain, 
+        const int  ncores, 
+        const bool safeLL,
+        const int  binomN,
         const bool indiv,
         const IntegerMatrix w,
         const IntegerMatrix ki,
@@ -211,15 +250,14 @@ NumericVector fasthistoriescpp (
         ) {
     
     NumericVector output(nc); 
-
+    ThreadRegistry registry;
+    
     // Construct and initialise
-    fasthistories fasthist (mm, nc, cc, grain, binomN, indiv,
-                            w, ki, gk, hk,
-                            density, PIA, Tsk, 
-                            mask_indices,
-                            mask_offsets,
-                            mask_id,
-                            output); 
+    fasthistories fasthist (
+            mm, nc, cc, grain, ncores, 
+            safeLL, binomN, indiv, w, ki, 
+            gk, hk, density, PIA, Tsk, 
+            mask_indices, mask_offsets, mask_id, registry, output); 
     
     if (ncores>1) {
         // Run operator() on multiple threads

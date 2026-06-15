@@ -9,7 +9,7 @@
 #--------------------------------------------------------------------------------
 allhistfast <- function (realparval, gkhk, pi.density, PIA, 
                          nk2ch, usge, pmixn, maskcond,
-                         grain, ncores, binomN, indiv,
+                         grain, ncores, safeLL, binomN, indiv,
                          debug = FALSE) {
     nc <- dim(nk2ch)[1] # dim(PIA)[2]
     if (nc<1) return(1)
@@ -24,6 +24,7 @@ allhistfast <- function (realparval, gkhk, pi.density, PIA,
             as.integer(nrow(realparval)),
             as.integer(grain),
             as.integer(ncores),
+            as.logical(safeLL),
             as.integer(binomN),
             as.logical(indiv),
             matrix(nk2ch[,,1], nrow=nc),
@@ -43,7 +44,7 @@ allhistfast <- function (realparval, gkhk, pi.density, PIA,
 #--------------------------------------------------------------------------------
 
 secr_integralprw1fast <- function (realparval0, gkhk, pi.density, PIA0, 
-                              nk2ch0, usge, pmixn, grain, ncores, binomN, indiv,
+                              nk2ch0, usge, pmixn, grain, ncores, safeLL, binomN, indiv,
                               debug = FALSE) {
     nc <- dim(PIA0)[2]
     nr <- nrow(nk2ch0)
@@ -59,6 +60,7 @@ secr_integralprw1fast <- function (realparval0, gkhk, pi.density, PIA0,
             as.integer(nrow(realparval0)),
             as.integer(grain),
             as.integer(ncores),
+            as.logical(safeLL),
             as.integer(binomN),
             as.logical(indiv),
             matrix(nk2ch0[,,1], nrow = nr),
@@ -184,11 +186,11 @@ secr_fastsecrloglikfn <- function (
         
         lnprw <- allhistfast (Xrealparval, gkhk, pi.density, PIA, 
           data$CH, data$usge, pmixn, data$maskcond, 
-          details$grain, details$ncores, details$binomN, design$individual,
+          details$grain, details$ncores, details$safeLL, details$binomN, design$individual,
           debug = details$debug>3)
         pdot <- secr_integralprw1fast (Xrealparval, gkhk, pi.density, PIA, 
                   data$CH0, data$usge, pmixn, details$grain, details$ncores, 
-                  details$binomN, design$individual,
+                  details$safeLL, details$binomN, design$individual,
                   debug = details$debug>3)
         
         if (details$debug>2) browser()
