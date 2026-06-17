@@ -12,6 +12,7 @@
 //            in pr0()
 // 2026-06-08 dump mbool, new individual masks
 // 2026-06-15 ThreadRegistry registry;
+// 2026-06-17 fillpr0 correction to pr0
 
 struct fasthistories : public Worker {
     
@@ -107,28 +108,39 @@ struct fasthistories : public Worker {
         
         pm0base.resize(mm);
         pm0kbase.resize(kk * mm);
-        pr0(0, pm0base, pm0kbase);
+        
+        // pr0(0, pm0base, pm0kbase);
+        ThreadWorkspace& ws = workspaces[0];
+        fillpr0(0, pm0base, pm0kbase);
         
     }
     
     //==============================================================================
     
-    void pr0 (const int n, std::vector<double> &pm0n, std::vector<double> &pm0kn) { 
+    void fillpr0 (int n, std::vector<double> &pm0, std::vector<double> &pm0k) { 
+        
         int c, k, m, w3;
-        for (m=0; m<mm; m++) pm0n[m] = 1.0;
+        std::fill(pm0.begin(), pm0.end(), 1.0);
+
         for (k=0; k<kk; k++) {
-            w3 =  i3(n, 0, k, nc, 1);    // allow individual or trap covariate 2019-12-06
+            w3 =  i3(n, 0, k, nc, 1);    // allow covariate of individual n or trap k 2019-12-06
             c = PIA[w3] - 1;
             if (c >= 0) {    // ignore unset traps
                 for (m=0; m<mm; m++) {
                     if (binomN==0)
-                        pm0kn[kk * m + k] = gpois (0, Tsk[k] * hk[i3(c, k, m, cc, kk)]);
+                        pm0k[kk * m + k] = gpois (0, Tsk[k] * hk[i3(c, k, m, cc, kk)]);
                     else
-                        pm0kn[kk * m + k] = gbinom (0, Tsk[k], gk[i3(c, k, m, cc, kk)]);
-                    pm0n[m] *= pm0kn[kk * m + k];
+                        pm0k[kk * m + k] = gbinom (0, Tsk[k], gk[i3(c, k, m, cc, kk)]);
+                    pm0[m] *= pm0k[kk * m + k];
                 }
             }
         }
+    }
+    //==============================================================================
+    void pr0 (const int n, ThreadWorkspace& ws) {
+        std::vector<double>& pm0n = ws.pm0;
+        std::vector<double>& pm0kn = ws.pm0k;
+        fillpr0(n, pm0n, pm0kn);
     }
     //==============================================================================
     
@@ -144,7 +156,7 @@ struct fasthistories : public Worker {
         bool base = (n==0) || !indiv;
         
         if (!base) { // (n>0) && indiv) {
-            pr0(n, pm0, pm0k); // update for this animal - expt 2019-12-06, 2020-04-04
+            pr0(n, ws); // update for this animal - expt 2019-12-06, 2020-04-04
         }
 
         int m_row = mask_id[n];
