@@ -65,8 +65,8 @@ gethrcpp <- function(nc, fn, start, xy, mask, maskused, gsbval) {
     .Call(`_secr_gethrcpp`, nc, fn, start, xy, mask, maskused, gsbval)
 }
 
-simplehistoriescpp <- function(mm, nc, cc, grain, ncores, safeLL, binomN, markocc, firstocc, pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, telemhr, telemstart) {
-    .Call(`_secr_simplehistoriescpp`, mm, nc, cc, grain, ncores, safeLL, binomN, markocc, firstocc, pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, telemhr, telemstart)
+simplehistoriescpp <- function(mm, nc, cc, grain, ncores, safeLL, uselog, binomN, markocc, firstocc, pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, telemhr, telemstart) {
+    .Call(`_secr_simplehistoriescpp`, mm, nc, cc, grain, ncores, safeLL, uselog, binomN, markocc, firstocc, pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, telemhr, telemstart)
 }
 
 simplehistoriesfxicpp <- function(x, mm, nc, cc, grain, ncores, binomN, w, group, gk, hk, density, PIA, Tsk, h, hindex) {

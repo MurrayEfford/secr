@@ -36,7 +36,8 @@
 allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup, 
                            CH, binomNcode, MRdata, grp, usge, pmixn, pID, maskcond,
                            telemhr = 0, telemstart = 0,
-                           grain, ncores, safeLL = FALSE, R = FALSE, debug = FALSE) {
+                           grain, ncores, safeLL = FALSE, uselog = FALSE, 
+                           R = FALSE, debug = FALSE) {
   nc <- nrow(CH)
   if (nc<1) return(0)   # log(1)
   k <- nrow(usge)
@@ -80,6 +81,7 @@ allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup,
               as.integer(grain),
               as.integer(ncores),
               as.logical(safeLL),
+              as.logical(uselog),
               as.integer(binomNcode),
               as.integer(MRdata$markocc),
               as.integer(MRdata$firstocc),
@@ -229,7 +231,7 @@ allhistpolygon <- function (detectfn, realparval, haztemp, hk, H, pi.density, PI
 
 secr_integralprw1 <- function (cc0, haztemp, gkhk, pi.density, PIA0, ngroup,
                           CH0, binomNcode, MRdata, grp, usge, pmixn, pID, grain, 
-                          ncores, safeLL = FALSE, debug = FALSE) {
+                          ncores, safeLL = FALSE, uselog = FALSE, debug = FALSE) {
     nc <- dim(PIA0)[2]    ## animals
     nr <- nrow(CH0)       ## unique naive animals (1 or nc)
     m <- nrow(pi.density)
@@ -248,6 +250,7 @@ secr_integralprw1 <- function (cc0, haztemp, gkhk, pi.density, PIA0, ngroup,
             as.integer(grain),
             as.integer(ncores),
             as.logical(safeLL),
+            as.logical(uselog),
             as.integer(binomNcode),
             as.integer(MRdata$markocc),
             as.integer(rep(-1,nr)),                 # MRdata$firstocc  # never marked
@@ -555,7 +558,7 @@ secr_generalsecrloglikfn <- function (
                 data$CH, data$binomNcode, data$MRdata, data$grp, data$usge, pmixn, 
                 pID, data$maskcond, 
                 telemhr, telemstart, 
-                details$grain, details$ncores, details$safeLL, details$R, 
+                details$grain, details$ncores, details$safeLL, details$uselog, details$R, 
                 debug = details$debug>3)
         }
         else if (all(data$dettype == 5)) {

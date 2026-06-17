@@ -189,7 +189,8 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
         externalqx = NULL,
         saveprogress = FALSE,
         progressfilename = "progress.RDS",
-        safeLL = FALSE                          # 2026-06-13
+        safeLL = FALSE,                          # 2026-06-13
+        uselog = FALSE
     )
     if (!is.null(attr(capthist,'cutval'))) {
         defaultdetails$cutval <- attr(capthist,'cutval')

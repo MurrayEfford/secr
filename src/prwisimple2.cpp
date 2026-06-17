@@ -22,7 +22,6 @@ NumericVector gethrcpp(
         const IntegerVector &maskused,
         const NumericMatrix &gsbval) {
     // precompute all telemetry-to-mask detectfn values
-    // 2026-06-06 convert to logarithm
     int c,j,m,t,hri;
     double r;
     int nt = xy.nrow();
@@ -61,6 +60,7 @@ struct simplehistories : public Worker {
     const int   cc; // number of parameter combinations
     const int   grain;   
     const bool  safeLL;
+    const bool  uselog;
     const RVector<int>    binomN;     // s 
     const RVector<int>    markocc;    // s 
     const RVector<int>    firstocc;   // s 
@@ -107,29 +107,30 @@ struct simplehistories : public Worker {
         const int ncores,
         
         const bool safeLL,
+        const bool uselog,
         const IntegerVector binomN,  
         const IntegerVector markocc,  
         const IntegerVector firstocc,  
-        const NumericVector pID, 
         
+        const NumericVector pID, 
         const IntegerVector w,
         const IntegerVector group,
         const NumericVector gk, 
         const NumericVector hk, 
-        const NumericMatrix density,
         
+        const NumericMatrix density,
         const IntegerVector PIA,
         const NumericMatrix Tsk,
         const NumericMatrix h,
         const IntegerMatrix hindex, 
-        const IntegerVector mask_indices, 
         
+        const IntegerVector mask_indices, 
         const IntegerVector mask_offsets,
         const IntegerVector mask_id,
         const NumericVector telemhr,
         const IntegerVector telemstart,
-        ThreadRegistry&     reg_in,
         
+        ThreadRegistry&     reg_in,
         NumericVector output
         )
         : 
@@ -138,6 +139,7 @@ struct simplehistories : public Worker {
         cc(cc), 
         grain(grain),
         safeLL(safeLL),
+        uselog(uselog),
         binomN(binomN), 
         markocc(markocc), 
         firstocc(firstocc), 
@@ -195,6 +197,7 @@ struct simplehistories : public Worker {
         int i, j, m, t, w3;
         int count;
         int m_row = mask_id[n];
+        double ps;
         std::vector<double>& pm = ws.pm; 
         
         if (telemstart[n+1] > telemstart[n]) {
@@ -210,8 +213,18 @@ struct simplehistories : public Worker {
                     for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
                         m = mask_indices[j];
                         hri  = i3(c, m, t, cc, mm); 
-                        pm[m] *= telemhr[hri];         
+                        ps = telemhr[hri];
                         
+                        if (uselog) {
+                            if (ps>0)
+                                pm[m] += log(ps);
+                            else
+                                pm[m] = -huge;
+                        }
+                        else {
+                            pm[m] *= ps;
+                        }
+
                     }
                 }
                 cumcount += count;
@@ -226,6 +239,7 @@ struct simplehistories : public Worker {
         int c, j, k, m, w3;
         double H;
         int m_row = mask_id[n];
+        double psk;
         std::vector<double>& pm = ws.pm; 
         
         if (allX) {
@@ -249,8 +263,15 @@ struct simplehistories : public Worker {
             for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
                 m = mask_indices[j];
                 H = h(m, hindex(n,s));
-                if (H > fuzz)
-                    pm[m] *= exp(-H);
+                if (uselog) {
+                    pm[m] -= H;
+                }
+                else {
+                    if (H > fuzz)
+                        pm[m] *= exp(-H);
+                    else
+                        pm[m] = 0.0;
+                }
             }
         }
         // Captured in trap k on occasion s
@@ -262,13 +283,26 @@ struct simplehistories : public Worker {
                     m = mask_indices[j];
                     H = h(m, hindex(n,s));
                     if (H>fuzz) {
-                        pm[m] *= Tsk(k,s) * (1-exp(-H)) *  hk[i3(c, k, m, cc, kk)] / H;
+                        psk = Tsk(k,s) * (1-exp(-H)) *  hk[i3(c, k, m, cc, kk)] / H;
                     }
                     else {
-                        pm[m] = 0;
+                        psk= 0.0;
+                    }
+                    if (uselog) {
+                        if (psk>0)
+                            pm[m] += log(psk);
+                        else
+                            pm[m] = -huge;
+                    }
+                    else {
+                        pm[m] *= psk;
                     }
                 }
             }
+            // if (grain==0) {
+            //     double sumpm = std::accumulate(pm.begin(), pm.end(), 0.0);
+            //     Rprintf("Debug n %zu s %d k %d sumpm %g \n", n, s,k, sumpm);
+            // }
         }
     }
     //----------------------------------------------------------------------------
@@ -276,6 +310,7 @@ struct simplehistories : public Worker {
     void prw (const int n, const int s, bool &dead, ThreadWorkspace& ws) {
         int c, j, k, m, w3, count;
         int m_row = mask_id[n];
+        double psk;
         std::vector<double>& pm = ws.pm; 
         
         for (k=0; k<kk; k++) {   // over detectors
@@ -287,9 +322,22 @@ struct simplehistories : public Worker {
                 for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
                     m = mask_indices[j];
                     if (binomN[s]==0)
-                        pm[m] *= pski(binomN[s], count, Tsk(k,s), hk[i3(c, k, m, cc, kk)], pID[s]);  
+                        psk = pski(binomN[s], count, Tsk(k,s), hk[i3(c, k, m, cc, kk)], pID[s]);  
                     else 
-                        pm[m] *= pski(binomN[s], count, Tsk(k,s), gk[i3(c, k, m, cc, kk)], pID[s]);  
+                        psk = pski(binomN[s], count, Tsk(k,s), gk[i3(c, k, m, cc, kk)], pID[s]);  
+                    if (grain==0) {
+                        double sumpm = std::accumulate(pm.begin(), pm.end(), 0.0);
+                        Rprintf("Debug n %zu s %d k %d m %d psk %g \n", n, s,k,m,psk);
+                    }
+                    if (uselog) {
+                        if (psk>0)
+                            pm[m] += log(psk);
+                        else
+                            pm[m] = -huge;
+                    }
+                    else {
+                        pm[m] *= psk;
+                    }
                 }
             }
         }
@@ -371,7 +419,12 @@ struct simplehistories : public Worker {
         int cumcount = 0;
         int m_row = mask_id[n];
         
-        std::fill(ws.pm.begin(), ws.pm.end(), 1.0);
+        if (uselog) {
+            std::fill(ws.pm.begin(), ws.pm.end(), 0.0);
+        }
+        else {
+            std::fill(ws.pm.begin(), ws.pm.end(), 1.0);
+        }
         std::vector<double>& pm = ws.pm;
         
         for (int s = 0; s < ss; s++) {      // over occasions
@@ -391,8 +444,13 @@ struct simplehistories : public Worker {
             // LSE trick 2026-06-06
             for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
                 m = mask_indices[j];
-                pm[m] *= density(m,group[n]);
-                pm[m] = log(pm[m]);
+                if (uselog) {
+                    pm[m] += log(density(m,group[n]));
+                }
+                else {
+                    pm[m] *= density(m,group[n]);
+                    pm[m] = log(pm[m]);
+                }
                 if (pm[m]>maxpm) maxpm = pm[m];
             }
             for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
@@ -404,7 +462,14 @@ struct simplehistories : public Worker {
         else {
             for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
                 m = mask_indices[j];
-                sumpm += pm[m] * density(m,group[n]);
+                if (uselog) {
+                    pm[m] += log(density(m,group[n]));
+                    sumpm += exp(pm[m]);
+                }
+                else {
+                    sumpm += pm[m] * density(m,group[n]);   
+                }
+                
             }
             sumpm = log(sumpm);
         }
@@ -468,23 +533,24 @@ NumericVector simplehistoriescpp (
         const int ncores,   
 
         const bool safeLL,
+        const bool uselog,
         const IntegerVector binomN, 
         const IntegerVector markocc, 
         const IntegerVector firstocc, 
-        const NumericVector pID, 
         
+        const NumericVector pID, 
         const IntegerVector w,
         const IntegerVector group,
         const NumericVector gk, 
         const NumericVector hk, 
-        const NumericMatrix density,        // relative density - sums to 1.0
         
+        const NumericMatrix density,        // relative density - sums to 1.0
         const IntegerVector PIA, 
         const NumericMatrix Tsk, 
         const NumericMatrix h,
         const IntegerMatrix hindex, 
-        const IntegerVector mask_indices,
         
+        const IntegerVector mask_indices,
         const IntegerVector mask_offsets,
         const IntegerVector mask_id,       // Maps individual to mask row
         const NumericVector telemhr,
@@ -495,11 +561,13 @@ NumericVector simplehistoriescpp (
     ThreadRegistry registry;
     
     // Construct and initialise
-    simplehistories somehist (mm, nc, cc, grain, ncores, 
-                              safeLL, binomN, markocc, firstocc, pID, 
-                              w, group, gk, hk, density,
-                              PIA, Tsk, h, hindex, mask_indices, mask_offsets, 
-                              mask_id, telemhr, telemstart, registry, output);
+    simplehistories somehist (
+            mm, nc, cc, grain, ncores, 
+            safeLL, uselog, binomN, markocc, firstocc, 
+            pID, w, group, gk, hk, 
+            density, PIA, Tsk, h, hindex, 
+            mask_indices, mask_offsets, mask_id, telemhr, telemstart, 
+            registry, output);
     
     if (ncores>1) {
         // Run operator() on multiple threads
