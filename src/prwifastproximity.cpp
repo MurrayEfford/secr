@@ -95,8 +95,9 @@ struct fasthistories : public Worker {
         mask_indices(mask_indices), 
         mask_offsets(mask_offsets), 
         mask_id(mask_id),
-        registry(reg_in),
-        output(output) {
+        output(output),
+        registry(reg_in)
+        {
         
         kk = Tsk.size();        // assuming single occasion
 

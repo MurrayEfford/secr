@@ -74,8 +74,9 @@ struct signalhistories : public Worker {
         mask_indices(mask_indices), 
         mask_offsets(mask_offsets), 
         mask_id(mask_id),
-        registry(reg_in),
-        output(output) {
+        output(output),
+        registry(reg_in)
+        {
         
         // now can initialise these derived counts
         kk = dist2.nrow();          // number of detectors

@@ -158,8 +158,9 @@ struct simplehistories : public Worker {
         mask_id(mask_id),
         telemhr(telemhr), 
         telemstart(telemstart),
-        registry(reg_in),
-        output(output) {
+        output(output),
+        registry(reg_in)
+        {
         
         // now can initialise these derived counts
         kk = Tsk.nrow();             // number of detectors
@@ -325,10 +326,6 @@ struct simplehistories : public Worker {
                         psk = pski(binomN[s], count, Tsk(k,s), hk[i3(c, k, m, cc, kk)], pID[s]);  
                     else 
                         psk = pski(binomN[s], count, Tsk(k,s), gk[i3(c, k, m, cc, kk)], pID[s]);  
-                    if (grain==0) {
-                        double sumpm = std::accumulate(pm.begin(), pm.end(), 0.0);
-                        Rprintf("Debug n %zu s %d k %d m %d psk %g \n", n, s,k,m,psk);
-                    }
                     if (uselog) {
                         if (psk>0)
                             pm[m] += log(psk);
@@ -474,12 +471,9 @@ struct simplehistories : public Worker {
             sumpm = log(sumpm);
         }
         
-        if (grain==0) {
-            Rprintf("Debug n %zu sumpm %8.6e \n", n, sumpm);
-        }
-        
-        // if (grain==0)
-        //     Rprintf("n %4d sumpm %8.6g\n", n,sumpm);
+        // if (grain==0) {
+        //     Rprintf("Debug n %zu sumpm %8.6e \n", n, sumpm);
+        // }
         
             // expected number of unidentified marked sightings Tm
             // sum over marked animals

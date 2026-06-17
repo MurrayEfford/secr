@@ -76,8 +76,9 @@ struct simplehistoriesfxi : public Worker {
     Tsk(Tsk), 
     h(h), 
     hindex(hindex), 
-    registry(reg_in),
-    output(output) {
+    output(output),
+    registry(reg_in)
+    {
     
     // now can initialise these derived counts
     kk = Tsk.nrow();             // number of detectors
