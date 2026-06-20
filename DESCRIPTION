@@ -26,7 +26,7 @@ Depends:
     R (>= 3.5.0), 
     methods
 Imports: 
-    secrfunc (>= 1.1.1),
+    secrfunc (>= 1.1.2),
     abind, 
     graphics, 
     grDevices, 
