@@ -181,9 +181,10 @@ allhistsignal <- function (detectfn, grain, ncores, safeLL, binomNcode,
   secr_logsum(logprwi, pmixn)
 }
 #--------------------------------------------------------------------------------
-allhistpolygon <- function (detectfn, realparval, haztemp, hk, H, pi.density, PIA, ngroup,
-                           CH, xy, binomNcode, grp, usge, mask, pmixn, maskcond,
-                           grain, ncores, safeLL, minprob, debug=FALSE) {
+allhistpolygon <- function (
+        detectfn, realparval, haztemp, hk, H, pi.density, PIA, ngroup,
+        CH, xy, binomNcode, grp, usge, mask, pmixn, maskcond,
+        grain, ncores, safeLL = FALSE, uselog = FALSE, minprob, debug=FALSE) {
   nc <- nrow(CH)
   m <- nrow(pi.density)
   s <- ncol(usge)
@@ -200,28 +201,30 @@ allhistpolygon <- function (detectfn, realparval, haztemp, hk, H, pi.density, PI
         as.integer(ncores),
         as.logical(safeLL),
         
+        as.logical(uselog),
         as.double(minprob),          
         as.integer(binomNcode),
         as.integer(CH),   
         as.matrix(xy$xy),
-        as.vector(xy$start),
         
+        as.vector(xy$start),
         as.integer(as.numeric(grp))-1L,
         as.double(hk),
         as.double(H),
         as.matrix(realparval),
-        matrix(1,nrow=s, ncol=nmix),  ## pID?
         
+        matrix(1,nrow=s, ncol=nmix),  ## pID?
         as.matrix(mask),
         as.matrix (pi.density),
         as.integer(PIA[1,,,,x]),
         as.matrix(usge),
-        as.matrix (hx),                
         
+        as.matrix (hx),                
         as.matrix (hi),      
         as.integer(maskcond$mask_indices),
         as.integer(maskcond$mask_offsets),
         as.integer(maskcond$mask_id),
+        
         as.integer (debug)    
       )
   }
@@ -291,7 +294,7 @@ secr_integralprw1 <- function (cc0, haztemp, gkhk, pi.density, PIA0, ngroup,
 
 secr_integralprw1poly <- function (detectfn, realparval0, haztemp, hk, H, 
         pi.density, PIA0, ngroup, CH0, binomNcode, grp, usge, mask, pmixn, 
-        grain, ncores, safeLL = FALSE, minprob, debug = FALSE) {
+        grain, ncores, safeLL = FALSE, uselog = FALSE, minprob, debug = FALSE) {
     
   nc <- dim(PIA0)[2]
   nr <- nrow(CH0)       ## unique naive animals (1 or nc)
@@ -312,28 +315,30 @@ secr_integralprw1poly <- function (detectfn, realparval0, haztemp, hk, H,
         as.integer(ncores),
         as.logical(safeLL),
         
+        as.logical(uselog),
         as.double(minprob),          
         as.integer(binomNcode),
         as.integer(CH0),   
         as.matrix(0L),  # empty for null history
-        as.vector(0L),  # empty for null history
         
+        as.vector(0L),  # empty for null history
         as.integer(grp)-1L,
         as.double(hk),
         as.double(H),
         as.matrix(realparval0),
-        matrix(1,nrow=s, ncol=nmix),  ## pID?
         
+        matrix(1,nrow=s, ncol=nmix),  ## pID?
         as.matrix(mask),
         as.matrix (pi.density),
         as.integer(PIA0[1,1:nr,,,x]),
         as.matrix(usge),
-        as.matrix (hx),                
         
+        as.matrix (hx),                
         as.matrix (hi),
         as.integer(0:(m-1)),       # mask_indices (whole mask)
         as.integer(c(0,m)),        # mask_offsets
         as.integer(rep(0,nr)),     # mask_id
+        
         as.integer (debug)   
       )
   }
@@ -574,7 +579,7 @@ secr_generalsecrloglikfn <- function (
                 detectfn, Xrealparval, haztemp, gkhk$hk, gkhk$H, pi.density, PIA, ngroup, 
                 data$CH, data$xy, data$binomNcode, data$grp, data$usge, data$mask,
                 pmixn, data$maskcond, details$grain, details$ncores, details$safeLL, 
-                details$minprob, debug = details$debug>3)
+                details$uselog, details$minprob, debug = details$debug>3)
         }
         else {
             stop ("this detector type, or mixed detector types, not available yet in secr 5.5")
@@ -597,10 +602,10 @@ secr_generalsecrloglikfn <- function (
             }
         }
         pdot <- secr_integralprw1poly (
-            detectfn, Xrealparval0, haztemp, gkhk$hk, 
-            gkhk$H, pi.density, PIA0, ngroup, data$CH0, data$binomNcode, data$grp, 
-            data$usge, data$mask, pmixn, details$grain, 
-            details$ncores, details$safeLL, details$minprob, debug = details$debug>3)
+            detectfn, Xrealparval0, haztemp, gkhk$hk, gkhk$H, 
+            pi.density, PIA0, ngroup, data$CH0, data$binomNcode, 
+            data$grp, data$usge, data$mask, pmixn, details$grain, 
+            details$ncores, details$safeLL, details$uselog, details$minprob, debug = details$debug>3)
         
     }
     ## point types
@@ -629,11 +634,10 @@ secr_generalsecrloglikfn <- function (
             
         }
         pdot <- secr_integralprw1 (
-            nrow(Xrealparval0), haztemp, gkhk, 
-            pi.density, PIA0, ngroup, data$CH0, data$binomNcode, data$MRdata, 
-            data$grp, data$usge, pmixn, pID, 
-            details$grain, details$ncores, details$safeLL,
-            debug = details$debug>3)
+            nrow(Xrealparval0), haztemp, gkhk, pi.density, PIA0, 
+            ngroup, data$CH0, data$binomNcode, data$MRdata, data$grp, 
+            data$usge, pmixn, pID, details$grain, details$ncores, 
+            details$safeLL, details$uselog, debug = details$debug>3)
     }
     
     # 2025-08-05 ngroup now global to this fn
