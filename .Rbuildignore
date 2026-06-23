@@ -12,3 +12,5 @@ extracpp
 README.md
 ^\.github$
 progress.RDS
+^\.positai$
+^\.claude$
