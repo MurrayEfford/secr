@@ -6,6 +6,11 @@
 ## 2020-04-24 learnedresponse bug with multicatch traps fixed
 ## 2020-10-11 knownclass bug when not all classes present in session fixed
 ## 2021-08-07 ncores passed to C++ for parallelFor
+## 2026-06-05 internal function secr_allhistsimple renamed to allhistsimple
+## 2026-06-07 gethr renamed gethrcpp
+## 2026-06-07 simplehistoriescpp returns logprwi rather than prwi
+## 2026-06-08 new maskcond maxdistance implementation
+## 2026-06-13 safeLL switch
 ###############################################################################
 
 # dettype
@@ -27,18 +32,20 @@
 # index       = 14
 
 #--------------------------------------------------------------------------------
-secr_allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup, 
-                           CH, binomNcode, MRdata, grp, usge, pmixn, pID, maskusage,
+
+allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup, 
+                           CH, binomNcode, MRdata, grp, usge, pmixn, pID, maskcond,
                            telemhr = 0, telemstart = 0,
-                           grain, ncores, R = FALSE, debug = FALSE) {
+                           grain, ncores, safeLL = FALSE, uselog = FALSE, 
+                           R = FALSE, debug = FALSE) {
   nc <- nrow(CH)
-  ## 2022-01-04
-  if (nc<1) return(1)
+  if (nc<1) return(0)   # log(1)
   k <- nrow(usge)
   m <- nrow(pi.density)
   nmix <- nrow(pmixn)
   sump <- numeric(nc)
   if (debug) browser()
+  logprwi <- matrix(nrow=nc, ncol=nmix)
   for (x in 1:nmix) {
       hx <- if (any(binomNcode==-2)) matrix(haztemp$h[x,,], nrow = m) else -1 ## lookup sum_k (hazard)
       hi <- if (any(binomNcode==-2)) haztemp$hindex else -1                   ## index to hx
@@ -60,39 +67,44 @@ secr_allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup,
                                   array(gkhk$hk, dim=c(cc,k,m)),
                                   pi.density,
                                   PIA, usge, hx, hi,
-                                  maskusage,
+                                  maskcond,
                                   telemstart, 
                                   telemhr))
+              logprwi[,x] <- log(temp$prwi)  # 2026-06-07
           }
       } 
       else {
-        temp <- simplehistoriescpp(
-          as.integer(m),
-          as.integer(nc),
-          as.integer(cc),
-          as.integer(grain),
-          as.integer(ncores),
-          as.integer(binomNcode),
-          as.integer(MRdata$markocc),
-          as.integer(MRdata$firstocc),
-          as.double (pID[,x]),
-          as.integer(CH),   
-          as.integer(grp)-1L,
-          as.double (gkhk$gk),     ## precomputed probability 
-          as.double (gkhk$hk),     ## precomputed hazard
-          as.matrix (pi.density),
-          as.integer(PIA[1,,,,x]),
-          as.matrix (usge),
-          as.matrix (hx),                
-          as.matrix (hi),      
-          as.matrix (maskusage),
-          as.double (telemhr),
-          as.integer (telemstart))
+          logprwi[,x] <- simplehistoriescpp(
+              as.integer(m),
+              as.integer(nc),
+              as.integer(cc),
+              as.integer(grain),
+              as.integer(ncores),
+              as.logical(safeLL),
+              as.logical(uselog),
+              as.integer(binomNcode),
+              as.integer(MRdata$markocc),
+              as.integer(MRdata$firstocc),
+              as.double (pID[,x]),
+              as.integer(CH),   
+              as.integer(grp)-1L,
+              as.double (gkhk$gk),     ## precomputed probability 
+              as.double (gkhk$hk),     ## precomputed hazard
+              as.matrix (pi.density),
+              as.integer(PIA[1,,,,x]),
+              as.matrix (usge),
+              as.matrix (hx),                
+              as.matrix (hi),      
+              as.integer(maskcond$mask_indices),
+              as.integer(maskcond$mask_offsets),
+              as.integer(maskcond$mask_id),
+              as.double (telemhr),
+              as.integer (telemstart))
       }
-      sump   <- sump + pmixn[x,] * temp$prwi
   }
-  sump 
+  secr_logsum(logprwi, pmixn)
 }
+
 #--------------------------------------------------------------------------------
 
 expectedmu <- function (cc, haztemp, gkhk, pi.density, Nm, PIA, ngroup,
@@ -134,97 +146,114 @@ expectedmu <- function (cc, haztemp, gkhk, pi.density, Nm, PIA, ngroup,
 }
 #--------------------------------------------------------------------------------
 
-allhistsignal <- function (detectfn, grain, ncores, binomNcode,
+allhistsignal <- function (detectfn, grain, ncores, safeLL, binomNcode,
                            CH, signal, grp, gk, realparval, dist2, 
-                           pi.density, PIA, ngroup, miscparm, maskusage,
+                           pi.density, PIA, ngroup, miscparm, maskcond,
                            pmixn, debug = FALSE) {
   nc <- nrow(CH)
   m <- nrow(pi.density)
   nmix <- nrow(pmixn)
-  sump <- numeric(nc)
+  logprwi <- matrix(nrow=nc, ncol=nmix)
+  if (debug) browser()
   for (x in 1:nmix) {
-    temp <- signalhistoriescpp(
-      as.integer(m),
-      as.integer(nc),
-      as.integer(detectfn),
-      as.integer(grain),
-      as.integer(ncores),
-      as.integer(binomNcode),
-      as.integer(CH),   
-      as.matrix(signal),
-      as.integer(grp)-1L,
-      as.double(gk),
-      as.matrix(realparval),
-      as.matrix(dist2),
-      as.matrix (pi.density),
-      as.integer(PIA[1,1:nc,,,x]),   ## pass only PIA for x
-      as.double(miscparm),
-      as.matrix(maskusage))
-    sump <- sump + pmixn[x,] * temp
+      logprwi[,x] <- signalhistoriescpp(
+          as.integer(m),
+          as.integer(nc),
+          as.integer(detectfn),
+          as.integer(grain),
+          as.integer(ncores),
+          as.logical(safeLL),
+          as.integer(binomNcode),
+          as.integer(CH),   
+          as.matrix(signal),
+          as.integer(grp)-1L,
+          as.double(gk),
+          as.matrix(realparval),
+          as.matrix(dist2),
+          as.matrix (pi.density),
+          as.integer(PIA[1,1:nc,,,x]),   ## pass only PIA for x
+          as.double(miscparm),
+          as.integer(maskcond$mask_indices),
+          as.integer(maskcond$mask_offsets),
+          as.integer(maskcond$mask_id)
+      )
   }
-  sump
+  secr_logsum(logprwi, pmixn)
 }
 #--------------------------------------------------------------------------------
-allhistpolygon <- function (detectfn, realparval, haztemp, hk, H, pi.density, PIA, ngroup,
-                           CH, xy, binomNcode, grp, usge, mask, pmixn, maskusage,
-                           grain, ncores, minprob, debug=FALSE) {
+allhistpolygon <- function (
+        detectfn, realparval, haztemp, hk, H, pi.density, PIA, ngroup,
+        CH, xy, binomNcode, grp, usge, mask, pmixn, maskcond,
+        grain, ncores, safeLL = FALSE, uselog = FALSE, minprob, debug=FALSE) {
   nc <- nrow(CH)
   m <- nrow(pi.density)
   s <- ncol(usge)
   nmix <- nrow(pmixn)
-  sump <- numeric(nc)
+  logprwi <- matrix(nrow=nc, ncol=nmix)
+  if (debug) browser()
   for (x in 1:nmix) {
       hx <- if (any(binomNcode==-2)) matrix(haztemp$h[x,,], nrow = m) else -1 ## lookup sum_k (hazard)
       hi <- if (any(binomNcode==-2)) haztemp$hindex else -1                   ## index to hx
-      temp <- secrfunc::polygonhistoriescpp(
+      logprwi[,x] <- secrfunc::polygonhistories2cpp(
         as.integer(nc),
         as.integer(detectfn[1]),
         as.integer(grain),
         as.integer(ncores),
+        as.logical(safeLL),
+        
+        as.logical(uselog),
         as.double(minprob),          
         as.integer(binomNcode),
         as.integer(CH),   
         as.matrix(xy$xy),
+        
         as.vector(xy$start),
         as.integer(as.numeric(grp))-1L,
         as.double(hk),
         as.double(H),
         as.matrix(realparval),
+        
         matrix(1,nrow=s, ncol=nmix),  ## pID?
         as.matrix(mask),
         as.matrix (pi.density),
         as.integer(PIA[1,,,,x]),
         as.matrix(usge),
+        
         as.matrix (hx),                
         as.matrix (hi),      
-        as.integer (debug)    # WAS as.matrix(maskusage)
+        as.integer(maskcond$mask_indices),
+        as.integer(maskcond$mask_offsets),
+        as.integer(maskcond$mask_id),
+        
+        as.integer (debug)    
       )
-      sump <- sump + pmixn[x,] * temp
   }
-  if (debug) {
-    cat("SUM log(PRWI) ", sum(log(sump)), "\n")
-  }
-  sump
+  secr_logsum(logprwi, pmixn)
 }
 #--------------------------------------------------------------------------------
 
 secr_integralprw1 <- function (cc0, haztemp, gkhk, pi.density, PIA0, ngroup,
-                          CH0, binomNcode, MRdata, grp, usge, pmixn, pID, grain, ncores) {
+                          CH0, binomNcode, MRdata, grp, usge, pmixn, pID, grain, 
+                          ncores, safeLL = FALSE, uselog = FALSE, debug = FALSE) {
     nc <- dim(PIA0)[2]    ## animals
     nr <- nrow(CH0)       ## unique naive animals (1 or nc)
     m <- nrow(pi.density)
     nmix <- nrow(pmixn)
     if (length(grp)<=1) grp <- rep(1,nc)
-    sump <- numeric(nc)
+    logprwi <- matrix(nrow=nc, ncol=nmix)
+    if (debug) browser()
     for (x in 1:nmix) {
         hx <- if (any(binomNcode==-2)) matrix(haztemp$h[x,,], nrow = m) else -1 ## sum_k (hazard)
         hi <- if (any(binomNcode==-2)) haztemp$hindex else -1                   ## index to hx
-        temp <- simplehistoriescpp(
+        # if simplehistoriescpp returns a scalar it replicates automatically to the column length
+        logprwi[,x] <- simplehistoriescpp(
             as.integer(m),
             as.integer(nr),
             as.integer(cc0),
             as.integer(grain),
             as.integer(ncores),
+            as.logical(safeLL),
+            as.logical(uselog),
             as.integer(binomNcode),
             as.integer(MRdata$markocc),
             as.integer(rep(-1,nr)),                 # MRdata$firstocc  # never marked
@@ -238,23 +267,34 @@ secr_integralprw1 <- function (cc0, haztemp, gkhk, pi.density, PIA0, ngroup,
             as.matrix (usge),
             as.matrix (hx),                
             as.matrix (hi),      
-            as.matrix (matrix(TRUE, nrow = nr, ncol = m)),
-            as.double (0),   # no telemetry
-            as.integer(0)    # no telemetry
+            as.integer(0:(m-1)),       # mask_indices (whole mask)
+            as.integer(c(0,m)),        # mask_offsets
+            as.integer(rep(0,nr)),     # mask_id
+            as.double (0),             # no telemetry
+            as.integer(0)              # no telemetry
         )  
-        if (nr == 1) temp$prwi <- rep(temp$prwi, nc)
+    }
+    if (nmix==1) {
+        return (1-exp(logprwi[,1]))
+    }
+    else {
+        # see secr_logsum
+        logprwi <- logprwi + log(t(pmixn))
+        vmaxi <- apply(logprwi,1,max)
+        logprwi <- sweep(logprwi, MARGIN = 1, STATS = vmaxi, FUN = "-")
+        logsum <- numeric(nc)
         for (g in 1:ngroup) {
             ok <- as.integer(grp) == g
-            sump[ok] <- sump[ok] + pmixn[x,ok] * (1-temp$prwi[ok])
+            logsum[ok] <- vmaxi + log(apply(exp(logprwi[ok,,drop=FALSE]),1,sum))
         }
+        1-exp(logsum)
     }
-    sump
 }
 #--------------------------------------------------------------------------------
 
 secr_integralprw1poly <- function (detectfn, realparval0, haztemp, hk, H, 
         pi.density, PIA0, ngroup, CH0, binomNcode, grp, usge, mask, pmixn, 
-        maskusage, grain, ncores, minprob, debug = FALSE) {
+        grain, ncores, safeLL = FALSE, uselog = FALSE, minprob, debug = FALSE) {
     
   nc <- dim(PIA0)[2]
   nr <- nrow(CH0)       ## unique naive animals (1 or nc)
@@ -262,40 +302,61 @@ secr_integralprw1poly <- function (detectfn, realparval0, haztemp, hk, H,
   nmix <- nrow(pmixn)
   if (length(grp)<=1) grp <- rep(1,nr)
   s <- ncol(usge)
-  sump <- numeric(nc)
+  logprwi <- matrix(nrow=nc, ncol=nmix)
+  if (debug) browser()
   for (x in 1:nmix) {
       hx <- if (any(binomNcode==-2)) matrix(haztemp$h[x,,], nrow = m) else -1 ## sum_k (hazard)
       hi <- if (any(binomNcode==-2)) haztemp$hindex else -1                   ## index to hx
-      temp <- secrfunc::polygonhistoriescpp(
+      # if polygonhistories2cpp returns a scalar it replicates automatically to the column length
+      logprwi[,x] <- secrfunc::polygonhistories2cpp(
         as.integer(nr),
         as.integer(detectfn[1]),
         as.integer(grain),
         as.integer(ncores),
+        as.logical(safeLL),
+        
+        as.logical(uselog),
         as.double(minprob),          
         as.integer(binomNcode),
         as.integer(CH0),   
         as.matrix(0L),  # empty for null history
+        
         as.vector(0L),  # empty for null history
         as.integer(grp)-1L,
         as.double(hk),
         as.double(H),
         as.matrix(realparval0),
+        
         matrix(1,nrow=s, ncol=nmix),  ## pID?
         as.matrix(mask),
         as.matrix (pi.density),
         as.integer(PIA0[1,1:nr,,,x]),
         as.matrix(usge),
+        
         as.matrix (hx),                
-        as.matrix (hi),      
-        as.integer (debug)   # WAS as.matrix(maskusage)
+        as.matrix (hi),
+        as.integer(0:(m-1)),       # mask_indices (whole mask)
+        as.integer(c(0,m)),        # mask_offsets
+        as.integer(rep(0,nr)),     # mask_id
+        
+        as.integer (debug)   
       )
-      if (nr == 1) temp <- rep(temp, nc)
+  }
+  if (nmix==1) {
+      return (1-exp(logprwi[,1]))
+  }
+  else {
+      # see also secr_logsum()
+      logprwi <- logprwi + log(t(pmixn))
+      vmaxi <- apply(logprwi,1,max)
+      logprwi <- sweep(logprwi, MARGIN = 1, STATS = vmaxi, FUN = "-")
+      logsum <- numeric(nc)
       for (g in 1:ngroup) {
           ok <- as.integer(grp) == g
-          sump[ok] <- sump[ok] + pmixn[x,ok] * (1-temp[ok])
+          logsum[ok] <- vmaxi + log(apply(exp(logprwi[ok,,drop=FALSE]),1,sum))
       }
+      1-exp(logsum)
   }
-  sump
 }
 #--------------------------------------------------------------------------------
 
@@ -459,15 +520,15 @@ secr_generalsecrloglikfn <- function (
     ## telemetry precalculation
     if (any(data$dettype == 13)) {
         telemstart <- data$xy$start
-        telemscale <- details$telemetryscale
-        if (is.null(telemscale)) telemscale <- 1
-        telemhr <- gethr(as.double(nrow(data$CH)),      ## or nc1?
-                    as.integer(detectfn), 
-                    as.double(telemstart), 
-                    as.matrix(data$xy$xy), 
-                    as.matrix(data$mask), 
-                    as.matrix(Xrealparval), 
-                    as.double(telemscale))
+        maskused <- unique(unlist(data$maskcond$mask_indices))
+        telemhr <- gethrcpp(
+            as.integer(nrow(data$CH)),      ## or nc1?  Was as.double <2026-06-05
+            as.integer(detectfn), 
+            as.double(telemstart), 
+            as.matrix(data$xy$xy), 
+            as.matrix(data$mask),
+            as.integer(maskused),
+            as.matrix(Xrealparval))
     }
     else {
         telemhr <- 0
@@ -493,30 +554,35 @@ secr_generalsecrloglikfn <- function (
     }
     ## model detection histories (prw) conditional on detection (pdot)
     if (data$nc == 0) {
-        prw <- 1  ## simple if no animals detected
+        lnprw <- 0  ## simple if no animals detected
     }
     else {
         if (all(data$dettype %in% c(0,1,2,8,13))) {
-            prw <- secr_allhistsimple (nrow(Xrealparval), haztemp, gkhk, pi.density, PIA, ngroup,
-                                  data$CH, data$binomNcode, data$MRdata, data$grp, data$usge, pmixn, 
-                                  pID, data$maskusage, 
-                                  telemhr, telemstart, 
-                                  details$grain, details$ncores, details$R, 
-                                  debug = details$debug>=2)
+            lnprw <- allhistsimple (
+                nrow(Xrealparval), haztemp, gkhk, pi.density, PIA, ngroup,
+                data$CH, data$binomNcode, data$MRdata, data$grp, data$usge, pmixn, 
+                pID, data$maskcond, 
+                telemhr, telemstart, 
+                details$grain, details$ncores, details$safeLL, details$uselog, details$R, 
+                debug = details$debug>3)
         }
         else if (all(data$dettype == 5)) {
-            prw <- allhistsignal (detectfn, details$grain, details$ncores, data$binomNcode, data$CH, data$signal$signal,
-                                  data$grp, gkhk$gk, Xrealparval, distmat2, pi.density, PIA, ngroup,
-                                  miscparm, data$maskusage, pmixn)
+            lnprw <- allhistsignal (
+                detectfn, details$grain, details$ncores, details$safeLL, 
+                data$binomNcode, data$CH, data$signal$signal,
+                data$grp, gkhk$gk, Xrealparval, distmat2, pi.density, PIA, ngroup,
+                miscparm, data$maskcond, pmixn,
+                debug = details$debug>3)
         }
         else if (all(data$dettype %in% c(3,4,6,7))) {
-            prw <- allhistpolygon (detectfn, Xrealparval, haztemp, gkhk$hk, gkhk$H, pi.density, PIA, ngroup, 
-                                   data$CH, data$xy, data$binomNcode, data$grp, data$usge, data$mask,
-                                   pmixn, data$maskusage, details$grain, details$ncores, details$minprob,
-                                   debug = details$debug>3)
+            lnprw <- allhistpolygon (
+                detectfn, Xrealparval, haztemp, gkhk$hk, gkhk$H, pi.density, PIA, ngroup, 
+                data$CH, data$xy, data$binomNcode, data$grp, data$usge, data$mask,
+                pmixn, data$maskcond, details$grain, details$ncores, details$safeLL, 
+                details$uselog, details$minprob, debug = details$debug>3)
         }
         else {
-            stop ("this detector type, or mixed detector types, not available yet in secr 4.6")
+            stop ("this detector type, or mixed detector types, not available yet in secr 5.5")
         }
     }    
         ## polygon types
@@ -535,16 +601,12 @@ secr_generalsecrloglikfn <- function (
                 haztemp <- secr_gethazard (data$m, data$binomNcode, nrow(Xrealparval0), gkhk$hk, PIA0, data$usge)
             }
         }
-        if (!is.null(details$externalpdot)) {
-            warning("externalpdot is deprecated and will be removed in a coming version")
-            pdot <- rep(sum(data$externalpdot * pi.density), nc1)
-        }
-        else {
-            pdot <- secr_integralprw1poly (detectfn, Xrealparval0, haztemp, gkhk$hk, 
-                gkhk$H, pi.density, PIA0, ngroup, data$CH0, data$binomNcode, data$grp, 
-                data$usge, data$mask, pmixn, data$maskusage, details$grain, 
-                details$ncores, details$minprob, debug = details$debug>3)
-        }
+        pdot <- secr_integralprw1poly (
+            detectfn, Xrealparval0, haztemp, gkhk$hk, gkhk$H, 
+            pi.density, PIA0, ngroup, data$CH0, data$binomNcode, 
+            data$grp, data$usge, data$mask, pmixn, details$grain, 
+            details$ncores, details$safeLL, details$uselog, details$minprob, debug = details$debug>3)
+        
     }
     ## point types
     else {
@@ -571,15 +633,11 @@ secr_generalsecrloglikfn <- function (
             }
             
         }
-        if (!is.null(details$externalpdot)) {
-            warning("externalpdot is deprecated and will be removed in a coming version")
-            pdot <- rep(sum(data$externalpdot * pi.density), nc1)
-        }
-        else {
-            pdot <- secr_integralprw1 (nrow(Xrealparval0), haztemp, gkhk, 
-                pi.density, PIA0, ngroup, data$CH0, data$binomNcode, data$MRdata, 
-                data$grp, data$usge, pmixn, pID, details$grain, details$ncores)
-        }
+        pdot <- secr_integralprw1 (
+            nrow(Xrealparval0), haztemp, gkhk, pi.density, PIA0, 
+            ngroup, data$CH0, data$binomNcode, data$MRdata, data$grp, 
+            data$usge, pmixn, pID, details$grain, details$ncores, 
+            details$safeLL, details$uselog, debug = details$debug>3)
     }
     
     # 2025-08-05 ngroup now global to this fn
@@ -587,8 +645,8 @@ secr_generalsecrloglikfn <- function (
     for (g in 1:ngroup) {
       ok <- as.integer(data$grp) == g
       #----------------------------------------------------------------------
-      
-      comp[1,g] <- if (any(is.na(prw)) || any(prw<=0)) NA else sum(log(prw[ok]))
+
+      comp[1,g] <- if (any(is.na(lnprw)) || any(is.infinite(lnprw))) NA else sum(lnprw[ok])
       
       #----------------------------------------------------------------------
       ## Adjust for undetected animals unless data includes all-zero histories

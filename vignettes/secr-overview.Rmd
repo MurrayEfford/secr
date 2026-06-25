@@ -1,5 +1,5 @@
 ---
-title: '**secr** 5.4 - spatially explicit capture--recapture in R'
+title: '**secr** 5.5 - spatially explicit capture--recapture in R'
 author: "Murray Efford"
 date: "`r Sys.Date()`"
 output: 
@@ -379,7 +379,7 @@ Turek, D., Milleret, C., Ergon, T., Brøseth, H., Dupont, P., Bischof, R., and V
 
 # Appendix 1. Core functions of **secr** {#appendix1}
 
-These are the core functions of **secr** 5.4 -- the ones that you are most likely to use. S3 methods are marked with an asterisk.
+These are the core functions of **secr** 5.5 -- the ones that you are most likely to use. S3 methods are marked with an asterisk.
 
 |  Function       | Purpose                                           |
 |-----------------|---------------------------------------------------|

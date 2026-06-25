@@ -1,20 +1,28 @@
 #include "secr.h"
+#include <algorithm>
 
 //==============================================================================
 // 2019-08-10, 2019-10-18
 // detector types multi, proximity, count, telemetry
 
+// 2026-06-06 experimental use of LSE: convert pm to log(pm)
+// 2026-06-07 rename gethr to gethrcpp
+// 2026-06-08 telemscale now redundant as new LSE algrithm here and in 
+//            secr_generalsecrloglikfn takes care of undeflow
+// 2026-06-09 gethrcpp now fills only the required (maskused) elements of hr 
+// 2026-06-15 ThreadRegistry registry;
+
 // [[Rcpp::export]]
-NumericVector gethr(
+NumericVector gethrcpp(
         const int nc,
         const int fn, 
         const IntegerVector &start,
         const NumericMatrix &xy, 
         const NumericMatrix &mask, 
-        const NumericMatrix &gsbval, 
-        const double telemscale) {
-    // precompute all telemetry-to-mask detectfn values  
-    int c,m,t,hri;
+        const IntegerVector &maskused,
+        const NumericMatrix &gsbval) {
+    // precompute all telemetry-to-mask detectfn values
+    int c,j,m,t,hri;
     double r;
     int nt = xy.nrow();
     int mm = mask.nrow();
@@ -22,19 +30,20 @@ NumericVector gethr(
     NumericVector gsb(3);  
     NumericVector hr(nt * mm * cc);
     fnptr zfnr;
-    zfnr = getzfnr(fn);                                          
+    zfnr = getzfnr(fn);     
     for (c=0; c<cc; c++) {
         gsb(1) = gsbval(c,1);
         // normalising coefficient 1/c, c = 2.pi.sigma^2
         if ((fn==14) || (fn==16))
-            gsb(0) = telemscale / (2 * M_PI * gsb[1] * gsb[1]);
+            gsb(0) = 1 / (2 * M_PI * gsb[1] * gsb[1]);
         else
             Rcpp::stop ("telemetry only coded for HHN and HEX");
-        for (m=0; m<mm; m++) {
+        for (j=0; j<maskused.size(); j++) {
+            m = maskused[j];
             for (t=0; t<nt; t++) {
                 r = std::sqrt(d2cpp (m, t, mask, xy)); 
                 hri = i3(c, m, t, cc, mm); 
-                if (hri>1e8) Rcpp::stop ("c,m,t combinations exceed 1e8 in gethr");
+                if (hri>1e8) Rcpp::stop ("c,m,t combinations exceed 1e8 in gethrcpp");
                 hr[hri] = zfnr(gsb, r);
             }	    
         }
@@ -50,6 +59,8 @@ struct simplehistories : public Worker {
     const int   nc;
     const int   cc; // number of parameter combinations
     const int   grain;   
+    const bool  safeLL;
+    const bool  uselog;
     const RVector<int>    binomN;     // s 
     const RVector<int>    markocc;    // s 
     const RVector<int>    firstocc;   // s 
@@ -63,7 +74,9 @@ struct simplehistories : public Worker {
     const RMatrix<double> Tsk;        // k,s
     const RMatrix<double> h;
     const RMatrix<int>    hindex;
-    const RMatrix<int>    mbool;      // appears cannot use RMatrix<bool>
+    const RVector<int>    mask_indices;
+    const RVector<int>    mask_offsets;
+    const RVector<int>    mask_id;       // Maps individual to mask row
     const RVector<double> telemhr; 
     const RVector<int>    telemstart; 
 
@@ -74,29 +87,50 @@ struct simplehistories : public Worker {
     // output 
     RVector<double> output;
 
+    // Hold as a reference member variable
+    ThreadRegistry& registry;
+    
+    // Workspace to hold thread-specific buffers
+    struct ThreadWorkspace {
+        std::vector<double> pm;
+        ThreadWorkspace(int mm) : pm(mm) {}
+    };
+    std::vector<ThreadWorkspace> workspaces;
+
     // Constructor to initialize an instance of Somehistories 
     // The RMatrix class can be automatically converted to from the Rcpp matrix type
     simplehistories(
         const int mm, 
         const int nc, 
         const int cc,
-        const int grain,    
+        const int grain,
+        const int ncores,
+        
+        const bool safeLL,
+        const bool uselog,
         const IntegerVector binomN,  
         const IntegerVector markocc,  
         const IntegerVector firstocc,  
-        const NumericVector pID,  
+        
+        const NumericVector pID, 
         const IntegerVector w,
         const IntegerVector group,
         const NumericVector gk, 
         const NumericVector hk, 
+        
         const NumericMatrix density,
         const IntegerVector PIA,
         const NumericMatrix Tsk,
         const NumericMatrix h,
         const IntegerMatrix hindex, 
-        const LogicalMatrix mbool,
+        
+        const IntegerVector mask_indices, 
+        const IntegerVector mask_offsets,
+        const IntegerVector mask_id,
         const NumericVector telemhr,
         const IntegerVector telemstart,
+        
+        ThreadRegistry&     reg_in,
         NumericVector output
         )
         : 
@@ -104,6 +138,8 @@ struct simplehistories : public Worker {
         nc(nc), 
         cc(cc), 
         grain(grain),
+        safeLL(safeLL),
+        uselog(uselog),
         binomN(binomN), 
         markocc(markocc), 
         firstocc(firstocc), 
@@ -117,20 +153,30 @@ struct simplehistories : public Worker {
         Tsk(Tsk), 
         h(h), 
         hindex(hindex), 
-        mbool(mbool),
+        mask_indices(mask_indices), 
+        mask_offsets(mask_offsets), 
+        mask_id(mask_id),
         telemhr(telemhr), 
         telemstart(telemstart),
-        output(output) {
+        output(output),
+        registry(reg_in)
+        {
         
         // now can initialise these derived counts
         kk = Tsk.nrow();             // number of detectors
         ss = Tsk.ncol();             // number of occasions
         
+        // Initialize workspaces based on available concurrency
+        int n_threads = (ncores > 0) ? ncores : 1;
+        for(int i = 0; i < n_threads; ++i) {
+            workspaces.emplace_back(mm);
+        }
+        
         for (int s=0; s<ss; s++) if (binomN[s] != -2) allX = false;
     }
     //==============================================================================
 
-    void fnucpp (const int n, const int s, int &cumcount, std::vector<double> &pm) {
+    void fnucpp (const int n, const int s, int &cumcount, ThreadWorkspace& ws) {
         
         // Probability density of telemetry locations for animal n if it belongs to
         // latent class x and is centred at m. It is assumed that telemetry data correspond
@@ -149,8 +195,12 @@ struct simplehistories : public Worker {
         
         int c = 0;
         int hri = 0; 
-        int i, t, w3;
+        int i, j, m, t, w3;
         int count;
+        int m_row = mask_id[n];
+        double ps;
+        std::vector<double>& pm = ws.pm; 
+        
         if (telemstart[n+1] > telemstart[n]) {
             w3 = i3(n, s, kk-1, nc, ss);
             count = w[w3];  // number of telemetry fixes 
@@ -161,9 +211,21 @@ struct simplehistories : public Worker {
                 }
                 for (i=cumcount; i<(cumcount+count); i++) {
                     t = telemstart[n] + i;
-                    for (int m=0; m<mm; m++) {
+                    for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                        m = mask_indices[j];
                         hri  = i3(c, m, t, cc, mm); 
-                        pm[m] *= telemhr[hri]; 
+                        ps = telemhr[hri];
+                        
+                        if (uselog) {
+                            if (ps>0)
+                                pm[m] += log(ps);
+                            else
+                                pm[m] = -huge;
+                        }
+                        else {
+                            pm[m] *= ps;
+                        }
+
                     }
                 }
                 cumcount += count;
@@ -173,10 +235,14 @@ struct simplehistories : public Worker {
     
     //----------------------------------------------------------------------------
     
-    void prwX (const int n, const int s, bool &dead, std::vector<double> &pm) {
+    void prwX (const int n, const int s, bool &dead, ThreadWorkspace& ws) {
         // multi-catch traps
-        int c, k, m, w3;
+        int c, j, k, m, w3;
         double H;
+        int m_row = mask_id[n];
+        double psk;
+        std::vector<double>& pm = ws.pm; 
+        
         if (allX) {
             k = w[s * nc + n];    // all detectors are traps, CH has been compressed to 2-D
             dead = k < 0;  
@@ -195,14 +261,17 @@ struct simplehistories : public Worker {
         }
         // Not captured in any trap on occasion s 
         if (k < 0) {
-            for (m=0; m<mm; m++) {
-                if (mbool(n,m)) {
-                    H = h(m, hindex(n,s));
-                    if (H > fuzz)
-                        pm[m] *= exp(-H);
+            for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                m = mask_indices[j];
+                H = h(m, hindex(n,s));
+                if (uselog) {
+                    pm[m] -= H;
                 }
                 else {
-                    pm[m] = 0.0; 
+                    if (H > fuzz)
+                        pm[m] *= exp(-H);
+                    else
+                        pm[m] = 0.0;
                 }
             }
         }
@@ -211,43 +280,60 @@ struct simplehistories : public Worker {
             w3 = i3(n, s, k, nc, ss);   
             c = PIA[w3] - 1;
             if (c >= 0) {    // ignore unset traps 
-                for (m=0; m<mm; m++) {
-                    if (mbool(n,m)) {
-                        H = h(m, hindex(n,s));
-                        if (H>fuzz) {
-                            pm[m] *= Tsk(k,s) * (1-exp(-H)) *  hk[i3(c, k, m, cc, kk)] / H;
-                        }
-                        else {
-                            pm[m] = 0.0;
-                        }
+                for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                    m = mask_indices[j];
+                    H = h(m, hindex(n,s));
+                    if (H>fuzz) {
+                        psk = Tsk(k,s) * (1-exp(-H)) *  hk[i3(c, k, m, cc, kk)] / H;
                     }
                     else {
-                        pm[m] = 0.0; 
+                        psk= 0.0;
+                    }
+                    if (uselog) {
+                        if (psk>0)
+                            pm[m] += log(psk);
+                        else
+                            pm[m] = -huge;
+                    }
+                    else {
+                        pm[m] *= psk;
                     }
                 }
             }
+            // if (grain==0) {
+            //     double sumpm = std::accumulate(pm.begin(), pm.end(), 0.0);
+            //     Rprintf("Debug n %zu s %d k %d sumpm %g \n", n, s,k, sumpm);
+            // }
         }
     }
     //----------------------------------------------------------------------------
     
-    void prw (const int n, const int s, bool &dead, std::vector<double> &pm) {
-        int c, k, m, w3, count;
+    void prw (const int n, const int s, bool &dead, ThreadWorkspace& ws) {
+        int c, j, k, m, w3, count;
+        int m_row = mask_id[n];
+        double psk;
+        std::vector<double>& pm = ws.pm; 
+        
         for (k=0; k<kk; k++) {   // over detectors
             w3 =  i3(n, s, k, nc, ss);
             c = PIA[w3] - 1;
             if (c >= 0) {    // ignore unused detectors 
                 count = w[w3];
                 if (count<0) {count = -count; dead = true; }
-                for (m=0; m<mm; m++) {
-                    if (mbool(n,m)) {
-                        // bug fix 2023-03-09 for Poisson counts
-                        if (binomN[s]==0)
-                            pm[m] *= pski(binomN[s], count, Tsk(k,s), hk[i3(c, k, m, cc, kk)], pID[s]);  
-                        else 
-                            pm[m] *= pski(binomN[s], count, Tsk(k,s), gk[i3(c, k, m, cc, kk)], pID[s]);  
+                for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                    m = mask_indices[j];
+                    if (binomN[s]==0)
+                        psk = pski(binomN[s], count, Tsk(k,s), hk[i3(c, k, m, cc, kk)], pID[s]);  
+                    else 
+                        psk = pski(binomN[s], count, Tsk(k,s), gk[i3(c, k, m, cc, kk)], pID[s]);  
+                    if (uselog) {
+                        if (psk>0)
+                            pm[m] += log(psk);
+                        else
+                            pm[m] = -huge;
                     }
                     else {
-                        pm[m] = 0.0; 
+                        pm[m] *= psk;
                     }
                 }
             }
@@ -322,31 +408,72 @@ struct simplehistories : public Worker {
     }
     //----------------------------------------------------------------------------
     
-    double onehistory (int n) {
+    double onehistory (std::size_t n, ThreadWorkspace& ws) {
         bool dead = false;
         double sumpm = 0.0;
+        double maxpm = -huge;
+        int j, m;
         int cumcount = 0;
-        std::vector<double> pm(mm, 1.0);  
+        int m_row = mask_id[n];
+        
+        if (uselog) {
+            std::fill(ws.pm.begin(), ws.pm.end(), 0.0);
+        }
+        else {
+            std::fill(ws.pm.begin(), ws.pm.end(), 1.0);
+        }
+        std::vector<double>& pm = ws.pm;
+        
         for (int s = 0; s < ss; s++) {      // over occasions
             // firstocc[n] used to exclude pre-marking sightings
             if (markocc[s]>0 || (s > firstocc[n])) {         
                 if (binomN[s] == -2)        // multi-catch traps
-                    prwX (n, s, dead, pm);           
+                    prwX (n, s, dead, ws);           
                 else if (binomN[s] >= -1) 
-                    prw (n, s, dead, pm);  
+                    prw (n, s, dead, ws);  
                 else if (binomN[s] == -3) 
-                    fnucpp(n, s, cumcount, pm);
+                    fnucpp(n, s, cumcount, ws);
             }
             if (dead) break;               // out of s loop
         }
         
-        for (int m=0; m<mm; m++) {
-            pm[m] *= density(m,group[n]); 
+        if (safeLL) {
+            // LSE trick 2026-06-06
+            for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                m = mask_indices[j];
+                if (uselog) {
+                    pm[m] += log(density(m,group[n]));
+                }
+                else {
+                    pm[m] *= density(m,group[n]);
+                    pm[m] = log(pm[m]);
+                }
+                if (pm[m]>maxpm) maxpm = pm[m];
+            }
+            for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                m = mask_indices[j];
+                sumpm += exp(pm[m] - maxpm);
+            }
+            sumpm = maxpm + log(sumpm);
         }
-        sumpm = std::accumulate(pm.begin(), pm.end(), 0.0);
-
-        // if (grain==0)
-        //     Rprintf("n %4d sumpm %8.6g\n", n,sumpm);
+        else {
+            for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                m = mask_indices[j];
+                if (uselog) {
+                    pm[m] += log(density(m,group[n]));
+                    sumpm += exp(pm[m]);
+                }
+                else {
+                    sumpm += pm[m] * density(m,group[n]);   
+                }
+                
+            }
+            sumpm = log(sumpm);
+        }
+        
+        // if (grain==0) {
+        //     Rprintf("Debug n %zu sumpm %8.6e \n", n, sumpm);
+        // }
         
             // expected number of unidentified marked sightings Tm
             // sum over marked animals
@@ -375,52 +502,66 @@ struct simplehistories : public Worker {
                 // }
                 // else 
         
-        return sumpm; // may be zero 
+        return sumpm; // may be -huge
     }
     //----------------------------------------------------------------------------
     
     // function call operator that works for the specified range (begin/end)
-    void operator()(std::size_t begin, std::size_t end) {        
+    void operator()(std::size_t begin, std::size_t end) {  
+        // Query the reference directly
+        int idx = registry.get_index();
+        ThreadWorkspace& ws = workspaces[idx];
         for (std::size_t n = begin; n < end; n++) {
-            output[n] = onehistory (n);
+            output[n] = onehistory (n, ws);   // 2026-06-06 log
         }
     }
     //----------------------------------------------------------------------------
 };
 
 // [[Rcpp::export]]
-List simplehistoriescpp (
+NumericVector simplehistoriescpp (
         const int mm, 
         const int nc, 
         const int cc, 
         const int grain,   
         const int ncores,   
+
+        const bool safeLL,
+        const bool uselog,
         const IntegerVector binomN, 
         const IntegerVector markocc, 
         const IntegerVector firstocc, 
+        
         const NumericVector pID, 
         const IntegerVector w,
         const IntegerVector group,
         const NumericVector gk, 
         const NumericVector hk, 
+        
         const NumericMatrix density,        // relative density - sums to 1.0
         const IntegerVector PIA, 
         const NumericMatrix Tsk, 
         const NumericMatrix h,
         const IntegerMatrix hindex, 
-        const LogicalMatrix mbool,
+        
+        const IntegerVector mask_indices,
+        const IntegerVector mask_offsets,
+        const IntegerVector mask_id,       // Maps individual to mask row
         const NumericVector telemhr,
         const IntegerVector telemstart)
     {
     
     NumericVector output(nc); 
-
+    ThreadRegistry registry;
+    
     // Construct and initialise
-    simplehistories somehist (mm, nc, cc, grain, 
-                              binomN, markocc, firstocc, pID, w, 
-                              group, gk, hk, density, PIA, Tsk, h, hindex, mbool, 
-                              telemhr, telemstart, 
-                              output);
+    simplehistories somehist (
+            mm, nc, cc, grain, ncores, 
+            safeLL, uselog, binomN, markocc, firstocc, 
+            pID, w, group, gk, hk, 
+            density, PIA, Tsk, h, hindex, 
+            mask_indices, mask_offsets, mask_id, telemhr, telemstart, 
+            registry, output);
     
     if (ncores>1) {
         // Run operator() on multiple threads
@@ -432,8 +573,8 @@ List simplehistoriescpp (
     }
     
     // Return consolidated result
-    // return output;
-    return List::create(Named("prwi") = output);
+    // return output (log scale);
+    return output;
     
 }
 //==============================================================================

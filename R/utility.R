@@ -40,6 +40,7 @@
 ## 2025-07-20 5.3.0
 ## 2025-07-24 secr_ prefix attached to most functions used in other .R files
 ## 2025-11-26 5.4.0
+## 2026-06-09 5.5.0
 ################################################################################
 
 # Global variables in namespace
@@ -1682,6 +1683,83 @@ secr_maskboolean <- function (ch, mask, threshold) {
 
 #-------------------------------------------------------------------------------
 
+secr_captxy <- function (ch) {
+    det <- secr_expanddet(ch)
+    det <- det %in% .localstuff$pointdetectors
+    if (sum(det)==0) return(NULL)
+    # avoid telemetry occasions
+    ch <- subset(ch, occasions = det)
+    if (nrow(ch)==0) return (NULL)
+    id <- animalID(ch, names = FALSE)
+    tr <- trap(ch, names = FALSE)
+    df <- data.frame(x = traps(ch)$x[tr], y = traps(ch)$y[tr])
+    split(df, id)
+}
+
+secr_mergelists <- function (list1, list2) {
+    if (is.null(list1)) return(list2) else if (is.null(list2)) return(list1)
+    all_ids <- unique(c(names(list1), names(list2)))
+    # [all_ids] forces R to look for every ID, returning NULL for missing ones
+    merged_list <- Map(rbind, list1[all_ids], list2[all_ids])
+    # Fix the names (Map strips list names if they don't match perfectly)
+    names(merged_list) <- all_ids
+    merged_list
+}
+
+secr_maskboolean2 <- function (ch, mask, threshold, maskusage = NULL) {
+    # 2026-06-08 modified to allow individual-specific masks
+    # maskusage included for backwards compatibility only
+    if (ms(ch)) {
+        if (!ms(mask)) stop ("masklookup: multisession ch requires multisession mask")
+        outlist <- mapply(
+            secr_maskboolean2, ch, mask, 
+            MoreArgs = list(threshold = threshold, maskusage = maskusage), 
+            SIMPLIFY = FALSE)
+        outlist
+    }
+    else {
+        if (!is.null(maskusage)) {
+            if (!is.matrix(maskusage) || nrow(maskusage) != nrow(ch) || ncol(maskusage) != nrow(mask))
+                stop ('specified maskusage should be n x m matrix of logical values')
+            maskusage[] <- as.logical(maskusage)
+            ind_usage <- split(maskusage, row(maskusage))
+            mask_list <- lapply(ind_usage, which)
+        }
+        else if (is.null(threshold)) {
+            mask_list <- list(1:nrow(mask))
+            # Map every individual to the first (and only) mask entry
+            mask_id <- rep(0, nrow(ch))
+        }
+        else {
+            one_ind <- function (dfi) {
+                xy <- t(colMeans(dfi))
+                d2 <- edist2cpp(as.matrix(xy), as.matrix(mask))
+                which(d2 <= threshold^2)
+            }
+            captxy <- secr_captxy(ch)
+            telemxy <- telemetryxy(ch)
+            ind_xy <- secr_mergelists(captxy, telemxy)
+            if (!is.null(xy(ch))) {
+                polyxy <- split(xy(ch), animalID(ch))
+                ind_xy <- secr_mergelists(ind_xy, polyxy)
+            }
+            mask_list <- lapply(ind_xy, one_ind)
+            mask_id <- 0:(nrow(ch)-1)
+        }
+        mask_indices <- unlist(mask_list) - 1 # Convert to 0-based indexing for C++
+        lengths <- lengths(mask_list)
+        if (any (lengths==0)) {
+            stop (paste(sum(lengths==0), " centroids are not within maxdistance ", threshold, " of any mask point"))
+        }
+        mask_offsets <- c(0, cumsum(lengths))
+        list(mask_id      = mask_id, 
+             mask_indices = mask_indices, 
+             mask_offsets = mask_offsets)
+    }
+}
+
+#-------------------------------------------------------------------------------
+
 secr_multinomLL <- function (nc, En) {
     # nc is vector of number detected per session
     # En is vector of expected number
@@ -2013,3 +2091,32 @@ stdform <- secr_stdform
 # 
 # # openCR 2.2.7
 getuserdistnames <- secr_getuserdistnames
+
+#-------------------------------------------------------------------------------
+
+# housekeeping function to return vector of individual logprwi
+# possibly allowing for mixture class probabilities
+# used in generalsecrloglik and fastsecrloglik
+
+secr_logsum <- function (logprwi, pmixn) {
+    
+    if (nrow(pmixn) == 1) {
+        return(logprwi[,1])
+    }
+    else {
+        # 1. Add the log-weights (0 becomes -Inf, 1 becomes 0)
+        logprwi <- logprwi + log(t(pmixn))
+        
+        # 2. Find the row maximums
+        vmaxi <- apply(logprwi, 1, max)
+        
+        # 3. Sweep 
+        logprwi <- sweep(logprwi, MARGIN = 1, STATS = vmaxi, FUN = "-")
+        
+        # 4. Compute the final logsum 
+        return(vmaxi + log(rowSums(exp(logprwi))))
+        
+    }
+}
+
+#-------------------------------------------------------------------------------

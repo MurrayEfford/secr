@@ -13,4 +13,9 @@ secr.Rproj
 extracpp/*.*
 .gitignore
 progress.RDS
+<<<<<<< HEAD
 .positai
+=======
+Rprof.out
+*.pdf
+>>>>>>> fa7a3847125d9ab313ecaa006eba000a903d1d67

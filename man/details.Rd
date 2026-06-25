@@ -6,6 +6,7 @@
 \alias{miscparm}
 \alias{maxdistance}
 \alias{saveprogress}
+\alias{uselog}
 
 \title{ Detail Specification for secr.fit }
 
@@ -221,6 +222,10 @@ xylist. The default is `concurrent'.
 \code{details$usecov} selects the mask covariate to be used for
 normalization. NULL limits denominator for normalization to
 distinguishing habitat from non-habitat.
+
+\code{details$uselog} selects robust (log sum) likelihood that avoids numeric 
+underflow especially with telemetry data, where it makes 'telemetryscale' obsolete. 
+Computation of other likelihoods is slower so the default remains FALSE.
 
 \code{details$userDfn} is a user-provided function for modelling a density 
 surface. See \href{https://www.otago.ac.nz/density/pdfs/secr-densitysurfaces.pdf}{secr-densitysurfaces.pdf}

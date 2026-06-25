@@ -72,7 +72,7 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     # optionally replace detector type - moved 2022-04-15
     if (!is.null(details$newdetector)) {
         warning("replacement detector type specified by user")
-        if (ms(capthist)) {
+        if (secr::ms(capthist)) {
             for (i in 1:length(capthist)) {
                 if (inherits(details$newdetector, 'list'))
                     detector(traps(capthist[[i]])) <- details$newdetector[[i]]
@@ -186,15 +186,16 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
         Dfn = NULL,              ## optional density reparameterization for trend etc.
         Dlambda = FALSE,
         relativeD = FALSE,
-        externalpdot = NULL,
         externalqx = NULL,
         saveprogress = FALSE,
-        progressfilename = "progress.RDS"
+        progressfilename = "progress.RDS",
+        safeLL = FALSE,                          # 2026-06-13
+        uselog = FALSE
     )
     if (!is.null(attr(capthist,'cutval'))) {
         defaultdetails$cutval <- attr(capthist,'cutval')
     }
-    else if (ms(capthist)) {
+    else if (secr::ms(capthist)) {
         if (!is.null(attr(capthist[[1]],'cutval')))   ## 2012-09-04
             defaultdetails$cutval <- attr(capthist[[1]],'cutval')
     }
@@ -247,7 +248,7 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     ## MS - indicator TRUE if multi-session (logical)
 
     ## sessionlevels - names of sessions (character)
-    MS <- ms(capthist)
+    MS <- secr::ms(capthist)
     sessionlevels <- session(capthist)
     if (is.null(sessionlevels)) sessionlevels <- '1'
     if (alltelem) CL <- TRUE
@@ -489,7 +490,7 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
       if (count.distrib == 'binomial') {
         if (!is.null(details$binomN) && (details$binomN[1]>1)) {
           ## use explicit binomN
-          if (ms(capthist)) {
+          if (secr::ms(capthist)) {
             for (r in 1:length(capthist)) {
               usage(traps(capthist[[r]])) <- usage(traps(capthist[[r]])) * details$binomN[1]
             }
@@ -768,7 +769,7 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     parindx <- split(1:NP, rep(1:length(np), np))
     names(parindx) <- names(np)[np>0]
     if (!D.modelled) parindx$D <- NULL
-
+    
     data <- secr_prepareSessionData(capthist, mask, details$maskusage, design, 
                     design0, detectfn, groups, fixed, hcov, details)
 

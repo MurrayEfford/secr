@@ -219,8 +219,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // fasthistoriescpp
-NumericVector fasthistoriescpp(const int mm, const int nc, const int cc, const int grain, const int ncores, const int binomN, const bool indiv, const IntegerMatrix w, const IntegerMatrix ki, const NumericVector gk, const NumericVector hk, const NumericVector density, const IntegerVector PIA, const IntegerVector Tsk, const LogicalMatrix mbool);
-RcppExport SEXP _secr_fasthistoriescpp(SEXP mmSEXP, SEXP ncSEXP, SEXP ccSEXP, SEXP grainSEXP, SEXP ncoresSEXP, SEXP binomNSEXP, SEXP indivSEXP, SEXP wSEXP, SEXP kiSEXP, SEXP gkSEXP, SEXP hkSEXP, SEXP densitySEXP, SEXP PIASEXP, SEXP TskSEXP, SEXP mboolSEXP) {
+NumericVector fasthistoriescpp(const int mm, const int nc, const int cc, const int grain, const int ncores, const bool safeLL, const int binomN, const bool indiv, const IntegerMatrix w, const IntegerMatrix ki, const NumericVector gk, const NumericVector hk, const NumericVector density, const IntegerVector PIA, const IntegerVector Tsk, const IntegerVector mask_indices, const IntegerVector mask_offsets, const IntegerVector mask_id);
+RcppExport SEXP _secr_fasthistoriescpp(SEXP mmSEXP, SEXP ncSEXP, SEXP ccSEXP, SEXP grainSEXP, SEXP ncoresSEXP, SEXP safeLLSEXP, SEXP binomNSEXP, SEXP indivSEXP, SEXP wSEXP, SEXP kiSEXP, SEXP gkSEXP, SEXP hkSEXP, SEXP densitySEXP, SEXP PIASEXP, SEXP TskSEXP, SEXP mask_indicesSEXP, SEXP mask_offsetsSEXP, SEXP mask_idSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -229,6 +229,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int >::type cc(ccSEXP);
     Rcpp::traits::input_parameter< const int >::type grain(grainSEXP);
     Rcpp::traits::input_parameter< const int >::type ncores(ncoresSEXP);
+    Rcpp::traits::input_parameter< const bool >::type safeLL(safeLLSEXP);
     Rcpp::traits::input_parameter< const int >::type binomN(binomNSEXP);
     Rcpp::traits::input_parameter< const bool >::type indiv(indivSEXP);
     Rcpp::traits::input_parameter< const IntegerMatrix >::type w(wSEXP);
@@ -238,14 +239,16 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const NumericVector >::type density(densitySEXP);
     Rcpp::traits::input_parameter< const IntegerVector >::type PIA(PIASEXP);
     Rcpp::traits::input_parameter< const IntegerVector >::type Tsk(TskSEXP);
-    Rcpp::traits::input_parameter< const LogicalMatrix >::type mbool(mboolSEXP);
-    rcpp_result_gen = Rcpp::wrap(fasthistoriescpp(mm, nc, cc, grain, ncores, binomN, indiv, w, ki, gk, hk, density, PIA, Tsk, mbool));
+    Rcpp::traits::input_parameter< const IntegerVector >::type mask_indices(mask_indicesSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type mask_offsets(mask_offsetsSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type mask_id(mask_idSEXP);
+    rcpp_result_gen = Rcpp::wrap(fasthistoriescpp(mm, nc, cc, grain, ncores, safeLL, binomN, indiv, w, ki, gk, hk, density, PIA, Tsk, mask_indices, mask_offsets, mask_id));
     return rcpp_result_gen;
 END_RCPP
 }
 // signalhistoriescpp
-NumericVector signalhistoriescpp(const int mm, const int nc, const int detectfn, const int grain, const int ncores, const IntegerVector binomN, const IntegerVector w, const NumericMatrix signal, const IntegerVector group, const NumericVector gk, const NumericMatrix gsbval, const NumericMatrix dist2, const NumericMatrix density, const IntegerVector PIA, const NumericVector miscparm, const LogicalMatrix mbool);
-RcppExport SEXP _secr_signalhistoriescpp(SEXP mmSEXP, SEXP ncSEXP, SEXP detectfnSEXP, SEXP grainSEXP, SEXP ncoresSEXP, SEXP binomNSEXP, SEXP wSEXP, SEXP signalSEXP, SEXP groupSEXP, SEXP gkSEXP, SEXP gsbvalSEXP, SEXP dist2SEXP, SEXP densitySEXP, SEXP PIASEXP, SEXP miscparmSEXP, SEXP mboolSEXP) {
+NumericVector signalhistoriescpp(const int mm, const int nc, const int detectfn, const int grain, const int ncores, const bool safeLL, const IntegerVector binomN, const IntegerVector w, const NumericMatrix signal, const IntegerVector group, const NumericVector gk, const NumericMatrix gsbval, const NumericMatrix dist2, const NumericMatrix density, const IntegerVector PIA, const NumericVector miscparm, const IntegerVector mask_indices, const IntegerVector mask_offsets, const IntegerVector mask_id);
+RcppExport SEXP _secr_signalhistoriescpp(SEXP mmSEXP, SEXP ncSEXP, SEXP detectfnSEXP, SEXP grainSEXP, SEXP ncoresSEXP, SEXP safeLLSEXP, SEXP binomNSEXP, SEXP wSEXP, SEXP signalSEXP, SEXP groupSEXP, SEXP gkSEXP, SEXP gsbvalSEXP, SEXP dist2SEXP, SEXP densitySEXP, SEXP PIASEXP, SEXP miscparmSEXP, SEXP mask_indicesSEXP, SEXP mask_offsetsSEXP, SEXP mask_idSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -254,6 +257,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int >::type detectfn(detectfnSEXP);
     Rcpp::traits::input_parameter< const int >::type grain(grainSEXP);
     Rcpp::traits::input_parameter< const int >::type ncores(ncoresSEXP);
+    Rcpp::traits::input_parameter< const bool >::type safeLL(safeLLSEXP);
     Rcpp::traits::input_parameter< const IntegerVector >::type binomN(binomNSEXP);
     Rcpp::traits::input_parameter< const IntegerVector >::type w(wSEXP);
     Rcpp::traits::input_parameter< const NumericMatrix >::type signal(signalSEXP);
@@ -264,14 +268,16 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const NumericMatrix >::type density(densitySEXP);
     Rcpp::traits::input_parameter< const IntegerVector >::type PIA(PIASEXP);
     Rcpp::traits::input_parameter< const NumericVector >::type miscparm(miscparmSEXP);
-    Rcpp::traits::input_parameter< const LogicalMatrix >::type mbool(mboolSEXP);
-    rcpp_result_gen = Rcpp::wrap(signalhistoriescpp(mm, nc, detectfn, grain, ncores, binomN, w, signal, group, gk, gsbval, dist2, density, PIA, miscparm, mbool));
+    Rcpp::traits::input_parameter< const IntegerVector >::type mask_indices(mask_indicesSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type mask_offsets(mask_offsetsSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type mask_id(mask_idSEXP);
+    rcpp_result_gen = Rcpp::wrap(signalhistoriescpp(mm, nc, detectfn, grain, ncores, safeLL, binomN, w, signal, group, gk, gsbval, dist2, density, PIA, miscparm, mask_indices, mask_offsets, mask_id));
     return rcpp_result_gen;
 END_RCPP
 }
-// gethr
-NumericVector gethr(const int nc, const int fn, const IntegerVector& start, const NumericMatrix& xy, const NumericMatrix& mask, const NumericMatrix& gsbval, const double telemscale);
-RcppExport SEXP _secr_gethr(SEXP ncSEXP, SEXP fnSEXP, SEXP startSEXP, SEXP xySEXP, SEXP maskSEXP, SEXP gsbvalSEXP, SEXP telemscaleSEXP) {
+// gethrcpp
+NumericVector gethrcpp(const int nc, const int fn, const IntegerVector& start, const NumericMatrix& xy, const NumericMatrix& mask, const IntegerVector& maskused, const NumericMatrix& gsbval);
+RcppExport SEXP _secr_gethrcpp(SEXP ncSEXP, SEXP fnSEXP, SEXP startSEXP, SEXP xySEXP, SEXP maskSEXP, SEXP maskusedSEXP, SEXP gsbvalSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -280,15 +286,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const IntegerVector& >::type start(startSEXP);
     Rcpp::traits::input_parameter< const NumericMatrix& >::type xy(xySEXP);
     Rcpp::traits::input_parameter< const NumericMatrix& >::type mask(maskSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type maskused(maskusedSEXP);
     Rcpp::traits::input_parameter< const NumericMatrix& >::type gsbval(gsbvalSEXP);
-    Rcpp::traits::input_parameter< const double >::type telemscale(telemscaleSEXP);
-    rcpp_result_gen = Rcpp::wrap(gethr(nc, fn, start, xy, mask, gsbval, telemscale));
+    rcpp_result_gen = Rcpp::wrap(gethrcpp(nc, fn, start, xy, mask, maskused, gsbval));
     return rcpp_result_gen;
 END_RCPP
 }
 // simplehistoriescpp
-List simplehistoriescpp(const int mm, const int nc, const int cc, const int grain, const int ncores, const IntegerVector binomN, const IntegerVector markocc, const IntegerVector firstocc, const NumericVector pID, const IntegerVector w, const IntegerVector group, const NumericVector gk, const NumericVector hk, const NumericMatrix density, const IntegerVector PIA, const NumericMatrix Tsk, const NumericMatrix h, const IntegerMatrix hindex, const LogicalMatrix mbool, const NumericVector telemhr, const IntegerVector telemstart);
-RcppExport SEXP _secr_simplehistoriescpp(SEXP mmSEXP, SEXP ncSEXP, SEXP ccSEXP, SEXP grainSEXP, SEXP ncoresSEXP, SEXP binomNSEXP, SEXP markoccSEXP, SEXP firstoccSEXP, SEXP pIDSEXP, SEXP wSEXP, SEXP groupSEXP, SEXP gkSEXP, SEXP hkSEXP, SEXP densitySEXP, SEXP PIASEXP, SEXP TskSEXP, SEXP hSEXP, SEXP hindexSEXP, SEXP mboolSEXP, SEXP telemhrSEXP, SEXP telemstartSEXP) {
+NumericVector simplehistoriescpp(const int mm, const int nc, const int cc, const int grain, const int ncores, const bool safeLL, const bool uselog, const IntegerVector binomN, const IntegerVector markocc, const IntegerVector firstocc, const NumericVector pID, const IntegerVector w, const IntegerVector group, const NumericVector gk, const NumericVector hk, const NumericMatrix density, const IntegerVector PIA, const NumericMatrix Tsk, const NumericMatrix h, const IntegerMatrix hindex, const IntegerVector mask_indices, const IntegerVector mask_offsets, const IntegerVector mask_id, const NumericVector telemhr, const IntegerVector telemstart);
+RcppExport SEXP _secr_simplehistoriescpp(SEXP mmSEXP, SEXP ncSEXP, SEXP ccSEXP, SEXP grainSEXP, SEXP ncoresSEXP, SEXP safeLLSEXP, SEXP uselogSEXP, SEXP binomNSEXP, SEXP markoccSEXP, SEXP firstoccSEXP, SEXP pIDSEXP, SEXP wSEXP, SEXP groupSEXP, SEXP gkSEXP, SEXP hkSEXP, SEXP densitySEXP, SEXP PIASEXP, SEXP TskSEXP, SEXP hSEXP, SEXP hindexSEXP, SEXP mask_indicesSEXP, SEXP mask_offsetsSEXP, SEXP mask_idSEXP, SEXP telemhrSEXP, SEXP telemstartSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -297,6 +303,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int >::type cc(ccSEXP);
     Rcpp::traits::input_parameter< const int >::type grain(grainSEXP);
     Rcpp::traits::input_parameter< const int >::type ncores(ncoresSEXP);
+    Rcpp::traits::input_parameter< const bool >::type safeLL(safeLLSEXP);
+    Rcpp::traits::input_parameter< const bool >::type uselog(uselogSEXP);
     Rcpp::traits::input_parameter< const IntegerVector >::type binomN(binomNSEXP);
     Rcpp::traits::input_parameter< const IntegerVector >::type markocc(markoccSEXP);
     Rcpp::traits::input_parameter< const IntegerVector >::type firstocc(firstoccSEXP);
@@ -310,10 +318,12 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const NumericMatrix >::type Tsk(TskSEXP);
     Rcpp::traits::input_parameter< const NumericMatrix >::type h(hSEXP);
     Rcpp::traits::input_parameter< const IntegerMatrix >::type hindex(hindexSEXP);
-    Rcpp::traits::input_parameter< const LogicalMatrix >::type mbool(mboolSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type mask_indices(mask_indicesSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type mask_offsets(mask_offsetsSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type mask_id(mask_idSEXP);
     Rcpp::traits::input_parameter< const NumericVector >::type telemhr(telemhrSEXP);
     Rcpp::traits::input_parameter< const IntegerVector >::type telemstart(telemstartSEXP);
-    rcpp_result_gen = Rcpp::wrap(simplehistoriescpp(mm, nc, cc, grain, ncores, binomN, markocc, firstocc, pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, mbool, telemhr, telemstart));
+    rcpp_result_gen = Rcpp::wrap(simplehistoriescpp(mm, nc, cc, grain, ncores, safeLL, uselog, binomN, markocc, firstocc, pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, telemhr, telemstart));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -788,10 +798,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_secr_makelookupcpp", (DL_FUNC) &_secr_makelookupcpp, 1},
     {"_secr_nkpointcpp", (DL_FUNC) &_secr_nkpointcpp, 12},
     {"_secr_pdotpointcpp", (DL_FUNC) &_secr_pdotpointcpp, 15},
-    {"_secr_fasthistoriescpp", (DL_FUNC) &_secr_fasthistoriescpp, 15},
-    {"_secr_signalhistoriescpp", (DL_FUNC) &_secr_signalhistoriescpp, 16},
-    {"_secr_gethr", (DL_FUNC) &_secr_gethr, 7},
-    {"_secr_simplehistoriescpp", (DL_FUNC) &_secr_simplehistoriescpp, 21},
+    {"_secr_fasthistoriescpp", (DL_FUNC) &_secr_fasthistoriescpp, 18},
+    {"_secr_signalhistoriescpp", (DL_FUNC) &_secr_signalhistoriescpp, 19},
+    {"_secr_gethrcpp", (DL_FUNC) &_secr_gethrcpp, 7},
+    {"_secr_simplehistoriescpp", (DL_FUNC) &_secr_simplehistoriescpp, 25},
     {"_secr_simplehistoriesfxicpp", (DL_FUNC) &_secr_simplehistoriesfxicpp, 16},
     {"_secr_Tsightinglikcpp", (DL_FUNC) &_secr_Tsightinglikcpp, 6},
     {"_secr_sightingchatcpp", (DL_FUNC) &_secr_sightingchatcpp, 20},

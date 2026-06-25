@@ -478,12 +478,6 @@ sumDpdot <- function (object, sessnum = 1, mask, D, NElist, cellsize, constant =
                 pID = pID,
                 grain = grain,
                 ncores = ncores)
-            # else {
-            #     pd <- secr_integralprw1poly (detectfn, Xrealparval0, haztemp, gkhk$hk, gkhk$H, pi.density, PIA0, ngroup=1,
-            #                             data$CH0, data$binomNcode, data$grp, data$usge, data$mask,
-            #                             pmixn, data$maskusage, details$grain, details$minprob, debug = details$debug>3)
-            # 
-            # }
             ## scale by absolute density (not passed to secr_integralprw1)
             pd <- pd * cellsize * nrow(mask) * mean(D)
             pdot[i] <- length(pd) / sum(1/pd)

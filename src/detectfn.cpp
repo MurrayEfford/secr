@@ -5,6 +5,7 @@ using namespace Rcpp;
 // 2019-07-29 C++ and consolidate
 // 2019-10-13 eliminate unused functions
 // 2024-09-24 revise explanation
+// 2026-06-06 getlfnr to return log for HHN, HEX
 // 
 // -----------------------------------------------------------------------------
 
@@ -12,7 +13,7 @@ using namespace Rcpp;
 
 //  fn    ptr    getfn    inputs                 usage
 //  gXXs  fnptrC getgfns  std::vector<double>,r  nkpoint.cpp, pdot.cpp, trapping.cpp (via pfnS)
-//  zXXr  fnptr  getzfnr  NumericVector,r        integral1D.cpp, integral2D.cpp, gethr for telemetry
+//  zXXr  fnptr  getzfnr  NumericVector,r        integral1D.cpp, integral2D.cpp, gethrcpp for telemetry
 //  zXXrC fnptrC getzfnrC std::vector<double>,r  polygonNR.cpp
 
 // makegkpoint in makegk.cpp has internally coded detection functions
@@ -51,7 +52,7 @@ using namespace Rcpp;
 
 // zXXr
 // For polygon integrals integral1D.cpp, integral2D.cpp
-// and for gethr in prwisimple.cpp used to pre-compute telemhr in R
+// and for gethrcpp in prwisimple.cpp used to pre-compute telemhr in R
 
 double zhnr (const NumericVector& param, const double r) {
     return(-log(1-param[0] * exp(- r * r / 2 / param[1] / param[1])));
@@ -146,6 +147,18 @@ double zsigsphr (const NumericVector& param, const double r) {
 }
 //--------------------------------------------------------------------
 
+// log hazard halfnormal 
+double lhhnr (const NumericVector& param, const double r) {
+    return(log(param[0]) + (- r * r / 2 / param[1] / param[1]));
+}
+//--------------------------------------------------------------------
+
+// log hazard exponential 
+double lhexr (const NumericVector& param, const double r) {
+    return (log(param[0]) + (-r / param[1]));
+}
+//--------------------------------------------------------------------
+
 // hazard halfnormal 
 double zhhnr (const NumericVector& param, const double r) {
     return(param[0] * exp(- r * r / 2 / param[1] / param[1]));
@@ -184,7 +197,7 @@ double zhvpr (const NumericVector& param, const double r) {
 // end zXXr
 
 // For polygon integrals integral1D.cpp, integral2D.cpp
-// and for gethr in prwisimple.cpp used to pre-compute telemhr in R
+// and for gethrcpp in prwisimple.cpp used to pre-compute telemhr in R
 
 fnptr getzfnr (const int fn) 
 {
@@ -228,6 +241,16 @@ fnptr getzfnr (const int fn)
         return(zhvpr);
     else // Rcpp::stop("unknown or invalid detection function");
         return(zhnr);
+}
+
+fnptr getlfnr (const int fn) 
+{
+    if (fn == 14)
+        return(lhhnr);
+    else if (fn == 16)
+        return(lhexr);
+    else // Rcpp::stop("unknown or invalid detection function");
+        return(lhhnr);
 }
 
 //==============================================================================
@@ -556,3 +579,4 @@ double mufnL (
 }
 
 //==============================================================================
+

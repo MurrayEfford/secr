@@ -142,8 +142,22 @@ List makegkPointcpp (const int detectfn,
                      const NumericVector& miscparm
 ) 
 {
-    NumericVector hk(gsbval.nrow() * dist2.size()); 
-    NumericVector gk(gsbval.nrow() * dist2.size()); 
+    
+    double rows = (double)gsbval.nrow();
+    double cols = (double)dist2.size();
+    double predicted_size = rows * cols;
+    
+    // Check against the architecture's limit
+    if (predicted_size > R_XLEN_T_MAX) {
+        Rcpp::stop("The requested object is too large for this system's architecture.");
+    }
+    if (predicted_size > 500000000) {
+        Rcpp::stop("Vector requested in makegkPointcpp is >4Gb");
+    }
+    
+    R_xlen_t veclen = (R_xlen_t)predicted_size;
+    NumericVector hk(veclen); 
+    NumericVector gk(veclen); 
     
     Hckm hckm (detectfn, gsbval, dist2, miscparm, gk, hk);
     
