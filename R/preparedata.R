@@ -35,9 +35,17 @@ secr_recodebinomN <- function (dettype, binomN, telemcode) {
   detectr[(detectr %in% c('count','polygon', 'transect')) & (binomN > 0)]  <- "binomialcount"
   newbinomN <- function (det,N) {
       recoded <- switch(det, 
-           single = -2, multi = -2, polygonX = -2, transectX = -2,
-           proximity = -1, signal = -1, capped = -1, 
-           poissoncount = 0, binomialcount = N, telemetry = -3, -9)
+           single        = -2, 
+           multi         = -2, 
+           polygonX      = -2, 
+           transectX     = -2,
+           proximity     = -1, 
+           signal        = -1, 
+           capped        = -1, 
+           poissoncount  = 0, 
+           binomialcount = N, 
+           telemetry     = -3, 
+           -9)
     ## dummy value -9 indicates no action
     if (recoded == -3 && telemcode == 0) recoded <- -7
     recoded
