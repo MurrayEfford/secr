@@ -278,8 +278,16 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
     }
     if ('ts' %in% vars) {
         markocc <- markocc(traps(capthist))
-        ## reworked 2017-09-01
-        if (setequal(markocc, 0:1) | setequal(markocc, -1:1)) {
+        if (is.list(markocc)) {
+            # vector of length R x S
+            markocc <- unlist(lapply(markocc, rep, length.out = S))
+        }
+        ## reworked 2017-09-01, 2026-06-26
+        if (setequal(markocc, 0:1) || setequal(markocc, -1:1) ||
+            setequal(markocc, 0) || setequal(markocc, 1)) {
+            if (length(unique(markocc)) == 1) {
+                warning ("ts is intended sonly for data with both marking and resighting")
+            }
             ## treat -1 (unresolved) and 0 (sighting) occasions the same
             markocc <- pmax(markocc,0)  
             ts <- factor(c('sighting','marking')[markocc+1])   ## markocc 0 vs markocc 1
@@ -287,14 +295,14 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
         else if (setequal(markocc, -1:0)) {
             ts <- factor(c('unresolved','sighting')[markocc+2])   ## markocc -1 vs markocc 0
         }
-        else
-            stop ("ts is used only for mark-resight data")
+        else {
+            stop ("markocc NULL or invalid  so 'ts' undefined")
+        }
         dframe$ts <- insertdim (ts, c(3,1), dims)
     }
     if ('tt' %in% vars) {
-        detect <- detector(traps(capthist))
-        telem <- detect == 'telemetry'
-        if (!(any(telem) & !all(telem)))
+        telem <- detector(traps(capthist)) == 'telemetry'
+        if (!(any(telem) && !all(telem)))
             stop ("tt is appropriate for telemetry data only when mixed with another detector type")
         tt <- factor(c('nontelem','telem'))[telem+1] 
         dframe$tt <- insertdim (tt, c(3,1), dims)
