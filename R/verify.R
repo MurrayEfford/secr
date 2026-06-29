@@ -969,7 +969,7 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
                 }
                 if (!telemOK) {
                     cat ("Error(s) in telemetry data\n")
-                    cat ("First error: ', telemetryerror, "\n")
+                    cat ("First error: ", telemetryerror, "\n")
                         }
                 if (!nontargetdimOK) {
                     cat ("Nontarget dimensions do not match capthist\n")
