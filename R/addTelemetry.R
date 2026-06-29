@@ -52,18 +52,21 @@ addTelemetry <- function (detectionCH, telemetryCH,
         else {
             type <- match.arg(type)
             xylist <- telemetryxy(telemetryCH)
-            capdet <- secr_expanddet(detectionCH)
+            capdet <- secr:::secr_expanddet(detectionCH)
             if (collapsetelemetry)
                 teldet <- 'telemetry'
             else
-                teldet <- secr_expanddet(telemetryCH)
+                teldet <- secr:::secr_expanddet(telemetryCH)
             
             if (type == "independent") 
                 OK <- rep(NA, nrow(telemetryCH))        
             else 
                 OK <- match(names(xylist), row.names(detectionCH))
             telemOnly <- sum(is.na(OK))
-            
+            if (type == "dependent" && telemOnly > 0) {
+                stop ("telemetry 'dependent', but these do not appear in detectionCH\n", 
+                      paste(names(xylist)[is.na(OK)], collapse = ", "))
+            }
             olddim <- dim(detectionCH)
             
             if (collapsetelemetry) {
@@ -218,7 +221,7 @@ read.telemetry <- function (file = NULL, data = NULL, covnames = NULL, verify = 
         colcl <- c('character','character',NA,NA,NA, rep(NA,nfield-nvar))
         defaultargs <- list(sep = '', comment.char = '#')
         if (filetype(file)=='.csv') defaultargs$sep <- ','
-        captargs <- secr_replacedefaults (defaultargs, list(...))
+        captargs <- secr:::secr_replacedefaults (defaultargs, list(...))
         captargs <- captargs[names(captargs) %in% names(formals(read.table))]
         capt <- do.call ('read.table', c(list(file = file, as.is = TRUE,
                                               colClasses = colcl), captargs) )
