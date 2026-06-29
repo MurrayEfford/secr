@@ -62,6 +62,9 @@ method is called when no specific method is available (i.e. class not
   \item Coordinates of detection(s) do not lie on any transect
   (`transect' or `transectX' detectors)
   \item Row names (animal identifiers) not unique
+  \item Inconsistencies in resighting data
+  \item Inconsistencies in telemetry data
+  \item Invalid non-target data
   \item Levels of factor covariate(s) differ between sessions
 }
 
