@@ -9,6 +9,7 @@
 ## 2024-07-03 fastproximity losses warning
 ## 2024-12-22 relativeD merged with CL
 ## 2025-08-24 default for model not in args
+## 2026-06-30 telemetryscale defunct
 ###############################################################################
 
 secr.fit <- function (capthist,  model = list(), mask = NULL,
@@ -165,7 +166,7 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
         tx = 'identity',
         param = 0,
         unmash = FALSE,
-        telemetryscale = 1,
+        # telemetryscale = 1,            ## dropped 5.5.0 2026-06-30
         ignoreusage = FALSE,
         debug = 0,
         intwidth2 = 0.8,
@@ -201,6 +202,10 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     }
     if (is.logical(details$hessian))
         details$hessian <- ifelse(details$hessian, 'auto', 'none')
+    if (!is.null(details$telemetryscale)) {
+        warning("telemetryscale redundant in secr >= 5.5.0; try safeLL and uselog")
+        details$telemetryscale <- NULL
+    }
     details <- replace (defaultdetails, names(details), details)
     if (!is.null(trace)) details$trace <- trace
     
@@ -234,6 +239,7 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     else
         details$chat <- rep(details$chat,3)[1:3]  ## duplicate scalar
   
+    
     #################################################
     # 2025-06-17 experimental 
     # passing temporal and spatial scale of behavioural response
