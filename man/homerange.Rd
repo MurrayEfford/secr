@@ -48,14 +48,14 @@ detections is about 2.0.
 }
 
 \usage{
-dbar(capthist, userdist = NULL, mask = NULL)
-MMDM(capthist, min.recapt = 1, full = FALSE, userdist = NULL, mask = NULL)
-ARL(capthist, min.recapt = 1, plt = FALSE, full = FALSE, userdist = NULL, mask = NULL)
-moves(capthist, userdist = NULL, mask = NULL, names = FALSE)
-RPSV(capthist, CC = FALSE)
-ORL(capthist, userdist = NULL, mask = NULL)
-t2r2(capthist)
-centroids(capthist)
+dbar(capthist, userdist = NULL, mask = NULL, telemetry = NULL)
+MMDM(capthist, min.recapt = 1, full = FALSE, userdist = NULL, mask = NULL, telemetry = NULL)
+ARL(capthist, min.recapt = 1, plt = FALSE, full = FALSE, userdist = NULL, mask = NULL, telemetry = NULL)
+moves(capthist, userdist = NULL, mask = NULL, names = FALSE, telemetry = NULL)
+RPSV(capthist, CC = FALSE, telemetry = NULL)
+ORL(capthist, userdist = NULL, mask = NULL, telemetry = NULL)
+t2r2(capthist, telemetry = NULL)
+centroids(capthist, telemetry = NULL)
 trapsPerAnimal(capthist)
 }
 
@@ -68,8 +68,9 @@ trapsPerAnimal(capthist)
   detection history to be used }
   \item{plt}{ logical; if TRUE observed range length is plotted against number
   of recaptures }
-\item{full}{ logical; set to TRUE for detailed output }
-\item{CC}{ logical for whether to use Calhoun and Casby formula }
+  \item{full}{ logical; set to TRUE for detailed output }
+  \item{CC}{ logical for whether to use Calhoun and Casby formula }
+  \item{telemetry}{ logical; if TRUE then calculation uses the telemetryxy attribute}
 }
 
 \details{
@@ -133,7 +134,8 @@ The \code{userdist} option is included for exotic non-Euclidean cases
 non-Euclidean distances.
 
 If \code{capthist} comprises standalone telemetry data (all detector 'telemetry') 
-then calculations are performed on the telemetry coordinates. If \code{capthist} 
+or the telemetry argument is set (from secr 5.5.0) then calculations are performed 
+on the telemetry coordinates. If \code{capthist} 
 combines telemetry data and conventional detections (`multi', `proximity' etc.) 
 then only the conventional data are summarised.
 

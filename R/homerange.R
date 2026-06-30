@@ -22,7 +22,7 @@ getID <- function (det, capthist) {
     factor(ID, levels = rownames(capthist))
 }
 
-dbar <- function (capthist, userdist = NULL, mask = NULL) {
+dbar <- function (capthist, userdist = NULL, mask = NULL, telemetry = NULL) {
     if (inherits (capthist, 'list')) {
         lapply(capthist, dbar, userdist, mask)   ## recursive
     }
@@ -45,7 +45,7 @@ dbar <- function (capthist, userdist = NULL, mask = NULL) {
         if (!all(det %in% .localstuff$individualdetectors))
             stop ("require individual detector type for dbar")
         
-        if (all(det %in% 'telemetry')) {
+        if (all(det %in% 'telemetry') || (!is.null(telemetry) && telemetry)) {
             lxy <- telemetryxy(capthist)
             if (is.null(lxy))
                 NA
@@ -86,7 +86,7 @@ dbar <- function (capthist, userdist = NULL, mask = NULL) {
 }
 ############################################################################################
 
-moves <- function (capthist, userdist = NULL, mask = NULL, names = FALSE) {
+moves <- function (capthist, userdist = NULL, mask = NULL, names = FALSE, telemetry = NULL) {
     if (inherits (capthist, 'list')) {
         lapply(capthist, moves, userdist, mask)   ## recursive
     }
@@ -112,7 +112,7 @@ moves <- function (capthist, userdist = NULL, mask = NULL, names = FALSE) {
             if (!all(det %in% .localstuff$individualdetectors))
                 stop ("require individual detector type for moves")
             
-            if (all(det %in% 'telemetry')) {
+            if (all(det %in% 'telemetry') || (!is.null(telemetry) && telemetry)) {
                 lxy <- telemetryxy(capthist)
                 if (is.null(lxy))
                     out <- NA
@@ -168,7 +168,7 @@ trapsPerAnimal <- function (capthist) {
 
 
 ARL <- function (capthist, min.recapt = 1, plt = FALSE, full = FALSE, userdist = NULL,
-                 mask = NULL) {
+                 mask = NULL, telemetry = NULL) {
     if (inherits (capthist, 'list')) {
         lapply(capthist, ARL, plt = plt, full = full, userdist = userdist, mask)   ## recursive
     }
@@ -195,7 +195,7 @@ ARL <- function (capthist, min.recapt = 1, plt = FALSE, full = FALSE, userdist =
         distmat <- secr_valid.userdist(userdist, det, traps, traps, mask )
         prox  <- length(dim(capthist)) > 2
         
-        if (all(det %in% 'telemetry')) {
+        if (all(det %in% 'telemetry') || (!is.null(telemetry) && telemetry)) {
             lxy <- telemetryxy(capthist)
             if (is.null(lxy))
                 stop("no telemetry coordinates")
@@ -257,7 +257,7 @@ ARL <- function (capthist, min.recapt = 1, plt = FALSE, full = FALSE, userdist =
 }
 ############################################################################################
 
-MMDM <- function (capthist, min.recapt = 1, full = FALSE, userdist = NULL, mask = NULL) {
+MMDM <- function (capthist, min.recapt = 1, full = FALSE, userdist = NULL, mask = NULL, telemetry = NULL) {
     if (inherits (capthist, 'list')) {
         lapply(capthist, MMDM, full = full, userdist = userdist, mask = mask)   ## recursive
     }
@@ -283,7 +283,7 @@ MMDM <- function (capthist, min.recapt = 1, full = FALSE, userdist = NULL, mask 
         if (!all(det %in% .localstuff$individualdetectors))
             stop ("require individual detector type for MMDM")
         
-        if (all(det %in% 'telemetry')) {
+        if (all(det %in% 'telemetry') || (!is.null(telemetry) && telemetry)) {
             lxy <- telemetryxy(capthist)
             if (is.null(lxy))
                 stop ("no telemetry coordinates")
@@ -334,7 +334,7 @@ MMDM <- function (capthist, min.recapt = 1, full = FALSE, userdist = NULL, mask 
 }
 ############################################################################################
 
-RPSV <- function (capthist, CC = FALSE)
+RPSV <- function (capthist, CC = FALSE, telemetry = NULL)
 {
     if (inherits (capthist, 'list')) {
         lapply(capthist, RPSV, CC)   ## recursive
@@ -360,7 +360,7 @@ RPSV <- function (capthist, CC = FALSE)
             stop ("require individual detector type for RPSV")
         IDfactor <- getID(det, capthist)
         
-        if (all(det %in% 'telemetry')) {
+        if (all(det %in% 'telemetry') || (!is.null(telemetry) && telemetry)) {
             lxy <- telemetryxy(capthist)
             if (is.null(lxy))
                 temp <- NA
@@ -432,7 +432,7 @@ RPSV <- function (capthist, CC = FALSE)
 
 ##################################################
 
-ORL <- function (capthist, userdist = NULL, mask = NULL) {
+ORL <- function (capthist, userdist = NULL, mask = NULL, telemetry = NULL) {
     if (inherits (capthist, 'list')) {
         lapply(capthist, ORL, userdist, mask)   
     }
@@ -456,7 +456,7 @@ ORL <- function (capthist, userdist = NULL, mask = NULL) {
         prox  <- length(dim(capthist)) > 2
         IDfactor <- getID(det, capthist)
         
-        if (all(det %in% 'telemetry')) {
+        if (all(det %in% 'telemetry') || (!is.null(telemetry) && telemetry)) {
             lxy <- telemetryxy(capthist)
             if (is.null(lxy))
                 stop("no telemetry coordinates")
@@ -493,7 +493,7 @@ ORL <- function (capthist, userdist = NULL, mask = NULL) {
 
 ## 2020-08-05, 2020-08-31
 
-centroids <- function (capthist) {
+centroids <- function (capthist, telemetry = NULL) {
     
     if (ms(capthist)) {
         nsess <- length(capthist)
@@ -546,7 +546,7 @@ centroids <- function (capthist) {
         if (!all(det %in% .localstuff$individualdetectors))
             stop ("require individual detector type for centres")
         
-        if (all(det %in% 'telemetry')) {
+        if (all(det %in% 'telemetry') || (!is.null(telemetry) && telemetry)) {
             lxy <- telemetryxy(capthist)  ## already list by animal
             if (is.null(lxy))
                 temp <- NA
@@ -585,7 +585,7 @@ centroids <- function (capthist) {
 
 ## 2025-06-16
 
-t2r2 <- function (capthist)
+t2r2 <- function (capthist, telemetry = NULL)
 {
     individualdetectors <- c('single','multi','proximity','count',
                              'polygonX', 'transectX', 'signal', 'signalnoise', 'polygon', 'transect',
@@ -632,7 +632,7 @@ t2r2 <- function (capthist)
             stop ("require individual detector type for t2r2")
         IDfactor <- getID(det, capthist)
         
-        if (all(det %in% 'telemetry')) {
+        if (all(det %in% 'telemetry') || (!is.null(telemetry) && telemetry)) {
             lxy <- telemetryxy(capthist)
             if (is.null(lxy))
                 temp <- NA
