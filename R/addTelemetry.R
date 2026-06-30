@@ -10,6 +10,7 @@
 ## 2017-03-25 check for compatible covariates in addTelemetry
 ## 2017-04-10 bug fixed in preceding check
 ## 2018-09-30 extended to handle mark-resight data
+## 2026-06-30 revised for clarity and to fix 'dependent' problem
 ###############################################################################
 
 ## add telemetry occasion(s) to follow existing occasions
@@ -52,72 +53,94 @@ addTelemetry <- function (detectionCH, telemetryCH,
         else {
             type <- match.arg(type)
             xylist <- telemetryxy(telemetryCH)
-            capdet <- secr:::secr_expanddet(detectionCH)
-            if (collapsetelemetry)
-                teldet <- 'telemetry'
-            else
-                teldet <- secr:::secr_expanddet(telemetryCH)
+            detected <- names(xylist) %in% rownames(detectionCH)
+            if (type == "independent") detected[] <- FALSE
+            # prefix ID of telemetry-only animals with "T"
+            names(xylist)[!detected] <- paste0("T", names(xylist[!detected]))
+            detectedlist <- xylist[detected]
+            telemonlylist <- xylist[!detected]
+            whichtelemonly <- names(xylist) %in% names(telemonlylist)
+
+            #################################
             
-            if (type == "independent") 
-                OK <- rep(NA, nrow(telemetryCH))        
-            else 
-                OK <- match(names(xylist), row.names(detectionCH))
-            telemOnly <- sum(is.na(OK))
-            if (type == "dependent" && telemOnly > 0) {
-                stop ("telemetry 'dependent', but these do not appear in detectionCH\n", 
-                      paste(names(xylist)[is.na(OK)], collapse = ", "))
+            if (type == "dependent" && length(telemonlylist) > 0) {
+                telemetryCH <- subset(telemetryCH, rownames(telemetryCH) %in% rownames(detectionCH))
+                if (nrow(telemetryCH) == 0) {
+                    stop ("No dependent telemetry")
+                }
+                else {
+                    #???
+                    if (length(detectedlist)>0) 
+                        xylist <- detectedlist
+                    else
+                        stop("no 'dependent' telemetered animal captured")
+                    warning ("telemetry 'dependent', but these do not appear in detectionCH and are discarded\n", 
+                             paste(names(telemonlylist), collapse = ", "))
+                    telemonlylist <- NULL
+                }
             }
-            olddim <- dim(detectionCH)
             
+            #################################
+
             if (collapsetelemetry) {
                 telemCH <- apply(telemetryCH,c(1,3),sum)
                 telemCH <- array(telemCH, dim=c(nrow(telemCH),1,1))
+                teldet <- 'telemetry'
             }
             else {
                 telemCH <- telemetryCH
+                teldet <- secr_expanddet(telemetryCH)
             }
             
             #################################
-            ## start new CH with all old detections
-            newdim <- olddim + c(telemOnly, ncol(telemCH), 1)
+            
+            ## start empty new CH 
+            olddim <- dim(detectionCH)
+            newdim <- olddim + c(length(telemonlylist), ncol(telemCH), 1)
             newCH <- array(0, dim = newdim)
+            dimnames(newCH)[[1]] <- c(rownames(detectionCH), names(telemonlylist))
+            dimnames(newCH)[[2]] <- 1:ncol(newCH)
+            class(newCH) <- 'capthist'
+            
+            ## add all old detections
             if (olddim[1]>0) {
                 newCH[1:olddim[1], 1:olddim[2], 1:olddim[3]] <- detectionCH
             }    
-            dimnames(newCH)[[2]] <- 1:ncol(newCH)
-            
-            class(newCH) <- 'capthist'
-            
-            #################################
-            ## add telemetry detections
-            ## if (telemOnly>0)
-            if (type == 'independent') {
-                names(xylist) <- paste0('T',names(xylist))
-                dimnames(newCH)[[1]] <- c(rownames(detectionCH), names(xylist))
-            }
-            else {
-                dimnames(newCH)[[1]] <- c(rownames(detectionCH), names(xylist)[is.na(OK)])
-            }
-            telemetrd <- match(names(xylist), rownames(newCH))
+            ## add all telemetry detections to newCH
+            telemetrd <- match(names(xylist), rownames(newCH), nomatch = 0)
             newCH[telemetrd,  (olddim[2]+1):newdim[2], newdim[3]] <- telemCH
             
-            #################################
+            ####################################
             ## consistent order
+            
             if (nrow(newCH)>0) {
-                rows <- rownames(newCH)
-                xynames <- names(xylist)
-                nch <- max(nchar(c(rows, xynames)))
-                rows <- str_pad(rows, nch)
-                xynames <- str_pad(xynames, nch)
+                # rows    <- rownames(newCH)
+                # xynames <- names(xylist)
+                # nch     <- max(nchar(c(rows, xynames)))   # length to pad to
+                # rows    <- stringr::str_pad(rows, nch)    # pad uniformly
+                # xynames <- stringr::str_pad(xynames, nch) # pad uniformly
+                # rownames(newCH) <- rows
+                # names(xylist) <- xynames
+                # rows <- sort(rows)
+                # newCH[,,] <- newCH[rows,,]
+                # # rownames(newCH) <- rows
+                # xylist <- 
+                
+                rows            <- rownames(newCH)
+                xynames         <- names(xylist)
+                nch             <- max(nchar(c(rows, xynames)))   # length to pad to
+                rows            <- stringr::str_pad(rows, nch)    # pad uniformly
+                xynames         <- stringr::str_pad(xynames, nch) # pad uniformly
                 rownames(newCH) <- rows
-                names(xylist) <- xynames
-                rows <- sort(rows)
-                newCH[,,] <- newCH[rows,,]
-                rownames(newCH) <- rows
-                xylist <- xylist[rows[rows %in% xynames]]
+                names(xylist)   <- xynames
+                # rows            <- sort(rows)
+                # newCH[,,]       <- newCH[rows,,]
+                xylist          <- xylist[rows[rows %in% xynames]]
             }
+            
             #################################
             ## traps attribute of newCH
+            
             oldtraps <- traps(detectionCH)
             nulltraps <- subset(oldtraps,1)  ## duplicate first as dummy location for telemetry
             ## no need for message about differing detector types
@@ -125,6 +148,8 @@ addTelemetry <- function (detectionCH, telemetryCH,
             
             #################################
             ## detector attributes
+            
+            capdet <- secr_expanddet(detectionCH)
             detector(traps(newCH)) <- c(capdet, teldet)
             newusge <- matrix(0, nrow=nrow(traps(newCH)), ncol = ncol(newCH))
             oldusge <- usage(detectionCH)
@@ -140,12 +165,13 @@ addTelemetry <- function (detectionCH, telemetryCH,
             telemetrytype(traps(newCH)) <- type
             
             #################################
-            ## covariates
+            ## individual covariates
+            
             telemcov <- covariates(telemetryCH)
             if (is.null(telemcov) || ncol(telemcov)==0)
                 zerohistcov <- matrix(nrow=0,ncol=0)
             else
-                zerohistcov <- telemcov[is.na(OK),,drop = FALSE]
+                zerohistcov <- telemcov[whichtelemonly,,drop = FALSE]
             dethistcov <- covariates(detectionCH)
             if ((is.null(zerohistcov) || (nrow(zerohistcov)==0)) &&
                 (is.null(dethistcov) || (nrow(dethistcov)==0))) {
@@ -168,6 +194,7 @@ addTelemetry <- function (detectionCH, telemetryCH,
             
             #################################
             ## sightings
+            
             if (!is.null(markocc(oldtraps))) {
                 refillT <- function (T) {
                     if (is.matrix(T)) {
@@ -184,9 +211,14 @@ addTelemetry <- function (detectionCH, telemetryCH,
             
             #################################
             ## telemetryxy
+            
             telemetryxy(newCH) <- xylist
             
+            #################################
+            ## verify
+            
             if (verify) verify(newCH)
+            
             newCH
         }
     }
@@ -221,7 +253,7 @@ read.telemetry <- function (file = NULL, data = NULL, covnames = NULL, verify = 
         colcl <- c('character','character',NA,NA,NA, rep(NA,nfield-nvar))
         defaultargs <- list(sep = '', comment.char = '#')
         if (filetype(file)=='.csv') defaultargs$sep <- ','
-        captargs <- secr:::secr_replacedefaults (defaultargs, list(...))
+        captargs <- secr_replacedefaults (defaultargs, list(...))
         captargs <- captargs[names(captargs) %in% names(formals(read.table))]
         capt <- do.call ('read.table', c(list(file = file, as.is = TRUE,
                                               colClasses = colcl), captargs) )
