@@ -41,6 +41,7 @@
 ## 2025-07-24 secr_ prefix attached to most functions used in other .R files
 ## 2025-11-26 5.4.0
 ## 2026-06-09 5.5.0
+## 2026-07-02 secr_telemstatus
 ################################################################################
 
 # Global variables in namespace
@@ -56,7 +57,7 @@
 .localstuff$validdetectors <- c('single','multi','proximity','count', 
     'polygonX', 'transectX', 'signal', 'polygon', 'transect', 
     'capped', 'null','null','null','null', 'telemetry', 'signalnoise')
-.localstuff$simpledetectors <- c('single','multi','proximity','count', 'capped')
+.localstuff$simpledetectors <- c('single','multi','proximity','count', 'capped','telemetry')
 .localstuff$individualdetectors <- c('single','multi','proximity','count',
     'polygonX', 'transectX', 'signal', 'signalnoise', 'polygon', 'transect',
                                      'telemetry', 'capped')
@@ -1545,8 +1546,9 @@ secr_getk <- function(traps) {
 #--------------------------------------------------------------------------------
 
 # 2025-07-23 moved from preparedata.R
-secr_getxy <- function(dettype, capthist) {
-    if (all(detector(traps(capthist)) %in% .localstuff$polydetectors)) {
+secr_getxy <- function(capthist) {
+    detect <- detector(traps(capthist))
+    if (all(detect %in% .localstuff$polydetectors)) {
         xy <- xy(capthist)
         ## start[z] indexes the first row in xy (or element in signal)
         ## for each possible count z (including zeros), where z is w-order (isk) 
@@ -1554,7 +1556,7 @@ secr_getxy <- function(dettype, capthist) {
         start <- head(cumsum(c(0,start)),length(start))
     }
     else {
-        if (any(dettype == 13)) {
+        if (any(detect == "telemetry")) {
             ## ensure order matches
             ## should have null histories in capthist
             telem <- telemetryxy(capthist)
@@ -1572,6 +1574,33 @@ secr_getxy <- function(dettype, capthist) {
         }
     }
     list(xy = xy, start = start)
+}
+#--------------------------------------------------------------------------------
+
+secr_telemstatus <- function(capthist) {
+    
+    # integer vector
+    
+    # 0 telemetry only                  telem>0 !detect>0
+    # 1 both detection and telemetry    telem>0 detect>0
+    # 2 detection only                  !telem>0 detect>0
+    
+    # old secr_nontelem equivalent to 0
+    
+    if (any(detector(traps(capthist)) == "telemetry")) {
+        telemocc <- detector(traps(capthist)) == "telemetry"
+        telem  <- apply(abs(capthist[,telemocc,, drop = FALSE]), 1, sum)>0
+        detect <- apply(abs(capthist[,!telemocc,, drop = FALSE]), 1, sum)>0
+        status <- numeric(nrow(capthist))   # default 0
+        status[telem>0 & detect>0] <- 1
+        status[telem==0 & detect>0] <- 2
+        status
+        # telem <- telemetryxy(capthist)
+        # is.na(match(rownames(capthist), names(telem)))
+    }
+    else {
+        rep(2, nrow(capthist))
+    }
 }
 #--------------------------------------------------------------------------------
 

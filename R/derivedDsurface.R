@@ -54,7 +54,7 @@ sharedData <- function (object, i, sessnum, X, ncores, naive = FALSE) {
         if (!is.null(xy)) {
             ## 2022-02-13 don't want 'no detections on occasion x'
             ch <- suppressWarnings(subset(object$capthist, ok))  
-            xy <- secr_getxy(data$dettype, secr_selectCHsession(ch, sessnum))
+            xy <- secr_getxy(secr_selectCHsession(ch, sessnum))
         }
     }
     if (length(dim(data$CH)) == 2) {
