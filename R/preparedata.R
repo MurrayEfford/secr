@@ -303,7 +303,8 @@ secr_prepareSessionData <- function (capthist, mask, maskusage,
 
         n.distrib <- switch (tolower(details$distribution), poisson=0, binomial=1, 0)
         signal <- getsignal (dettype, capthist, details$tx)
-        xy <- secr_getxy (dettype, capthist)
+        xy <- secr_getxy (capthist)
+        telemstatus <- secr_telemstatus (capthist)   # 0 telemetry-only, 1 both, 2 detected-only
         usge <- usage(traps)
         if (is.null(usge) || details$ignoreusage) {
             usge <- matrix(1, nrow = K, ncol = s)
@@ -367,6 +368,7 @@ secr_prepareSessionData <- function (capthist, mask, maskusage,
             MRdata = MRdata,
             signal = signal,
             xy = xy,
+            telemstatus = telemstatus,
             grp = grp,
             maskcond = maskcond,
             logmult = logmult
