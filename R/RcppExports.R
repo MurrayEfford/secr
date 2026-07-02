@@ -61,8 +61,8 @@ signalhistoriescpp <- function(mm, nc, detectfn, grain, ncores, safeLL, binomN, 
     .Call(`_secr_signalhistoriescpp`, mm, nc, detectfn, grain, ncores, safeLL, binomN, w, signal, group, gk, gsbval, dist2, density, PIA, miscparm, mask_indices, mask_offsets, mask_id)
 }
 
-gethrcpp <- function(nc, fn, start, xy, mask, maskused, gsbval) {
-    .Call(`_secr_gethrcpp`, nc, fn, start, xy, mask, maskused, gsbval)
+gethrcpp <- function(fn, start, xy, mask, maskused, gsbval) {
+    .Call(`_secr_gethrcpp`, fn, start, xy, mask, maskused, gsbval)
 }
 
 simplehistoriescpp <- function(mm, nc, cc, grain, ncores, safeLL, uselog, binomN, markocc, firstocc, pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, telemhr, telemstart) {

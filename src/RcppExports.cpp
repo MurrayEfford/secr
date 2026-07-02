@@ -276,19 +276,18 @@ BEGIN_RCPP
 END_RCPP
 }
 // gethrcpp
-NumericVector gethrcpp(const int nc, const int fn, const IntegerVector& start, const NumericMatrix& xy, const NumericMatrix& mask, const IntegerVector& maskused, const NumericMatrix& gsbval);
-RcppExport SEXP _secr_gethrcpp(SEXP ncSEXP, SEXP fnSEXP, SEXP startSEXP, SEXP xySEXP, SEXP maskSEXP, SEXP maskusedSEXP, SEXP gsbvalSEXP) {
+NumericVector gethrcpp(const int fn, const IntegerVector& start, const NumericMatrix& xy, const NumericMatrix& mask, const IntegerVector& maskused, const NumericMatrix& gsbval);
+RcppExport SEXP _secr_gethrcpp(SEXP fnSEXP, SEXP startSEXP, SEXP xySEXP, SEXP maskSEXP, SEXP maskusedSEXP, SEXP gsbvalSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int >::type nc(ncSEXP);
     Rcpp::traits::input_parameter< const int >::type fn(fnSEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type start(startSEXP);
     Rcpp::traits::input_parameter< const NumericMatrix& >::type xy(xySEXP);
     Rcpp::traits::input_parameter< const NumericMatrix& >::type mask(maskSEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type maskused(maskusedSEXP);
     Rcpp::traits::input_parameter< const NumericMatrix& >::type gsbval(gsbvalSEXP);
-    rcpp_result_gen = Rcpp::wrap(gethrcpp(nc, fn, start, xy, mask, maskused, gsbval));
+    rcpp_result_gen = Rcpp::wrap(gethrcpp(fn, start, xy, mask, maskused, gsbval));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -800,7 +799,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_secr_pdotpointcpp", (DL_FUNC) &_secr_pdotpointcpp, 15},
     {"_secr_fasthistoriescpp", (DL_FUNC) &_secr_fasthistoriescpp, 18},
     {"_secr_signalhistoriescpp", (DL_FUNC) &_secr_signalhistoriescpp, 19},
-    {"_secr_gethrcpp", (DL_FUNC) &_secr_gethrcpp, 7},
+    {"_secr_gethrcpp", (DL_FUNC) &_secr_gethrcpp, 6},
     {"_secr_simplehistoriescpp", (DL_FUNC) &_secr_simplehistoriescpp, 25},
     {"_secr_simplehistoriesfxicpp", (DL_FUNC) &_secr_simplehistoriesfxicpp, 16},
     {"_secr_Tsightinglikcpp", (DL_FUNC) &_secr_Tsightinglikcpp, 6},

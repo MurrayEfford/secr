@@ -11,10 +11,10 @@
 //            secr_generalsecrloglikfn takes care of undeflow
 // 2026-06-09 gethrcpp now fills only the required (maskused) elements of hr 
 // 2026-06-15 ThreadRegistry registry;
+// 2026-07-01 removed unused argument nc from gethrcpp
 
 // [[Rcpp::export]]
 NumericVector gethrcpp(
-        const int nc,
         const int fn, 
         const IntegerVector &start,
         const NumericMatrix &xy, 
