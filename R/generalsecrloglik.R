@@ -11,6 +11,7 @@
 ## 2026-06-07 simplehistoriescpp returns logprwi rather than prwi
 ## 2026-06-08 new maskcond maxdistance implementation
 ## 2026-06-13 safeLL switch
+## 2026-07-02 improved telemetry; telemstatus
 ###############################################################################
 
 # dettype
@@ -521,8 +522,8 @@ secr_generalsecrloglikfn <- function (
     if (any(data$dettype == 13)) {
         telemstart <- data$xy$start
         maskused <- unique(unlist(data$maskcond$mask_indices))
+        # dropped unused argument nc 2026-07-01
         telemhr <- gethrcpp(
-            as.integer(nrow(data$CH)),      ## or nc1?  Was as.double <2026-06-05
             as.integer(detectfn), 
             as.double(telemstart), 
             as.matrix(data$xy$xy), 
@@ -644,6 +645,7 @@ secr_generalsecrloglikfn <- function (
     comp <- matrix(0, nrow = 6, ncol = ngroup)
     for (g in 1:ngroup) {
       ok <- as.integer(data$grp) == g
+      oknt <- ok & data$telemstatus>0  ## 2026-07-02 excludes unmodelled detection occasions (independent telemetry)
       #----------------------------------------------------------------------
 
       comp[1,g] <- if (any(is.na(lnprw)) || any(is.infinite(lnprw))) NA else sum(lnprw[ok])
@@ -653,49 +655,43 @@ secr_generalsecrloglikfn <- function (
       ## (the case for allsighting data when knownmarks = TRUE)
       ## or density relative.
       if (!data$MRdata$sightmodel==5 && !all(data$dettype==13)) {
-          comp[2,g] <- if (any(is.na(pdot)) || any(pdot<=0)) NA else -sum(log(pdot[ok]))
+          comp[2,g] <- if (any(is.na(pdot[oknt])) || any(pdot[oknt]<=0)) NA else -sum(log(pdot[oknt]))
       }
       
       #----------------------------------------------------------------------
       
-      #      if (!CL && !data$MRdata$allsighting) {
-      ng <- sum(ok)
-      if (any(data$dettype==13))
-          nonzero <- sum(apply(data$CH[,data$dettype!=13,,drop=FALSE] != 0,1,sum)[ok]>0)
-      else
-          nonzero <- ng
+      ng <- sum(ok)      # number detected in group
+      ngnt <- sum(oknt)  # number detected in group, excluding telemetry-only; was 'nonzero'
       N <- sum(Nm[,g])
       if (ng == 0) {
           meanpdot <- pdot
       }
       else {
-          meanpdot <- ng / sum(1/pdot[ok])
+          meanpdot <- ngnt / sum(1/pdot[oknt])
       }
 
-      ## 2025-08-05
       .localstuff$Eng[sessnum, g] <- N * meanpdot      
   
       if (!CL && !data$MRdata$allsighting) {
           
-          ## 2023-09-22
-          if (data$n.distrib == 1 && .localstuff$iter == 0 && nonzero>N) {
+          if (data$n.distrib == 1 && .localstuff$iter == 0 && ngnt>N) {
               warning("distribution = 'binomial' ",
-                      "but number detected n (", nonzero, 
+                      "but number detected n (", ngnt, 
                       ") exceeds initial value of N (", round(N,1), ")")
           }
           
           comp[3,g] <- if (is.na(meanpdot) || (meanpdot <= 0)) NA 
           else switch (data$n.distrib+1,
-                       dpois(nonzero, N * meanpdot, log = TRUE),
-                       secr_lnbinomial (nonzero, N, meanpdot),
+                       dpois(ngnt, N * meanpdot, log = TRUE),
+                       secr_lnbinomial (ngnt, N, meanpdot),
                        NA)
       }
       #----------------------------------------------------------------------
       # adjustment for mixture probabilities when class known
-      known <- sum(data$knownclass[ok]>1)
+      known <- sum(data$knownclass[oknt]>1)
       if (details$nmix>1 && known>0) {
           nb <- details$nmix + 1
-          nm <- tabulate(data$knownclass[ok], nbins = nb)
+          nm <- tabulate(data$knownclass[oknt], nbins = nb)
           pmix <- attr(pmixn, 'pmix')
           ## 2022-10-25 bug fix
           firstx <- match ((1:details$nmix)+1, data$knownclass)
