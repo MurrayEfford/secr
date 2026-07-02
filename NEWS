@@ -1,14 +1,19 @@
-Changes in version 5.5.0 (2026-06-20)
+Changes in version 5.5.0 (2026-07-01)
 
 New features or changed behaviour of old functions
-    o  none
+    o  addTelemetry() revamped; behaviour may vary
+    o  verify() reports errors in telemetry data
 
 Other
-    o  details 'uselog' and more robust telemetry likelihood details 'telemetryscale' redundant
-    o  better implementation of mask 'maxdistance'; uses telemetry if available
-    o  better implementation of thread workspaces, with speed improvement for multi-threaded fastproximity
+    o  details 'uselog' and more robust telemetry likelihood; details 'telemetryscale' redundant
+    o  better implementation of mask 'maxdistance'; uses telemetry centres if available
+    o  better implementation of thread workspaces in C++, with speed improvement for multi-threaded fastproximity
     o  increased buffer width in read.telemetry() example
     o  externalpdot option removed from secr.fit details
+    o  removed obsolete internal functions (telemetry.R)
+
+Bugs fixed
+    o  independent telemetry likelihood subtly wrong: results will differ
 
 Changes in version 5.4.3 (2026-05-26)
 
