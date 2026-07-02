@@ -5,6 +5,7 @@
 ## 2019-12-03 replaced bygroup with CL
 ## 2023-03-10 individualcovariates() moved from utility.R
 ## 2025-06-17 tweaks to dframe output
+## 2026-07-01 fix PIA for independent telemetry
 
 ################################################################################
 
@@ -707,7 +708,6 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
                     ## otherwise assume K,S,n
                     used <- aperm(used, c(3,1,2))
                 }
-                # 2012-12-17
                 PIA[1, , , ,] <- PIA[1, , , ,] * rep(used>0,nmix)
             }
             else for (r in 1:R) {
@@ -724,8 +724,34 @@ secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
     }
 
     #--------------------------------------------------------------------
-    ## 2014-08-21
 
+    # independent telemetry: PIA for detectors on non-telemetry occasions
+    # set to zero for independently telemetered animals, because
+    # this part of such notional capture histories is not modelled
+    # 2026-07-02
+    
+    if (MS) {
+        for (r in 1:R) {
+            chr <- capthist[[r]]
+            ttype <- attr(traps(chr), 'telemetrytype')
+            if (!is.null(ttype) && ttype == "independent") {
+                telemonly <- which(secr_telemstatus(chr)==0)
+                nontelemocc <- which(detector(traps(chr)) != "telemetry")
+                PIA[r, telemonly, nontelemocc, ,] <- 0
+            }
+        }
+    }
+    else {
+        ttype <- attr(traps(capthist), 'telemetrytype')
+        if (!is.null(ttype) && ttype == "independent") {
+            telemonly <- which(secr_telemstatus(capthist)==0)
+            nontelemocc <- which(detector(traps(capthist)) != "telemetry")
+            PIA[1, telemonly, nontelemocc, ,] <- 0
+        }
+    }
+        
+    #--------------------------------------------------------------------
+    
     smoothsetup <- vector(length(parnames), mode = 'list')
     names(smoothsetup) <- parnames
     for (i in parnames) {
