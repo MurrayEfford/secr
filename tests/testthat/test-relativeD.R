@@ -6,6 +6,8 @@ library(secr)
 ## e.g. https://github.com/RcppCore/RcppParallel/issues/169
 Sys.setenv(RCPP_PARALLEL_BACKEND = "tinythread")
 
+detector(traps(captdata)) <- "multi"  # to dodge "single" warning
+
 msk <- make.mask(traps(captdata), buffer=100, type='trapbuffer', nx = 32)
 fitrD  <- secr.fit(captdata, CL = TRUE, mask = msk, model= D~x, trace = FALSE)
 fitrDi <- secr.fit(captdata, CL = TRUE, mask = msk, model= D~x, trace = FALSE, 

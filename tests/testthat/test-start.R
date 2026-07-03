@@ -5,7 +5,7 @@ library(secr)
 ## to avoid ASAN/UBSAN errors on CRAN, following advice of Kevin Ushey
 ## e.g. https://github.com/RcppCore/RcppParallel/issues/169
 Sys.setenv(RCPP_PARALLEL_BACKEND = "tinythread")
-system.time({
+detector(traps(captdata)) <- "multi"  # to dodge "single" warning
 msk2 <- make.mask(traps(captdata), buffer = 100, spacing = 20)
 set.seed(123)
 fit0 <- secr.fit(captdata, 
@@ -55,6 +55,4 @@ test_that("correct start vector", {
                  check.attributes = FALSE)
     expect_equal(S4, c(1.717297, -1.182687, 3.426041), tolerance = 1e-4, 
                  check.attributes = FALSE)
-})
-
 })
