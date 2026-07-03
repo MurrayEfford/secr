@@ -88,14 +88,14 @@ struct simplehistories : public Worker {
     RVector<double> output;
 
     // Hold as a reference member variable
-    ThreadRegistry& registry;
+    // ThreadRegistry& registry;
     
     // Workspace to hold thread-specific buffers
     struct ThreadWorkspace {
         std::vector<double> pm;
         ThreadWorkspace(int mm) : pm(mm) {}
     };
-    std::vector<ThreadWorkspace> workspaces;
+    // std::vector<ThreadWorkspace> workspaces;
 
     // Constructor to initialize an instance of Somehistories 
     // The RMatrix class can be automatically converted to from the Rcpp matrix type
@@ -130,7 +130,7 @@ struct simplehistories : public Worker {
         const NumericVector telemhr,
         const IntegerVector telemstart,
         
-        ThreadRegistry&     reg_in,
+        // ThreadRegistry&     reg_in,
         NumericVector output
         )
         : 
@@ -158,8 +158,8 @@ struct simplehistories : public Worker {
         mask_id(mask_id),
         telemhr(telemhr), 
         telemstart(telemstart),
-        output(output),
-        registry(reg_in)
+        output(output)
+        // , registry(reg_in)
         {
         
         // now can initialise these derived counts
@@ -167,10 +167,10 @@ struct simplehistories : public Worker {
         ss = Tsk.ncol();             // number of occasions
         
         // Initialize workspaces based on available concurrency
-        int n_threads = (ncores > 0) ? ncores : 1;
-        for(int i = 0; i < n_threads; ++i) {
-            workspaces.emplace_back(mm);
-        }
+        // int n_threads = (ncores > 0) ? ncores : 1;
+        // for(int i = 0; i < n_threads; ++i) {
+        //     workspaces.emplace_back(mm);
+        // }
         
         for (int s=0; s<ss; s++) if (binomN[s] != -2) allX = false;
     }
@@ -509,8 +509,10 @@ struct simplehistories : public Worker {
     // function call operator that works for the specified range (begin/end)
     void operator()(std::size_t begin, std::size_t end) {  
         // Query the reference directly
-        int idx = registry.get_index();
-        ThreadWorkspace& ws = workspaces[idx];
+        // int idx = registry.get_index();
+        // ThreadWorkspace& ws = workspaces[idx];
+        // Dynamically allocate one workspace per thread chunk execution
+        ThreadWorkspace ws(mm);
         for (std::size_t n = begin; n < end; n++) {
             output[n] = onehistory (n, ws);   // 2026-06-06 log
         }
@@ -552,7 +554,7 @@ NumericVector simplehistoriescpp (
     {
     
     NumericVector output(nc); 
-    ThreadRegistry registry;
+    // ThreadRegistry registry;
     
     // Construct and initialise
     simplehistories somehist (
@@ -561,7 +563,8 @@ NumericVector simplehistoriescpp (
             pID, w, group, gk, hk, 
             density, PIA, Tsk, h, hindex, 
             mask_indices, mask_offsets, mask_id, telemhr, telemstart, 
-            registry, output);
+            // registry,
+            output);
     
     if (ncores>1) {
         // Run operator() on multiple threads
