@@ -42,15 +42,13 @@ struct fasthistories : public Worker {
     
     // output likelihoods
     RVector<double> output;
-    ThreadRegistry& registry;
     
     // Workspace to hold thread-specific buffers
     struct ThreadWorkspace {
         std::vector<double> pm0, pm0k, pm;
         ThreadWorkspace(int mm, int kk) : pm0(mm), pm0k(kk * mm), pm(mm) {}
     };
-    std::vector<ThreadWorkspace> workspaces;
-
+    
     // Constructor to initialize an instance of Somehistories 
     // The RMatrix class can be automatically converted to from the Rcpp matrix type
     fasthistories(
@@ -75,7 +73,6 @@ struct fasthistories : public Worker {
         const IntegerVector mask_indices, 
         const IntegerVector mask_offsets,
         const IntegerVector mask_id,
-        ThreadRegistry&     reg_in,
         NumericVector output)
         : 
         mm(mm), 
@@ -95,23 +92,14 @@ struct fasthistories : public Worker {
         mask_indices(mask_indices), 
         mask_offsets(mask_offsets), 
         mask_id(mask_id),
-        output(output),
-        registry(reg_in)
+        output(output)
         {
         
         kk = Tsk.size();        // assuming single occasion
 
-        // Initialize workspaces based on available concurrency
-        int n_threads = (ncores > 0) ? ncores : 1;
-        for(int i = 0; i < n_threads; ++i) {
-            workspaces.emplace_back(mm, kk);
-        }
-        
         pm0base.resize(mm);
         pm0kbase.resize(kk * mm);
         
-        // pr0(0, pm0base, pm0kbase);
-        ThreadWorkspace& ws = workspaces[0];
         fillpr0(0, pm0base, pm0kbase);
         
     }
@@ -230,8 +218,8 @@ struct fasthistories : public Worker {
     
     // function call operator that works for the specified range (begin/end)
     void operator()(std::size_t begin, std::size_t end) { 
-        int idx = registry.get_index();
-        ThreadWorkspace& ws = workspaces[idx];
+        // Dynamically allocate one workspace per thread chunk execution
+        ThreadWorkspace ws(mm, kk);
         for (std::size_t n = begin; n < end; n++) {
             output[n] = onefasthistory(n, ws);
         }
@@ -263,14 +251,13 @@ NumericVector fasthistoriescpp (
         ) {
     
     NumericVector output(nc); 
-    ThreadRegistry registry;
     
     // Construct and initialise
     fasthistories fasthist (
             mm, nc, cc, grain, ncores, 
             safeLL, binomN, indiv, w, ki, 
             gk, hk, density, PIA, Tsk, 
-            mask_indices, mask_offsets, mask_id, registry, output); 
+            mask_indices, mask_offsets, mask_id, output); 
     
     if (ncores>1) {
         // Run operator() on multiple threads

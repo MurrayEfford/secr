@@ -33,12 +33,10 @@ struct signalhistories : public Worker {
         std::vector<double> pm;
         ThreadWorkspace(int mm) : pm(mm) {}
     };
-    std::vector<ThreadWorkspace> workspaces;
 
     // output likelihoods
     RVector<double> output;
-    ThreadRegistry& registry;
-    
+
     // Constructor to initialize an instance of Somehistories
     // The RMatrix class can be automatically converted to from the Rcpp matrix type
     signalhistories(
@@ -64,8 +62,7 @@ struct signalhistories : public Worker {
         const IntegerVector mask_indices, 
         const IntegerVector mask_offsets,
         const IntegerVector mask_id,
-        ThreadRegistry&     reg_in,
-        
+
         NumericVector output)
         :
         mm(mm), nc(nc), detectfn(detectfn), grain(grain), safeLL(safeLL),
@@ -74,8 +71,7 @@ struct signalhistories : public Worker {
         mask_indices(mask_indices), 
         mask_offsets(mask_offsets), 
         mask_id(mask_id),
-        output(output),
-        registry(reg_in)
+        output(output)
         {
         
         // now can initialise these derived counts
@@ -83,12 +79,6 @@ struct signalhistories : public Worker {
         ss = 1;                     // number of occasions
         cc = gsbval.nrow();         // number of parameter combinations
         
-        // Initialize workspaces based on available concurrency
-        int n_threads = (ncores > 0) ? ncores : 1;
-        for(int i = 0; i < n_threads; ++i) {
-            workspaces.emplace_back(mm);
-        }
-            
     }
     //==============================================================================
     // local mufnL uses RMatrix input
@@ -233,10 +223,9 @@ struct signalhistories : public Worker {
     
     // function call operator that works for the specified range (begin/end)
     void operator()(std::size_t begin, std::size_t end) {
+        // Dynamically allocate one workspace per thread chunk execution
+        ThreadWorkspace ws(mm);
         for (std::size_t n = begin; n < end; n++) {
-            // Query the reference directly
-            int idx = registry.get_index();
-            ThreadWorkspace& ws = workspaces[idx];
             output[n] = onehistorycpp (n, ws);
         }
     }
@@ -266,14 +255,13 @@ NumericVector signalhistoriescpp (
 ) {
     
     NumericVector output(nc);
-    ThreadRegistry registry;
-    
+
     // Construct and initialise
     signalhistories somehist (
             mm, nc, detectfn, grain, ncores, 
             safeLL, binomN, w, signal, group, 
             gk, gsbval, dist2, density, PIA, 
-            miscparm, mask_indices, mask_offsets, mask_id, registry,
+            miscparm, mask_indices, mask_offsets, mask_id, 
             output);
     if (ncores>1) {
         // Run operator() on multiple threads
