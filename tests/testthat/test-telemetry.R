@@ -1,6 +1,10 @@
-## 2026-07-03
+## 2026-07-04
 
 library(secr)
+
+# needed for consistent randoms after test.trapbuilder.R
+suppressWarnings(RNGkind(sample.kind = "Rounding"))
+
 set.seed(123)
 
 ## to avoid ASAN/UBSAN errors on CRAN, following advice of Kevin Ushey
@@ -31,21 +35,11 @@ teCH <- sim.capthist(te, popn = pop4C, renumber = FALSE,
 
 ################################################
 
-combinedCHI <- addTelemetry(trCH, teCH, type = "independent")
-combinedCHC <- addTelemetry(trCH, teCH, type = "concurrent")
-combinedCHS <- MS.capthist(trCH, teCH)   # session independence
-
-suppressWarnings(
-    # discards undetected telemetry in teCH, with warning
-    combinedCHD <- addTelemetry(trCH, teCH, type = "dependent") 
-)
-################################################
-
 msk <- make.mask(traps(trCH), buffer = 100, type = 'trapbuffer', nx = 32)
 argssecr <- list(mask = msk, detectfn = 'HHN', CL = TRUE,
                  start = list(lambda0 = 0.1, sigma = 25),
                  details = list(LLonly = TRUE, safeLL = TRUE, uselog = TRUE, 
-                                debug=0, fastproximity = FALSE))
+                                debug = 0, fastproximity = FALSE))
 
 test_that("correct standalone likelihood", {
     argssecr$capthist <- teCH
@@ -54,26 +48,30 @@ test_that("correct standalone likelihood", {
 })
 
 test_that("correct combined likelihood, independent telemetry", {
+    combinedCHI <- addTelemetry(trCH, teCH, type = "independent")
     argssecr$capthist <- combinedCHI
     LL <- do.call(secr.fit, argssecr)[1]
     expect_equal(LL, -1422.7557, tolerance = 1e-4, check.attributes = FALSE)
 })
 
 test_that("correct combined likelihood, independent telemetry in separate session", {
+    combinedCHS <- MS.capthist(trCH, teCH)   # session independence
     argssecr$capthist <- combinedCHS
     LL <- do.call(secr.fit, argssecr)[1]
     expect_equal(LL, -1422.7557, tolerance = 1e-4, check.attributes = FALSE)
 })
 
 test_that("correct combined likelihood, concurrent telemetry", {
+    combinedCHC <- addTelemetry(trCH, teCH, type = "concurrent")
     argssecr$capthist <- combinedCHC
     LL <- do.call(secr.fit, argssecr)[1]
-    expect_equal(LL, -1406.703, tolerance = 1e-4, check.attributes = FALSE)
+    expect_equal(LL, -1406.7027, tolerance = 1e-4, check.attributes = FALSE)
 })
 
 test_that("correct combined likelihood, dependent telemetry", {
+    expect_warning(combinedCHD <- addTelemetry(trCH, teCH, type = "dependent") )
     argssecr$capthist <- combinedCHD
     LL <- do.call(secr.fit, argssecr)[1]
-    expect_equal(LL, -824.3382, tolerance = 1e-4, check.attributes = FALSE)
+    expect_equal(LL, -824.33822, tolerance = 1e-4, check.attributes = FALSE)
 })
 
