@@ -206,10 +206,17 @@ values of the coefficients.
 \code{details$progressfilename} is the name of an RDS file for 'saveprogress' 
 (see previous). Ignored when saveprogress = 0. Default "progress.RDS".
 
+\code{details$safeLL} uses the 'log-sum-exp' algorithm to avoid numeric 
+underflow in C++ code for the likelihood. Computation with safeLL = TRUE is 
+slightly slower so the default remains safeLL = FALSE. Used together with 
+'uselog' for telemetry data. 
+
 \code{details$splitmarked} determines whether the home range centre of marked 
-animals is allowed to move between the marking and sighting phases of a spatial 
-capture--mark--resight study. The default is to assume a common home-range centre 
-(\code{splitmarked = FALSE}). 
+animals is allowed to move between the marking (markocc = 1) and sighting (markocc = 0) 
+phases of a spatial capture--mark--resight study. The default is to assume a 
+common home-range centre (\code{splitmarked = FALSE}). 
+
+\code{details$telemetryscale} defunct option, superceded by 'safeLL' and 'uselog'.
 
 \code{details$telemetrytype} determines how telemetry data in the
 attribute `xylist' are treated. `none' causes the xylist data to be
