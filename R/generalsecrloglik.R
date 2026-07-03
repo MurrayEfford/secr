@@ -648,7 +648,7 @@ secr_generalsecrloglikfn <- function (
       oknt <- ok & data$telemstatus>0  ## 2026-07-02 excludes unmodelled detection occasions (independent telemetry)
       #----------------------------------------------------------------------
 
-      comp[1,g] <- if (any(is.na(lnprw)) || any(is.infinite(lnprw))) NA else sum(lnprw[ok])
+      comp[1,g] <- if (any(is.na(lnprw[ok])) || any(is.infinite(lnprw[ok]))) NA else sum(lnprw[ok])
       
       #----------------------------------------------------------------------
       ## Adjust for undetected animals unless data includes all-zero histories
@@ -672,7 +672,7 @@ secr_generalsecrloglikfn <- function (
 
       .localstuff$Eng[sessnum, g] <- N * meanpdot      
   
-      if (!CL && !data$MRdata$allsighting) {
+      if (!CL && !data$MRdata$allsighting && !all(data$dettype==13)) {
           
           if (data$n.distrib == 1 && .localstuff$iter == 0 && ngnt>N) {
               warning("distribution = 'binomial' ",
