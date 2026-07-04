@@ -1,4 +1,4 @@
-Changes in version 5.5.0 (2026-07-03)
+Changes in version 5.5.0 (2026-07-04)
 
 New features or changed behaviour of old functions
     o  addTelemetry() revamped; behaviour may vary
@@ -12,6 +12,7 @@ Other
     o  externalpdot option removed from secr.fit details
     o  removed obsolete internal functions (telemetry.R)
     o  tests for telemetry likelihoods
+    o  built-in example data telemetrydemo.txt
 
 Bugs fixed
     o  independent telemetry likelihood subtly wrong: results will differ
