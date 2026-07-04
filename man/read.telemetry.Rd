@@ -47,20 +47,24 @@ coordinates, and a `traps' object with detector type = `telemetry'
 
 \examples{
 
-\dontrun{
+\donttest{
 
-olddir <- setwd('D:/bears/alberta')
+## example file of telemetry data included in secr
+filename <- system.file("extdata/telemetrydemo.txt", package = "secr")
+
 ## peek at raw data
-head(readLines('gps2008.txt'))
-gps2008CH <- read.telemetry("gps2008.txt")
-setwd(olddir)
+head(readLines(filename))
 
-plot( gps2008CH, gridsp = 10000)
-head(gps2008CH)
-RPSV(gps2008CH, CC = TRUE)
-fit <- secr.fit(gps2008CH, start = log(4000), detectfn = 'HHN', trace = FALSE,
-    details = list(telemetryscale = 1e12), buffer = 25000)
+teCH <- read.telemetry(filename)
+
+plot(teCH)
+head(teCH)
+RPSV(teCH, CC = TRUE)
+
+fit <- secr.fit(teCH, detectfn = 'HHN', trace = FALSE,
+    details = list(safeLL = TRUE, uselog = TRUE), buffer = 100)
 predict(fit)
+
 }
 
 }
