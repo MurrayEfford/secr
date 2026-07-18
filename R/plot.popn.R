@@ -75,8 +75,10 @@ plot.popn <- function (x, add = FALSE, frame = TRUE, circles = NULL, collapse = 
                 MASS::eqscplot (x$x, x$y, xlab='', ylab='', type='n', axes = FALSE,
                           ...)
         }
-        if (is.null(circles) | (nrow(x) == 0))    ## second condition 2011-09-14
-            points (x$x, x$y, ...)
+        if (is.null(circles) | (nrow(x) == 0)) {   ## second condition 2011-09-14
+            args <- c(list(x=x$x, y=x$y), list(...))
+            do.call(points, args)
+        }
         else {
             if (length(circles) == 1)
                 circles <- rep(circles, nrow(x))
