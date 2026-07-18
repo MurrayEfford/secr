@@ -353,18 +353,19 @@ BEGIN_RCPP
 END_RCPP
 }
 // Tsightinglikcpp
-List Tsightinglikcpp(const Rcpp::IntegerMatrix& T, const Rcpp::IntegerVector& markocc, const Rcpp::IntegerVector& binomN, const Rcpp::NumericMatrix& Tsk, const Rcpp::NumericMatrix& musk, const int debug);
-RcppExport SEXP _secr_Tsightinglikcpp(SEXP TSEXP, SEXP markoccSEXP, SEXP binomNSEXP, SEXP TskSEXP, SEXP muskSEXP, SEXP debugSEXP) {
+List Tsightinglikcpp(const Rcpp::IntegerMatrix& T, const Rcpp::IntegerVector& markocc, const int& anytelem, const Rcpp::IntegerVector& binomN, const Rcpp::NumericMatrix& Tsk, const Rcpp::NumericMatrix& musk, const int debug);
+RcppExport SEXP _secr_Tsightinglikcpp(SEXP TSEXP, SEXP markoccSEXP, SEXP anytelemSEXP, SEXP binomNSEXP, SEXP TskSEXP, SEXP muskSEXP, SEXP debugSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Rcpp::IntegerMatrix& >::type T(TSEXP);
     Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type markocc(markoccSEXP);
+    Rcpp::traits::input_parameter< const int& >::type anytelem(anytelemSEXP);
     Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type binomN(binomNSEXP);
     Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type Tsk(TskSEXP);
     Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type musk(muskSEXP);
     Rcpp::traits::input_parameter< const int >::type debug(debugSEXP);
-    rcpp_result_gen = Rcpp::wrap(Tsightinglikcpp(T, markocc, binomN, Tsk, musk, debug));
+    rcpp_result_gen = Rcpp::wrap(Tsightinglikcpp(T, markocc, anytelem, binomN, Tsk, musk, debug));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -399,8 +400,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // expectedmucpp
-List expectedmucpp(const int nc, const int cc, const bool Tu, const bool Tm, const int sightmodel, const IntegerVector binomN, const IntegerVector markocc, const NumericVector pID, const IntegerVector group, const NumericVector gk, const NumericVector hk, const NumericMatrix pi_density, const NumericMatrix Nm, const IntegerVector PIA, const NumericMatrix Tsk, const NumericMatrix h, const IntegerMatrix hindex, const NumericVector a0);
-RcppExport SEXP _secr_expectedmucpp(SEXP ncSEXP, SEXP ccSEXP, SEXP TuSEXP, SEXP TmSEXP, SEXP sightmodelSEXP, SEXP binomNSEXP, SEXP markoccSEXP, SEXP pIDSEXP, SEXP groupSEXP, SEXP gkSEXP, SEXP hkSEXP, SEXP pi_densitySEXP, SEXP NmSEXP, SEXP PIASEXP, SEXP TskSEXP, SEXP hSEXP, SEXP hindexSEXP, SEXP a0SEXP) {
+List expectedmucpp(const int nc, const int cc, const bool Tu, const bool Tm, const int sightmodel, const IntegerVector binomN, const IntegerVector markocc, const int anytelem, const NumericVector pID, const IntegerVector group, const NumericVector gk, const NumericVector hk, const NumericMatrix pi_density, const NumericMatrix Nm, const IntegerVector PIA, const NumericMatrix Tsk, const NumericMatrix h, const IntegerMatrix hindex, const NumericVector a0);
+RcppExport SEXP _secr_expectedmucpp(SEXP ncSEXP, SEXP ccSEXP, SEXP TuSEXP, SEXP TmSEXP, SEXP sightmodelSEXP, SEXP binomNSEXP, SEXP markoccSEXP, SEXP anytelemSEXP, SEXP pIDSEXP, SEXP groupSEXP, SEXP gkSEXP, SEXP hkSEXP, SEXP pi_densitySEXP, SEXP NmSEXP, SEXP PIASEXP, SEXP TskSEXP, SEXP hSEXP, SEXP hindexSEXP, SEXP a0SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -411,6 +412,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int >::type sightmodel(sightmodelSEXP);
     Rcpp::traits::input_parameter< const IntegerVector >::type binomN(binomNSEXP);
     Rcpp::traits::input_parameter< const IntegerVector >::type markocc(markoccSEXP);
+    Rcpp::traits::input_parameter< const int >::type anytelem(anytelemSEXP);
     Rcpp::traits::input_parameter< const NumericVector >::type pID(pIDSEXP);
     Rcpp::traits::input_parameter< const IntegerVector >::type group(groupSEXP);
     Rcpp::traits::input_parameter< const NumericVector >::type gk(gkSEXP);
@@ -422,7 +424,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const NumericMatrix >::type h(hSEXP);
     Rcpp::traits::input_parameter< const IntegerMatrix >::type hindex(hindexSEXP);
     Rcpp::traits::input_parameter< const NumericVector >::type a0(a0SEXP);
-    rcpp_result_gen = Rcpp::wrap(expectedmucpp(nc, cc, Tu, Tm, sightmodel, binomN, markocc, pID, group, gk, hk, pi_density, Nm, PIA, Tsk, h, hindex, a0));
+    rcpp_result_gen = Rcpp::wrap(expectedmucpp(nc, cc, Tu, Tm, sightmodel, binomN, markocc, anytelem, pID, group, gk, hk, pi_density, Nm, PIA, Tsk, h, hindex, a0));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -802,9 +804,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_secr_gethrcpp", (DL_FUNC) &_secr_gethrcpp, 6},
     {"_secr_simplehistoriescpp", (DL_FUNC) &_secr_simplehistoriescpp, 25},
     {"_secr_simplehistoriesfxicpp", (DL_FUNC) &_secr_simplehistoriesfxicpp, 16},
-    {"_secr_Tsightinglikcpp", (DL_FUNC) &_secr_Tsightinglikcpp, 6},
+    {"_secr_Tsightinglikcpp", (DL_FUNC) &_secr_Tsightinglikcpp, 7},
     {"_secr_sightingchatcpp", (DL_FUNC) &_secr_sightingchatcpp, 20},
-    {"_secr_expectedmucpp", (DL_FUNC) &_secr_expectedmucpp, 18},
+    {"_secr_expectedmucpp", (DL_FUNC) &_secr_expectedmucpp, 19},
     {"_secr_simdetectpointcpp", (DL_FUNC) &_secr_simdetectpointcpp, 17},
     {"_secr_simdetectpolycpp", (DL_FUNC) &_secr_simdetectpolycpp, 17},
     {"_secr_simdetectsignalcpp", (DL_FUNC) &_secr_simdetectsignalcpp, 13},

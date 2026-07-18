@@ -73,16 +73,16 @@ simplehistoriesfxicpp <- function(x, mm, nc, cc, grain, ncores, binomN, w, group
     .Call(`_secr_simplehistoriesfxicpp`, x, mm, nc, cc, grain, ncores, binomN, w, group, gk, hk, density, PIA, Tsk, h, hindex)
 }
 
-Tsightinglikcpp <- function(T, markocc, binomN, Tsk, musk, debug) {
-    .Call(`_secr_Tsightinglikcpp`, T, markocc, binomN, Tsk, musk, debug)
+Tsightinglikcpp <- function(T, markocc, anytelem, binomN, Tsk, musk, debug) {
+    .Call(`_secr_Tsightinglikcpp`, T, markocc, anytelem, binomN, Tsk, musk, debug)
 }
 
 sightingchatcpp <- function(mm, nc, cc0, grain, ncores, nsim, sightmodel, sumD, area, distrib, binomN, markocc, pID, group, gk0, hk0, density, PIA0, Tsk, pmix) {
     .Call(`_secr_sightingchatcpp`, mm, nc, cc0, grain, ncores, nsim, sightmodel, sumD, area, distrib, binomN, markocc, pID, group, gk0, hk0, density, PIA0, Tsk, pmix)
 }
 
-expectedmucpp <- function(nc, cc, Tu, Tm, sightmodel, binomN, markocc, pID, group, gk, hk, pi_density, Nm, PIA, Tsk, h, hindex, a0) {
-    .Call(`_secr_expectedmucpp`, nc, cc, Tu, Tm, sightmodel, binomN, markocc, pID, group, gk, hk, pi_density, Nm, PIA, Tsk, h, hindex, a0)
+expectedmucpp <- function(nc, cc, Tu, Tm, sightmodel, binomN, markocc, anytelem, pID, group, gk, hk, pi_density, Nm, PIA, Tsk, h, hindex, a0) {
+    .Call(`_secr_expectedmucpp`, nc, cc, Tu, Tm, sightmodel, binomN, markocc, anytelem, pID, group, gk, hk, pi_density, Nm, PIA, Tsk, h, hindex, a0)
 }
 
 simdetectpointcpp <- function(detect, N, cc0, cc, gk0, gk, hk0, hk, PIA0, PIA1, nmix, knownclass, pmix, Tsk, btype, Markov, binomN) {

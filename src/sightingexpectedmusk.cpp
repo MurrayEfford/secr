@@ -2,12 +2,13 @@
 
 //==============================================================================
 // 2019-09-14
+// 2026-07-16 ignore final detector if anytelem
+
 // detector types multi, proximity, count
 
-//struct expectedmusk : public Worker {
-  class expectedmusk {
-      public:
-        
+class expectedmusk {
+public:
+    
     // input data
     const int   nc;
     const int   cc; // number of parameter combinations
@@ -16,6 +17,7 @@
     const int sightmodel;
     const IntegerVector binomN;     // s 
     const IntegerVector markocc;    // s 
+    const int           anytelem;   // 0/1
     const NumericVector pID;        // s 
     const IntegerVector group;      // g
     const NumericVector gk; 
@@ -29,14 +31,13 @@
     const NumericVector a0;
 
     // working variables
-    int  kk, mm, ss;
+    int  kk, k1, mm, ss;
 
     // output 
     NumericMatrix Tumusk;      // if Tu
     NumericMatrix Tmmusk;      // if Tm
     
     // Constructor to initialize an instance of expectedmusk 
-    // The RMatrix class can be automatically converted to/from the Rcpp matrix type NumericMatrix
     expectedmusk(
         const int nc, 
         const int cc,
@@ -45,6 +46,7 @@
         const int sightmodel,
         const IntegerVector binomN,  
         const IntegerVector markocc,  
+        const int           anytelem,
         const NumericVector pID,  
         const IntegerVector group,
         const NumericVector gk, 
@@ -60,12 +62,14 @@
         NumericMatrix Tmmusk
     )  : 
         nc(nc), cc(cc), Tu(Tu), Tm(Tm), sightmodel(sightmodel),
-        binomN(binomN), markocc(markocc), pID(pID), group(group), gk(gk), hk(hk), 
+        binomN(binomN), markocc(markocc), anytelem(anytelem), 
+        pID(pID), group(group), gk(gk), hk(hk), 
         pi_density(pi_density), Nm(Nm), PIA(PIA), Tsk(Tsk), h(h), hindex(hindex),
         a0(a0), Tumusk(Tumusk), Tmmusk(Tmmusk) {
         
         // now can initialise these derived counts
         kk = Tsk.nrow();             // number of detectors
+        k1 = kk - anytelem;          // number of detectors excluding telemetry
         ss = Tsk.ncol();             // number of occasions
         mm = pi_density.nrow();      // number of mask points
         
@@ -74,8 +78,7 @@
     
     // cumulative probability animal n not yet marked on successive occasions 1:ss
     // given located at m
-    void getpdots (const int n, 
-                   std::vector<double> &pds) {
+    void getpdots (const int n, std::vector<double> &pds) {
         int c, k, m, s;
         double pp;
         for (m=0; m<mm; m++) {
@@ -86,8 +89,9 @@
                         pp *= exp(-h(m, hindex(n,s)));
                     }   
                     else {
-                        for (k=0; k< kk; k++) {
-                            c = PIA[i3(n,s,k,nc,ss)] - 1;
+                        // for (k=0; k< kk; k++) {
+                        for (k=0; k< k1; k++) {
+                                c = PIA[i3(n,s,k,nc,ss)] - 1;
                             if (c >= 0) {    // drops unset traps 
                                 // pID always 1.0 on marking occasions
                                 pp *= pski(binomN[s], 0, Tsk(k,s), gk[i3(c, k, m, cc, kk)], 1.0);  
@@ -125,7 +129,7 @@
         if (Tu) {
             for (int s=0; s<ss; s++) { 
                 if (markocc[s]<1) {              // sighting occasions 
-                    for (int k=0; k<kk; k++) {  
+                    for (int k=0; k<k1; k++) {  
                         // Efford and Hunter 2018 Eqn 4
                         // summing over mask points for representative parameter values (arbitrary animal)
                         for (int m=0; m<mm; m++) {
@@ -144,22 +148,10 @@
         // expected number of unidentified marked sightings Tm
         // sum over marked animals
         if (Tm) {
-            //     std::vector<double> hsk(kk*ss, 0.0);   // for Tmmusk 
-            //     Hsk(n, pm, hsk);
-            //     for (int s=0; s<ss; s++) { 
-            //         if ((markocc[s]<1) && (firstocc[n]<s)) {   // sighting occasions after first marking
-            //             for (int k=0; k<kk; k++) {  
-            //                 // Efford and Hunter 2018 Eqn 8
-            //                 // summing over animals
-            //                 Tmmusk(k,s) += (1-pID[s]) * hsk[s*kk+k] / sumpm;
-            //             }
-            //         }
-            //     }
-            // }
             for (int s=0; s<ss; s++) { 
                 if (markocc[s]<1) {              // sighting occasions 
-                    for (int k=0; k<kk; k++) {  
-                        // Efford and Hunter 2018 Section 3.3
+                    for (int k=0; k<k1; k++) {  
+                            // Efford and Hunter 2018 Section 3.3
                         // summing over mask points for representative parameter values (arbitrary animal)
                         for (int m=0; m<mm; m++) {
                             if (sightmodel==0) {         // not all sighting
@@ -191,6 +183,7 @@ List expectedmucpp (
         const int sightmodel,
         const IntegerVector binomN, 
         const IntegerVector markocc, 
+        const int           anytelem,
         const NumericVector pID, 
         const IntegerVector group,
         const NumericVector gk, 
@@ -208,9 +201,9 @@ List expectedmucpp (
     NumericMatrix Tmmusk(Tsk.nrow(), Tsk.ncol()); 
     
     // Construct and initialise
-    expectedmusk expectedmu (nc, cc, Tu, Tm, sightmodel, binomN, markocc, pID,  
-                             group, gk, hk, pi_density, Nm, PIA, Tsk, h, hindex, 
-                             a0, Tumusk, Tmmusk);
+    expectedmusk expectedmu (nc, cc, Tu, Tm, sightmodel, binomN, markocc, 
+                             anytelem, pID,  group, gk, hk, pi_density, Nm, 
+                             PIA, Tsk, h, hindex, a0, Tumusk, Tmmusk);
     
     //expectedmu.operator(); 
     expectedmu.compute (Tumusk, Tmmusk);

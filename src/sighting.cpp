@@ -16,6 +16,7 @@
 List Tsightinglikcpp (
         const Rcpp::IntegerMatrix &T,           // sighting count(s)
         const Rcpp::IntegerVector &markocc,     // distinguish sighting and marking occasions
+        const int                 &anytelem,
         const Rcpp::IntegerVector &binomN, 
         const Rcpp::NumericMatrix &Tsk,         // usage
         const Rcpp::NumericMatrix &musk,        // expected count
@@ -35,6 +36,7 @@ List Tsightinglikcpp (
     
     int ss = Tsk.ncol(); 
     int nk = Tsk.nrow();
+    int k1 = nk - anytelem;
     
     std::vector<int> nusedk;
     std::vector<double> summuk;
@@ -50,8 +52,8 @@ List Tsightinglikcpp (
     TPooled = (T0 == 1);      // TPooled == 1 if there is a single summed count    
     TBydetector = (T0 == nk); // TBydetector == 1 if counts are summed by detector   
     if (TBydetector) {
-        summuk.resize(nk);
-        nusedk.resize(nk);
+        summuk.resize(k1);
+        nusedk.resize(k1);
     }
     if (debug>1) {
         Rprintf("TPooled %4d \n", TPooled);
@@ -63,7 +65,7 @@ List Tsightinglikcpp (
         if (markocc[s] < 1) {     // sighting occasions only 
             nsight += 1;
             if (s < firstsightocc) firstsightocc = s;
-            for (k=0; k < nk; k++) {
+            for (k=0; k < k1; k++) {
                 tempmu = musk[s * nk + k];
                 // Tsk is effort; no relation to TCsk! 
                 nused += Tsk[s * nk + k]>0;
@@ -85,14 +87,12 @@ List Tsightinglikcpp (
                         if (binomN[s]<0) {
                             if (TCsk>1) TCsk = 1;
                             if (tempmu>0) { 
-                                // Tlik += R::dbinom(TCsk, 1, 1-exp(-tempmu), 1);
                                 boost::math::bernoulli_distribution<> bern(1-exp(-tempmu));
                                 Tlik += log(pdf(bern,TCsk));
                             }
                         }
                         // count 
                         else {
-                            // Tlik += R::dpois(TCsk,  tempmu, 1);
                             boost::math::poisson_distribution<> pois(tempmu);
                             Tlik += log(pdf(pois,TCsk));   // tempmu)); bugfix 2021-10-17
                         }
@@ -132,7 +132,7 @@ List Tsightinglikcpp (
     
     // Likelihood for pooled counts only 
     if (TBydetector) {
-        for (k=0; k<nk; k++) {
+        for (k=0; k<k1; k++) {
             // Increment likelihood for counts by detector 
             // sum over s for detector k 
             if (debug>0) 
@@ -162,12 +162,10 @@ List Tsightinglikcpp (
         // first input is the sum over s,k 
         if (debug>0) Rprintf("sumT %4d summu %8.3f nused %4d \n", T[1], summu, nused);
         if (binomN[firstsightocc] < 0) {  // assume sighting detectors same on all occasions 
-            // Tlik = R::dbinom(T[1],  nused, summu, 1);  // weird use of summu - to be fixed 
             boost::math::binomial_distribution<> bin(nused, summu);
             Tlik += log(pdf(bin,T[1]));
         }
         else {
-            // Tlik = R::dpois(T[1],  summu, 1);
             boost::math::poisson_distribution<> pois(summu);
             Tlik += log(pdf(pois,T[1]));
         }
