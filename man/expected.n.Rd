@@ -15,7 +15,7 @@ Expected Number of Individuals
 \usage{
 
 expected.n(object, session = NULL, group = NULL, bycluster
-    = FALSE, splitmask = FALSE, ncores = NULL)
+    = FALSE, splitmask = FALSE, ncores = NULL, markingonly = FALSE)
 
 }
 
@@ -27,6 +27,7 @@ expected.n(object, session = NULL, group = NULL, bycluster
   clusters of detectors rather than whole array }
   \item{splitmask}{logical for computation method (see Details)}
   \item{ncores}{ integer number of threads to be used for parallel processing}
+  \item{markingonly}{ logical; if TRUE then sighting and telemetry occasions are excluded}
 }
 
 \details{
@@ -54,6 +55,9 @@ defined by the cells closest to each cluster.
 
 The calculation takes account of any fitted continuous model for spatial
 variation in density (note Warning).
+
+When sampling includes sighting and telemetry occasions it is probably more 
+useful to exclude these, as allowed from version 5.5.0.
 
 }
 
