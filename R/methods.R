@@ -1853,7 +1853,8 @@ subset.capthist <- function (x, subset=NULL, occasions=NULL, traps=NULL,
         ###################################
         ## mark-resight
         if (!is.null(markocc(trapsx))) {
-            markocc(secr::traps(temp)) <- markocc(trapsx)[occasions]
+            # OK2 applies dropnullocc 2026-07-16
+            markocc(secr::traps(temp)) <- markocc(trapsx)[occasions][OK2]
             if (!is.null(Tu(x))) {
                 if (is.matrix(Tu(x))) {
                     Tu(temp) <- Tu(x)[traps, occasions, drop = FALSE]
