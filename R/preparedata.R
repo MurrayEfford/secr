@@ -1,6 +1,8 @@
 ###############################################################################
 ## package 'secr'
 ## preparedata.R
+
+## 2026-07-16 MRdata tweaked for telemetry compatibility
 ###############################################################################
 
 #--------------------------------------------------------------------------------
@@ -160,6 +162,9 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
         if (is.null(tmp)) NULL else tmp
     }
     markocc <- markocc(traps(capthist))
+    # detector occasion implies added notional detector in traps attribute
+    telemocc <- detector(traps(capthist)) == 'telemetry'
+    anytelemetry <- any(telemocc)
     s <- ncol(capthist)
     if (is.null(markocc)) {
         markocc <- rep(1, s)
@@ -177,7 +182,7 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
         #   bydetector
         #   sum
         control <- secr_replacedefaults(defaultcontrol, control)
-        allsighting <- !any(markocc>0)
+        allsighting <- !any(markocc>0 & !telemocc)
         anysighting <- any(markocc<1)
         
         ## if (CL) control$Tu <- 'ignore'
@@ -253,10 +258,17 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
             sightmodel <- 6
     }
     
-    list(markocc = markocc, Tu = Tu, Tm = Tm, Tn = Tn,
-         anysighting = anysighting, allsighting = allsighting,
-         chat = chat, pi.mask = pi.mask, firstocc = firstocc, 
-         sightmodel = sightmodel)
+    list(markocc      = markocc, 
+         Tu           = Tu, 
+         Tm           = Tm, 
+         Tn           = Tn,
+         anysighting  = anysighting, 
+         allsighting  = allsighting,
+         anytelemetry = anytelemetry, 
+         chat         = chat, 
+         pi.mask      = pi.mask, 
+         firstocc     = firstocc, 
+         sightmodel   = sightmodel)
 }
 
 ##############################################################################
