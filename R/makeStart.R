@@ -113,7 +113,7 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
                     if (all(detector(traps(ch))=="telemetry"))
                         stop("cannot compute start from telemetry data; \n",
                             "set manually or select different session with details autoini")
-                    ch <- subset(ch, occasions = detector(traps(ch)) != "telemetry")
+                    ch <- suppressWarnings(subset(ch, occasions = detector(traps(ch)) != "telemetry"))
                 }
                 if (nrow(ch)<5)
                     stop ("too few values session ", details$autoini, " to determine start; \n",
