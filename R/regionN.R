@@ -13,7 +13,8 @@
 ## 2024-12-15 sumDpdot ignored varying relative density
 ## 2025-01-09 relativeD tweaks
 ## 2025-08-21 relativeD uses derivedDfit()
-
+## 2026-07-15 sumDpdot markingonly drops extraneous n from pre-marking and telemetry
+## 2026-07-15 applied also in body of region.N
 ################################################################################
 
 region.N.secrlist <- function (
@@ -52,7 +53,7 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
     betaRN <- function (beta, object, regionmask) {
         ## regionmask is a mask (no need for spacing)
         ## assume single session
-        ## n, cellsize, sessnum global
+        ## n, cellsize, sessnum, group global
         object$fit$par <- beta
         if (object$CL) {
             D <- covariates(derivedDsurface(object, regionmask, sessnum))$D.0
@@ -64,7 +65,8 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
         NElist  <- secr_makeNElist(object, regionmask, group = group, sessnum)
         
         n + sumDpdot (object, sessnum, regionmask, D, NElist, cellsize,
-                  constant = FALSE, oneminus = TRUE, pooled = pooled.RN, ncores = ncores)[1]
+                  constant = FALSE, oneminus = TRUE, pooled = pooled.RN, 
+                  ncores = ncores, markingonly = TRUE)[1]
     }
     ###########################################################
     if (is.null(region)) {
@@ -170,17 +172,6 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
         cellsize <- secr_getcellsize(regionmask)    ## bug fixed 2022-10-08
         regionsize <- nrow(regionmask) * cellsize
 
-        # number in group
-        ngrp <- function(x) sum(secr_getgrpnum(x, object$groups) == group)
-        if (ms(object)) {
-            if (pooled.RN)
-                n <- sum(sapply(object$capthist, ngrp))
-            else
-                n <- ngrp(object$capthist[[session]])
-        }
-        else {
-            n <- nrow(object$capthist)
-        }
         sessnum <- match (session, session(object$capthist))
         #######################################################
         ## conditional likelihood fit without density model
@@ -238,18 +229,45 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
         ## only makes sense for individual detectors (not unmarked or presence)
         ## assume if we have got this far that SE is required
         if (ms(object)) {
-            det <- detector(traps(object$capthist)[[session]])
+            CH <- object$capthist[[session]]
         }
         else {
-            det <- detector(traps(object$capthist))
+            CH <- object$capthist
+        }
+        det <- detector(traps(CH))
+        markocc <- markocc(traps(CH))
+        if (is.null(markocc)) markocc <- rep(1, ncol(CH))
+        markingoccasion <- markocc == 1 & det != 'telemetry'
+
+        # keep all rows, only marking occasions
+        CH <- subset(CH, occasion = markingoccasion, dropnullCH = FALSE)
+
+        # number in group
+        ngrp <- function(x) sum(secr_getgrpnum(x, object$groups) == group)
+
+        if (ms(object)) {
+            if (pooled.RN) {
+                if (!all(markingoccasion)) stop("sighting not currently compatible with pooled.RN")
+                n <- sum(sapply(object$capthist, ngrp))
+            }
+            else
+                n <- ngrp(CH)
+        }
+        else {
+            # n <- nrow(object$capthist)
+            n <- sum(apply(abs(CH)>0,1,sum)>0)
         }
         if (all(det %in% .localstuff$individualdetectors)) {
+            if (any(!markingoccasion)) warning("n = ", n, " for marking occasions; other occasions ignored")
             NElist  <- secr_makeNElist(object, regionmask, group = group, sessnum)
 
             RN.method <- tolower(RN.method)
+
             if (RN.method %in% c('mspe', 'poisson')) {
-                notdetected <- sumDpdot (object, sessnum, regionmask, D, NElist,
-                    cellsize, constant = FALSE, oneminus = TRUE, pooled = pooled.RN, ncores = ncores)[1]
+                notdetected <- sumDpdot (
+                    object, sessnum, regionmask, D, NElist,
+                    cellsize, constant = FALSE, oneminus = TRUE, 
+                    pooled = pooled.RN, ncores = ncores, markingonly = TRUE)[1]
                 RN <- n + notdetected
                 if (RN.method == 'mspe') {
                     ## evaluate gradient of RN wrt betas at MLE
@@ -293,8 +311,10 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
     }
 }
 
-sumDpdot <- function (object, sessnum = 1, mask, D, NElist, cellsize, constant = TRUE,
-                      oneminus = FALSE, pooled = FALSE, bycluster = FALSE, ncores = NULL)
+sumDpdot <- function (
+        object, sessnum = 1, mask, D, NElist, cellsize, constant = TRUE,
+        oneminus = FALSE, pooled = FALSE, bycluster = FALSE, ncores = NULL, 
+        markingonly = FALSE)     # 2026-07-15
 
 # Return integral for given model and new mask, D
 # 'sessnum' is integer index of session (factor level of the 'session' attribute in capthist)
@@ -392,6 +412,11 @@ sumDpdot <- function (object, sessnum = 1, mask, D, NElist, cellsize, constant =
         # if (is.null(usage(trps))) {
         if (is.null(usage(trps)) || object$details$ignoreusage) {
                 usage(trps) <- matrix(1, nrow = K, ncol = s)
+        }
+        # 2026-07-15
+        if (markingonly) {
+            markingoccasion <- markocc == 1 & detector(trps) != 'telemetry'
+            usage(trps)[,!markingoccasion] <- 0
         }
         used <- (usage(trps) > 1e-10) * 1
         if (any(used==0)) {
@@ -494,7 +519,7 @@ sumDpdot <- function (object, sessnum = 1, mask, D, NElist, cellsize, constant =
 ############################################################################################
 
 expected.n <- function (object, session = NULL, group = NULL, bycluster = FALSE,
-                        splitmask = FALSE, ncores = NULL) {
+                        splitmask = FALSE, ncores = NULL, markingonly = FALSE) {
 
     ## Note
     ## splitmask toggles between two methods for clustered detectors:
@@ -524,7 +549,8 @@ expected.n <- function (object, session = NULL, group = NULL, bycluster = FALSE,
         ## predict for each session
         out <- vector('list')
         for (sess in session) {
-            out[[sess]] <- expected.n (object, sess, group, bycluster, splitmask)
+            out[[sess]] <- expected.n (object, sess, group, bycluster, 
+                                       splitmask, ncores, markingonly)
         }
         out
     }
@@ -616,7 +642,8 @@ expected.n <- function (object, session = NULL, group = NULL, bycluster = FALSE,
         }
         else {
             sumDpdot (object, sessnum, mask, D, NElist, cellsize,
-             constant = FALSE, oneminus = FALSE, ncores = ncores)[1]
+             constant = FALSE, oneminus = FALSE, ncores = ncores,
+             markingonly = markingonly)[1]
         }
         #################################################################
     }

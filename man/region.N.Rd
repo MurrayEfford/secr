@@ -116,8 +116,8 @@ yet fully implemented.
 Setting \code{ncores = NULL} uses the existing value from the environment variable 
 RCPP_PARALLEL_NUM_THREADS (see \code{\link{setNumThreads}}).
 
-Use \code{\link{par.region.N}} to apply \code{region.N} in parallel to
-several models.
+From version 5.5.0, detections on sighting and telemetry occasions are excluded 
+in the computation of  realised \eqn{N}, with a warning.
 
 }
 
