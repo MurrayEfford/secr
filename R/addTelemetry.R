@@ -152,15 +152,16 @@ addTelemetry <- function (detectionCH, telemetryCH,
             capdet <- secr_expanddet(detectionCH)
             detector(traps(newCH)) <- c(capdet, teldet)
             newusge <- matrix(0, nrow=nrow(traps(newCH)), ncol = ncol(newCH))
-            oldusge <- usage(detectionCH)
+            oldusge <- usage(traps(detectionCH))
             if (is.null(oldusge)) 
                 oldusge <- matrix(1, nrow=nrow(oldtraps), ncol=ncol(detectionCH))
             ncold <- ncol(oldusge)
+            newusge[1:nrow(oldusge), 1:ncold] <- oldusge
+            newusge[nrow(newusge), (ncold+1) : ncol(newusge)] <- 1
+            usage(traps(newCH)) <- NULL   ## so does not clash with incoming markocc
             if (!is.null(markocc(oldtraps))) {
                 markocc(traps(newCH)) <- c(markocc(oldtraps), 1)
             }
-            newusge[1:nrow(oldusge), 1:ncold] <- oldusge
-            newusge[nrow(newusge), (ncold+1) : ncol(newusge)] <- 1
             usage(traps(newCH)) <- newusge
             telemetrytype(traps(newCH)) <- type
             
