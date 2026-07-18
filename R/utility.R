@@ -1245,7 +1245,7 @@ secr_xyinpoly <- function (xy, trps) {
 
 ## including pre-marked animals never sighted
 ## cov is optional dataframe of covariates
-secr_addzeroCH <- function (CH, nzero, cov = NULL, prefix = 'Z') {
+secr_addzeroCH <- function (CH, nzero, zeronames = NULL, cov = NULL, prefix = 'Z') {
     if (nzero == 0)
         return(CH)
     else {
@@ -1253,7 +1253,8 @@ secr_addzeroCH <- function (CH, nzero, cov = NULL, prefix = 'Z') {
         chdim <- dim(CH)
         chdim[1] <- nzero
         extra <- array(0, dim=chdim)
-        dimnames(extra) <- c(list(paste(prefix, 1:nzero, sep='')), dimnames(CH)[2:3])
+        if (is.null(zeronames)) zeronames <- paste(prefix, 1:nzero, sep='')
+        dimnames(extra) <- c(list(zeronames), dimnames(CH)[2:3])
         CH2 <- abind(CH, extra, along = 1)
         class(CH2) <- 'capthist'
         traps(CH2) <- traps(CH)
@@ -2146,6 +2147,18 @@ secr_logsum <- function (logprwi, pmixn) {
         return(vmaxi + log(rowSums(exp(logprwi))))
         
     }
+}
+
+#-------------------------------------------------------------------------------
+
+secr_nontelemetry <- function (capthist) {
+    det <- secr_expanddet(capthist)
+    # retain all occasions
+    # suppress warnings about occasions with no detections
+    suppressWarnings(subset(capthist, 
+                            occasions = det != 'telemetry', 
+                            traps = 1:(nrow(traps(capthist)-1)),
+                            dropnullocc = FALSE))
 }
 
 #-------------------------------------------------------------------------------
