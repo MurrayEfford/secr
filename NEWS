@@ -1,8 +1,13 @@
-Changes in version 5.5.0 (2026-07-04)
+Changes in version 5.5.0 (2026-07-18)
 
 New features or changed behaviour of old functions
     o  addTelemetry() revamped; behaviour may vary
     o  verify() reports errors in telemetry data
+    o  expected.n() acquires argument 'markingonly' to exclude sighting and telemetry occasions 
+    o  region.N() ignores sighting and telemetry occasions when computing 'realised N'
+    o  RSE() accepts secrlist (multiple fitted models)
+    o  sim.resight() retains popn rownames as ID and no longer renumbers rows of 
+       a saved popn object, for compatibility with telemetry
 
 Other
     o  details 'uselog' and more robust telemetry likelihood; details 'telemetryscale' redundant
@@ -13,9 +18,11 @@ Other
     o  removed obsolete internal functions (telemetry.R)
     o  tests for telemetry likelihoods
     o  built-in example data telemetrydemo.txt
+    o  tweak userdist.Rd to satisfy CRAN
 
 Bugs fixed
     o  independent telemetry likelihood subtly wrong: results will differ
+    o  addTelemetry() ignored usage attribute of input detectionCH
 
 Changes in version 5.4.3 (2026-05-26)
 
