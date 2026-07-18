@@ -49,8 +49,10 @@ detections is about 2.0.
 
 \usage{
 dbar(capthist, userdist = NULL, mask = NULL, telemetry = NULL)
-MMDM(capthist, min.recapt = 1, full = FALSE, userdist = NULL, mask = NULL, telemetry = NULL)
-ARL(capthist, min.recapt = 1, plt = FALSE, full = FALSE, userdist = NULL, mask = NULL, telemetry = NULL)
+MMDM(capthist, min.recapt = 1, full = FALSE, userdist = NULL, mask = NULL, 
+    telemetry = NULL)
+ARL(capthist, min.recapt = 1, plt = FALSE, full = FALSE, userdist = NULL, 
+    mask = NULL, telemetry = NULL)
 moves(capthist, userdist = NULL, mask = NULL, names = FALSE, telemetry = NULL)
 RPSV(capthist, CC = FALSE, telemetry = NULL)
 ORL(capthist, userdist = NULL, mask = NULL, telemetry = NULL)
