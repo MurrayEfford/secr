@@ -116,6 +116,7 @@ expectedmu <- function (cc, haztemp, gkhk, pi.density, Nm, PIA, ngroup,
     s <- ncol(usge)
     m <- nrow(pi.density)
     nmix <- nrow(pmixn)
+    # include notional detector if any telemetry
     Tumusk <- Tmmusk <- matrix(0, k, s)
     for (x in 1:nmix) {
         hx <- if (any(binomNcode==-2)) matrix(haztemp$h[x,,], nrow = m) else -1 ## lookup sum_k (hazard)
@@ -129,6 +130,7 @@ expectedmu <- function (cc, haztemp, gkhk, pi.density, Nm, PIA, ngroup,
             as.integer(MRdata$sightmodel),
             as.integer(binomNcode),
             as.integer(MRdata$markocc),
+            as.integer(MRdata$anytelemetry),
             as.double (pID[,x]),
             as.integer(grp)-1L,
             as.double (gkhk$gk),     ## precomputed probability 
@@ -710,25 +712,50 @@ secr_generalsecrloglikfn <- function (
                     " and cannot be applied to sighting data")
               # 2023-10-09 require gkhk was NOT recalculated for learned response naive animal 
               # and hence still has cc x M x K values in gkhk$hk
+              # 2026-07-16 reconciling sighting with telemetry requires a switch 
+              # MRdata$anytelemetry to flag supernumerary detector in telemetry CH
           }
-          tmp <- expectedmu (nrow(Xrealparval), haztemp, gkhk, pi.density, Nm, PIA, ngroup,
-                             data$CH, data$binomNcode, data$MRdata, data$grp, data$usge, pmixn, 
-                             pID, pdot[1])
+          tmp <- expectedmu (
+              nrow(Xrealparval), 
+              haztemp, 
+              gkhk, 
+              pi.density, 
+              Nm, 
+              PIA, 
+              ngroup,
+              data$CH, 
+              data$binomNcode, 
+              data$MRdata, 
+              data$grp, 
+              data$usge, 
+              pmixn, 
+              pID, 
+              pdot[1])
           Tumusk <- tmp$Tumusk ## * sum(density[,g]) * secr_getcellsize(data$mask)
           Tmmusk <- tmp$Tmmusk ## * sum(density[,g]) * secr_getcellsize(data$mask)
           if (!is.null(data$MRdata$Tu) && !is.null(Tumusk)) {
-              Tu <- data$MRdata$Tu
-              Tulik <- Tsightinglikcpp (Tu, data$MRdata$markocc, data$binomNcode,
-                                        data$usge, Tumusk, details$debug)
+              Tulik <- Tsightinglikcpp (
+                  data$MRdata$Tu, 
+                  data$MRdata$markocc, 
+                  data$MRdata$anytelemetry,
+                  data$binomNcode,
+                  data$usge, 
+                  Tumusk, 
+                  details$debug)
               if (Tulik$resultcode != 0) 
                   comp[5,1] <- NA
               else
                   comp[5,1] <- Tulik$Tlik/details$chat[1] 
           }
           if (!is.null(data$MRdata$Tm) && !is.null(Tmmusk)) {
-              Tm <- data$MRdata$Tm
-              Tmlik <- Tsightinglikcpp (Tm, data$MRdata$markocc, data$binomNcode,
-                                        data$usge, Tmmusk, details$debug)
+              Tmlik <- Tsightinglikcpp (
+                  data$MRdata$Tm, 
+                  data$MRdata$markocc, 
+                  data$MRdata$anytelemetry,
+                  data$binomNcode,
+                  data$usge, 
+                  Tmmusk, 
+                  details$debug)
               if (Tmlik$resultcode != 0)
                   comp[6,1] <- NA
               else
