@@ -17,7 +17,7 @@ RSE(fit, parm = NULL, newdata = NULL)
 
 \arguments{
 
-  \item{fit}{secr or openCR fitted model}
+  \item{fit}{secr or openCR fitted model or secrlist}
   \item{parm}{character; names of one or more real parameters (default all)}
   \item{newdata}{dataframe of covariates for \code{\link{predict.secr}}}
 
@@ -47,6 +47,8 @@ Efford, M. G. and Boulanger, J. 2019. Fast evaluation of study designs for spati
 \note{
 
 The less explicit abbreviation CV has been used for the same quantity (sometimes expressed as a percentage). CV is used also for the relative standard deviation of a distribution.
+
+From version 5.5.0, the `fit' argument may be an secrlist. Results are provided for each component.
 
 }
 
