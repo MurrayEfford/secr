@@ -6,7 +6,7 @@
 ## 2010 04 24 grp optional
 ## verified vs DENSITY for 4-session dataset, island fox data set 2009 02 14
 ## Does not distinguish CH that end in death from CH that end with animal alive...
-## 2026-07-01 allow telemetry within capthist
+## 2026-07-16 allow telemetry within capthist
 ############################################################################################
 
 logmultinom <- function (capthist, grp = NULL) {
@@ -26,7 +26,7 @@ logmultinom <- function (capthist, grp = NULL) {
             nontelem <- secr_telemstatus(capthist)>0   # not telemetry only
             nontelemocc <- detector(traps(capthist)) != "telemetry"
             if (sum(nontelem)>0 && sum(nontelemocc)>0) {
-                capthist <- subset(capthist, nontelem, occasions = nontelemocc)
+                capthist <- suppressWarnings(subset(capthist, nontelem, occasions = nontelemocc))
                 grp <- grp[nontelem]
                 nc <- nrow(capthist)
             }
