@@ -1064,7 +1064,13 @@ sim.resight <- function (traps, popn = list(D = 5, buffer = 100, Ndist = 'poisso
     if (allsighting & unsighted) {
         covariates(CH) <- NULL  # beats problem in secr_addzeroCH 2016-11-19
         nzero <- nrow(popnM) - nrow(CH)
-        CH <- secr_addzeroCH(CH, nzero)
+        zeronames <- NULL  # secr_addzeroCH adds numeric with prefix Z
+        if (!is.null(dots$renumber) && !dots$renumber) {
+            # retain population rownames for zero-histories 2026-07-18
+            zeronames <- rownames(popnM)[!rownames(popnM) %in% rownames(CH)]
+        }
+        # CH <- secr_addzeroCH(CH, nzero)
+        CH <- secr_addzeroCH(CH, nzero, zeronames)
     }
     ############################################################################
     ## add sightings of unmarked animals
@@ -1135,7 +1141,8 @@ sim.resight <- function (traps, popn = list(D = 5, buffer = 100, Ndist = 'poisso
     ## if savepopn = TRUE...
     if (!is.null(attr(capthist, 'popn'))) {
         if (allsighting) {
-            popn <- rbind(popnM, popnU)
+            # popn <- rbind(popnM, popnU)
+            popn <- rbind(popnM, popnU, renumber = FALSE)
             covariates(popn) <- data.frame(marked = rep(c(TRUE, FALSE), c(nrow(popnM), nrow(popnU))))
             attr(CH, 'popn') <- popn
         }
