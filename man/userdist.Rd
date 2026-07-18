@@ -21,19 +21,20 @@ not dependent on any estimated coefficients). The functions
 static matrices of Euclidean or non-Euclidean distances (the latter is 
 useful when there are barriers to movement).
 
-If \code{details$userdist} is a function then it should take the form
+If \code{details$userdist} is a function then it should take the form --
 
-userdist(xy1, xy2, mask)
-
+\preformatted{
+     distfn(xy1, xy2, mask)
 }
 
-\arguments{
-  
-\item{xy1}{2-column matrix of x-y coordinates of \eqn{k} detectors}
-\item{xy2}{2-column matrix of x-y coordinates of \eqn{m} mask points}
-\item{mask}{habitat mask defining a non-Euclidean habitat geometry}
+where the arguments are --
+\itemize{
+\item \strong{xy1} 2-column matrix of x-y coordinates of \eqn{k} detectors
+\item \strong{xy2} 2-column matrix of x-y coordinates of \eqn{m} mask points
+\item \strong{mask} habitat mask defining a non-Euclidean habitat geometry
 }
 
+}
 \section{Details}{
 
 The matrix returned by the function must have exactly \eqn{k} rows and
