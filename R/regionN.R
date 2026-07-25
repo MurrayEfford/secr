@@ -243,7 +243,12 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
         CH <- subset(CH, occasion = markingoccasion, dropnullCH = FALSE)
 
         # number in group
-        ngrp <- function(x) sum(secr_getgrpnum(x, object$groups) == group)
+        ngrp <- function(x) {
+            ingroup <- secr_getgrpnum(x, object$groups) == group
+            # drop empty histories
+            ingroup <- ingroup[apply(abs(x)>0,1,sum)>0]
+            sum(ingroup)
+        }
 
         if (ms(object)) {
             if (pooled.RN) {
