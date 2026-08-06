@@ -400,14 +400,16 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     learnedresponse <- any(.localstuff$learnedresponses %in% allvars) ## || !is.null(dframe)
     timevarying <- any(c('t', 'T', 'tcov', names(timecov)) %in% allvars) ## || !is.null(dframe)
     
-    ## 2022-01-05
-    timevarying <- timevarying || any(names(timevaryingcov(traps(capthist))) %in% allvars)
+    ## 2022-01-05, 2026-08-06
+    tvc <- timevaryingcov(traps(capthist))
+    if (inherits(tvc, 'list')) tvc <- tvc[[1]]
+    timevarying <- timevarying || any(names(tvc) %in% allvars)
     
     ## 2023-03-07 detect multi-session list of time covariate dataframes
     if (inherits(timecov, 'list')) {
         timevarying <- timevarying || any(names(timecov[[1]]) %in% allvars)
     }
-    
+
     #################################################
     # Spatially varying sigma check (sigmaxy)
     #################################################
@@ -666,6 +668,7 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     design0 <- secr.design.MS (capthist, model, timecov, sessioncov, groups, hcov,
                                dframe, ignoreusage = details$ignoreusage, naive = TRUE,
                                CL = CL, contrasts = details$contrasts)
+    
     ############################################
     # Prepare density design matrix
     ############################################
@@ -775,7 +778,6 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     parindx <- split(1:NP, rep(1:length(np), np))
     names(parindx) <- names(np)[np>0]
     if (!D.modelled) parindx$D <- NULL
-    
     data <- secr_prepareSessionData(capthist, mask, details$maskusage, design, 
                     design0, detectfn, groups, fixed, hcov, details)
 

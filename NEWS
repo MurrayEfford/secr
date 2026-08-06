@@ -1,4 +1,4 @@
-Changes in version 5.5.0 (2026-07-25)
+Changes in version 5.5.0 (2026-08-06)
 
 New features or changed behaviour of old functions
     o  addTelemetry() revamped; behaviour may vary
@@ -23,6 +23,7 @@ Other
 Bugs fixed
     o  independent telemetry likelihood subtly wrong: results will differ
     o  addTelemetry() ignored usage attribute of input detectionCH
+    o  secr.fit() failed to switch off default fastproximity when multisession model used time-varying covariate
 
 Changes in version 5.4.3 (2026-05-26)
 
