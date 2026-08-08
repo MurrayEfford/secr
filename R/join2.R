@@ -77,6 +77,7 @@ join <- function (object, remove.dupl.sites = TRUE, tol = 0.001,
 
     condition.usage <- function (trp, i, nocc) {
         if (!is.null(trp)) {
+            markocc(trp) <- NULL  ## add later
             us <- matrix(0, nrow=nrow(trp), ncol=nnewocc)
             ## don't understand need for this 2019-10-22
             if ('telemetry' %in% detector(trp)) {
@@ -121,7 +122,7 @@ join <- function (object, remove.dupl.sites = TRUE, tol = 0.001,
     if (!ms(object) | any(sapply(object, class) != 'capthist'))
         stop("requires multi-session capthist object or list of ",
              "single-session capthist")
-    detectorlist <- lapply(object, secr_expanddet)
+    detectorlist <- lapply(object, secr:::secr_expanddet)
     outputdetector <- unlist(detectorlist)
 
     nsession <- length(object)
@@ -136,10 +137,13 @@ join <- function (object, remove.dupl.sites = TRUE, tol = 0.001,
     df <- do.call(rbind, df)
     n <- length(unique(df$newID))
 
+    ## concatenate marking-and-resighting-occasion vectors, if present
+    tempmarkocc <- unlist(markocc(traps(object)))
+    
     ##------------------------------------------------------------------
     ## resolve traps
     ## first check whether all the same (except usage)
-    if (!(drop.sites | is.null(traps(object)))) {
+    if (!(drop.sites || is.null(traps(object)))) {
         temptrp <- lapply(traps(object), function(x) {usage(x) <- NULL; x})
         sametrp <- all(sapply(temptrp[-1], identical, temptrp[[1]]))
         telemetrytrap <- function (ch) {
@@ -201,7 +205,7 @@ join <- function (object, remove.dupl.sites = TRUE, tol = 0.001,
             detector(newtraps) <- outputdetector
             class(newtraps) <- c("traps", "data.frame")
         }
-        if (all(outputdetector %in% .localstuff$polydetectors))
+        if (all(outputdetector %in% secr:::.localstuff$polydetectors))
             df$newtrap <- factor(df$newtrap)
         else
             df$newtrap <- factor(df$newtrap, levels=rownames(newtraps))
@@ -244,8 +248,7 @@ join <- function (object, remove.dupl.sites = TRUE, tol = 0.001,
     attr(tempnew, 'session') <- 1
     neworder <- order (df$newocc, df$newID, df$newtrap)
     ##------------------------------------------------------------------
-    ## concatenate marking-and-resighting-occasion vectors
-    tempmarkocc <- unlist(markocc(traps(object)))
+    ## markocc if present
     if (!is.null(tempmarkocc)) {
         names(tempmarkocc) <- NULL
         markocc(traps(tempnew)) <- tempmarkocc
