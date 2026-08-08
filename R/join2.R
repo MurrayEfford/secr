@@ -122,7 +122,7 @@ join <- function (object, remove.dupl.sites = TRUE, tol = 0.001,
     if (!ms(object) | any(sapply(object, class) != 'capthist'))
         stop("requires multi-session capthist object or list of ",
              "single-session capthist")
-    detectorlist <- lapply(object, secr:::secr_expanddet)
+    detectorlist <- lapply(object, secr_expanddet)
     outputdetector <- unlist(detectorlist)
 
     nsession <- length(object)
@@ -205,7 +205,7 @@ join <- function (object, remove.dupl.sites = TRUE, tol = 0.001,
             detector(newtraps) <- outputdetector
             class(newtraps) <- c("traps", "data.frame")
         }
-        if (all(outputdetector %in% secr:::.localstuff$polydetectors))
+        if (all(outputdetector %in% .localstuff$polydetectors))
             df$newtrap <- factor(df$newtrap)
         else
             df$newtrap <- factor(df$newtrap, levels=rownames(newtraps))
