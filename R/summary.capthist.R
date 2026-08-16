@@ -130,56 +130,57 @@ summary.capthist <- function(object, terse = FALSE, moves = FALSE, tpa = FALSE, 
                 counts[7:8, telemocc] <- 0  ## no detector visits/used
                 counts$Total[7:8] <- counts$Total[7:8]-length(telemocc)
             }
-            
             ## resightings
-            markocc <- markocc(trps)
             sighting <- sighting(trps)
             if (sighting) {
-                sightings <- matrix(0, nrow = 5, ncol = nocc+1,
+                S <- secr_noccasions(object, notelem = TRUE)
+                mk <- markocc(trps)[1:S]
+                sightings <- matrix(0, nrow = 5, ncol = S+1,
                                     dimnames = list(c('ID','Not ID','Unmarked','Uncertain',
-                                                      'Total'), c(1:nocc, 'Total')))
+                                                      'Total'), c(1:S, 'Total')))
                 Tm <- Tm(object)
                 Tu <- Tu(object)
                 Tn <- Tn(object)
-                unresolved <- markocc == -1
-                sightings[1, c(markocc < 1, FALSE)] <- unlist(counts[6,c(markocc < 1, FALSE)])
+                unresolved <- mk == -1
+                sightocc <- (1:S)[mk<1]
+                sightings[1, sightocc] <- unlist(counts[6,sightocc])
                 if (!is.null(Tm)) {
                     if (is.matrix(Tm))
-                        sightings[2, 1:nocc] <- apply(Tm,2,sum)
+                        sightings[2, 1:S] <- apply(Tm,2,sum)
                     else {
-                        sightings[2, (1:nocc)[markocc<1]] <- NA
-                        sightings[2, nocc+1] <- Tm
+                        sightings[2, (1:S)[mk<1]] <- NA
+                        sightings[2, S+1] <- Tm
                     }
                 }
                 if (!is.null(Tu)) {
                     if (is.matrix(Tu))
-                        sightings[3, 1:nocc] <- apply(Tu,2,sum)
+                        sightings[3, 1:S] <- apply(Tu,2,sum)
                     else {
-                        sightings[3, (1:nocc)[markocc<1]] <- NA
-                        sightings[3, nocc+1] <- Tu
+                        sightings[3, (1:S)[mk<1]] <- NA
+                        sightings[3, S+1] <- Tu
                     }
                 }
                 if (!is.null(Tn)) {
                     if (is.matrix(Tn))
-                        sightings[4, 1:nocc] <- apply(Tn,2,sum, na.rm=T)
+                        sightings[4, 1:S] <- apply(Tn,2,sum, na.rm=T)
                     else {
-                        sightings[4, (1:nocc)[markocc<1]] <- NA
-                        sightings[4, nocc+1] <- Tn
+                        sightings[4, (1:S)[mk<1]] <- NA
+                        sightings[4, S+1] <- Tn
                     }
                 }
                 ## avoid replacing summed counts
-                sightings[, nocc + 1] <- ifelse (sightings[, nocc + 1]==0,
+                sightings[, S + 1] <- ifelse (sightings[, S + 1]==0,
                                                  apply(sightings, 1, sum),
-                                                 sightings[, nocc + 1])
+                                                 sightings[, S + 1])
                 
-                sightings[5, 1:(nocc+1)] <- apply(sightings[1:4, 1:(nocc+1), drop = FALSE], 2, sum, na.rm=T)
+                sightings[5, 1:(S+1)] <- apply(sightings[1:4, 1:(S+1), drop = FALSE], 2, sum, na.rm=T)
             }
             else sightings <- NULL
             
             if (!is.null(attr(object, 'nontarget',exact = TRUE))) {
                 nontarg <- attr(object, 'nontarget',exact = TRUE)
                 nontarget <- data.frame(as.list(apply(nontarg, 2, sum)), sum(nontarg))
-                names(nontarget) <- c(1:nocc, 'Total')
+                names(nontarget) <- c(1:ncol(nontarg), 'Total')
                 rownames(nontarget) <- 'detectors nontarget'
             }
             else nontarget <- NULL
