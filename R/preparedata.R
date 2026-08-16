@@ -134,6 +134,19 @@ decompressCH <- function (CH, fastproximity) {
 }
 ############################################################################################
 
+addTall <- function (capthist) {
+    # single-session capthist
+    # sum all counts for detector k on occasion s, 
+    # including unmarked sightings (Tu) and unidentified sightings (Tm)
+    S <- secr_noccasions(capthist, notelem = TRUE)
+    K <- secr_ndetector(traps(capthist), notelem = TRUE)
+    sightingcounts <- list(Tu = Tu(capthist), Tm = Tm(capthist), Tn = Tn(capthist))
+    sightingcounts <- lapply(sightingcounts, function(x) if (is.null(x)) matrix(0,K,S) else x)
+    detectedM <- apply(capthist[,1:S,1:K, drop = FALSE],c(3,2),sum)
+    sightingM <- Reduce('+', sightingcounts)   # elementwise sum
+    sightingM + detectedM
+}
+
 ## settings for mark-resight
 markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
     getsight <- function(T) {
@@ -168,14 +181,14 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
     s <- ncol(capthist)
     if (is.null(markocc)) {
         markocc <- rep(1, s)
-        Tu <- Tm <- Tn <- NULL
+        Tu <- Tm <- Tn <- Tall <- NULL
         allsighting <- FALSE
         anysighting <- FALSE
         firstocc <- rep(-1,nrow(capthist))
     }
     else {
         m <- nrow(mask)
-        defaultcontrol <- list(Tu='as.is', Tm='as.is', Tn='ignore')
+        defaultcontrol <- list(Tu='as.is', Tm='as.is', Tn='ignore', Tall='ignore')
         # possible control values
         #   ignore
         #   as.is
@@ -200,9 +213,10 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
         if(is.null(fixed$pID) & control$Tm == 'ignore')
             warning("Set fixed = list(pID=1) if no sightings of unidentified marked animals Tm")
         
-        Tu <- getsight('Tu')
-        Tm <- getsight('Tm')
-        Tn <- getsight('Tn')
+        Tu   <- getsight('Tu')
+        Tm   <- getsight('Tm')
+        Tn   <- getsight('Tn')
+        Tall <- addTall(capthist)
         
         if (allsighting) {
             ## assume all to be pre-marked & available for detection
@@ -236,7 +250,7 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
         ## }
     }
     else
-        chat <- c(1,1,1)
+        chat <- c(1,1,1,1)
     
     
     pi.mask <- -1      ## signals pimask not used
@@ -262,6 +276,7 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
          Tu           = Tu, 
          Tm           = Tm, 
          Tn           = Tn,
+         Tall         = Tall,
          anysighting  = anysighting, 
          allsighting  = allsighting,
          anytelemetry = anytelemetry, 
@@ -304,6 +319,8 @@ secr_prepareSessionData <- function (capthist, mask, maskusage,
         cumk <- cumsum(c(0,k))[1:length(k)]
         
         ## mark-resight
+        ## 2026-08-13 note knownmarks defaults TRUE in secr.fit,
+        ## and this is required for telemetrytype 'marking' 
         MRdata <- markresightdata(capthist, mask, fixed,
             details$chat, details$markresight, details$knownmarks)
 
