@@ -218,13 +218,7 @@ common home-range centre (\code{splitmarked = FALSE}).
 
 \code{details$telemetryscale} defunct option, superceded by 'safeLL' and 'uselog'.
 
-\code{details$telemetrytype} determines how telemetry data in the
-attribute `xylist' are treated. `none' causes the xylist data to be
-ignored. `dependent' uses information on the sampling distribution of
-each home-range centre in the SECR likelihood. `concurrent' does that
-and more: it splits capthist according to telemetry status and appends
-all-zero histories to the telemetry part for any animals present in
-xylist. The default is `concurrent'. 
+\code{details$telemetrytype} defunct from 3.0.0 (2017)
 
 \code{details$usecov} selects the mask covariate to be used for
 normalization. NULL limits denominator for normalization to
