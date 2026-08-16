@@ -16,9 +16,9 @@
 ## add telemetry occasion(s) to follow existing occasions
 
 addTelemetry <- function (detectionCH, telemetryCH, 
-                          type = c('concurrent','dependent','independent'), 
+                          type = c('concurrent','dependent','independent', 'marking'), 
                           collapsetelemetry = TRUE,
-                          verify = TRUE) {
+                          verify = TRUE, prefix = "T") {
     
     ## combine capture histories from telemetry and hair snags etc.
     if (ms(detectionCH) | ms(telemetryCH)) {
@@ -55,15 +55,15 @@ addTelemetry <- function (detectionCH, telemetryCH,
             xylist <- telemetryxy(telemetryCH)
             detected <- names(xylist) %in% rownames(detectionCH)
             if (type == "independent") detected[] <- FALSE
-            # prefix ID of telemetry-only animals with "T"
-            names(xylist)[!detected] <- paste0("T", names(xylist[!detected]))
+            # prefix ID of telemetry-only animals with prefix
+            names(xylist)[!detected] <- paste0(prefix, names(xylist[!detected]))
             detectedlist <- xylist[detected]
             telemonlylist <- xylist[!detected]
             whichtelemonly <- names(xylist) %in% names(telemonlylist)
 
             #################################
             
-            if (type == "dependent" && length(telemonlylist) > 0) {
+            if (type %in% c("dependent", "marking") && length(telemonlylist) > 0) {
                 telemetryCH <- subset(telemetryCH, rownames(telemetryCH) %in% rownames(detectionCH))
                 if (nrow(telemetryCH) == 0) {
                     stop ("No dependent telemetry")
@@ -74,7 +74,7 @@ addTelemetry <- function (detectionCH, telemetryCH,
                         xylist <- detectedlist
                     else
                         stop("no 'dependent' telemetered animal captured")
-                    warning ("telemetry 'dependent', but these do not appear in detectionCH and are discarded\n", 
+                    warning ("telemetry 'dependent' or 'marking', but these do not appear in detectionCH and are discarded\n", 
                              paste(names(telemonlylist), collapse = ", "))
                     telemonlylist <- NULL
                 }
@@ -160,7 +160,7 @@ addTelemetry <- function (detectionCH, telemetryCH,
             newusge[nrow(newusge), (ncold+1) : ncol(newusge)] <- 1
             usage(traps(newCH)) <- NULL   ## so does not clash with incoming markocc
             if (!is.null(markocc(oldtraps))) {
-                markocc(traps(newCH)) <- c(markocc(oldtraps), 1)
+                markocc(traps(newCH)) <- c(markocc(oldtraps), rep(1, ncol(telemCH)))
             }
             usage(traps(newCH)) <- newusge
             telemetrytype(traps(newCH)) <- type
