@@ -1,7 +1,7 @@
-Changes in version 5.5.0 (2026-08-08)
+Changes in version 5.5.0 (2026-08-11)
 
 New features or changed behaviour of old functions
-    o  addTelemetry() revamped; behaviour may vary
+    o  addTelemetry() revamped; behaviour may vary. New argument 'prefix'.
     o  verify() reports errors in telemetry data
     o  expected.n() acquires argument 'markingonly' to exclude sighting and telemetry occasions 
     o  region.N() ignores sighting and telemetry occasions when computing 'realised N'
