@@ -190,10 +190,15 @@ derived.secr <- function (object, sessnum = NULL, groups=NULL, alpha=0.05, se.es
         ## ignore unmodelled histories 2017-01-04
         telem <- telemetered(capthist)
         
-        if (telemetrytype(traps(capthist)) %in% c('independent','concurrent'))
-            OK <- !secr_allzero(capthist)
-        else
+        if (telemetrytype(traps(capthist)) == "marking") {
+            stop ("derived() does not currently allow telemetry type 'marking'")
+        }
+        else if (telemetrytype(traps(capthist)) %in% c('independent','concurrent')) {
+                OK <- !secr_allzero(capthist)
+        }
+        else {
             OK <- rep(TRUE, nrow(capthist))  ## use all if 'none','dependent'
+        }
         
         OK <- !secr_allzero(capthist)
 
