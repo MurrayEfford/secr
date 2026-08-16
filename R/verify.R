@@ -432,7 +432,10 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
         
         markocc <- markocc(traps(object))
         sighting <- sighting(traps(object))
-        allsighting <- if (sighting) !any(markocc>0) else FALSE
+        K <- secr_ndetector(traps(object), notelem = TRUE)
+        S <- secr_noccasions(object, notelem = TRUE)
+        #  all non-telemetry occasions are sighting occasions?
+        allsighting <- if (sighting) !any(markocc[1:S]>0) else FALSE
         
         # trapspresentOK # 1
         # trapsOK        # 2
@@ -547,9 +550,9 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
             ###################
             ## zerohistOK
             
-            ## all-zero histories are meaningful only for concurrent telemetry and
+            ## all-zero histories are meaningful only for concurrent or marking telemetry and
             ## sighting-only data with known number marked
-            if (telemetrytype != "concurrent" & !allsighting) {
+            if (!(telemetrytype %in% c("concurrent", "marking")) && !allsighting) {
                 zerohistOK <- all(apply(abs(object),1,sum)>0)
             }
             
@@ -698,21 +701,18 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
         
         ## -- resighting attributes Tu, Tm compatible if present
         ## -- no resightings on marking occasions, or new animals on resighting occasions
-        
         if (sighting) {
             Tu <- Tu(object)
             Tm <- Tm(object)
-            nocc <- ncol(object)
-            K <- secr_ndetector(traps(object))
-            r <- numeric(nocc)
-            usge <- usage(traps(object))
+            r <- numeric(S)
+            usge <- usage(traps(object))[1:K,1:S]
             if (is.null(usge)) usge <- 1
-            if (length(markocc) != nocc) sightingsOK <- FALSE
+            if (length(markocc) != ncol(object)) sightingsOK <- FALSE
             ## allow scalar summed sighting counts 2015-10-31
             if (!is.null(Tu)) {
                 if (length(Tu) > 1) {
                     if (any((Tu>0) & (usge==0))) sightingusageOK <- FALSE
-                    if (ncol(Tu) != nocc) sightingsOK <- FALSE
+                    if (ncol(Tu) != S) sightingsOK <- FALSE
                     if (nrow(Tu) != K) sightingsOK <- FALSE
                     r <- r + apply(Tu,2,sum)
                 }
@@ -724,7 +724,7 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
                     # 2016-10-13 fixed bug Tu>Tm
                     if (any((Tm>0) & (usge==0))) sightingusageOK <- FALSE
                     if (nrow(Tm) != K) sightingsOK <- FALSE
-                    if (ncol(Tm) != nocc) sightingsOK <- FALSE
+                    if (ncol(Tm) != S) sightingsOK <- FALSE
                     r <- r + apply(Tm,2,sum)
                 }
                 if (any(Tm<0)) sightingsOK <- FALSE
@@ -733,12 +733,13 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
             ## 23
             if (sightingsOK) {
                 if (length(Tu)>1) {
-                    u <- unlist(counts(object, 'u'))[1:nocc]
+                    # counts() uses summary.capthist -- overkill
+                    u <- unlist(counts(object, 'u'))[1:ncol(object)]
                     if ( any((u > 0) & (markocc<1) & !allsighting) ) MOK <- FALSE
                 }
                 ## 24
                 if (length(Tm)>1)
-                    if ( any((r > 0) & (markocc>0))) ROK <- FALSE
+                    if ( any((r > 0) & (markocc[1:S]>0))) ROK <- FALSE
             }
         }
         
@@ -771,9 +772,17 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
                 telemOK <- FALSE
                 telemetryerror <- "number of observations does not match"
             }
-            else if (telemetrytype=='dependent' & any(captdet.byanimal==0)) {
+            else if (telemetrytype=='dependent' && any(captdet.byanimal==0)) {
                 telemOK <- FALSE
                 telemetryerror <- "all-zero detection histories for dependent telemetry"
+            }
+            else if (telemetrytype=='marking' && !all(rownames(captdet) %in% rownames(telemdet))) {
+                telemOK <- FALSE
+                telemetryerror <- "one or more detection histories lacks telemetry locations (type = 'marking')"
+            }
+            else if (telemetrytype=='marking' && !all(rownames(telemdet) %in% rownames(captdet))) {
+                telemOK <- FALSE
+                telemetryerror <- "one or more telemetered animals (type = 'marking') lacks a detection history"
             }
             else if (telemetrytype=='independent' & any(captdet.byanimal[telemetrd]!=0)) {
                 telemOK <- FALSE
@@ -879,7 +888,7 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
                 }
                 
                 if (!zerohistOK) {
-                    cat ('Empty histories allowed only with concurrent telemetry or sighting-only data\n')
+                    cat ('Empty histories allowed only with concurrent telemetry, marking telemetry or sighting-only data\n')
                 }
                 
                 if (!binaryOK) {
@@ -944,12 +953,15 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
                     cat("Sightings at unused detectors\n")
                     Tu <- Tu(object)
                     Tm <- Tm(object)
-                    bad <- (Tu>0) & (usage(traps(object))==0) & (length(Tu)>1)
+                    K <- secr_ndetector(traps(object), notelem = TRUE)
+                    S <- secr_noccasions(object, notelem = TRUE)
+                    usge <- usage(traps(object))[1:K,1:S]
+                    bad <- (Tu>0) & (usge==0) & (length(Tu)>1)
                     if (sum(bad)>0) {
                         cat("Tu\n")
                         print(cbind(Detector = row(bad)[bad], Occasion = col(bad)[bad]))
                     }
-                    bad <- (Tm>0) & (usage(traps(object))==0) & (length(Tm)>1)
+                    bad <- (Tm>0) & (usge==0) & (length(Tm)>1)
                     if (sum(bad)>0) {
                         cat("Tm\n")
                         print(cbind(Detector = row(bad)[bad], Occasion = col(bad)[bad]))
