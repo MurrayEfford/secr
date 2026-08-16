@@ -19,8 +19,9 @@ telemetry data in the new object.
 
 \usage{
 
-addTelemetry (detectionCH, telemetryCH, type = c('concurrent','dependent','independent'), 
-   collapsetelemetry = TRUE, verify = TRUE) 
+addTelemetry (detectionCH, telemetryCH, type = c('concurrent','dependent',
+   'independent','marking'), collapsetelemetry = TRUE, verify = TRUE, 
+   prefix = 'T') 
 
 xy2CH (CH, inflation = 1e-08)
 
@@ -36,6 +37,7 @@ telemetrytype (object, ...)
   \item{type}{character (see Details)}
   \item{collapsetelemetry}{logical; if TRUE then telemetry occasions are collapsed to one}
   \item{verify}{logical; if TRUE then \code{\link{verify.capthist}} is called on the output}
+  \item{prefix}{character; pre-pended to ID of telemetry-only animals}
   \item{CH}{capthist object with telemetryxy attribute}
   \item{inflation}{numeric tolerance for polygon}
   \item{object}{secr traps object}
@@ -54,7 +56,13 @@ A new capthist object is built comprising all the detection
 histories in \code{detectionCH}, plus empty (all-zero) histories for
 every telemetered animal not in \code{detectionCH}.  Telemetry is associated with new sampling occasions and a new detector (nominally at the same point as the first in \code{detectionCH}).  The number of telemetry fixes of each animal is recorded in the relevant cell of the new capthist object (CH[i, s, K+1] for animal i and occasion s if there were K detectors in detectionCH).
 
-The new sampling occasion(s) are assigned the detector type `telemetry' in the traps attribute of the output capthist object, and the traps attribute \code{telemetrytype} is set to the value provided.  The telemetry type may be ``independent'' (no matching of individuals in captured and telemetered samples), ``dependent'' (telemetered animals are a subset of captured animals) or ``concurrent'' (histories may be capture-only, telemetry-only or both capture and telemetry).
+The new sampling occasion(s) are assigned the detector type `telemetry' in the 
+traps attribute of the output capthist object, and the traps attribute \code{telemetrytype} 
+is set to the value provided.  The telemetry type may be ``independent'' 
+(no matching of individuals in captured and telemetered samples), ``dependent'' 
+(telemetered animals are a subset of captured animals), ``concurrent'' (histories 
+may be capture-only, telemetry-only or both capture and telemetry), or ``marking'' 
+(one detection history for each telemetered animal, and no others).
 
 The telemetry locations are carried over from telemetryCH as attribute `xylist' (each
 component of xylist holds the coordinates of one animal; use
