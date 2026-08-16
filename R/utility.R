@@ -1628,20 +1628,39 @@ secr_makeNElist <- function (object, mask, group, sessnum) {
 secr_telemcode <- function(object, ...) {
     if (inherits(object, 'traps') && !ms(object))
         switch (telemetrytype(object), none = 0, 
-                independent = 1, dependent = 2, concurrent = 3, 0)
+                independent = 1, dependent = 2, concurrent = 3, marking = 4, 0)
     else 
         NA
 }
 
 #-------------------------------------------------------------------------------
 
-secr_ndetector <- function (traps) {
-    if (is.null(traps))
+secr_ndetector <- function (traps, notelem = FALSE) {
+    if (is.null(traps)) {
         return(1)
-    else if (all(detector(traps) %in% .localstuff$polydetectors))
+    }
+    else if (all(detector(traps) %in% .localstuff$polydetectors)) {
         length(levels(polyID(traps)))
-    else
-        nrow(traps)
+    }
+    else {
+        if (notelem && any(detector(traps) == 'telemetry'))
+            nrow(traps) - 1
+        else
+            nrow(traps)    # includes notional telemetry detector if present
+    }
+}
+
+#-------------------------------------------------------------------------------
+
+secr_noccasions <- function (capthist, notelem = FALSE) {
+    if (is.null(capthist))
+        return(0)
+    else {
+        if (notelem)
+            ncol(capthist[, detector(traps(capthist)) != 'telemetry',])
+        else
+            ncol(capthist)
+    }
 }
 
 #-------------------------------------------------------------------------------
@@ -2152,13 +2171,12 @@ secr_logsum <- function (logprwi, pmixn) {
 #-------------------------------------------------------------------------------
 
 secr_nontelemetry <- function (capthist) {
-    det <- secr_expanddet(capthist)
-    # retain all occasions
     # suppress warnings about occasions with no detections
-    suppressWarnings(subset(capthist, 
-                            occasions = det != 'telemetry', 
-                            traps = 1:(nrow(traps(capthist)-1)),
-                            dropnullocc = FALSE))
+    suppressWarnings(
+        subset(capthist, 
+               occasions = 1:secr_noccasions(capthist, notelem = TRUE),
+               traps = 1:secr_ndetector(traps(capthist), notelem = TRUE),
+               dropnullocc = FALSE))
 }
 
 #-------------------------------------------------------------------------------
