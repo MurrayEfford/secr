@@ -883,12 +883,13 @@ flip.default <- function (object, lr = FALSE, tb = FALSE, ...) {
             if (is.null(noccasions)) {
                 if (is.null(dim(value)))
                     stop("usage value should be matrix or scalar with noccasions")
-                else if (nrow(value) != secr_ndetector(object))
+                else if (nrow(value) != secr_ndetector(object, notelem = FALSE))
                     stop("mismatch between value and number of detectors")
             }
             else {
                 ## assume value is scalar
-                value <- matrix(value, nrow = secr_ndetector(object), ncol = noccasions)
+                value <- matrix(value, nrow = secr_ndetector(object, notelem = FALSE), 
+                                ncol = noccasions)
             }
             if (!is.null(markocc(object))) {
                 if (ncol(value) != length(markocc(object)))
@@ -939,8 +940,8 @@ flip.default <- function (object, lr = FALSE, tb = FALSE, ...) {
         if (!inherits(object, 'traps'))
             stop("telemetrytype attribute can only be assigned for traps objects")
         if (!is.null(value)) {
-            if (!(value %in% c("none","independent","dependent","concurrent")))
-                stop ("telemetrytype value must be none, independent, dependent or concurrent")
+            if (!(value %in% c("none","independent","dependent","concurrent","marking")))
+                stop ("telemetrytype value must be none, independent, dependent, concurrent or marking")
         }
         structure (object, telemetrytype = value)
     }
@@ -965,10 +966,10 @@ flip.default <- function (object, lr = FALSE, tb = FALSE, ...) {
             if (length(value)>1) {
                 if (length(dims <- dim(value)) != 2)
                     stop ("require either total count or traps x occasions matrix")
-                if (dims[1] != secr_ndetector(traps(object)))
+                if (dims[1] != secr_ndetector(traps(object), notelem = TRUE))
                     stop ("Tu not compatible with traps attribute")
-                if (dims[2] != length(markocc))
-                    stop ("Tu not compatible with markocc attribute")
+                if (dims[2] != secr_noccasions(object, notelem = TRUE))
+                    stop ("Tu not compatible with capthist attribute")
             }
             if (any(value<0))
                 stop ("sighting counts cannot be negative")
@@ -996,10 +997,10 @@ flip.default <- function (object, lr = FALSE, tb = FALSE, ...) {
             if (length(value)>1) {
                 if (length(dims <- dim(value)) != 2)
                     stop ("require either total count or traps x occasions matrix")
-                if (dims[1] != secr_ndetector(traps(object)))
+                if (dims[1] != secr_ndetector(traps(object), notelem = TRUE))
                     stop ("Tm not compatible with traps attribute")
-                if (dims[2] != length(markocc))
-                    stop ("Tm not compatible with markocc attribute")
+                if (dims[2] != secr_noccasions(object, notelem = TRUE))
+                    stop ("Tm not compatible with capthist attribute")
             }
             if (any(value<0))
                 stop ("sighting counts cannot be negative")
@@ -1027,10 +1028,10 @@ flip.default <- function (object, lr = FALSE, tb = FALSE, ...) {
             if (length(value)>1) {
                 if (length(dims <- dim(value)) != 2)
                     stop ("require either total count or traps x occasions matrix")
-                if (dims[1] != secr_ndetector(traps(object)))
+                if (dims[1] != secr_ndetector(traps(object), notelem = TRUE))
                     stop ("Tn not compatible with traps attribute")
-                if (dims[2] != length(markocc))
-                    stop ("Tn not compatible with markocc attribute")
+                if (dims[2] != secr_noccasions(object, notelem = TRUE))
+                    stop ("Tn not compatible with capthist attribute")
             }
             if (any(value<0))
                 stop ("sighting counts cannot be negative")
@@ -1059,7 +1060,7 @@ flip.default <- function (object, lr = FALSE, tb = FALSE, ...) {
             if (length(value)>1) {
                 if (length(dims <- dim(value)) != 2)
                     stop ("require traps x occasions matrix")
-                if (dims[1] != secr_ndetector(traps(object)))
+                if (dims[1] != secr_ndetector(traps(object), notelem = TRUE))
                     stop ("nontarget not compatible with traps attribute")
             }
             if (any(value<0))
@@ -1532,17 +1533,21 @@ subset.traps <- function (x, subset = NULL, occasions = NULL, ...) {
             polyID(temp) <- factor(polyID(x)[rowsubset])
         if (all(detector(x) %in% c('transect', 'transectX')))
             transectID(temp) <- factor(transectID(x)[rowsubset])
-
+        if (!is.null(markocc(x))) {
+            if (is.null(occasions))
+                occasions <- 1:length(markocc(x))
+            tempmarkocc <- markocc(x)[occasions]
+        }
+        else {
+            tempmarkocc <- NULL
+        }
+        markocc(temp) <- NULL
         if (!is.null(usage(x))) {
             if (is.null(occasions))
                 occasions <- 1:ncol(usage(x))
             usage(temp) <- usage(x)[subset,occasions,drop=F]
         }
-        if (!is.null(markocc(x))) {
-            if (is.null(occasions))
-                occasions <- 1:length(markocc(x))
-            markocc(temp) <- markocc(x)[occasions]
-        }
+        markocc(temp) <- tempmarkocc
         if (length(detector(x))>1) {
             if (is.null(occasions))
                 occasions <- 1:length(markocc(x))
@@ -1715,11 +1720,6 @@ subset.capthist <- function (x, subset=NULL, occasions=NULL, traps=NULL,
         if (is.function(subset)) subset <- subset(x, ...)   ## 2017-11-13
         if (is.null(subset)) subset <- 1:nrow(x)
 
-        # if (dropnullCH & (telemetrytype(trapsx) %in% c('independent','concurrent')) &
-        #     any(detector[occasions] == 'telemetry'))
-        #     warning("dropnullCH = TRUE is probably a mistake when telemetry ",
-        #             "independent or concurrent")
-
         #############################################
         ## coerce subset, traps, occasions to logical
         if (is.character(subset))
@@ -1843,7 +1843,7 @@ subset.capthist <- function (x, subset=NULL, occasions=NULL, traps=NULL,
         ## attributes
         class(temp) <- 'capthist'
         if (!is.null(trapsx)) { # spatial data
-            secr::traps(temp) <- subset (trapsx, traps)
+            secr::traps(temp) <- subset (trapsx, traps, occasions)  # mod 2026-08-15
             usage(secr::traps(temp)) <- NULL  ## until we fix markocc
         }
         covariates(temp) <- covariates(x)[subset,,drop = FALSE]
@@ -1852,12 +1852,25 @@ subset.capthist <- function (x, subset=NULL, occasions=NULL, traps=NULL,
         attr(temp, 'centres') <- attr(x, 'centres',exact = TRUE)
         ###################################
         ## mark-resight
+
+        # allow for telemetry
+        S <- secr_noccasions(x, notelem = TRUE)
+        K <- secr_ndetector(secr::traps(x), notelem = TRUE)
+        if (is.numeric(traps)) 
+            trapsT <- traps[traps<=K]
+        else # logical
+            trapsT <- traps[1:K]
+        if (is.numeric(occasions)) 
+            occasionsT <- occasions[occasions<=S]         
+        else # logical
+            occasionsT <- occasions[1:S]
         if (!is.null(markocc(trapsx))) {
             # OK2 applies dropnullocc 2026-07-16
             markocc(secr::traps(temp)) <- markocc(trapsx)[occasions][OK2]
             if (!is.null(Tu(x))) {
                 if (is.matrix(Tu(x))) {
-                    Tu(temp) <- Tu(x)[traps, occasions, drop = FALSE]
+                    Tux <- Tu(x)[trapsT, occasionsT, drop = FALSE]
+                    Tu(temp) <- Tux
                 }
                 else {
                     Tu(temp) <- Tu(x)
@@ -1866,7 +1879,7 @@ subset.capthist <- function (x, subset=NULL, occasions=NULL, traps=NULL,
             }
             if (!is.null(Tm(x))) {
                 if (is.matrix(Tm(x))) {
-                    Tm(temp) <- Tm(x)[traps, occasions, drop = FALSE]
+                    Tm(temp) <- Tm(x)[trapsT, occasionsT, drop = FALSE]
                 }
                 else {
                     Tm(temp) <- Tm(x)
@@ -1875,7 +1888,7 @@ subset.capthist <- function (x, subset=NULL, occasions=NULL, traps=NULL,
             }
             if (!is.null(Tn(x))) {
                 if (is.matrix(Tn(x))) {
-                    Tn(temp) <- Tn(x)[traps, occasions, drop = FALSE]
+                    Tn(temp) <- Tn(x)[trapsT, occasionsT, drop = FALSE]
                 }
                 else {
                     Tn(temp) <- Tn(x)
@@ -1884,12 +1897,13 @@ subset.capthist <- function (x, subset=NULL, occasions=NULL, traps=NULL,
             }
         }
 
-        if (!is.null(secr::traps(temp))) {
+        if (!is.null(secr::traps(temp))) {    # not for non-spatial data
             usage(secr::traps(temp)) <- usage(trapsx)[traps, occasions,
                   drop = FALSE][,OK2, drop = FALSE]  ## drop null occasions
-            ## 2022-08-09
-            attr(temp, 'nontarget') <- attr(x, 'nontarget')[traps, occasions,
-                drop = FALSE][,OK2, drop = FALSE]  ## drop null occasions
+            ## drop null occasions
+            attr(temp, 'nontarget') <- attr(x, 'nontarget')[trapsT, 
+                occasionsT, drop = FALSE][,OK2, drop = FALSE] 
+            
         }
 
         if (length(detector(trapsx))>1)
