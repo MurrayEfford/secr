@@ -656,7 +656,7 @@ secr_generalsecrloglikfn <- function (
       ## Adjust for undetected animals unless data includes all-zero histories
       ## (the case for allsighting data when knownmarks = TRUE)
       ## or density relative.
-      if (!data$MRdata$sightmodel==5 && !all(data$dettype==13)) {
+      if (!data$MRdata$sightmodel==5 && !all(data$dettype==13) && !telemetrytype(data$traps)=="marking") {
           comp[2,g] <- if (any(is.na(pdot[oknt])) || any(pdot[oknt]<=0)) NA else -sum(log(pdot[oknt]))
       }
       
@@ -674,7 +674,7 @@ secr_generalsecrloglikfn <- function (
 
       .localstuff$Eng[sessnum, g] <- N * meanpdot      
   
-      if (!CL && !data$MRdata$allsighting && !all(data$dettype==13)) {
+      if (!CL && !data$MRdata$allsighting && !all(data$dettype==13) && !telemetrytype(data$traps) == "marking") {
           
           if (data$n.distrib == 1 && .localstuff$iter == 0 && ngnt>N) {
               warning("distribution = 'binomial' ",
@@ -688,6 +688,11 @@ secr_generalsecrloglikfn <- function (
                        secr_lnbinomial (ngnt, N, meanpdot),
                        NA)
       }
+
+      if (!CL && telemetrytype(data$traps) == "marking") {
+          # see Sightings below, comp[5,]
+      }
+      
       #----------------------------------------------------------------------
       # adjustment for mixture probabilities when class known
       known <- sum(data$knownclass[oknt]>1)
@@ -705,15 +710,18 @@ secr_generalsecrloglikfn <- function (
       #----------------------------------------------------------------------
       # sightings
       sightingocc <- data$MRdata$markocc < 1
-      if (any(sightingocc)) {
+      if (telemetrytype(data$traps) == "marking") {
+          ## cf Whittington et al. 2025
+      }
+      else if (any(sightingocc)) {
+          # 2026-07-16 reconciling sighting with telemetry requires a switch 
+          # MRdata$anytelemetry to flag supernumerary detector in telemetry CH
           Nm <- density * secr_getcellsize(data$mask)
           if (learnedresponse) {
               stop ("learned response requires that all individuals are identified,",
                     " and cannot be applied to sighting data")
               # 2023-10-09 require gkhk was NOT recalculated for learned response naive animal 
               # and hence still has cc x M x K values in gkhk$hk
-              # 2026-07-16 reconciling sighting with telemetry requires a switch 
-              # MRdata$anytelemetry to flag supernumerary detector in telemetry CH
           }
           tmp <- expectedmu (
               nrow(Xrealparval), 
