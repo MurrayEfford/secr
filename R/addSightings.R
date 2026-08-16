@@ -52,21 +52,26 @@ addSightings <- function (capthist, unmarked = NULL, nonID = NULL, uncertain = N
     else {
         if (is.null(markocc(traps(capthist))))
             stop("traps(capthist) lacks markocc attribute; provide this first")
-        S <- ncol(capthist)
-        K <- secr_ndetector(traps(capthist))
-      
-        if (is.character(unmarked))
-            ## discard session column as unused
-            unmarked <- read.table(unmarked, ...)[1:K,2:(S+1)]
-        if (is.character(nonID))
-            ## discard session column as unused
-            nonID <- read.table(nonID, ...)[1:K,2:(S+1)]
-        if (is.character(uncertain))
-            ## discard session column as unused
-            uncertain <- read.table(uncertain, ...)[1:K,2:(S+1)]
-        Tu(capthist) <- if (is.null(unmarked)) NULL else as.matrix(unmarked)
-        Tm(capthist) <- if (is.null(nonID)) NULL else as.matrix(nonID)
-        Tn(capthist) <- if (is.null(uncertain)) NULL else as.matrix(uncertain)
+        S <- secr_noccasions(capthist, notelem = TRUE)         # excludes telemetry
+        K <- secr_ndetector(traps(capthist), notelem = TRUE)   # excludes telemetry
+
+        readone <- function (one) {
+            if (is.null(one)) 
+                return(NULL)
+            else {
+                ## read from file if required
+                ## discard session column 1 as unused
+                if (is.character(one)) {
+                    one <- read.table(one, ...)[,-1]
+                }
+                matrix(unlist(one), nrow = K, ncol = S)
+            }
+        }
+        sightingcounts <- list(Tu = unmarked, Tm = nonID, Tn = uncertain)
+        sightingcounts <- lapply(sightingcounts, readone)
+        Tu(capthist) <- sightingcounts$Tu
+        Tm(capthist) <- sightingcounts$Tm
+        Tn(capthist) <- sightingcounts$Tn
         if (verify) verify(capthist)
         capthist
     }
