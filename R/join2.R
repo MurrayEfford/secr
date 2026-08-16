@@ -278,7 +278,7 @@ join <- function (object, remove.dupl.sites = TRUE, tol = 0.001,
     }
     else {
         ## Tu, Tm not ready yet
-        if (!is.null(Tu(object[[1]])) | !is.null(Tm(object[[1]])))
+        if (!is.null(Tu(object[[1]])) || !is.null(Tm(object[[1]])))
             stop ("join does not yet merge sighting matrices when traps vary")
     }
 
