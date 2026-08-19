@@ -1,19 +1,11 @@
 // Functions related to sighting likelihood October-December 2015, September 2019
 
-// EH eq refers Efford & Hunter ms 2016-11-18 
-
-// like 1 conditional likelihood
-// like 3 unused here
-// like 4 unused here
-// like 5 all sighting, n0 known
-// like 6 all sighting, n0 unknown
-
 #include "secr.h"
 
 //==============================================================================
 
 // [[Rcpp::export]]
-List Tsightinglikcpp (
+List Tsightinglikcpp ( 
         const Rcpp::IntegerMatrix &T,           // sighting count(s)
         const Rcpp::IntegerVector &markocc,     // distinguish sighting and marking occasions
         const int                 &anytelem,
