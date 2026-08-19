@@ -14,6 +14,7 @@ public:
     const int   cc; // number of parameter combinations
     const bool  Tu;  // true if data include sightings of unmarked animals
     const bool  Tm;  // true if data include unidentified sightings of marked animals
+    const bool  Ta;  // true if data include all sightings
     const int sightmodel;
     const IntegerVector binomN;     // s 
     const IntegerVector markocc;    // s 
@@ -43,6 +44,7 @@ public:
         const int cc,
         const bool  Tu,              
         const bool  Tm,  
+        const bool  Ta,  
         const int sightmodel,
         const IntegerVector binomN,  
         const IntegerVector markocc,  
@@ -61,7 +63,7 @@ public:
         NumericMatrix Tumusk,
         NumericMatrix Tmmusk
     )  : 
-        nc(nc), cc(cc), Tu(Tu), Tm(Tm), sightmodel(sightmodel),
+        nc(nc), cc(cc), Tu(Tu), Tm(Tm), Ta(Ta), sightmodel(sightmodel),
         binomN(binomN), markocc(markocc), anytelem(anytelem), 
         pID(pID), group(group), gk(gk), hk(hk), 
         pi_density(pi_density), Nm(Nm), PIA(PIA), Tsk(Tsk), h(h), hindex(hindex),
@@ -120,51 +122,65 @@ public:
     }
     //==============================================================================
     
-    void compute (NumericMatrix &Tumusk, NumericMatrix &Tmmusk) {
+    void compute (NumericMatrix &Tumusk, NumericMatrix &Tmmusk, NumericMatrix &Tamusk) {
         
-        // expected number of sightings
-        // expected number of unmarked sightings Tu
-        std::vector<double> pds(ss*mm, 0.0); 
-        getpdots(0, pds);                        // representative animal n=0
-        if (Tu) {
+        if (Ta) {
+            // expected number of all sightings Ta
             for (int s=0; s<ss; s++) { 
                 if (markocc[s]<1) {              // sighting occasions 
                     for (int k=0; k<k1; k++) {  
-                        // Efford and Hunter 2018 Eqn 4
-                        // summing over mask points for representative parameter values (arbitrary animal)
                         for (int m=0; m<mm; m++) {
-                            if (sightmodel==0) 
-                                Tumusk(k,s) += Nm(m,group[0]) *  pds[m*ss+s] * hskm(0,s,k,m);
-                            else if (sightmodel==5)    // all pre-marked, number known
-                                Tumusk(k,s) += (Nm(m,group[0]) - nc * pi_density(m, group[0])) * hskm(0,s,k,m);
-                            else if (sightmodel==6)    // all pre-marked, number unknown
-                                Tumusk(k,s) += (Nm(m,group[0]) - nc / a0[0] * pi_density(m, group[0])) * hskm(0,s,k,m);
+                            // "marking" telemetrytype
+                            Tamusk(k,s) += Nm(m,group[0]) * hskm(0,s,k,m);
                         }
-                        // pID not relevant for unmarked sightings
                     }
                 }
             }
         }
-        // expected number of unidentified marked sightings Tm
-        // sum over marked animals
-        if (Tm) {
-            for (int s=0; s<ss; s++) { 
-                if (markocc[s]<1) {              // sighting occasions 
-                    for (int k=0; k<k1; k++) {  
-                            // Efford and Hunter 2018 Section 3.3
-                        // summing over mask points for representative parameter values (arbitrary animal)
-                        for (int m=0; m<mm; m++) {
-                            if (sightmodel==0) {         // not all sighting
-                                Tmmusk(k,s) +=  Nm(m,group[0]) * (1-pds[m*ss+s]) * hskm(0,s,k,m);
+        else {
+            // expected number of unmarked sightings Tu
+            std::vector<double> pds(ss*mm, 0.0); 
+            getpdots(0, pds);                        // representative animal n=0
+            if (Tu) {
+                for (int s=0; s<ss; s++) { 
+                    if (markocc[s]<1) {              // sighting occasions 
+                        for (int k=0; k<k1; k++) {  
+                            // Efford and Hunter 2018 Eqn 4
+                            // summing over mask points for representative parameter values (arbitrary animal)
+                            for (int m=0; m<mm; m++) {
+                                if (sightmodel==0) 
+                                    Tumusk(k,s) += Nm(m,group[0]) *  pds[m*ss+s] * hskm(0,s,k,m);
+                                else if (sightmodel==5)    // all pre-marked, number known
+                                    Tumusk(k,s) += (Nm(m,group[0]) - nc * pi_density(m, group[0])) * hskm(0,s,k,m);
+                                else if (sightmodel==6)    // all pre-marked, number unknown
+                                    Tumusk(k,s) += (Nm(m,group[0]) - nc / a0[0] * pi_density(m, group[0])) * hskm(0,s,k,m);
                             }
-                            else if (sightmodel==5) {   // all pre-marked, number known
-                                Tmmusk(k,s) +=  nc * pi_density(m, group[0]) * hskm(0,s,k,m);
-                            }
-                            else if (sightmodel==6) {   // all pre-marked, number unknown
-                                Tmmusk(k,s) +=  nc / a0[0] * pi_density(m, group[0]) * hskm(0,s,k,m);
-                            }
+                            // pID not relevant for unmarked sightings
                         }
-                        Tmmusk(k,s) *= 1-pID[s];   // 2019-12-16
+                    }
+                }
+            }
+            // expected number of unidentified marked sightings Tm
+            // sum over marked animals
+            if (Tm) {
+                for (int s=0; s<ss; s++) { 
+                    if (markocc[s]<1) {              // sighting occasions 
+                        for (int k=0; k<k1; k++) {  
+                            // Efford and Hunter 2018 Section 3.3
+                            // summing over mask points for representative parameter values (arbitrary animal)
+                            for (int m=0; m<mm; m++) {
+                                if (sightmodel==0) {         // not all sighting
+                                    Tmmusk(k,s) +=  Nm(m,group[0]) * (1-pds[m*ss+s]) * hskm(0,s,k,m);
+                                }
+                                else if (sightmodel==5) {   // all pre-marked, number known
+                                    Tmmusk(k,s) +=  nc * pi_density(m, group[0]) * hskm(0,s,k,m);
+                                }
+                                else if (sightmodel==6) {   // all pre-marked, number unknown
+                                    Tmmusk(k,s) +=  nc / a0[0] * pi_density(m, group[0]) * hskm(0,s,k,m);
+                                }
+                            }
+                            Tmmusk(k,s) *= 1-pID[s];   // 2019-12-16
+                        }
                     }
                 }
             }
@@ -180,6 +196,7 @@ List expectedmucpp (
         const int cc, 
         const bool Tu,                // true if data include sightings of unmarked animals
         const bool Tm,                // true if data include unidentified sightings of marked animals
+        const bool Ta,                // true if data include all sightings
         const int sightmodel,
         const IntegerVector binomN, 
         const IntegerVector markocc, 
@@ -199,18 +216,21 @@ List expectedmucpp (
     
     NumericMatrix Tumusk(Tsk.nrow(), Tsk.ncol()); 
     NumericMatrix Tmmusk(Tsk.nrow(), Tsk.ncol()); 
+    NumericMatrix Tamusk(Tsk.nrow(), Tsk.ncol()); 
     
     // Construct and initialise
-    expectedmusk expectedmu (nc, cc, Tu, Tm, sightmodel, binomN, markocc, 
+    expectedmusk expectedmu (nc, cc, Tu, Tm, Ta, sightmodel, binomN, markocc, 
                              anytelem, pID,  group, gk, hk, pi_density, Nm, 
                              PIA, Tsk, h, hindex, a0, Tumusk, Tmmusk);
     
     //expectedmu.operator(); 
-    expectedmu.compute (Tumusk, Tmmusk);
+    expectedmu.compute (Tumusk, Tmmusk, Tamusk);
     
     // Return consolidated result
     // return output;
-    return List::create(Named("Tumusk") = Tumusk, Named("Tmmusk") = Tmmusk);
+    return List::create(Named("Tumusk") = Tumusk, 
+                        Named("Tmmusk") = Tmmusk,
+                        Named("Tamusk") = Tamusk);
     
 }
 //==============================================================================

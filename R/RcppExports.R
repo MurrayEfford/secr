@@ -81,8 +81,8 @@ sightingchatcpp <- function(mm, nc, cc0, grain, ncores, nsim, sightmodel, sumD, 
     .Call(`_secr_sightingchatcpp`, mm, nc, cc0, grain, ncores, nsim, sightmodel, sumD, area, distrib, binomN, markocc, pID, group, gk0, hk0, density, PIA0, Tsk, pmix)
 }
 
-expectedmucpp <- function(nc, cc, Tu, Tm, sightmodel, binomN, markocc, anytelem, pID, group, gk, hk, pi_density, Nm, PIA, Tsk, h, hindex, a0) {
-    .Call(`_secr_expectedmucpp`, nc, cc, Tu, Tm, sightmodel, binomN, markocc, anytelem, pID, group, gk, hk, pi_density, Nm, PIA, Tsk, h, hindex, a0)
+expectedmucpp <- function(nc, cc, Tu, Tm, Ta, sightmodel, binomN, markocc, anytelem, pID, group, gk, hk, pi_density, Nm, PIA, Tsk, h, hindex, a0) {
+    .Call(`_secr_expectedmucpp`, nc, cc, Tu, Tm, Ta, sightmodel, binomN, markocc, anytelem, pID, group, gk, hk, pi_density, Nm, PIA, Tsk, h, hindex, a0)
 }
 
 simdetectpointcpp <- function(detect, N, cc0, cc, gk0, gk, hk0, hk, PIA0, PIA1, nmix, knownclass, pmix, Tsk, btype, Markov, binomN) {
