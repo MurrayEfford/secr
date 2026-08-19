@@ -12,6 +12,7 @@
 ## 2026-06-08 new maskcond maxdistance implementation
 ## 2026-06-13 safeLL switch
 ## 2026-07-02 improved telemetry; telemstatus
+## 2026-08-20 added Ta option cf Whittington et al. 2025
 ###############################################################################
 
 # dettype
@@ -127,6 +128,7 @@ expectedmu <- function (cc, haztemp, gkhk, pi.density, Nm, PIA, ngroup,
             as.integer(cc),
             as.logical(!is.null(MRdata$Tu)),
             as.logical(!is.null(MRdata$Tm)),
+            as.logical(!is.null(MRdata$Ta)),
             as.integer(MRdata$sightmodel),
             as.integer(binomNcode),
             as.integer(MRdata$markocc),
@@ -145,7 +147,7 @@ expectedmu <- function (cc, haztemp, gkhk, pi.density, Nm, PIA, ngroup,
         Tumusk <- Tumusk + pmixn[x,1] * temp$Tumusk  ## not yet adjusted for absolute density and cell area
         Tmmusk <- Tmmusk + pmixn[x,1] * temp$Tmmusk  
     }
-    list(Tumusk=Tumusk, Tmmusk=Tmmusk)
+    list(Tumusk=Tumusk, Tmmusk=Tmmusk, Tamusk=Tamusk)
 }
 #--------------------------------------------------------------------------------
 
@@ -710,10 +712,7 @@ secr_generalsecrloglikfn <- function (
       #----------------------------------------------------------------------
       # sightings
       sightingocc <- data$MRdata$markocc < 1
-      if (telemetrytype(data$traps) == "marking") {
-          ## cf Whittington et al. 2025
-      }
-      else if (any(sightingocc)) {
+      if (any(sightingocc)) {
           # 2026-07-16 reconciling sighting with telemetry requires a switch 
           # MRdata$anytelemetry to flag supernumerary detector in telemetry CH
           Nm <- density * secr_getcellsize(data$mask)
@@ -739,37 +738,55 @@ secr_generalsecrloglikfn <- function (
               pmixn, 
               pID, 
               pdot[1])
-          Tumusk <- tmp$Tumusk ## * sum(density[,g]) * secr_getcellsize(data$mask)
-          Tmmusk <- tmp$Tmmusk ## * sum(density[,g]) * secr_getcellsize(data$mask)
-          if (!is.null(data$MRdata$Tu) && !is.null(Tumusk)) {
-              Tulik <- Tsightinglikcpp (
-                  data$MRdata$Tu, 
+          Tumusk <- tmp$Tumusk 
+          Tmmusk <- tmp$Tmmusk 
+          Tamusk <- tmp$Tamusk
+          ## 2026-08-20 added Ta option cf Whittington et al. 2025
+          if (telemetrytype(data$traps) == "marking" && !is.null(data$MRdata$Ta)) {
+              Talik <- Tsightinglikcpp (
+                  data$MRdata$Ta, 
                   data$MRdata$markocc, 
                   data$MRdata$anytelemetry,
                   data$binomNcode,
                   data$usge, 
-                  Tumusk, 
+                  Tamusk, 
                   details$debug)
-              if (Tulik$resultcode != 0) 
+              if (Talik$resultcode != 0) 
                   comp[5,1] <- NA
               else
-                  comp[5,1] <- Tulik$Tlik/details$chat[1] 
+                  comp[5,1] <- Talik$Tlik/details$chat[1] 
           }
-          if (!is.null(data$MRdata$Tm) && !is.null(Tmmusk)) {
-              Tmlik <- Tsightinglikcpp (
-                  data$MRdata$Tm, 
-                  data$MRdata$markocc, 
-                  data$MRdata$anytelemetry,
-                  data$binomNcode,
-                  data$usge, 
-                  Tmmusk, 
-                  details$debug)
-              if (Tmlik$resultcode != 0)
-                  comp[6,1] <- NA
-              else
-                  comp[6,1] <- Tmlik$Tlik/details$chat[2]
+          else {
+              if (!is.null(data$MRdata$Tu) && !is.null(Tumusk)) {
+                  Tulik <- Tsightinglikcpp (
+                      data$MRdata$Tu, 
+                      data$MRdata$markocc, 
+                      data$MRdata$anytelemetry,
+                      data$binomNcode,
+                      data$usge, 
+                      Tumusk, 
+                      details$debug)
+                  if (Tulik$resultcode != 0) 
+                      comp[5,1] <- NA
+                  else
+                      comp[5,1] <- Tulik$Tlik/details$chat[1] 
+              }
+              if (!is.null(data$MRdata$Tm) && !is.null(Tmmusk)) {
+                  Tmlik <- Tsightinglikcpp (
+                      data$MRdata$Tm, 
+                      data$MRdata$markocc, 
+                      data$MRdata$anytelemetry,
+                      data$binomNcode,
+                      data$usge, 
+                      Tmmusk, 
+                      details$debug)
+                  if (Tmlik$resultcode != 0)
+                      comp[6,1] <- NA
+                  else
+                      comp[6,1] <- Tmlik$Tlik/details$chat[2]
+              }
           }
-      }
+      }    
       #----------------------------------------------------------------------
 
     }   ## end loop over groups
