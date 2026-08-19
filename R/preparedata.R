@@ -134,7 +134,7 @@ decompressCH <- function (CH, fastproximity) {
 }
 ############################################################################################
 
-addTall <- function (capthist) {
+addTa <- function (capthist) {
     # single-session capthist
     # sum all counts for detector k on occasion s, 
     # including unmarked sightings (Tu) and unidentified sightings (Tm)
@@ -181,14 +181,14 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
     s <- ncol(capthist)
     if (is.null(markocc)) {
         markocc <- rep(1, s)
-        Tu <- Tm <- Tn <- Tall <- NULL
+        Tu <- Tm <- Tn <- Ta <- NULL
         allsighting <- FALSE
         anysighting <- FALSE
         firstocc <- rep(-1,nrow(capthist))
     }
     else {
         m <- nrow(mask)
-        defaultcontrol <- list(Tu='as.is', Tm='as.is', Tn='ignore', Tall='ignore')
+        defaultcontrol <- list(Tu='as.is', Tm='as.is', Tn='ignore', Ta='ignore')
         # possible control values
         #   ignore
         #   as.is
@@ -213,10 +213,10 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
         if(is.null(fixed$pID) & control$Tm == 'ignore')
             warning("Set fixed = list(pID=1) if no sightings of unidentified marked animals Tm")
         
-        Tu   <- getsight('Tu')
-        Tm   <- getsight('Tm')
-        Tn   <- getsight('Tn')
-        Tall <- addTall(capthist)
+        Tu <- getsight('Tu')
+        Tm <- getsight('Tm')
+        Tn <- getsight('Tn')
+        Ta <- addTa(capthist)
         
         if (allsighting) {
             ## assume all to be pre-marked & available for detection
@@ -276,7 +276,7 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
          Tu           = Tu, 
          Tm           = Tm, 
          Tn           = Tn,
-         Tall         = Tall,
+         Ta           = Ta,
          anysighting  = anysighting, 
          allsighting  = allsighting,
          anytelemetry = anytelemetry, 
