@@ -110,15 +110,14 @@ allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup,
 #--------------------------------------------------------------------------------
 
 expectedmu <- function (cc, haztemp, gkhk, pi.density, Nm, PIA, ngroup,
-                          CH, binomNcode, MRdata, grp, usge, pmixn, pID, a0,
-                          debug = FALSE) {
+                          CH, binomNcode, MRdata, grp, usge, pmixn, pID, a0) {
     nc <- nrow(CH)
     k <- nrow(usge)
     s <- ncol(usge)
     m <- nrow(pi.density)
     nmix <- nrow(pmixn)
     # include notional detector if any telemetry
-    Tumusk <- Tmmusk <- matrix(0, k, s)
+    Tumusk <- Tmmusk <- Tamusk <- matrix(0, k, s)
     for (x in 1:nmix) {
         hx <- if (any(binomNcode==-2)) matrix(haztemp$h[x,,], nrow = m) else -1 ## lookup sum_k (hazard)
         hi <- if (any(binomNcode==-2)) haztemp$hindex else -1                   ## index to hx
@@ -144,8 +143,9 @@ expectedmu <- function (cc, haztemp, gkhk, pi.density, Nm, PIA, ngroup,
             as.matrix (hx),                
             as.matrix (hi),
             as.double (a0))
-        Tumusk <- Tumusk + pmixn[x,1] * temp$Tumusk  ## not yet adjusted for absolute density and cell area
+        Tumusk <- Tumusk + pmixn[x,1] * temp$Tumusk  
         Tmmusk <- Tmmusk + pmixn[x,1] * temp$Tmmusk  
+        Tamusk <- Tamusk + pmixn[x,1] * temp$Tamusk  
     }
     list(Tumusk=Tumusk, Tmmusk=Tmmusk, Tamusk=Tamusk)
 }
@@ -738,9 +738,7 @@ secr_generalsecrloglikfn <- function (
               pmixn, 
               pID, 
               pdot[1])
-          Tumusk <- tmp$Tumusk 
-          Tmmusk <- tmp$Tmmusk 
-          Tamusk <- tmp$Tamusk
+          if (details$debug) browser()
           ## 2026-08-20 added Ta option cf Whittington et al. 2025
           if (telemetrytype(data$traps) == "marking" && !is.null(data$MRdata$Ta)) {
               Talik <- Tsightinglikcpp (
@@ -749,7 +747,7 @@ secr_generalsecrloglikfn <- function (
                   data$MRdata$anytelemetry,
                   data$binomNcode,
                   data$usge, 
-                  Tamusk, 
+                  tmp$Tamusk, 
                   details$debug)
               if (Talik$resultcode != 0) 
                   comp[5,1] <- NA
@@ -757,28 +755,28 @@ secr_generalsecrloglikfn <- function (
                   comp[5,1] <- Talik$Tlik/details$chat[1] 
           }
           else {
-              if (!is.null(data$MRdata$Tu) && !is.null(Tumusk)) {
+              if (!is.null(data$MRdata$Tu) && !is.null(tmp$Tumusk)) {
                   Tulik <- Tsightinglikcpp (
                       data$MRdata$Tu, 
                       data$MRdata$markocc, 
                       data$MRdata$anytelemetry,
                       data$binomNcode,
                       data$usge, 
-                      Tumusk, 
+                      tmp$Tumusk, 
                       details$debug)
                   if (Tulik$resultcode != 0) 
                       comp[5,1] <- NA
                   else
                       comp[5,1] <- Tulik$Tlik/details$chat[1] 
               }
-              if (!is.null(data$MRdata$Tm) && !is.null(Tmmusk)) {
+              if (!is.null(data$MRdata$Tm) && !is.null(tmp$Tmmusk)) {
                   Tmlik <- Tsightinglikcpp (
                       data$MRdata$Tm, 
                       data$MRdata$markocc, 
                       data$MRdata$anytelemetry,
                       data$binomNcode,
                       data$usge, 
-                      Tmmusk, 
+                      tmp$Tmmusk, 
                       details$debug)
                   if (Tmlik$resultcode != 0)
                       comp[6,1] <- NA
@@ -837,7 +835,6 @@ secr_generalsecrloglikfn <- function (
   # Two types of call
   # (i) overdispersion of sightings simulations only
   if (details$nsim > 0) {   
-    ## chat <- mapply (sessionLL, data, 1:nsession, SIMPLIFY = FALSE)
     chat <- mapply (sessionLL, data, SIMPLIFY = FALSE)
     chatmat <- matrix(unlist(chat), ncol = 3, byrow = TRUE)
     dimnames(chatmat) <- list(session = 1:nsession, chat = c('Tu', 'Tm','Tn'))
