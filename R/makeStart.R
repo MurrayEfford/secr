@@ -240,7 +240,7 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
         
         # D/ngrp when figure out where to calculate this
         
-        if (sighting & is.null(fixed$pID))
+        if (sighting && is.null(fixed$pID) && !is.null(parindx$pID))
             start[parindx$pID[1]] <- getdefault('pID')
         
         # start vector completed

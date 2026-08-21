@@ -3,6 +3,7 @@
 ## preparedata.R
 
 ## 2026-07-16 MRdata tweaked for telemetry compatibility
+## 2026-08-21 sightmodel = 7 for telemetrytype=="marking"
 ###############################################################################
 
 #--------------------------------------------------------------------------------
@@ -134,17 +135,26 @@ decompressCH <- function (CH, fastproximity) {
 }
 ############################################################################################
 
-addTa <- function (capthist) {
-    # single-session capthist
+getTa <- function (capthist) {
     # sum all counts for detector k on occasion s, 
     # including unmarked sightings (Tu) and unidentified sightings (Tm)
-    S <- secr_noccasions(capthist, notelem = TRUE)
-    K <- secr_ndetector(traps(capthist), notelem = TRUE)
-    sightingcounts <- list(Tu = Tu(capthist), Tm = Tm(capthist), Tn = Tn(capthist))
-    sightingcounts <- lapply(sightingcounts, function(x) if (is.null(x)) matrix(0,K,S) else x)
-    detectedM <- apply(capthist[,1:S,1:K, drop = FALSE],c(3,2),sum)
-    sightingM <- Reduce('+', sightingcounts)   # elementwise sum
-    sightingM + detectedM
+    if (ms(capthist)) {
+        stop("marking telemetry is currently limited to single-session capthist")
+    }
+    else {
+        S <- secr_noccasions(capthist, notelem = TRUE)
+        K <- secr_ndetector(traps(capthist), notelem = TRUE)
+        sightingcounts <- list(Tu = Tu(capthist), Tm = Tm(capthist), Tn = Tn(capthist))
+        sightingcounts <- lapply(sightingcounts, function(x) if (is.null(x)) matrix(0,K,S) else x)
+        detectedM <- apply(capthist[,1:S,1:K, drop = FALSE],c(3,2),sum)
+        sightingM <- Reduce('+', sightingcounts)   # elementwise sum
+        out <- sightingM + detectedM
+        # reduce to binary proximity
+        if (detector(traps(capthist))[1] == "proximity") {
+            out[out>1] <- 1
+        }
+        out
+    }
 }
 
 ## settings for mark-resight
@@ -175,13 +185,14 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
         if (is.null(tmp)) NULL else tmp
     }
     markocc <- markocc(traps(capthist))
+    teltype <- telemetrytype(traps(capthist))
     # detector occasion implies added notional detector in traps attribute
     telemocc <- detector(traps(capthist)) == 'telemetry'
     anytelemetry <- any(telemocc)
     s <- ncol(capthist)
+    Tu <- Tm <- Tn <- Ta <- NULL
     if (is.null(markocc)) {
         markocc <- rep(1, s)
-        Tu <- Tm <- Tn <- Ta <- NULL
         allsighting <- FALSE
         anysighting <- FALSE
         firstocc <- rep(-1,nrow(capthist))
@@ -213,10 +224,14 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
         if(is.null(fixed$pID) & control$Tm == 'ignore')
             warning("Set fixed = list(pID=1) if no sightings of unidentified marked animals Tm")
         
-        Tu <- getsight('Tu')
-        Tm <- getsight('Tm')
-        Tn <- getsight('Tn')
-        Ta <- addTa(capthist)
+        if (teltype == "marking") {
+            Ta <- getTa(capthist)
+        }
+        else {
+            Tu <- getsight('Tu')
+            Tm <- getsight('Tm')
+            Tn <- getsight('Tn')
+        }
         
         if (allsighting) {
             ## assume all to be pre-marked & available for detection
@@ -266,8 +281,12 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
                 pi.mask <- maskcov$marking / sum (maskcov$marking)
             }
         }
-        if (knownmarks)
-            sightmodel <- 5
+        if (knownmarks) {
+            if (teltype == "marking")
+                sightmodel <- 7
+            else
+                sightmodel <- 5
+        }
         else 
             sightmodel <- 6
     }

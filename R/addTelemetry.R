@@ -63,7 +63,7 @@ addTelemetry <- function (detectionCH, telemetryCH,
 
             #################################
             
-            if (type %in% c("dependent", "marking") && length(telemonlylist) > 0) {
+            if (type %in% c("dependent") && length(telemonlylist) > 0) {
                 telemetryCH <- subset(telemetryCH, rownames(telemetryCH) %in% rownames(detectionCH))
                 if (nrow(telemetryCH) == 0) {
                     stop ("No dependent telemetry")
@@ -74,7 +74,7 @@ addTelemetry <- function (detectionCH, telemetryCH,
                         xylist <- detectedlist
                     else
                         stop("no 'dependent' telemetered animal captured")
-                    warning ("telemetry 'dependent' or 'marking', but these do not appear in detectionCH and are discarded\n", 
+                    warning ("telemetry 'dependent', but these do not appear in detectionCH and are discarded\n", 
                              paste(names(telemonlylist), collapse = ", "))
                     telemonlylist <- NULL
                 }

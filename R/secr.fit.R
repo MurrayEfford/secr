@@ -540,7 +540,6 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     }
     
     fnames <- names(fixed)
-    
     #################################################
     ## build default model and update with user input
     #################################################
@@ -592,7 +591,11 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     #################################################
     ## parameter names
     #################################################
-    pnames <- secr_valid.pnames (details, CL, detectfn, alltelem, sighting, nmix)
+    if (MS) 
+        marking <- any(sapply(traps(capthist), telemetrytype)=="marking") 
+    else 
+        marking <- telemetrytype(traps(capthist))=="marking"
+    pnames <- secr_valid.pnames (details, CL, detectfn, alltelem, sighting, marking, nmix)
     
     #################################################
     ## test for irrelevant parameters in user's model

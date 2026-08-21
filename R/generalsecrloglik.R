@@ -712,7 +712,7 @@ secr_generalsecrloglikfn <- function (
       #----------------------------------------------------------------------
       # sightings
       sightingocc <- data$MRdata$markocc < 1
-      if (any(sightingocc)) {
+      if (any(sightingocc) && !CL) {
           # 2026-07-16 reconciling sighting with telemetry requires a switch 
           # MRdata$anytelemetry to flag supernumerary detector in telemetry CH
           Nm <- density * secr_getcellsize(data$mask)

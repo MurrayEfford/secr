@@ -53,14 +53,13 @@ struct chat : public Worker {
     std::vector<double> a0; 
     
     // Constructor to initialize an instance of Somehistories 
-    // The RMatrix class can be automatically converted to from the Rcpp matrix type
     chat(
         const int mm, 
         const int nmark, 
         const int cc0,
         const int grain,                    
         const int nsim,        // number of replicate simulations for chat 
-        const int sightmodel,  // 5 allsighting known n0, 6 allsighting unknown n0
+        const int sightmodel,  // 5 allsighting known n0, 6 allsighting unknown n0, 7 telemetry 'marking'
         const double sumD,
         const double area,
         const int distrib,

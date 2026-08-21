@@ -271,7 +271,7 @@ secr_getuserdist <- function (traps, mask, userdist, sessnum, NElist, density, .
 }
 #--------------------------------------------------------------------------------
 
-secr_valid.pnames <- function (details, CL, detectfn, alltelem, sighting, nmix) {
+secr_valid.pnames <- function (details, CL, detectfn, alltelem, sighting, marking, nmix) {
     ## modelled parameters
     pnames <- switch (detectfn+1,
         c('g0','sigma'),           # 0 halfnormal
@@ -314,8 +314,10 @@ secr_valid.pnames <- function (details, CL, detectfn, alltelem, sighting, nmix) 
         parm <- parm[parm != 'D']   # drop unwanted
         pnames <- c(pnames, parm)
     }
-    if (sighting)
-      pnames <- c(pnames, 'pID')
+    if (sighting && !marking) {
+        # assume all telemetered animals marked if marking
+        pnames <- c(pnames, 'pID')
+    }
     # if (alltelem) {
     #     rnum <- match(c('D','lambda0','a0','esa','g0'), pnames)
     #     rnum[is.na(rnum)] <- 0
