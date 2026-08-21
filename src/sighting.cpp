@@ -58,14 +58,14 @@ List Tsightinglikcpp (
             nsight += 1;
             if (s < firstsightocc) firstsightocc = s;
             for (k=0; k < k1; k++) {
-                tempmu = musk[s * nk + k];
+                tempmu = musk(k,s);  
                 // Tsk is effort; no relation to TCsk! 
-                nused += Tsk[s * nk + k]>0;
+                nused += Tsk(k,s);  
                 
                 //-----------------------------------------------------------------
                 // compute likelihood for this cell 
                 if (!TPooled && !TBydetector) {
-                    TCsk = T[s * nk + k];
+                    TCsk = T(k,s);  
                     if ((TCsk>0) && (tempmu<=0)) {
                         // Rprintf("TCsk = %d tempmu = %8.4f\n", TCsk, tempmu);
                         // Rprintf ("zero sighting probability when T number >0\n");
@@ -97,7 +97,7 @@ List Tsightinglikcpp (
                 }
                 
                 if (TPooled) {
-                    nused += Tsk[s * nk + k]>0;
+                    nused += Tsk(k,s); 
                     if (markocc[s] == 0) {
                         if (binomN[s] < 0)
                             summu += 1-exp(-tempmu); // summing probabilities? 
@@ -107,7 +107,7 @@ List Tsightinglikcpp (
                     // else markocc < 0, marked animals not distinguished so no increment 
                 }
                 if (TBydetector) {
-                    nusedk[k] += Tsk[s * nk + k]>0;
+                    nusedk[k] += Tsk(k,s); 
                     if (markocc[s] == 0) {
                         if (binomN[s]<0) 
                             summuk[k] += 1-exp(-tempmu);
@@ -135,14 +135,11 @@ List Tsightinglikcpp (
 
                 // 2022-03-05 new condition to trap zero-usage case
                 if (summuk[k]>0) {
-                    // Tlik += R::dbinom(T[k],  nusedk[k], summuk[k] / nsight, 1);  // 2017-03-17 
                     boost::math::binomial_distribution<> bin(nusedk[k], summuk[k] / nsight);
                     Tlik += log(pdf(bin,T[k]));
                 }
             }
             else {
-                // Tlik += R::dpois(T[k],  summuk[k], 1);
-                // 
                 if (summuk[k]>0) {
                     boost::math::poisson_distribution<> pois(summuk[k]);
                     Tlik += log(pdf(pois,T[k]));
