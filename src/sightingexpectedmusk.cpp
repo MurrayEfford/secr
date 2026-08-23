@@ -130,7 +130,7 @@ public:
                 if (markocc[s]<1) {              // sighting occasions 
                     for (int k=0; k<k1; k++) {  
                         for (int m=0; m<mm; m++) {
-                            // "marking" telemetrytype
+                            // "marking" telemetrytype, sightmodel 7
                             Tamusk(k,s) += Nm(m,group[0]) * hskm(0,s,k,m);
                         }
                     }

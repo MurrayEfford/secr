@@ -292,27 +292,31 @@ struct chat : public Worker {
             //-----------------------------------------------------------------------
             // marking occasions 
             // update marked and unmarked populations 
+            // do not update when telemetrytype = "marking" (sightmodel 7)
+            // when all animals remain nominally unmarked
             if (markocc[s]==1) { 
-                // update marked and unmarked populations 
-                for (x=0; x<nmix; x++) {
-                    Nmarked=0;                   // for check
-                    for (m=0; m < mm; m++) {
-                        temppop = popunmarked[x*mm + m];
-                        if (temppop > 0) {
-                            pmark = getpmark(x, s, m); 
-                            if (grain<1) Rprintf ("s %4d m %4d pmark %8.6e\n", s, m, pmark);
-                            for (i=0; i<temppop; i++) {
-                                if (unif_rand() < pmark) {
-                                    popunmarked[x * mm + m] --;
-                                    popmarked[x * mm + m] ++;
-                                    Nmarked++;   // for check
+                if (sightmodel != 7) {
+                    // update marked and unmarked populations 
+                    for (x=0; x<nmix; x++) {
+                        Nmarked=0;                   // for check
+                        for (m=0; m < mm; m++) {
+                            temppop = popunmarked[x*mm + m];
+                            if (temppop > 0) {
+                                pmark = getpmark(x, s, m); 
+                                if (grain<1) Rprintf ("s %4d m %4d pmark %8.6e\n", s, m, pmark);
+                                for (i=0; i<temppop; i++) {
+                                    if (unif_rand() < pmark) {
+                                        popunmarked[x * mm + m] --;
+                                        popmarked[x * mm + m] ++;
+                                        Nmarked++;   // for check
+                                    }
                                 }
                             }
                         }
+                        if (grain<1) Rprintf ("s %4d x %3d Nmarked %8d\n", s, x, Nmarked);
                     }
-                    if (grain<1) Rprintf ("s %4d x %3d Nmarked %8d\n", s, x, Nmarked);
                 }
-            }
+            }    
             //-----------------------------------------------------------------------
             
             // sighting occasions 
@@ -331,25 +335,22 @@ struct chat : public Worker {
                         if (c >= 0) {                    // drops unset traps 
                             for (m=0; m < mm; m++) {
                                 Hskx = Tsk(k,s) * hk0[i3(c,k,m,cc0,kk)];	
-                                if (popunmarked[x*mm+m]>0) {     // any unmarked animals at m 
+                                
+                                if (popunmarked[x*mm+m]>0) {      // any unmarked animals at m 
                                     if (sightmodel == 1) {        // CL 
                                     }
-                                    else if (sightmodel == 5) {   // sightmodel 5 all sighting, known 
+                                    else if (sightmodel >= 5) {   // sightmodel 5,6,7 all sighting
                                         mu1 += popunmarked[x*mm+m] * Hskx;
                                         if (markocc[s] == -1)
                                             mu1 += popmarked[x*mm+m] * Hskx;
                                     }
-                                    else if (sightmodel == 6) {   // sightmodel 6 all sighting, unknown 
-                                        mu1 += popunmarked[x*mm+m] * Hskx;
-                                        if (markocc[s] == -1)
-                                            mu1 += popmarked[x*mm+m] * Hskx;
-                                    }
-                                    else {                  // sightmodel  0,2,3,4 
+                                    else {                       // sightmodel  0,2,3,4 
                                         mu1 += popunmarked[x*mm+m] * Hskx ;
                                         if (markocc[s] == -1)
                                             mu1 += popmarked[x*mm+m] * Hskx;
                                     }
-                                }    // popunmarked
+                                }    // end popunmarked
+                                
                                 if (popmarked[x*mm+m]>0) {       // any marked animals at m 
                                     if (sightmodel == 1) {        // CL 
                                         if (markocc[s] == 0) 
@@ -369,7 +370,8 @@ struct chat : public Worker {
                                             mu2 += popmarked[x*mm+m] * Hskx;
                                         }
                                     }
-                                } // popmarked
+                                } // end popmarked
+                                
                             }   // over mask points
                         }  // if detector used
                         
@@ -449,7 +451,7 @@ struct chat : public Worker {
             
             if (grain<1) {
                 Rprintf("i %4d np %4d meanp[i] %8.6e varx[i] %8.6e expectedvar[i] %8.6e \n", 
-                        i, np, meanp[i], varx[i], expectedvar[1]);
+                        i, np, meanp[i], varx[i], expectedvar[i]);
             }
             if (expectedvar[i] > 0) 
                 chatout[i] = varx[i]/expectedvar[i]; 

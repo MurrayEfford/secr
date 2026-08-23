@@ -182,7 +182,7 @@ getchat <- function (cc0, nc, n.distrib, group, usge, pmixn, pID,
         as.integer(grain), 
         as.integer(ncores),
         as.integer(nsim),        ## number of replicate simulations for chat 
-        as.integer(MRdata$sightmodel),  ## 5 allsighting known n0, 6 allsighting unknown n0
+        as.integer(MRdata$sightmodel),  ## 5 allsighting known n0, 6 allsighting unknown n0, 7 telemetry marking
         as.double(sumD),
         as.double(cellsize),
         as.integer(n.distrib),
