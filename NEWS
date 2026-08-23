@@ -1,4 +1,4 @@
-Changes in version 5.5.0 (2026-08-16)
+Changes in version 5.5.0 (2026-08-24)
 
 New features or changed behaviour of old functions
     o  addTelemetry() revamped; behaviour may vary. New argument 'prefix'.
@@ -8,6 +8,7 @@ New features or changed behaviour of old functions
     o  RSE() accepts secrlist (multiple fitted models)
     o  sim.resight() retains popn rownames as ID and no longer renumbers rows of 
        a saved popn object, for compatibility with telemetry
+    o  secr.fit() fits 1-step telemetry/marking/sighting model of Whittington et al. 2025
 
 Other
     o  details 'uselog' and more robust telemetry likelihood; details 'telemetryscale' redundant
