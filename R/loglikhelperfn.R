@@ -204,7 +204,13 @@ getchat <- function (cc0, nc, n.distrib, group, usge, pmixn, pID,
         warning ("chat calculation failed, resultcode = ", temp$resultcode)
         sumchat <- (rep(0,3))
     }
-    names(sumchat) <- c('Tu','Tm','Tn')
+    if (MRdata$sightmodel == 7) {
+        sumchat <- sumchat[1]
+        names(sumchat) <- 'Ta'
+    }
+    else {
+        names(sumchat) <- c('Tu','Tm','Tn')
+    }
     return (sumchat)
 }
 

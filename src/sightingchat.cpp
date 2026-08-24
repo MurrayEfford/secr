@@ -405,8 +405,14 @@ struct chat : public Worker {
         
         // copy results xi, sump to output vector
         for (i=0; i<3; i++) {
-            out[i] = xi[i];
-            out[i+3] = sump[i];
+            if (i==0 || sightmodel<7) {
+                out[i] = xi[i];
+                out[i+3] = sump[i];
+            }
+            else {
+                out[i] = 0;
+                out[i+3] = 0;
+            }
         }
         out[6] = np;
         return(out);
@@ -455,7 +461,8 @@ struct chat : public Worker {
             }
             if (expectedvar[i] > 0) 
                 chatout[i] = varx[i]/expectedvar[i]; 
-            else chatout[i] = 1;
+            else 
+                chatout[i] = 1;
         }
     }
     
@@ -514,7 +521,7 @@ List sightingchatcpp (
     
     //-----------------------------------------------------
     
-    Rprintf("sims completed\n");
+    // Rprintf("sims completed\n");
         
     somechat.chatvar();
     
