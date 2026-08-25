@@ -22,7 +22,7 @@ bubble plot (circles with radius scaled so that area is proportional to either t
 usagePlot(object, add = FALSE, occasions = NULL, col = "black", fill =
 FALSE, scale = 2, metres = TRUE, rad = 5, ...)
 
-sightingPlot(object, type = c("Detections", "Tu", "Tm", "Tn"), add = FALSE, 
+sightingPlot(object, type = c("Detections", "Tu", "Tm", "Tn", "Ta"), add = FALSE, 
 occasions = "ALL", mean = TRUE, col = "black", fill = FALSE, scale = 2, 
 metres = TRUE, dropunused = TRUE, title = type, legend = c(1, 2, 4, 8), 
 px = 0.95, py = 0.95, ...)
@@ -63,7 +63,10 @@ The behaviour of \code{usagePlot} is described first. By default (\code{occasion
 
 Package \pkg{sp} provides an alternative to \code{usagePlot} (see Examples).
 
-\code{sightingPlot} may be used to display either detections of marked animals (whether or not \code{occasions} refers to sighting occasions) or any of the sighting attributes (unmarked sightings `Tu', marked, unidentified sightings `Tm', or other uncertain sightings `Tn').
+\code{sightingPlot} may be used to display either detections of marked animals 
+(whether or not \code{occasions} refers to sighting occasions) or any of the 
+sighting attributes (unmarked sightings `Tu', marked, unidentified sightings `Tm', 
+other uncertain sightings `Tn', or the aggregate of sightings and detections `Ta').
 
 If \code{py} is of length 2 then the values determine the vertical spread of symbols in the legend.
 

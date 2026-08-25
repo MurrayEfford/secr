@@ -51,19 +51,20 @@ bubble.legend <- function (legend, fill, col,
     # check a plot exists?
     nleg <- length(legend)
     usr <- par()$usr
-    if (length(py)!=2)
-        py[2] <- py-0.2
-        legendx <- (usr[2] - usr[1]) * px + usr[1]
-        legendy <- (usr[4] - usr[3]) * seq(py[1],py[2], along.with=legend) + usr[3]
-    
+    if (length(py)!=2) py[2] <- py-0.2
+    legendx <- (usr[2] - usr[1]) * px + usr[1]
     legendx <- rep(legendx, nleg)
-    symbols(legendx, legendy, circles = rev(legend)^0.5 * scale, inches = FALSE,
+    # legendy <- (usr[4] - usr[3]) * seq(py[1],py[2], along.with=legend) + usr[3]
+    radii <- rev(legend)^0.5 * scale
+    step <- radii*2 + radii[1]
+    legendy <- usr[4] - cumsum(step) 
+    symbols(legendx, legendy, circles = radii, inches = FALSE,
             add = TRUE, fg = col, bg = fill, xpd = TRUE)
     text(legendx + (usr[2] - usr[1])*text.px, legendy, rev(legend), adj = 0.5, xpd=TRUE)
 }
 
 ####################################################################################
-sightingPlot <- function (object, type = c("Detections", "Tu", "Tm", "Tn"),
+sightingPlot <- function (object, type = c("Detections", "Tu", "Tm", "Tn", "Ta"),
                           add = FALSE, occasions = "ALL", mean = TRUE,
                           col = "black", fill = FALSE, scale = 2, metres = TRUE,
                           dropunused = TRUE, title = type,
@@ -86,10 +87,19 @@ sightingPlot <- function (object, type = c("Detections", "Tu", "Tm", "Tn"),
         
         if (type == "Detections")
             tmp <- t(apply(object, 2:3, sum))
+        else if (type == "Ta")
+            tmp <- getTa(object)
         else
             tmp <- attr(object, type)
-        if (!is.null(usage(traps(object))))
-            tmp[usage(traps(object))==0] <- NA
+        
+        # discard notional telemetry detector if present
+        tr <- subset(traps(object), 1:nrow(tmp))
+        if (!is.null(usage(tr))) {
+            usge <- usage(tr)
+            # discard any telemetry ocasions
+            usge <- usge[, 1:ncol(tmp), drop = FALSE]
+            tmp[usge==0] <- NA
+        }
         
         ## aggregated in single bubble for each site
         if (mean)
@@ -97,8 +107,7 @@ sightingPlot <- function (object, type = c("Detections", "Tu", "Tm", "Tn"),
         else
             f <- apply(tmp, 1, sum, na.rm = TRUE)
         radius <- sqrt(f) * scale
-        
-        xy <- traps(object)
+        xy <- tr
         
         # metres: use symbols with inches = FALSE
         if (metres) {
@@ -122,7 +131,6 @@ sightingPlot <- function (object, type = c("Detections", "Tu", "Tm", "Tn"),
             bubble.legend(legend=legend, fill=fill, col = col, scale = scale, px = px, py = py)
         }
         
-        tr <- traps(object)
         covariates(tr) <- data.frame(f=f)
         invisible(tr)
     }
