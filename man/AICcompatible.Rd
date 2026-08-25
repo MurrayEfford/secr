@@ -31,6 +31,10 @@ Determine whether models can be compared by AIC. Incompatibility may be due to d
 
 The capthist objects are checked for strict identity with the function \code{\link{identical}}.
 
+If the capthist objects are found to be different (AICcompatible data component FALSE), 
+the difference may be in an attribute (traps, covariates) rather than the detection histories themselves. 
+Investigate further with \code{\link{all.equal}}. 
+
 All elements in the output must be TRUE for valid AIC comparison or model averaging using AIC or AICc.
 
 }
@@ -58,9 +62,10 @@ AICcompatible(secrdemo.0, secrdemo.CL)
 ## fastproximity option.
 
 ovenCHp1 <- reduce(ovenCHp, by = 'all', outputdetector = 'count')
-ob1 <- secr.fit(ovenCHp, buffer = 300, details = list(fastproximity = TRUE))
-ob2 <- secr.fit(ovenCHp1, buffer = 300, details = list(fastproximity = FALSE))
-ob3 <- secr.fit(ovenCHp1, buffer = 300, details = list(fastproximity = FALSE), binomN = 1)
+msk <- make.mask(traps(ovenCHp)[[1]], buffer = 300, nx = 25)
+ob1 <- secr.fit(ovenCHp, mask = msk, details = list(fastproximity = TRUE))
+ob2 <- secr.fit(ovenCHp1, mask = msk, details = list(fastproximity = FALSE))
+ob3 <- secr.fit(ovenCHp1, mask = msk, details = list(fastproximity = FALSE), binomN = 1)
 AICcompatible(ob1,ob2)
 AICcompatible(ob1,ob3)
 
