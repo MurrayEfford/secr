@@ -128,7 +128,8 @@ sightingPlot <- function (object, type = c("Detections", "Tu", "Tm", "Tn", "Ta")
         ## add legend with various
         if (!is.null(legend)) {
             if (fill) fill <- col
-            bubble.legend(legend=legend, fill=fill, col = col, scale = scale, px = px, py = py)
+            bubble.legend(legend=legend, title=type, fill=fill, col = col, 
+                          scale = scale, px = px, py = py)
         }
         
         covariates(tr) <- data.frame(f=f)
