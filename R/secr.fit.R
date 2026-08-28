@@ -789,7 +789,8 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     ############################################
     start <- makeStart (start, parindx, capthist, mask, detectfn, link, 
         details, fixed, CL, anypoly, anytrans, alltelem, sighting) 
-    if (is.null(start)) return(list(call = cl, fit = NULL))
+    # add is.na 2026-08-27
+    if (is.null(start) || any(is.na(start))) return(list(call = cl, fit = NULL))
   
     ############################################
     # Single evaluation option
