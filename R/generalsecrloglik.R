@@ -408,6 +408,8 @@ secr_generalsecrloglikfn <- function (
     #---------------------------------------------------
     density <- secr_getmaskpar(D.modelled, D, data$m, sessnum, details$unmash, 
                           attr(data$capthist, 'n.mash'))
+    if (details$debug>2) browser()
+
     if (!D.modelled) {
       ## 2025-08-05 ngroup
         # pi.density <- matrix(1/data$m, nrow=data$m, ncol=1)  
@@ -420,7 +422,8 @@ secr_generalsecrloglikfn <- function (
     
       if (data$MRdata$allsighting && data$MRdata$pi.mask[1] != -1) {
           pi.density <- matrix(data$MRdata$pi.mask, ncol = 1)  ## by group=column?
-          if (any(Nm < nrow(data$CH)*pi.density)) {
+          criterion <- Nm < (nrow(data$CH) * pi.density)
+          if (any(is.na(criterion)) || any(criterion)) {
               warning("invalid distribution for sighting at Eval ", .localstuff$iter)  # changed from stop() 2019-12-15
           }
       }
@@ -439,7 +442,6 @@ secr_generalsecrloglikfn <- function (
                                    data$mask, data$traps, Dtemp, data$s)   # was s! 2024-01-29
     Xrealparval0 <- secr_reparameterize (realparval0, detectfn, details,
                                     data$mask, data$traps, Dtemp, data$s)
-    if (details$debug>2) browser()
     
     ## check valid parameter values
     if (!all(is.finite(Xrealparval))) {
