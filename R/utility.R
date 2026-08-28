@@ -1659,7 +1659,7 @@ secr_noccasions <- function (capthist, notelem = FALSE) {
         return(0)
     else {
         if (notelem)
-            ncol(capthist[, detector(traps(capthist)) != 'telemetry',])
+            ncol(capthist[, detector(traps(capthist)) != 'telemetry',, drop = FALSE])
         else
             ncol(capthist)
     }
