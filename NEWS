@@ -6,7 +6,11 @@ New features or changed behaviour of old functions
        own telemetry and detections. This replaces the 'Ta' likelihood of 5.5.0, which used the
        marked animals' cues twice. Tm is ignored (warning) and details$nsim is not available
        for this type; supply details$chat.
+    o  new option details$telemetryint = "GH" integrates over the activity centres of
+       telemetered animals by Gauss-Hermite quadrature rather than by summing over mask
+       cells (default "mask"); currently for telemetrytype 'marking' only
     o  internal: simplehistoriesmarkedcpp() returns posterior-mean cue rates of marked animals
+    o  fixed -Wreorder warning in sightingchat.cpp
 
 Changes in version 5.5.0 (2026-09-19)
 

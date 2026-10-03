@@ -191,7 +191,8 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
         saveprogress = FALSE,
         progressfilename = "progress.RDS",
         safeLL = FALSE,                          # 2026-06-13
-        uselog = FALSE
+        uselog = FALSE,
+        telemetryint = "mask"                    # 2026-10-04 or "GH"
     )
     if (!is.null(attr(capthist,'cutval'))) {
         defaultdetails$cutval <- attr(capthist,'cutval')
@@ -349,7 +350,12 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     if (sighting && CL && !is.null(Tu) &&  !telemetrymarking) {
         warning ("mark-resight unmarked (but not nonID) sightings ignored when CL = TRUE")
     }
-    
+    if (!(details$telemetryint %in% c("mask", "GH")))
+        stop ("details$telemetryint should be 'mask' or 'GH'")
+    if (details$telemetryint == "GH" && !telemetrymarking)
+        stop ("details$telemetryint = 'GH' is currently available only for ",
+              "telemetrytype 'marking'")
+
     #################################################
     ## optional centring of traps and mask 2010 04 27
     if (details$centred) {

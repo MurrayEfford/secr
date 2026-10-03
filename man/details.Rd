@@ -216,6 +216,14 @@ animals is allowed to move between the marking (markocc = 1) and sighting (marko
 phases of a spatial capture--mark--resight study. The default is to assume a 
 common home-range centre (\code{splitmarked = FALSE}). 
 
+\code{details$telemetryint} selects the method for integrating over the activity
+centres of telemetered animals. The default \code{"mask"} sums over mask cells,
+which requires a mask spacing small relative to \eqn{\sigma/\sqrt{n}} for an animal with
+\eqn{n} fixes. The alternative \code{"GH"} uses Gauss-Hermite quadrature centred
+on the mean of the animal's fixes; it is faster and independent of mask spacing, but
+assumes a uniform prior for the activity centre (no density surface, and no restriction
+to habitat in the mask). Currently available only for telemetry type 'marking'.
+
 \code{details$telemetryscale} defunct option, superceded by 'safeLL' and 'uselog'.
 
 \code{details$telemetrytype} defunct from 3.0.0 (2017)

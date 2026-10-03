@@ -35,6 +35,31 @@ test_that("marking model unchanged", {
     expect_equal(est["sigma", "estimate"], 4.24709, tolerance = 1e-3, check.attributes = FALSE)
 })
 
+## Gauss-Hermite integration over the activity centres of telemetered animals
+## does not depend on the mask spacing and matches the RTMB reference closely
+fitGH <- secr.fit(ch, detectfn = "HHN", mask = msk, trace = FALSE,
+                  details = list(safeLL = TRUE, uselog = TRUE, chat = 4.41,
+                                 telemetryint = "GH"))
+estGH <- predict(fitGH)
+
+test_that("telemetryint = 'GH' agrees with RTMB reference", {
+    expect_equal(estGH["D", "estimate"], 32.26, tolerance = 0.005, check.attributes = FALSE)
+    expect_equal(estGH["lambda0", "estimate"], 0.6505, tolerance = 0.005, check.attributes = FALSE)
+    expect_equal(estGH["sigma", "estimate"], 3.943, tolerance = 0.005, check.attributes = FALSE)
+    expect_equal(estGH["D", "SE.estimate"], 7.69, tolerance = 0.05, check.attributes = FALSE)
+})
+
+test_that("telemetryint input checks", {
+    expect_error(secr.fit(ch, detectfn = "HHN", mask = msk, trace = FALSE,
+                          details = list(telemetryint = "none")),
+                 "should be 'mask' or 'GH'")
+    ch1 <- ch
+    telemetrytype(traps(ch1)) <- "concurrent"
+    expect_error(secr.fit(ch1, detectfn = "HHN", mask = msk, trace = FALSE,
+                          details = list(telemetryint = "GH")),
+                 "only for telemetrytype 'marking'")
+})
+
 test_that("marking input checks", {
     ch0 <- ch
     Tu(ch0) <- NULL

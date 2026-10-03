@@ -540,17 +540,23 @@ secr_generalsecrloglikfn <- function (
     }
     
     ## telemetry precalculation
+    GH <- identical(details$telemetryint, "GH")   # Gauss-Hermite integration over telemetered ACs
     if (any(data$dettype == 13)) {
         telemstart <- data$xy$start
-        maskused <- unique(unlist(data$maskcond$mask_indices))
-        # dropped unused argument nc 2026-07-01
-        telemhr <- gethrcpp(
-            as.integer(detectfn), 
-            as.double(telemstart), 
-            as.matrix(data$xy$xy), 
-            as.matrix(data$mask),
-            as.integer(maskused),
-            as.matrix(Xrealparval))
+        if (GH) {
+            telemhr <- 0   # computed at GH nodes by secr_telemGH
+        }
+        else {
+            maskused <- unique(unlist(data$maskcond$mask_indices))
+            # dropped unused argument nc 2026-07-01
+            telemhr <- gethrcpp(
+                as.integer(detectfn),
+                as.double(telemstart),
+                as.matrix(data$xy$xy),
+                as.matrix(data$mask),
+                as.integer(maskused),
+                as.matrix(Xrealparval))
+        }
     }
     else {
         telemhr <- 0
@@ -585,11 +591,19 @@ secr_generalsecrloglikfn <- function (
     }
     else {
         if (all(data$dettype %in% c(0,1,2,8,13))) {
+            ## mask-based arguments, or with GH the same with nodes appended for telemetered animals
+            hh <- list(pi.density = pi.density, gkhk = gkhk, haztemp = haztemp,
+                       maskcond = data$maskcond, telemhr = telemhr)
+            if (GH && any(data$dettype == 13)) {
+                ghargs <- secr_telemGH (data, PIA, Xrealparval, detectfn, miscparm,
+                                        gkhk, pi.density, details)
+                if (!is.null(ghargs)) hh <- ghargs
+            }
             lnprw <- allhistsimple (
-                nrow(Xrealparval), haztemp, gkhk, pi.density, PIA, ngroup,
-                data$CH, data$binomNcode, data$MRdata, data$grp, data$usge, pmixn, 
-                pID, data$maskcond, 
-                telemhr, telemstart, 
+                nrow(Xrealparval), hh$haztemp, hh$gkhk, hh$pi.density, PIA, ngroup,
+                data$CH, data$binomNcode, data$MRdata, data$grp, data$usge, pmixn,
+                pID, hh$maskcond,
+                hh$telemhr, telemstart,
                 details$grain, details$ncores, details$safeLL, details$uselog, details$R,
                 debug = details$debug>3,
                 marking = telemetrytype(data$traps) == "marking",
