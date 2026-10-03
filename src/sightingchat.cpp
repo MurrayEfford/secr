@@ -293,7 +293,7 @@ struct chat : public Worker {
         }
         out[7] = std::accumulate(initialpopunmarked.begin(), initialpopunmarked.end(), 0.0);
         if (grain<1) {
-            Rprintf("popn %4d \n", out[7]);
+            Rprintf("popn %8.6e \n", out[7]);
         }
         
         mu1 = 0; mu2 = 0;
@@ -458,7 +458,7 @@ struct chat : public Worker {
                 sump[i] = chatmat(r,i+3);
                 if (grain<1) {
                     if (i==0)
-                        Rprintf("r %4d xi[i] %4d \n", r, xi[i]);
+                        Rprintf("r %4d xi[i] %8.6e \n", r, xi[i]);
                 }
                 // Welford's algorithm for incremental mean and variance
                 delta = xi[i] - meanx[i];
