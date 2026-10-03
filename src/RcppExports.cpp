@@ -327,8 +327,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // simplehistoriesmarkedcpp
-List simplehistoriesmarkedcpp(const int mm, const int nc, const int cc, const int grain, const int ncores, const bool safeLL, const bool uselog, const IntegerVector binomN, const IntegerVector markocc, const IntegerVector firstocc, const NumericVector pID, const IntegerVector w, const IntegerVector group, const NumericVector gk, const NumericVector hk, const NumericMatrix density, const IntegerVector PIA, const NumericMatrix Tsk, const NumericMatrix h, const IntegerMatrix hindex, const IntegerVector mask_indices, const IntegerVector mask_offsets, const IntegerVector mask_id, const NumericVector telemhr, const IntegerVector telemstart, const int k1);
-RcppExport SEXP _secr_simplehistoriesmarkedcpp(SEXP mmSEXP, SEXP ncSEXP, SEXP ccSEXP, SEXP grainSEXP, SEXP ncoresSEXP, SEXP safeLLSEXP, SEXP uselogSEXP, SEXP binomNSEXP, SEXP markoccSEXP, SEXP firstoccSEXP, SEXP pIDSEXP, SEXP wSEXP, SEXP groupSEXP, SEXP gkSEXP, SEXP hkSEXP, SEXP densitySEXP, SEXP PIASEXP, SEXP TskSEXP, SEXP hSEXP, SEXP hindexSEXP, SEXP mask_indicesSEXP, SEXP mask_offsetsSEXP, SEXP mask_idSEXP, SEXP telemhrSEXP, SEXP telemstartSEXP, SEXP k1SEXP) {
+List simplehistoriesmarkedcpp(const int mm, const int nc, const int cc, const int grain, const int ncores, const bool safeLL, const bool uselog, const IntegerVector binomN, const IntegerVector markocc, const IntegerVector firstocc, const NumericVector pID, const IntegerVector w, const IntegerVector group, const NumericVector gk, const NumericVector hk, const NumericMatrix density, const IntegerVector PIA, const NumericMatrix Tsk, const NumericMatrix h, const IntegerMatrix hindex, const IntegerVector mask_indices, const IntegerVector mask_offsets, const IntegerVector mask_id, const NumericVector telemhr, const IntegerVector telemstart, const NumericMatrix Uind, const int k1);
+RcppExport SEXP _secr_simplehistoriesmarkedcpp(SEXP mmSEXP, SEXP ncSEXP, SEXP ccSEXP, SEXP grainSEXP, SEXP ncoresSEXP, SEXP safeLLSEXP, SEXP uselogSEXP, SEXP binomNSEXP, SEXP markoccSEXP, SEXP firstoccSEXP, SEXP pIDSEXP, SEXP wSEXP, SEXP groupSEXP, SEXP gkSEXP, SEXP hkSEXP, SEXP densitySEXP, SEXP PIASEXP, SEXP TskSEXP, SEXP hSEXP, SEXP hindexSEXP, SEXP mask_indicesSEXP, SEXP mask_offsetsSEXP, SEXP mask_idSEXP, SEXP telemhrSEXP, SEXP telemstartSEXP, SEXP UindSEXP, SEXP k1SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -357,8 +357,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const IntegerVector >::type mask_id(mask_idSEXP);
     Rcpp::traits::input_parameter< const NumericVector >::type telemhr(telemhrSEXP);
     Rcpp::traits::input_parameter< const IntegerVector >::type telemstart(telemstartSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix >::type Uind(UindSEXP);
     Rcpp::traits::input_parameter< const int >::type k1(k1SEXP);
-    rcpp_result_gen = Rcpp::wrap(simplehistoriesmarkedcpp(mm, nc, cc, grain, ncores, safeLL, uselog, binomN, markocc, firstocc, pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, telemhr, telemstart, k1));
+    rcpp_result_gen = Rcpp::wrap(simplehistoriesmarkedcpp(mm, nc, cc, grain, ncores, safeLL, uselog, binomN, markocc, firstocc, pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, telemhr, telemstart, Uind, k1));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -842,7 +843,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_secr_signalhistoriescpp", (DL_FUNC) &_secr_signalhistoriescpp, 19},
     {"_secr_gethrcpp", (DL_FUNC) &_secr_gethrcpp, 6},
     {"_secr_simplehistoriescpp", (DL_FUNC) &_secr_simplehistoriescpp, 25},
-    {"_secr_simplehistoriesmarkedcpp", (DL_FUNC) &_secr_simplehistoriesmarkedcpp, 26},
+    {"_secr_simplehistoriesmarkedcpp", (DL_FUNC) &_secr_simplehistoriesmarkedcpp, 27},
     {"_secr_simplehistoriesfxicpp", (DL_FUNC) &_secr_simplehistoriesfxicpp, 16},
     {"_secr_Tsightinglikcpp", (DL_FUNC) &_secr_Tsightinglikcpp, 7},
     {"_secr_sightingchatcpp", (DL_FUNC) &_secr_sightingchatcpp, 23},

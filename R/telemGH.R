@@ -114,3 +114,58 @@ secr_telemGH <- function (data, PIA, Xrealparval, detectfn, miscparm, gkhk,
     list(pi.density = pi.density2, gkhk = gkhk2, haztemp = haztemp2,
          maskcond = maskcond2, telemhr = telemhr2)
 }
+
+###############################################################################
+## Starting values for telemetry type 'marking' (used in makeStart in place of 
+## autoini, which needs detections of animals): 
+##   sigma    pooled within-animal rms deviation of telemetry fixes
+##   lambda0  cues of marked animals (identified plus unidentified) divided by the 
+##            cue exposure at each animal's mean fix, with animal-specific exposure 
+##   D        (unmarked cues + marked cues) / (lambda0 * integral of exposure over mask)
+## Returns list(D, g0, sigma) as autoini does (g0 = 1 - exp(-lambda0)); NA if not computable
+###############################################################################
+secr_startmarking <- function (capthist, mask) {
+    bad <- list(D = NA, g0 = NA, sigma = NA)
+    traps <- traps(capthist)
+    S  <- secr_noccasions(capthist, notelem = TRUE)
+    K  <- secr_ndetector(traps, notelem = TRUE)
+    xy <- telemetryxy(capthist)
+    xy <- xy[sapply(xy, nrow) > 0]
+    if (length(xy) == 0) return(bad)
+    ssd <- sum(sapply(xy, function(x) sum(sweep(x, 2, colMeans(x))^2)))
+    df  <- sum(sapply(xy, function(x) 2 * (nrow(x) - 1)))
+    if (df < 1 || ssd <= 0) return(bad)
+    sigma <- sqrt(ssd / df)
+    
+    trxy <- as.matrix(traps)[1:K, , drop = FALSE]
+    use  <- usage(traps)
+    use  <- if (is.null(use)) matrix(1, K, S) else as.matrix(use)[1:K, 1:S, drop = FALSE]
+    ar   <- atrisk(capthist)
+    ar   <- if (is.null(ar)) matrix(1, nrow(capthist), S) else ar[, 1:S, drop = FALSE]
+    rows <- match(names(xy), trimws(rownames(capthist)))
+    if (anyNA(rows)) rows <- match(names(xy), rownames(capthist))
+    if (anyNA(rows)) return(bad)
+    
+    ## exposure of each telemetered animal at its mean fix
+    expo <- 0
+    for (j in seq_along(xy)) {
+        xb  <- colMeans(xy[[j]])
+        d2  <- (trxy[,1] - xb[1])^2 + (trxy[,2] - xb[2])^2
+        Uk  <- as.vector(use %*% ar[rows[j], ])           # exposure of animal at each detector
+        expo <- expo + sum(Uk * exp(-d2 / (2 * sigma^2)))
+    }
+    counts <- sum(unclass(capthist)[rows, 1:S, 1:K, drop = FALSE]) + if (is.null(Tm(capthist))) 0 else sum(Tm(capthist))
+    lambda0 <- max(counts, 0.5) / max(expo, 1e-10)
+    lambda0 <- min(max(lambda0, 1e-6), 10)
+    
+    ## population cue rate summed over the mask
+    mxy <- as.matrix(mask)
+    Uk  <- rowSums(use)
+    J1 <- 0
+    for (k in 1:K) 
+        J1 <- J1 + Uk[k] * sum(exp(-((mxy[,1] - trxy[k,1])^2 + (mxy[,2] - trxy[k,2])^2) / (2 * sigma^2)))
+    J1 <- J1 * secr_getcellsize(mask)                      # per ha
+    Tutot <- if (is.null(Tu(capthist))) 0 else sum(Tu(capthist))
+    D <- (Tutot + counts) / (lambda0 * J1)
+    list(D = D, g0 = 1 - exp(-lambda0), sigma = sigma)
+}

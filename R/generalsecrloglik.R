@@ -39,7 +39,8 @@ allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup,
                            CH, binomNcode, MRdata, grp, usge, pmixn, pID, maskcond,
                            telemhr = 0, telemstart = 0,
                            grain, ncores, safeLL = FALSE, uselog = FALSE,
-                           R = FALSE, debug = FALSE, marking = FALSE, k1 = NULL) {
+                           R = FALSE, debug = FALSE, marking = FALSE, k1 = NULL,
+                           Uind = NULL) {
   ## marking = TRUE (telemetrytype 'marking') adds attribute 'post' to the result:
   ## nc x (k1+1) matrix of posterior-mean cue rates of each marked animal
   ## (simplehistoriesmarkedcpp); k1 is the number of detectors excluding the
@@ -110,7 +111,9 @@ allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup,
               as.double (telemhr),
               as.integer (telemstart))
           if (marking) {
-              tmp <- do.call(simplehistoriesmarkedcpp, c(args, list(as.integer(k1))))
+              if (is.null(Uind)) Uind <- matrix(1, nrow = nc, ncol = ncol(usge))
+              tmp <- do.call(simplehistoriesmarkedcpp,
+                             c(args, list(as.matrix(Uind), as.integer(k1))))
               logprwi[,x] <- tmp$lnprw
               post <- tmp$post
           }
@@ -607,7 +610,8 @@ secr_generalsecrloglikfn <- function (
                 details$grain, details$ncores, details$safeLL, details$uselog, details$R,
                 debug = details$debug>3,
                 marking = telemetrytype(data$traps) == "marking",
-                k1 = nrow(data$usge) - data$MRdata$anytelemetry)
+                k1 = nrow(data$usge) - data$MRdata$anytelemetry,
+                Uind = data$Uind)
         }
         else if (all(data$dettype == 5)) {
             lnprw <- allhistsignal (
@@ -784,11 +788,38 @@ secr_generalsecrloglikfn <- function (
               ## by chat. Replaces the 2026-08-20 'Ta' likelihood, which used the
               ## marked animals' cues twice.
               postE <- attr(lnprw, "post")
-              mu <- sum(tmp$Tumusk) - sum(postE[, -ncol(postE)])
-              if (!is.finite(mu) || mu <= 0)
+              ElamK <- postE[, -ncol(postE), drop = FALSE]    # animals x detectors
+              mu <- sum(tmp$Tumusk) - sum(ElamK)
+              if (!is.finite(mu)) {
                   comp[5,1] <- NA
-              else
-                  comp[5,1] <- dpois(sum(data$MRdata$Tu), mu, log = TRUE) / details$chat[1]
+              }
+              else {
+                  ## mu can be negative when D is small relative to the marked animals'
+                  ## own cue rates (e.g. at starting values); continue smoothly below
+                  ## a floor (positive, increasing in D) so that the optimiser can recover.
+                  ## The floor is far below the estimate (mu is about the unmarked count at the MLE).
+                  Tutotal <- sum(data$MRdata$Tu)
+                  floor <- 0.01 * max(1, Tutotal)
+                  if (mu < floor) mu <- floor * exp((mu - floor) / floor)
+                  comp[5,1] <- dpois(Tutotal, mu, log = TRUE) / details$chat[1]
+              }
+
+              ## Unidentified marked cues Tm: each cue of a marked animal is identified with
+              ## probability pID; Tm_k ~ Poisson((1 - pID) * sum_i E_i[cue rate at k]).
+              ## Marked animals' identified counts (in lnprw) carry pID.
+              if (!is.null(data$MRdata$Tm)) {
+                  qq <- pID[data$MRdata$markocc < 1, 1]
+                  if (diff(range(qq)) > 1e-12)
+                      stop ("pID must be constant over sighting occasions for telemetrytype 'marking'")
+                  if (qq[1] < 1) {
+                      Tmk  <- rowSums(data$MRdata$Tm)[seq_len(ncol(ElamK))]
+                      muTm <- (1 - qq[1]) * colSums(ElamK)
+                      if (any(muTm <= 0 & Tmk > 0))
+                          comp[6,1] <- NA
+                      else
+                          comp[6,1] <- sum(dpois(Tmk, muTm, log = TRUE)) / details$chat[2]
+                  }
+              }
           }
           else {
               if (!is.null(data$MRdata$Tu) && !is.null(tmp$Tumusk)) {

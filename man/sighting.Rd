@@ -9,6 +9,8 @@
 \alias{Tm<-}
 \alias{Tn}
 \alias{Tn<-}
+\alias{atrisk}
+\alias{atrisk<-}
 
 \title{ Sighting Attributes }
 
@@ -17,7 +19,9 @@
   object that distinguishes marking occasions from sighting
   occasions. Also, extract or replace the attributes Tu, Tm and Tn of a capthist
   object, used for storing counts of sightings. All attributes are
-  optional, but Tu, Tm and Tn require markocc to be specified.
+  optional, but Tu, Tm and Tn require markocc to be specified. The attribute
+  atrisk records animal-specific exposure, for example the occasions on which
+  a telemetry collar was active (telemetry type 'marking').
 }
 
 \usage{
@@ -30,12 +34,14 @@ Tm(object, \dots)
 Tm(object) <- value
 Tn(object, \dots)
 Tn(object) <- value
+atrisk(object, \dots)
+atrisk(object) <- value
 }
 \arguments{
   \item{object}{ \code{traps} object (\code{markocc}) or capthist object
-  (\code{Tu}, \code{Tm}, \code{Tn})}
+  (\code{Tu}, \code{Tm}, \code{Tn}, \code{atrisk})}
   \item{value}{ numeric matrix of detectors x occasions, or a vector
-    (see Details) }
+    (see Details); for \code{atrisk} a matrix of animals x occasions }
   \item{\dots}{ other arguments (not used) }
 }
 \details{
@@ -45,15 +51,23 @@ Tn(object) <- value
   marked or recaptured (1).
 
   For replacement of \code{Tu}, \code{Tm} or  \code{Tn}, `value' may be a scalar
-  (total count) or a detectors x occasions matrix.  
-  
+  (total count) or a detectors x occasions matrix.
+
+  For replacement of \code{atrisk}, `value' is a numeric matrix with one row per
+  animal and one column per occasion of the capthist object (telemetry occasions are
+  ignored), or NULL. Each element is a non-negative multiplier of the usage of every
+  detector for that animal on that occasion; usually 0 (not at risk, e.g. collar not active) or
+  1. The default (NULL) is 1 for all animals. In telemetry type 'marking' a collared animal
+  contributes cues to the identified counts and Tm only while at risk; at other times its
+  cues are part of the unmarked sightings Tu.
+
 }
 \value{
   
   markocc(object) returns the markocc vector of the \code{traps}
   object. \code{markocc(object)} may be NULL.
 
-  \code{Tu}, \code{Tm} and \code{Tn} return the respective attributes of a capthist object, or
+  \code{Tu}, \code{Tm}, \code{Tn} and \code{atrisk} return the respective attributes of a capthist object, or
   NULL if they are unspecified.
 
   sighting(object) returns TRUE if the markocc attribute indicates at least one 

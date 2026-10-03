@@ -235,10 +235,8 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
             if (is.null(Tu))
                 stop ("telemetrytype 'marking' requires counts Tu of unmarked animals")
             Tn <- NULL
-            if (!is.null(Tm) && sum(Tm) > 0) {
-                warning ("unidentified marked sightings Tm are ignored by telemetrytype 'marking' (not yet modelled)")
-                Tm <- NULL
-            }
+            if (!is.null(Tm) && !is.matrix(Tm))
+                stop ("telemetrytype 'marking' requires Tm as a detectors x occasions matrix")
         }
         
         if (allsighting) {
@@ -365,7 +363,11 @@ secr_prepareSessionData <- function (capthist, mask, maskusage,
             usge <- matrix(1, nrow = K, ncol = s)
         }
         maskcond <- secr_maskboolean2(capthist, mask, details$maxdistance, maskusage)
-        
+
+        ## animal-specific exposure (multiplier of usage), default 1
+        Uind <- atrisk(capthist)
+        if (is.null(Uind)) Uind <- matrix(1, nrow = nc, ncol = s)
+
         if (!is.null(details$externalqx)) {
             if (!(details$externalqx %in% names(covariates(mask)))) 
                 stop ("externalqx '", details$externalqx, "' not found in mask covariates")
@@ -418,6 +420,7 @@ secr_prepareSessionData <- function (capthist, mask, maskusage,
             dettype = dettype,
             binomNcode = binomNcode,
             usge = usge,
+            Uind = Uind,
             mask = mask,
             externalqx = externalqx,
             distmat2 = distmat2,

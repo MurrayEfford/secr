@@ -79,6 +79,7 @@ struct simplehistories : public Worker {
     const RVector<int>    mask_id;       // Maps individual to mask row
     const RVector<double> telemhr; 
     const RVector<int>    telemstart;
+    const RMatrix<double> Uind;      // n,s  animal-specific multiplier of usage (exposure window)
     const bool            post;      // also return posterior mean cue rates (telemetry 'marking')
     const int             k1;        // number of detectors excluding notional telemetry detector
 
@@ -128,6 +129,7 @@ struct simplehistories : public Worker {
         const IntegerVector mask_id,
         const NumericVector telemhr,
         const IntegerVector telemstart,
+        const NumericMatrix Uind,
         const bool post,
         const int k1,
 
@@ -159,6 +161,7 @@ struct simplehistories : public Worker {
         mask_id(mask_id),
         telemhr(telemhr), 
         telemstart(telemstart),
+        Uind(Uind),
         post(post),
         k1(k1),
         postout(postout),
@@ -281,7 +284,7 @@ struct simplehistories : public Worker {
                     m = mask_indices[j];
                     H = h(m, hindex(n,s));
                     if (H>fuzz) {
-                        psk = Tsk(k,s) * (1-exp(-H)) *  hk[i3(c, k, m, cc, kk)] / H;
+                        psk = Tsk(k,s) * Uind(n,s) * (1-exp(-H)) *  hk[i3(c, k, m, cc, kk)] / H;
                     }
                     else {
                         psk= 0.0;
@@ -320,9 +323,9 @@ struct simplehistories : public Worker {
                 for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
                     m = mask_indices[j];
                     if (binomN[s]==0)
-                        psk = pski(binomN[s], count, Tsk(k,s), hk[i3(c, k, m, cc, kk)], pID[s]);  
-                    else 
-                        psk = pski(binomN[s], count, Tsk(k,s), gk[i3(c, k, m, cc, kk)], pID[s]);  
+                        psk = pski(binomN[s], count, Tsk(k,s) * Uind(n,s), hk[i3(c, k, m, cc, kk)], pID[s]);
+                    else
+                        psk = pski(binomN[s], count, Tsk(k,s) * Uind(n,s), gk[i3(c, k, m, cc, kk)], pID[s]);
                     if (uselog) {
                         if (psk>0)
                             pm[m] += log(psk);
@@ -399,7 +402,7 @@ struct simplehistories : public Worker {
         double value = 0.0;
         c = PIA[i3(n, s, k, nc, ss)] - 1;
         if (c >= 0) {    // ignore unused detectors 
-            value = Tsk(k,s) * hk[i3(c, k, m, cc, kk)];
+            value = Tsk(k,s) * Uind(n,s) * hk[i3(c, k, m, cc, kk)];
         }
         return value;
     }
@@ -586,6 +589,7 @@ static NumericVector runsimplehistories (
         const IntegerVector mask_id,       // Maps individual to mask row
         const NumericVector telemhr,
         const IntegerVector telemstart,
+        const NumericMatrix Uind,
         const bool post,
         const int k1,
         NumericMatrix postout)
@@ -600,7 +604,7 @@ static NumericVector runsimplehistories (
             pID, w, group, gk, hk,
             density, PIA, Tsk, h, hindex,
             mask_indices, mask_offsets, mask_id, telemhr, telemstart,
-            post, k1, postout, output);
+            Uind, post, k1, postout, output);
     
     if (ncores>1) {
         // Run operator() on multiple threads
@@ -651,11 +655,13 @@ NumericVector simplehistoriescpp (
         const IntegerVector telemstart)
 {
     NumericMatrix nopost(1,1);
+    NumericMatrix Uind(nc, Tsk.ncol());       // no animal-specific exposure: all 1
+    std::fill(Uind.begin(), Uind.end(), 1.0);
     return runsimplehistories (
         mm, nc, cc, grain, ncores, safeLL, uselog, binomN, markocc, firstocc,
-        pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, 
-        mask_indices, mask_offsets, mask_id, telemhr, telemstart, 
-        false, 0, nopost);
+        pID, w, group, gk, hk, density, PIA, Tsk, h, hindex,
+        mask_indices, mask_offsets, mask_id, telemhr, telemstart,
+        Uind, false, 0, nopost);
 }
 //==============================================================================
 
@@ -692,14 +698,15 @@ List simplehistoriesmarkedcpp (
         const IntegerVector mask_id,       // Maps individual to mask row
         const NumericVector telemhr,
         const IntegerVector telemstart,
+        const NumericMatrix Uind,          // nc x s animal-specific multiplier of usage
         const int k1)                      // detectors excluding notional telemetry detector
 {
     NumericMatrix postout(nc, k1+1);
     NumericVector lnprw = runsimplehistories (
         mm, nc, cc, grain, ncores, safeLL, uselog, binomN, markocc, firstocc,
-        pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, 
-        mask_indices, mask_offsets, mask_id, telemhr, telemstart, 
-        true, k1, postout);
+        pID, w, group, gk, hk, density, PIA, Tsk, h, hindex,
+        mask_indices, mask_offsets, mask_id, telemhr, telemstart,
+        Uind, true, k1, postout);
     return List::create(Named("lnprw") = lnprw, Named("post") = postout);
 }
 //==============================================================================

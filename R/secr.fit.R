@@ -606,7 +606,9 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
         marking <- any(sapply(traps(capthist), telemetrytype)=="marking") 
     else 
         marking <- telemetrytype(traps(capthist))=="marking"
-    pnames <- secr_valid.pnames (details, CL, detectfn, alltelem, sighting, marking, nmix)
+    Tmpresent <- !is.null(Tm) && sum(unlist(Tm)) > 0
+    pnames <- secr_valid.pnames (details, CL, detectfn, alltelem, sighting, marking, nmix,
+                                 Tmpresent)
     
     #################################################
     ## test for irrelevant parameters in user's model

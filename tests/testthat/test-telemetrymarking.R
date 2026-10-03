@@ -60,6 +60,45 @@ test_that("telemetryint input checks", {
                  "only for telemetrytype 'marking'")
 })
 
+## Unidentified marked cues Tm (pID estimated) and collar windows (atrisk)
+## simulated: 15 collars, 5 occasions, q = 0.6, collar active on 60% of occasions,
+## Tu = 188, Tm = 8, 14 identified detections.
+chq <- readRDS(test_path("telemetry_marking_q.RDS"))
+chatq <- c(2.498894, 1, 1)          # RTMB value
+detq  <- list(safeLL = TRUE, uselog = TRUE, chat = chatq, telemetryint = "GH")
+fitq  <- secr.fit(chq, detectfn = "HHN", mask = msk, trace = FALSE, details = detq)
+estq  <- predict(fitq)
+
+## Reference: RTMB model (telemetry_TMB8.R, negative binomial Tu) D 79.25 (SE 17.23),
+## lambda0 0.6656, sigma 3.9629, q 0.6369
+test_that("Tm, pID and atrisk agree with RTMB reference", {
+    expect_equal(estq["D", "estimate"], 79.25, tolerance = 0.01, check.attributes = FALSE)
+    expect_equal(estq["lambda0", "estimate"], 0.6656, tolerance = 0.005, check.attributes = FALSE)
+    expect_equal(estq["sigma", "estimate"], 3.9629, tolerance = 0.005, check.attributes = FALSE)
+    expect_equal(estq["pID", "estimate"], 0.6369, tolerance = 0.005, check.attributes = FALSE)
+    expect_equal(estq["pID", "SE.estimate"], 0.1024, tolerance = 0.02, check.attributes = FALSE)
+})
+
+test_that("atrisk has an effect, and all-ones atrisk is the same as none", {
+    ch1 <- chq
+    atrisk(ch1) <- matrix(1, nrow(chq), ncol(chq))
+    ch0 <- chq
+    atrisk(ch0) <- NULL
+    fit1 <- secr.fit(ch1, detectfn = "HHN", mask = msk, trace = FALSE, details = detq)
+    fit0 <- secr.fit(ch0, detectfn = "HHN", mask = msk, trace = FALSE, details = detq)
+    expect_equal(logLik(fit1), logLik(fit0), tolerance = 1e-6)
+    ## ignoring the windows over-states density (here by about two thirds)
+    expect_gt(predict(fit0)["D", "estimate"], 1.3 * estq["D", "estimate"])
+})
+
+test_that("atrisk attribute checks and subsetting", {
+    expect_error(atrisk(chq) <- matrix(1, 3, 3), "same number of animals and occasions")
+    expect_error(atrisk(chq) <- matrix(-1, nrow(chq), ncol(chq)), "non-negative")
+    sub <- suppressWarnings(subset(chq, 1:5))     # warns of occasions without detections
+    expect_equal(dim(atrisk(sub)), c(5, ncol(chq)))
+    expect_equal(atrisk(sub), atrisk(chq)[1:5, , drop = FALSE], check.attributes = FALSE)
+})
+
 test_that("marking input checks", {
     ch0 <- ch
     Tu(ch0) <- NULL
