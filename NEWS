@@ -1,7 +1,12 @@
 Changes in version 5.5.1 (2026-10-04)
 
 New features or changed behaviour of old functions
-    o  (development branch telemetry-mr: corrected telemetry mark-resight model; entries to be added)
+    o  telemetrytype 'marking' now uses the unmarked counts Tu: expected unmarked cues are the cue
+       rate of the whole population less the expected cues of the marked animals, each given its
+       own telemetry and detections. This replaces the 'Ta' likelihood of 5.5.0, which used the
+       marked animals' cues twice. Tm is ignored (warning) and details$nsim is not available
+       for this type; supply details$chat.
+    o  internal: simplehistoriesmarkedcpp() returns posterior-mean cue rates of marked animals
 
 Changes in version 5.5.0 (2026-09-19)
 
