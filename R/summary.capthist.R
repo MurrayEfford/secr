@@ -18,7 +18,7 @@ summary.capthist <- function(object, terse = FALSE, moves = FALSE, tpa = FALSE, 
     else {
         object <- secr_check3D(object)
         trps <- traps(object)
-        nd <- secr_ndetector(trps)
+        nd <- secr_ndetector(trps, notelem = TRUE)  # refined 2026-09-25
         if (terse) {   ## 2017-11-06, 2019-01-22, 2024-10-09
             moves <-if (moves) sum(unlist(sapply(moves(object), function(y) y>0))) else NULL
             animals2 <- if (tpa) sum(trapsPerAnimal(object)[-1]) else NULL

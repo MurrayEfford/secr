@@ -525,7 +525,7 @@ double rcount (int binomN, double lambda, const double Tsk) {
     
     // Poisson 
     if (binomN == 0)
-        return (R::rpois(lambda * Tsk) );
+        return (R::rpois(lambda * Tsk));
     
     // negative binomial 
     else if (binomN < 0) {

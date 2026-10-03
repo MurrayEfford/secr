@@ -24,7 +24,7 @@ secr.refit <- function (object, ...) {
             type <- paste(type, "(variance only")
         }
     }
-    
+
     ## list of input arguments saved in object
     ## omit dframe, verify, biasLimit
     

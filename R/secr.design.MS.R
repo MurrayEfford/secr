@@ -37,8 +37,6 @@ padarray <- function (x, dims) {
 
 #-------------------------------------------------------------------------------
 
-#-------------------------------------------------------------------------------
-
 secr.design.MS <- function (capthist, models, timecov = NULL, sessioncov = NULL,
                             groups = NULL, hcov = NULL, dframe = NULL, naive = FALSE,
                             CL = FALSE, keep.dframe = FALSE, full.dframe = FALSE,

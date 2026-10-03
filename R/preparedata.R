@@ -144,6 +144,10 @@ getTa <- function (capthist) {
     else {
         S <- secr_noccasions(capthist, notelem = TRUE)
         K <- secr_ndetector(traps(capthist), notelem = TRUE)
+        # if ((!is.null(Tm(capthist)) && sum(Tm(capthist))>0) || 
+        #     (!is.null(Tn(capthist)) && sum(Tn(capthist))>0)) {
+        #     warning("telemetry 'marking' model does not allow Tm, Tn sightings (pID = 1)")
+        # }
         sightingcounts <- list(Tu = Tu(capthist), Tm = Tm(capthist), Tn = Tn(capthist))
         sightingcounts <- lapply(sightingcounts, function(x) if (is.null(x)) matrix(0,K,S) else x)
         detectedM <- apply(capthist[,1:S,1:K, drop = FALSE],c(3,2),sum)
@@ -382,7 +386,10 @@ secr_prepareSessionData <- function (capthist, mask, maskusage,
         # when is full CH0 (1 row per animal) really needed?
         # why is this an issue for secrfunc::polygonhistoriescpp and not simplehistoriescpp?
         
-        CH0 <- secr_nullCH(dim(CH), packageVersion('secr')<'4.0.0' || design0$individual || ngroup>1)   ## all-zero CH
+        # CH0 <- secr_nullCH(dim(CH), packageVersion('secr')<'4.0.0' || design0$individual || ngroup>1)   ## all-zero CH
+        
+        indiv <- !is.null(design0$individual) && design0$individual  # 2026-09-19
+        CH0 <- secr_nullCH(dim(CH), packageVersion('secr')<'4.0.0' || indiv || ngroup>1)   ## all-zero CH
         
         #####################################################################
         ## unclear whether this is correct wrt groups

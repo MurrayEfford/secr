@@ -77,8 +77,8 @@ Tsightinglikcpp <- function(T, markocc, anytelem, binomN, Tsk, musk, debug) {
     .Call(`_secr_Tsightinglikcpp`, T, markocc, anytelem, binomN, Tsk, musk, debug)
 }
 
-sightingchatcpp <- function(mm, nc, cc0, grain, ncores, nsim, sightmodel, sumD, area, distrib, binomN, markocc, pID, group, gk0, hk0, density, PIA0, Tsk, pmix) {
-    .Call(`_secr_sightingchatcpp`, mm, nc, cc0, grain, ncores, nsim, sightmodel, sumD, area, distrib, binomN, markocc, pID, group, gk0, hk0, density, PIA0, Tsk, pmix)
+sightingchatcpp <- function(mm, nc, cc0, grain, ncores, nsim, sightmodel, sumD, area, distrib, anytelem, binomN, markocc, pID, group, gk0, hk0, density, PIA0, Tsk, pmix, seed, verbose) {
+    .Call(`_secr_sightingchatcpp`, mm, nc, cc0, grain, ncores, nsim, sightmodel, sumD, area, distrib, anytelem, binomN, markocc, pID, group, gk0, hk0, density, PIA0, Tsk, pmix, seed, verbose)
 }
 
 expectedmucpp <- function(nc, cc, Tu, Tm, Ta, sightmodel, binomN, markocc, anytelem, pID, group, gk, hk, pi_density, Nm, PIA, Tsk, h, hindex, a0) {

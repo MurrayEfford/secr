@@ -318,6 +318,10 @@ secr_valid.pnames <- function (details, CL, detectfn, alltelem, sighting, markin
         # assume all telemetered animals marked if marking
         pnames <- c(pnames, 'pID')
     }
+    # if (sighting) {
+    #     pnames <- c(pnames, 'pID')
+    # }
+    
     # if (alltelem) {
     #     rnum <- match(c('D','lambda0','a0','esa','g0'), pnames)
     #     rnum[is.na(rnum)] <- 0

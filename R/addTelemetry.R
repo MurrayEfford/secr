@@ -19,7 +19,6 @@ addTelemetry <- function (detectionCH, telemetryCH,
                           type = c('concurrent','dependent','independent', 'marking'), 
                           collapsetelemetry = TRUE,
                           verify = TRUE, prefix = "T") {
-    
     ## combine capture histories from telemetry and hair snags etc.
     if (ms(detectionCH) | ms(telemetryCH)) {
         if (!(ms(detectionCH) & ms(telemetryCH)))

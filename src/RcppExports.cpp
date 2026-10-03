@@ -370,8 +370,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // sightingchatcpp
-List sightingchatcpp(const int mm, const int nc, const int cc0, const int grain, const int ncores, const int nsim, const int sightmodel, const double sumD, const double area, const int distrib, const IntegerVector binomN, const IntegerVector markocc, const NumericMatrix pID, const IntegerVector group, const NumericVector gk0, const NumericVector hk0, const NumericMatrix density, const IntegerVector PIA0, const NumericMatrix Tsk, const NumericVector pmix);
-RcppExport SEXP _secr_sightingchatcpp(SEXP mmSEXP, SEXP ncSEXP, SEXP cc0SEXP, SEXP grainSEXP, SEXP ncoresSEXP, SEXP nsimSEXP, SEXP sightmodelSEXP, SEXP sumDSEXP, SEXP areaSEXP, SEXP distribSEXP, SEXP binomNSEXP, SEXP markoccSEXP, SEXP pIDSEXP, SEXP groupSEXP, SEXP gk0SEXP, SEXP hk0SEXP, SEXP densitySEXP, SEXP PIA0SEXP, SEXP TskSEXP, SEXP pmixSEXP) {
+List sightingchatcpp(const int mm, const int nc, const int cc0, const int grain, const int ncores, const int nsim, const int sightmodel, const double sumD, const double area, const int distrib, const int anytelem, const IntegerVector binomN, const IntegerVector markocc, const NumericMatrix pID, const IntegerVector group, const NumericVector gk0, const NumericVector hk0, const NumericMatrix density, const IntegerVector PIA0, const NumericMatrix Tsk, const NumericVector pmix, const uint64_t seed, const bool verbose);
+RcppExport SEXP _secr_sightingchatcpp(SEXP mmSEXP, SEXP ncSEXP, SEXP cc0SEXP, SEXP grainSEXP, SEXP ncoresSEXP, SEXP nsimSEXP, SEXP sightmodelSEXP, SEXP sumDSEXP, SEXP areaSEXP, SEXP distribSEXP, SEXP anytelemSEXP, SEXP binomNSEXP, SEXP markoccSEXP, SEXP pIDSEXP, SEXP groupSEXP, SEXP gk0SEXP, SEXP hk0SEXP, SEXP densitySEXP, SEXP PIA0SEXP, SEXP TskSEXP, SEXP pmixSEXP, SEXP seedSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -385,6 +385,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const double >::type sumD(sumDSEXP);
     Rcpp::traits::input_parameter< const double >::type area(areaSEXP);
     Rcpp::traits::input_parameter< const int >::type distrib(distribSEXP);
+    Rcpp::traits::input_parameter< const int >::type anytelem(anytelemSEXP);
     Rcpp::traits::input_parameter< const IntegerVector >::type binomN(binomNSEXP);
     Rcpp::traits::input_parameter< const IntegerVector >::type markocc(markoccSEXP);
     Rcpp::traits::input_parameter< const NumericMatrix >::type pID(pIDSEXP);
@@ -395,7 +396,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const IntegerVector >::type PIA0(PIA0SEXP);
     Rcpp::traits::input_parameter< const NumericMatrix >::type Tsk(TskSEXP);
     Rcpp::traits::input_parameter< const NumericVector >::type pmix(pmixSEXP);
-    rcpp_result_gen = Rcpp::wrap(sightingchatcpp(mm, nc, cc0, grain, ncores, nsim, sightmodel, sumD, area, distrib, binomN, markocc, pID, group, gk0, hk0, density, PIA0, Tsk, pmix));
+    Rcpp::traits::input_parameter< const uint64_t >::type seed(seedSEXP);
+    Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(sightingchatcpp(mm, nc, cc0, grain, ncores, nsim, sightmodel, sumD, area, distrib, anytelem, binomN, markocc, pID, group, gk0, hk0, density, PIA0, Tsk, pmix, seed, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -806,7 +809,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_secr_simplehistoriescpp", (DL_FUNC) &_secr_simplehistoriescpp, 25},
     {"_secr_simplehistoriesfxicpp", (DL_FUNC) &_secr_simplehistoriesfxicpp, 16},
     {"_secr_Tsightinglikcpp", (DL_FUNC) &_secr_Tsightinglikcpp, 7},
-    {"_secr_sightingchatcpp", (DL_FUNC) &_secr_sightingchatcpp, 20},
+    {"_secr_sightingchatcpp", (DL_FUNC) &_secr_sightingchatcpp, 23},
     {"_secr_expectedmucpp", (DL_FUNC) &_secr_expectedmucpp, 20},
     {"_secr_simdetectpointcpp", (DL_FUNC) &_secr_simdetectpointcpp, 17},
     {"_secr_simdetectpolycpp", (DL_FUNC) &_secr_simdetectpolycpp, 17},

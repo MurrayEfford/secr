@@ -1,29 +1,30 @@
 #include "secr.h"
 #include <RcppParallel.h>
-
-//==============================================================================
-int discreteN (double N) {
-    int tn;
-    tn = (int) N;
-    if (N == tn) return(tn);
-    else return(tn + (unif_rand() < (N-tn)));
-}
+#include <random>
 
 //==============================================================================
 // detector types multi, proximity, count
 
+// for sightmodel = 7 we do not distinguish marked and unmarked animals 
+// c-hat is for the total count of detections C
+// all counts etc. are in 'unmarked' arrays
+
+// 2026-09-17 Switch to C++11 <random> with thread-Local RNG
+// 2026-09-17 'seed' argument (integer or double converted by Rcpp to uint64_t)
+
 struct chat : public Worker {
     
     // input data
-    const int   mm;
-    const int   nmark;
-    const int   cc0;                   // number of parameter combinations
-    const int   grain;
-    const int   nsim;                 // number of replicate simulations for chat 
-    const int   sightmodel;           // 5 allsighting known n0, 6 allsighting unknown n0
+    const int    mm;                  // number of mask cells
+    const int    nmark;
+    const int    cc0;                 // number of parameter combinations
+    const int    grain;
+    const int    nsim;                // number of replicate simulations for chat 
+    const int    sightmodel;          // 5 allsighting known n0, 6 allsighting unknown n0
     const double sumD;
-    const double area;
-    const int distrib;
+    const double area;                // area of mask cell in hectares
+    const int    distrib;             // 0 Poisson, 1 fixed
+    const int    anytelem;
     const RVector<int>    binomN;     // s 
     const RVector<int>    markocc;    // s 
     const RMatrix<double> pID;        // s 
@@ -35,14 +36,15 @@ struct chat : public Worker {
     const RMatrix<double> Tsk;        // k x s
     const RVector<double> pmix;
     
+    uint64_t base_seed;
+    
     // output 
     RMatrix<double> chatmat;
     RVector<double> chatout;
     
     // working variables
-    int  kk, ss, resultcode;
+    int  kk, k1, ss, resultcode;
     double sumNm;
-    double nc;
     bool allsighting = false;
     const double tol = 1e-6;    
     int nmix = 1;
@@ -63,6 +65,7 @@ struct chat : public Worker {
         const double sumD,
         const double area,
         const int distrib,
+        const int anytelem,
         const IntegerVector binomN,  
         const IntegerVector markocc,  
         const NumericMatrix pID,  
@@ -73,23 +76,24 @@ struct chat : public Worker {
         const IntegerVector PIA0,
         const NumericMatrix Tsk,
         const NumericVector pmix, 
+        uint64_t base_seed,
         
         NumericMatrix chatmat,
         NumericVector chatout)
         : 
         mm(mm), nmark(nmark), cc0(cc0), grain(grain), nsim(nsim), sightmodel(sightmodel),
-        sumD(sumD), area(area), distrib(distrib),
+        sumD(sumD), area(area), distrib(distrib), anytelem(anytelem),
         binomN(binomN), markocc(markocc), pID(pID), group(group), gk0(gk0), hk0(hk0), 
         density(density),PIA0(PIA0), Tsk(Tsk), pmix(pmix),
-        chatmat(chatmat), chatout(chatout) {
+        chatmat(chatmat), chatout(chatout), base_seed(base_seed) {
         
         // now can initialise these derived counts
         kk = Tsk.nrow();             // number of detectors
         ss = Tsk.ncol();             // number of occasions
         nmix = pmix.size();
+        k1 = kk - anytelem;          // number of detectors excl. telemetry
 
         allsighting = (sightmodel >= 5);
-        // if (allsighting) Rcpp::stop ("chat not ready for all occasions sighting occasions");
         if (nsim < 2)
             Rcpp::stop ("nsim for chat must be at least 2, and preferably much more!");
         if (sightmodel == 1) { // conditional likelihood incompatible with unresolved sightings 
@@ -99,11 +103,11 @@ struct chat : public Worker {
         }
         
         Nm = getNm();
-        a0 = geta0();    // INTERIM
-        nc = 0;      // INTERIM
+        a0 = geta0();  // INTERIM
         sumNm = std::accumulate(Nm.begin(), Nm.end(), 0.0);
         if (distrib) cumprob = getcumprob();  // only for fixed N multinomial 
-        
+
+        RNGScope scope;        
     }
     //==============================================================================
     
@@ -161,7 +165,7 @@ struct chat : public Worker {
         double pp = 1.0;
         double H = 0;
         if (markocc[s] > 0) {  // marking occasions only 
-            for (k=0; k< kk; k++) {
+            for (k=0; k< k1; k++) {
                 c = PIA0[i4(n,s,k,x,nmark,ss,kk)] - 1;
                 if (c >= 0) {    // drops unset traps 
                     // pID always 1.0 on marking occasions
@@ -182,7 +186,7 @@ struct chat : public Worker {
     }
     //------------------------------------------------------------------------------
     
-    std::vector<double> onesim (int r) {
+    std::vector<double> onesim (int r, std::mt19937_64& gen) {
         
         int c, i, k, m, s, x;
         int np = 0;
@@ -202,13 +206,16 @@ struct chat : public Worker {
         std::vector<double> sump(3,0);
         std::vector<double> musk(3,0);
         std::vector<double> p(3,0);
-        std::vector<double> out(7);
+        std::vector<double> out(8);
         double A = mm * area;              // total mask area 
+        
+        // instantiate uniform PRNG
+        std::uniform_real_distribution<double> u_dist(0.0, 1.0);
         
         //-----------------------------------------------------
         
         // sighting-only, conditioning on Nm 
-        if (allsighting) {
+        if (allsighting && sightmodel != 7) {
             cumprobmkd[0] = density[0];
             cumprobunmkd[0] = (Nm[0] - nmark * density[0]) / (sumNm - nmark);
             for (m=1; m<mm; m++) {
@@ -217,56 +224,57 @@ struct chat : public Worker {
             }
             // pre-set marked population if conditioning on nmark 
             for (i=0; i<nmark; i++) {
-                m = locate(unif_rand(), mm, cumprobmkd);
+                m = locate(u_dist(gen), mm, cumprobmkd);  // 2026-09-17 u_dist(gen) replaces unif_rand()
                 initialpopmarked[m] += 1;
             }
         }
         
         //------------------------------------------------------------------
         // Random initial population 
+        // for telemetry marking sightmodel=7 we want the entire population
         
         if (distrib) {   // N 'fixed' (= binomial n);  multinomial cells 
             // simulated density is matched by discreteN only in the long-run average 
-            N = discreteN(sumNm);  
-            if (allsighting) {
+            // N = discreteN(sumNm);  
+            N = sumNm;
+            int tn = (int) N;
+            if (N != tn) N = (tn + (u_dist(gen) < (N-tn)));
+            if (allsighting && sightmodel != 7) {
                 if (N>nmark) {
                     for (i=0; i<(N-nmark); i++) {
-                        m = locate(unif_rand(), mm, cumprobunmkd);
+                        m = locate(u_dist(gen), mm, cumprobunmkd);
                         initialpopunmarked[m] += 1;    // unmarked animals in cell m 
                     }
                 }
             }
             else {
                 for (i=0; i<N; i++) {
-                    m = locate(unif_rand(), mm, cumprob);
+                    m = locate(u_dist(gen), mm, cumprob);
                     if ((m<0) || (m>=mm)) {
                         Rprintf("erroneous location of simulated animal in sightingchat\n");
-                        //PutRNGstate();  // return random seed to R 
                         resultcode = 1;
                     }
                     initialpopunmarked[m] += 1;
                 }
             }
         }
-        else {   // Poisson total, cells multinomial allowing for marked 
-            if (allsighting) {
-                N = R::rpois(sumNm);
+        else {   // N Poisson, cells multinomial allowing for marked 
+            if (allsighting && sightmodel != 7) {
+                std::poisson_distribution<int> p_dist(sumNm);
+                N = p_dist(gen); // R::rpois(sumNm);
                 if (N>nmark) {
                     for (i=0; i<(N-nmark); i++) {
-                        m = locate(unif_rand(), mm, cumprobunmkd);
+                        m = locate(u_dist(gen), mm, cumprobunmkd);
                         initialpopunmarked[m] += 1;
                     }
                 }
             }
             else {     // Poisson total, Poisson each cell 
                 for (m=0; m < mm; m++) {
-                    initialpopunmarked[m] = R::rpois(Nm[m]);
+                    std::poisson_distribution<int> p_dist(Nm[m]);
+                    initialpopunmarked[m] = p_dist(gen);  // R::rpois(Nm[m]);
                 }
             }
-        }
-        if (grain<1) {
-            for (m=0;m<10;m++) Rprintf("pop[m] %4d \n", initialpopunmarked[m]);
-            Rprintf("\n");
         }
         //------------------------------------------------------------------
         
@@ -275,19 +283,23 @@ struct chat : public Worker {
             for (m=0;m<mm;m++) {
                 if (allsighting) {
                     popunmarked[x*mm+m] = initialpopunmarked[m];
-                    popmarked[x*mm+m] = initialpopmarked[m];
+                    popmarked[x*mm+m]   = initialpopmarked[m];
                 }
                 else {
                     popunmarked[x*mm+m] = initialpopunmarked[m];
-                    popmarked[x*mm+m] = 0;
+                    popmarked[x*mm+m]   = 0;
                 }
             }
+        }
+        out[7] = std::accumulate(initialpopunmarked.begin(), initialpopunmarked.end(), 0.0);
+        if (grain<1) {
+            Rprintf("popn %4d \n", out[7]);
         }
         
         mu1 = 0; mu2 = 0;
         for (s=0; s < ss; s++) {
             if (grain<1) {
-                Rprintf("Starting occasion s %4d \n", s);
+                // Rprintf("Starting occasion s %4d \n", s);
             }
             //-----------------------------------------------------------------------
             // marking occasions 
@@ -305,7 +317,7 @@ struct chat : public Worker {
                                 pmark = getpmark(x, s, m); 
                                 if (grain<1) Rprintf ("s %4d m %4d pmark %8.6e\n", s, m, pmark);
                                 for (i=0; i<temppop; i++) {
-                                    if (unif_rand() < pmark) {
+                                    if (u_dist(gen) < pmark) {
                                         popunmarked[x * mm + m] --;
                                         popmarked[x * mm + m] ++;
                                         Nmarked++;   // for check
@@ -322,15 +334,16 @@ struct chat : public Worker {
             // sighting occasions 
             // accumulate sightings 
             else {                         
-                for (k=0; k < kk; k++) {
+                for (k=0; k < k1; k++) {
                     if (grain<1) {
-                        Rprintf("Starting detector k %4d nmark %4d popunmarked %8.6e\n", k,nmark, 
-                                std::accumulate(popunmarked.begin(), popunmarked.end(), 0.0));
+                        // popn = std::accumulate(popunmarked.begin(), popunmarked.end(), 0.0);
+                        // Rprintf("Starting occasion s %4d detector k %4d nmark %4d popunmarked %8d\n", 
+                        //         s, k, nmark, popn);
                     }
                     for (i=0; i<3; i++) musk[i] = 0;
                     for (x=0; x<nmix; x++) {
                         mu1 = 0; mu2 = 0; 
-                        // n = 0, generic individual 
+                        // n = 0, generic individual for this mixture class x
                         c = PIA0[i4(0,s,k,x,nmark,ss,kk)] - 1;
                         if (c >= 0) {                    // drops unset traps 
                             for (m=0; m < mm; m++) {
@@ -358,12 +371,12 @@ struct chat : public Worker {
                                     }
                                     else if (sightmodel == 5) {   // sightmodel 5 all sighting, known 
                                         if (markocc[s] == 0) 
-                                            mu2 +=  density[m] * nc * Hskx; 
+                                            mu2 +=  density[m] * nmark * Hskx; 
                                     }
                                     else if (sightmodel == 6) {   // sightmodel 6 all sighting, unknown 
                                         if (markocc[s] == 0) 
                                             if (a0[x] > 0)   // 2015-12-31
-                                                mu2 +=  density[m] * nc * (A/a0[x]) * Hskx; 
+                                                mu2 +=  density[m] * nmark * (A/a0[x]) * Hskx; 
                                     }
                                     else {                  // sightmodel  0,2,3,4 
                                         if (markocc[s] == 0) {
@@ -382,22 +395,29 @@ struct chat : public Worker {
                         
                     }  // end loop over latent classes 
                     
-                    // simulate actual counts xi
-                    if (binomN[s] < 0) {   // multi, proximity 
+                    // simulate actual counts and increment xi
+                    if (binomN[s] < 0) {   // multi -2, proximity -1
                         np += 1;
                         for (i=0; i<3; i++) {
                             p[i] = 1-exp(-musk[i]);
                             sump[i] += p[i];
-                            if (musk[i]>tol) xi[i] += (unif_rand() < p[i]);
+                            if (musk[i]>tol) xi[i] += (u_dist(gen) < p[i]);
                         }
                     }
-                    else {                // count etc. 
+                    else if (binomN[s] == 0) { // Poisson cell counts
                         for (i=0; i<3; i++) {
-                            if (musk[i]>tol) xi[i] += R::rpois(musk[i]);
+                            if (musk[i]>tol) {
+                                std::poisson_distribution<int> p_dist(musk[i]);
+                                xi[i] += p_dist(gen); 
+                            }
                         }
+                    }  
+                    else {
+                        Rcpp::stop ("binomial sightings are not currently allowed");
                     }
                     if (grain<1) {
-                        Rprintf("r %4d s %4d k %4d musk[0] %8.6e musk[1] %8.6e \n", r, s, k, musk[0], musk[1]);
+                        Rprintf("r %4d s %4d k %4d musk[0] %8.6e musk[1] %8.6e \n",
+                                r, s, k, musk[0], musk[1]);
                     }
                 }  // end loop over detectors  
             }  // sighting occasions
@@ -436,6 +456,11 @@ struct chat : public Worker {
             for (int i=0; i<3; i++) {
                 xi[i] = chatmat(r,i);
                 sump[i] = chatmat(r,i+3);
+                if (grain<1) {
+                    if (i==0)
+                        Rprintf("r %4d xi[i] %4d \n", r, xi[i]);
+                }
+                // Welford's algorithm for incremental mean and variance
                 delta = xi[i] - meanx[i];
                 meanx[i] += delta/(r+1);
                 varx[i] += delta*(xi[i] - meanx[i]);
@@ -472,9 +497,12 @@ struct chat : public Worker {
     // function call operator that works for the specified range (begin/end)
     void operator()(std::size_t begin, std::size_t end) {    
         std::vector<double> chatvec;
+        // Instantiate thread-local PRNG with thread-unique offset seed
+        std::mt19937_64 gen(base_seed + begin);
+        
         for (std::size_t r = begin; r < end; r++) {
-            chatvec = onesim (r);
-            for (int i=0; i<7; i++) chatmat(r,i) = chatvec[i];
+            chatvec = onesim (r, gen);
+            for (int i=0; i<8; i++) chatmat(r,i) = chatvec[i];
         }
     }
     //==============================================================================
@@ -483,7 +511,7 @@ struct chat : public Worker {
 // [[Rcpp::export]]
 List sightingchatcpp (
         const int           mm, 
-        const int           nc, 
+        const int           nc,          // number marked (number of rows in capthist incl zeroes)
         const int           cc0, 
         const int           grain, 
         const int           ncores, 
@@ -492,6 +520,7 @@ List sightingchatcpp (
         const double        sumD,
         const double        area,
         const int           distrib,
+        const int           anytelem,
         const IntegerVector binomN,      // detector -2 multi, -1 proximity 0 Poisson count 1 Binomial from usage, 2...etc. 
         const IntegerVector markocc, 
         const NumericMatrix pID, 
@@ -501,14 +530,17 @@ List sightingchatcpp (
         const NumericMatrix density,     // relative density - sums to 1.0
         const IntegerVector PIA0, 
         const NumericMatrix Tsk,         // nk x s usage matrix 
-        const NumericVector pmix) {
+        const NumericVector pmix,
+        const uint64_t      seed,
+        const bool          verbose) {
     
-    NumericMatrix chatmat(nsim,7); 
+    NumericMatrix chatmat(nsim,8); 
     NumericVector chatout(3); 
     
     // Construct and initialise
-    chat somechat (mm, nc, cc0, grain, nsim, sightmodel, sumD, area, distrib, binomN, markocc, pID, 
-                   group, gk0, hk0, density, PIA0, Tsk, pmix, chatmat, chatout);
+    chat somechat (mm, nc, cc0, grain, nsim, sightmodel, sumD, area, distrib, 
+                   anytelem, binomN, markocc, pID, 
+                   group, gk0, hk0, density, PIA0, Tsk, pmix, seed, chatmat, chatout);
     
     if (ncores>1) {
         // Run operator() on multiple threads
@@ -526,7 +558,14 @@ List sightingchatcpp (
     somechat.chatvar();
     
     // Return consolidated result
-    return (List::create(Named("resultcode") = 0, Named("chat") = chatout));
+    if (verbose) {
+        return (List::create(Named("resultcode") = 0, 
+                             Named("chat") = chatout, 
+                             Named("chatmat") = chatmat));
+    }
+    else {
+        return (List::create(Named("resultcode") = 0, Named("chat") = chatout));
+    }
     
 }
 //==============================================================================

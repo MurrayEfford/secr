@@ -91,7 +91,6 @@ public:
                         pp *= exp(-h(m, hindex(n,s)));
                     }   
                     else {
-                        // for (k=0; k< kk; k++) {
                         for (k=0; k< k1; k++) {
                                 c = PIA[i3(n,s,k,nc,ss)] - 1;
                             if (c >= 0) {    // drops unset traps 

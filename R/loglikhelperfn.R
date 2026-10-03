@@ -169,12 +169,11 @@ secr_getmaskpar <- function(OK, D, m, sessnum, unmash, nmash) {
 #--------------------------------------------------------------------------------
 getchat <- function (cc0, nc, n.distrib, group, usge, pmixn, pID,
                      cellsize, gkhk, pi.density, sumD,  PIA0, binomN, MRdata, miscparm, 
-                     nsim, grain,ncores) {
-    kk <- nrow(usge)
-    ss <- ncol(usge)
+                     nsim, grain,ncores, debug) {
     mm <- nrow(pi.density)
     ngroup <- length(levels(group))   ## uNUSED
     ## note: should pass pi.mask as pi.density for known distribution all-sighting
+    seed <- sample.int(.Machine$integer.max, 1)
     temp <- sightingchatcpp (
         as.integer(mm), 
         as.integer(nc), 
@@ -186,6 +185,7 @@ getchat <- function (cc0, nc, n.distrib, group, usge, pmixn, pID,
         as.double(sumD),
         as.double(cellsize),
         as.integer(n.distrib),
+        as.integer(MRdata$anytelemetry), 
         as.integer(binomN),      ## detector -2 multi, -1 proximity 0 Poisson count 1 Binomial from usage, 2...etc. 
         as.integer(MRdata$markocc), 
         as.matrix(pID), 
@@ -195,7 +195,9 @@ getchat <- function (cc0, nc, n.distrib, group, usge, pmixn, pID,
         as.matrix(pi.density),        ## relative density - sums to 1.0
         as.integer(PIA0), 
         as.matrix(usge),         ## nk x s usage matrix 
-        as.numeric(pmixn[,1])
+        as.numeric(pmixn[,1]),
+        as.numeric(seed),
+        as.logical(debug>1)
     ) 
     if (temp$resultcode==0) {
         sumchat <- temp$chat
@@ -210,6 +212,9 @@ getchat <- function (cc0, nc, n.distrib, group, usge, pmixn, pID,
     }
     else {
         names(sumchat) <- c('Tu','Tm','Tn')
+    }
+    if (!is.null(temp$chatmat)) {
+        attr(sumchat, 'chatmat') <- temp$chatmat
     }
     return (sumchat)
 }

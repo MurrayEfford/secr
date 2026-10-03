@@ -332,21 +332,21 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     ## the checks here do not take account of details$markresight 2016-12-05
     if (MS) {
         sighting <- sighting(traps(capthist[[1]]))
+        telemetrymarking <- telemetrytype(traps(capthist[[1]])) == "marking"
         Tu <- Tu(capthist[[1]])
         Tm <- Tm(capthist[[1]])
     }
     else {
         sighting <- sighting(traps(capthist))
+        telemetrymarking <- telemetrytype(traps(capthist)) == "marking"
         Tu <- Tu(capthist)
         Tm <- Tm(capthist)
     }
-    if (('pID' %in% names(fixed)) & !is.null(Tm)){
-        ## if ((fixed$pID == 1) & (sum(Tm)>0) & any(markocc(traps(capthist))==0))
-        ## 2019-12-16
-        if ((fixed$pID == 1) & (sum(Tm)>0) & any(unlist(markocc(traps(capthist)))==0))
+    if (('pID' %in% names(fixed)) && !is.null(Tm)){
+        if ((fixed$pID == 1) && (sum(Tm)>0) && any(unlist(markocc(traps(capthist)))==0))
             warning ("mark-resight nonID sightings ignored when fixed$pID = 1")
     }
-    if (sighting & CL & !is.null(Tu)) {
+    if (sighting && CL && !is.null(Tu) &&  !telemetrymarking) {
         warning ("mark-resight unmarked (but not nonID) sightings ignored when CL = TRUE")
     }
     
@@ -538,7 +538,12 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
         ## default to fixed lambda0 = 1
         fixed$lambda0 <- 1.0
     }
-    
+    # if (sighting && (is.null(Tm) || sum(Tm)==0)){
+    #     # 2026-09-07
+    #     fixed$pID <- 1
+    #     warning ("no mark-resight nonID sightings, so fixed$pID = 1")
+    # }
+
     fnames <- names(fixed)
     #################################################
     ## build default model and update with user input

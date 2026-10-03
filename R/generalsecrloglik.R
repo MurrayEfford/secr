@@ -547,11 +547,13 @@ secr_generalsecrloglikfn <- function (
         if (CL)
             stop("simulation for overdispersion requires full likelihood (not CL)")
         else {
-          chat <- unlist(getchat (nrow(realparval0), nrow(data$CH), data$n.distrib,         ## or nc1?
-            data$grp, data$usge, pmixn, pID, secr_getcellsize(data$mask), 
-            gkhk, pi.density, Dsum, PIA0, data$binomNcode, 
-            data$MRdata, miscparm, details$nsim, details$grain, details$ncores))
-          return (chat)         
+            chat <- getchat (
+                nrow(realparval0), nrow(data$CH), data$n.distrib,         ## or nc1?
+                data$grp, data$usge, pmixn, pID, secr_getcellsize(data$mask), 
+                gkhk, pi.density, Dsum, PIA0, data$binomNcode, 
+                data$MRdata, miscparm, details$nsim, details$grain, details$ncores,
+                details$debug)
+            return (chat)         
         }
     }
     #######################################################################
