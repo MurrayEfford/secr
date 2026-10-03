@@ -38,8 +38,12 @@
 allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup, 
                            CH, binomNcode, MRdata, grp, usge, pmixn, pID, maskcond,
                            telemhr = 0, telemstart = 0,
-                           grain, ncores, safeLL = FALSE, uselog = FALSE, 
-                           R = FALSE, debug = FALSE) {
+                           grain, ncores, safeLL = FALSE, uselog = FALSE,
+                           R = FALSE, debug = FALSE, marking = FALSE, k1 = NULL) {
+  ## marking = TRUE (telemetrytype 'marking') adds attribute 'post' to the result:
+  ## nc x (k1+1) matrix of posterior-mean cue rates of each marked animal
+  ## (simplehistoriesmarkedcpp); k1 is the number of detectors excluding the
+  ## notional telemetry detector
   nc <- nrow(CH)
   if (nc<1) return(0)   # log(1)
   k <- nrow(usge)
@@ -47,6 +51,9 @@ allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup,
   nmix <- nrow(pmixn)
   sump <- numeric(nc)
   if (debug) browser()
+  if (marking && (nmix > 1 || (!is.null(R) && R)))
+      stop ("telemetry 'marking' not yet available with mixture models or details$R")
+  post <- NULL
   logprwi <- matrix(nrow=nc, ncol=nmix)
   for (x in 1:nmix) {
       hx <- if (any(binomNcode==-2)) matrix(haztemp$h[x,,], nrow = m) else -1 ## lookup sum_k (hazard)
@@ -76,7 +83,7 @@ allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup,
           }
       } 
       else {
-          logprwi[,x] <- simplehistoriescpp(
+          args <- list(
               as.integer(m),
               as.integer(nc),
               as.integer(cc),
@@ -88,23 +95,33 @@ allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup,
               as.integer(MRdata$markocc),
               as.integer(MRdata$firstocc),
               as.double (pID[,x]),
-              as.integer(CH),   
+              as.integer(CH),
               as.integer(grp)-1L,
-              as.double (gkhk$gk),     ## precomputed probability 
+              as.double (gkhk$gk),     ## precomputed probability
               as.double (gkhk$hk),     ## precomputed hazard
               as.matrix (pi.density),
               as.integer(PIA[1,,,,x]),
               as.matrix (usge),
-              as.matrix (hx),                
-              as.matrix (hi),      
+              as.matrix (hx),
+              as.matrix (hi),
               as.integer(maskcond$mask_indices),
               as.integer(maskcond$mask_offsets),
               as.integer(maskcond$mask_id),
               as.double (telemhr),
               as.integer (telemstart))
+          if (marking) {
+              tmp <- do.call(simplehistoriesmarkedcpp, c(args, list(as.integer(k1))))
+              logprwi[,x] <- tmp$lnprw
+              post <- tmp$post
+          }
+          else {
+              logprwi[,x] <- do.call(simplehistoriescpp, args)
+          }
       }
   }
-  secr_logsum(logprwi, pmixn)
+  out <- secr_logsum(logprwi, pmixn)
+  if (marking) attr(out, 'post') <- post
+  out
 }
 
 #--------------------------------------------------------------------------------
@@ -117,7 +134,7 @@ expectedmu <- function (cc, haztemp, gkhk, pi.density, Nm, PIA, ngroup,
     m <- nrow(pi.density)
     nmix <- nrow(pmixn)
     # include notional detector if any telemetry
-    Tumusk <- Tmmusk <- Tamusk <- matrix(0, k, s)
+    Tumusk <- Tmmusk <- matrix(0, k, s)
     for (x in 1:nmix) {
         hx <- if (any(binomNcode==-2)) matrix(haztemp$h[x,,], nrow = m) else -1 ## lookup sum_k (hazard)
         hi <- if (any(binomNcode==-2)) haztemp$hindex else -1                   ## index to hx
@@ -127,7 +144,6 @@ expectedmu <- function (cc, haztemp, gkhk, pi.density, Nm, PIA, ngroup,
             as.integer(cc),
             as.logical(!is.null(MRdata$Tu)),
             as.logical(!is.null(MRdata$Tm)),
-            as.logical(!is.null(MRdata$Ta)),
             as.integer(MRdata$sightmodel),
             as.integer(binomNcode),
             as.integer(MRdata$markocc),
@@ -144,10 +160,9 @@ expectedmu <- function (cc, haztemp, gkhk, pi.density, Nm, PIA, ngroup,
             as.matrix (hi),
             as.double (a0))
         Tumusk <- Tumusk + pmixn[x,1] * temp$Tumusk  
-        Tmmusk <- Tmmusk + pmixn[x,1] * temp$Tmmusk  
-        Tamusk <- Tamusk + pmixn[x,1] * temp$Tamusk  
+        Tmmusk <- Tmmusk + pmixn[x,1] * temp$Tmmusk
     }
-    list(Tumusk=Tumusk, Tmmusk=Tmmusk, Tamusk=Tamusk)
+    list(Tumusk=Tumusk, Tmmusk=Tmmusk)
 }
 #--------------------------------------------------------------------------------
 
@@ -546,6 +561,9 @@ secr_generalsecrloglikfn <- function (
     if (!is.null(details$nsim) && details$nsim > 0) {
         if (CL)
             stop("simulation for overdispersion requires full likelihood (not CL)")
+        else if (telemetrytype(data$traps) == "marking")
+            stop("simulation for overdispersion is not available for telemetrytype 'marking'; ",
+                 "supply details$chat")
         else {
             chat <- getchat (
                 nrow(realparval0), nrow(data$CH), data$n.distrib,         ## or nc1?
@@ -572,8 +590,10 @@ secr_generalsecrloglikfn <- function (
                 data$CH, data$binomNcode, data$MRdata, data$grp, data$usge, pmixn, 
                 pID, data$maskcond, 
                 telemhr, telemstart, 
-                details$grain, details$ncores, details$safeLL, details$uselog, details$R, 
-                debug = details$debug>3)
+                details$grain, details$ncores, details$safeLL, details$uselog, details$R,
+                debug = details$debug>3,
+                marking = telemetrytype(data$traps) == "marking",
+                k1 = nrow(data$usge) - data$MRdata$anytelemetry)
         }
         else if (all(data$dettype == 5)) {
             lnprw <- allhistsignal (
@@ -743,20 +763,18 @@ secr_generalsecrloglikfn <- function (
               pID, 
               pdot[1])
           if (details$debug) browser()
-          ## 2026-08-20 added Ta option cf Whittington et al. 2025
-          if (telemetrytype(data$traps) == "marking" && !is.null(data$MRdata$Ta)) {
-              Talik <- Tsightinglikcpp (
-                  data$MRdata$Ta, 
-                  data$MRdata$markocc, 
-                  data$MRdata$anytelemetry,
-                  data$binomNcode,
-                  data$usge, 
-                  tmp$Tamusk, 
-                  details$debug)
-              if (Talik$resultcode != 0) 
+          if (telemetrytype(data$traps) == "marking") {
+              ## Unmarked cues: total cue rate of the population less the expected
+              ## cues of the marked animals, each at its own posterior locations
+              ## (given its telemetry and detections). Pooled count, Poisson, scaled
+              ## by chat. Replaces the 2026-08-20 'Ta' likelihood, which used the
+              ## marked animals' cues twice.
+              postE <- attr(lnprw, "post")
+              mu <- sum(tmp$Tumusk) - sum(postE[, -ncol(postE)])
+              if (!is.finite(mu) || mu <= 0)
                   comp[5,1] <- NA
               else
-                  comp[5,1] <- Talik$Tlik/details$chat[1] 
+                  comp[5,1] <- dpois(sum(data$MRdata$Tu), mu, log = TRUE) / details$chat[1]
           }
           else {
               if (!is.null(data$MRdata$Tu) && !is.null(tmp$Tumusk)) {

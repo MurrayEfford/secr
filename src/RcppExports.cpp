@@ -326,6 +326,42 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// simplehistoriesmarkedcpp
+List simplehistoriesmarkedcpp(const int mm, const int nc, const int cc, const int grain, const int ncores, const bool safeLL, const bool uselog, const IntegerVector binomN, const IntegerVector markocc, const IntegerVector firstocc, const NumericVector pID, const IntegerVector w, const IntegerVector group, const NumericVector gk, const NumericVector hk, const NumericMatrix density, const IntegerVector PIA, const NumericMatrix Tsk, const NumericMatrix h, const IntegerMatrix hindex, const IntegerVector mask_indices, const IntegerVector mask_offsets, const IntegerVector mask_id, const NumericVector telemhr, const IntegerVector telemstart, const int k1);
+RcppExport SEXP _secr_simplehistoriesmarkedcpp(SEXP mmSEXP, SEXP ncSEXP, SEXP ccSEXP, SEXP grainSEXP, SEXP ncoresSEXP, SEXP safeLLSEXP, SEXP uselogSEXP, SEXP binomNSEXP, SEXP markoccSEXP, SEXP firstoccSEXP, SEXP pIDSEXP, SEXP wSEXP, SEXP groupSEXP, SEXP gkSEXP, SEXP hkSEXP, SEXP densitySEXP, SEXP PIASEXP, SEXP TskSEXP, SEXP hSEXP, SEXP hindexSEXP, SEXP mask_indicesSEXP, SEXP mask_offsetsSEXP, SEXP mask_idSEXP, SEXP telemhrSEXP, SEXP telemstartSEXP, SEXP k1SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int >::type mm(mmSEXP);
+    Rcpp::traits::input_parameter< const int >::type nc(ncSEXP);
+    Rcpp::traits::input_parameter< const int >::type cc(ccSEXP);
+    Rcpp::traits::input_parameter< const int >::type grain(grainSEXP);
+    Rcpp::traits::input_parameter< const int >::type ncores(ncoresSEXP);
+    Rcpp::traits::input_parameter< const bool >::type safeLL(safeLLSEXP);
+    Rcpp::traits::input_parameter< const bool >::type uselog(uselogSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type binomN(binomNSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type markocc(markoccSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type firstocc(firstoccSEXP);
+    Rcpp::traits::input_parameter< const NumericVector >::type pID(pIDSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type w(wSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type group(groupSEXP);
+    Rcpp::traits::input_parameter< const NumericVector >::type gk(gkSEXP);
+    Rcpp::traits::input_parameter< const NumericVector >::type hk(hkSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix >::type density(densitySEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type PIA(PIASEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix >::type Tsk(TskSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix >::type h(hSEXP);
+    Rcpp::traits::input_parameter< const IntegerMatrix >::type hindex(hindexSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type mask_indices(mask_indicesSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type mask_offsets(mask_offsetsSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type mask_id(mask_idSEXP);
+    Rcpp::traits::input_parameter< const NumericVector >::type telemhr(telemhrSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type telemstart(telemstartSEXP);
+    Rcpp::traits::input_parameter< const int >::type k1(k1SEXP);
+    rcpp_result_gen = Rcpp::wrap(simplehistoriesmarkedcpp(mm, nc, cc, grain, ncores, safeLL, uselog, binomN, markocc, firstocc, pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, telemhr, telemstart, k1));
+    return rcpp_result_gen;
+END_RCPP
+}
 // simplehistoriesfxicpp
 NumericMatrix simplehistoriesfxicpp(const int x, const int mm, const int nc, const int cc, const int grain, const int ncores, const IntegerVector binomN, const IntegerVector w, const IntegerVector group, const NumericVector gk, const NumericVector hk, const NumericMatrix density, const IntegerVector PIA, const NumericMatrix Tsk, const NumericMatrix h, const IntegerMatrix hindex);
 RcppExport SEXP _secr_simplehistoriesfxicpp(SEXP xSEXP, SEXP mmSEXP, SEXP ncSEXP, SEXP ccSEXP, SEXP grainSEXP, SEXP ncoresSEXP, SEXP binomNSEXP, SEXP wSEXP, SEXP groupSEXP, SEXP gkSEXP, SEXP hkSEXP, SEXP densitySEXP, SEXP PIASEXP, SEXP TskSEXP, SEXP hSEXP, SEXP hindexSEXP) {
@@ -403,8 +439,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // expectedmucpp
-List expectedmucpp(const int nc, const int cc, const bool Tu, const bool Tm, const bool Ta, const int sightmodel, const IntegerVector binomN, const IntegerVector markocc, const int anytelem, const NumericVector pID, const IntegerVector group, const NumericVector gk, const NumericVector hk, const NumericMatrix pi_density, const NumericMatrix Nm, const IntegerVector PIA, const NumericMatrix Tsk, const NumericMatrix h, const IntegerMatrix hindex, const NumericVector a0);
-RcppExport SEXP _secr_expectedmucpp(SEXP ncSEXP, SEXP ccSEXP, SEXP TuSEXP, SEXP TmSEXP, SEXP TaSEXP, SEXP sightmodelSEXP, SEXP binomNSEXP, SEXP markoccSEXP, SEXP anytelemSEXP, SEXP pIDSEXP, SEXP groupSEXP, SEXP gkSEXP, SEXP hkSEXP, SEXP pi_densitySEXP, SEXP NmSEXP, SEXP PIASEXP, SEXP TskSEXP, SEXP hSEXP, SEXP hindexSEXP, SEXP a0SEXP) {
+List expectedmucpp(const int nc, const int cc, const bool Tu, const bool Tm, const int sightmodel, const IntegerVector binomN, const IntegerVector markocc, const int anytelem, const NumericVector pID, const IntegerVector group, const NumericVector gk, const NumericVector hk, const NumericMatrix pi_density, const NumericMatrix Nm, const IntegerVector PIA, const NumericMatrix Tsk, const NumericMatrix h, const IntegerMatrix hindex, const NumericVector a0);
+RcppExport SEXP _secr_expectedmucpp(SEXP ncSEXP, SEXP ccSEXP, SEXP TuSEXP, SEXP TmSEXP, SEXP sightmodelSEXP, SEXP binomNSEXP, SEXP markoccSEXP, SEXP anytelemSEXP, SEXP pIDSEXP, SEXP groupSEXP, SEXP gkSEXP, SEXP hkSEXP, SEXP pi_densitySEXP, SEXP NmSEXP, SEXP PIASEXP, SEXP TskSEXP, SEXP hSEXP, SEXP hindexSEXP, SEXP a0SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -412,7 +448,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int >::type cc(ccSEXP);
     Rcpp::traits::input_parameter< const bool >::type Tu(TuSEXP);
     Rcpp::traits::input_parameter< const bool >::type Tm(TmSEXP);
-    Rcpp::traits::input_parameter< const bool >::type Ta(TaSEXP);
     Rcpp::traits::input_parameter< const int >::type sightmodel(sightmodelSEXP);
     Rcpp::traits::input_parameter< const IntegerVector >::type binomN(binomNSEXP);
     Rcpp::traits::input_parameter< const IntegerVector >::type markocc(markoccSEXP);
@@ -428,7 +463,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const NumericMatrix >::type h(hSEXP);
     Rcpp::traits::input_parameter< const IntegerMatrix >::type hindex(hindexSEXP);
     Rcpp::traits::input_parameter< const NumericVector >::type a0(a0SEXP);
-    rcpp_result_gen = Rcpp::wrap(expectedmucpp(nc, cc, Tu, Tm, Ta, sightmodel, binomN, markocc, anytelem, pID, group, gk, hk, pi_density, Nm, PIA, Tsk, h, hindex, a0));
+    rcpp_result_gen = Rcpp::wrap(expectedmucpp(nc, cc, Tu, Tm, sightmodel, binomN, markocc, anytelem, pID, group, gk, hk, pi_density, Nm, PIA, Tsk, h, hindex, a0));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -807,10 +842,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_secr_signalhistoriescpp", (DL_FUNC) &_secr_signalhistoriescpp, 19},
     {"_secr_gethrcpp", (DL_FUNC) &_secr_gethrcpp, 6},
     {"_secr_simplehistoriescpp", (DL_FUNC) &_secr_simplehistoriescpp, 25},
+    {"_secr_simplehistoriesmarkedcpp", (DL_FUNC) &_secr_simplehistoriesmarkedcpp, 26},
     {"_secr_simplehistoriesfxicpp", (DL_FUNC) &_secr_simplehistoriesfxicpp, 16},
     {"_secr_Tsightinglikcpp", (DL_FUNC) &_secr_Tsightinglikcpp, 7},
     {"_secr_sightingchatcpp", (DL_FUNC) &_secr_sightingchatcpp, 23},
-    {"_secr_expectedmucpp", (DL_FUNC) &_secr_expectedmucpp, 20},
+    {"_secr_expectedmucpp", (DL_FUNC) &_secr_expectedmucpp, 19},
     {"_secr_simdetectpointcpp", (DL_FUNC) &_secr_simdetectpointcpp, 17},
     {"_secr_simdetectpolycpp", (DL_FUNC) &_secr_simdetectpolycpp, 17},
     {"_secr_simdetectsignalcpp", (DL_FUNC) &_secr_simdetectsignalcpp, 13},

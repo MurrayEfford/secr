@@ -78,13 +78,16 @@ struct simplehistories : public Worker {
     const RVector<int>    mask_offsets;
     const RVector<int>    mask_id;       // Maps individual to mask row
     const RVector<double> telemhr; 
-    const RVector<int>    telemstart; 
+    const RVector<int>    telemstart;
+    const bool            post;      // also return posterior mean cue rates (telemetry 'marking')
+    const int             k1;        // number of detectors excluding notional telemetry detector
 
     // working variables
     int  kk, ss;
     bool allX = true;
-    
-    // output 
+
+    // output
+    RMatrix<double> postout;         // nc x (k1+1): E_i[sum_s Tsk hk] by detector k, then E_i[L^2]
     RVector<double> output;
 
     // Workspace to hold thread-specific buffers
@@ -125,7 +128,10 @@ struct simplehistories : public Worker {
         const IntegerVector mask_id,
         const NumericVector telemhr,
         const IntegerVector telemstart,
-        
+        const bool post,
+        const int k1,
+
+        NumericMatrix postout,
         NumericVector output
         )
         : 
@@ -153,6 +159,9 @@ struct simplehistories : public Worker {
         mask_id(mask_id),
         telemhr(telemhr), 
         telemstart(telemstart),
+        post(post),
+        k1(k1),
+        postout(postout),
         output(output)
         {
         
@@ -396,6 +405,45 @@ struct simplehistories : public Worker {
     }
     //----------------------------------------------------------------------------
     
+    // Posterior-mean cue rates of marked animal n given its own data (detections and
+    // telemetry), for telemetry type 'marking'. The posterior over mask cells is
+    // w_m = pm[m] * density / sum(pm * density); on entry pm[] holds the likelihood
+    // of the history given the mask cell, on the scale determined by uselog and safeLL.
+    // Results go to postout row n: columns 0..k1-1 are
+    //     E_n[ sum over sighting occasions of usage * hazard ] at detector k
+    // and column k1 is E_n[L^2] where L is the total over detectors.
+    void posterior (const int n, const double lnsum, ThreadWorkspace& ws) {
+        const std::vector<double>& pm = ws.pm;
+        int m_row = mask_id[n];
+        std::vector<double> Elk(k1, 0.0);
+        double EL2 = 0.0;
+        if (std::isfinite(lnsum)) {
+            for (int j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                int m = mask_indices[j];
+                double w;
+                if (safeLL || uselog)
+                    w = std::exp(pm[m] - lnsum);       // pm is log(unnormalised posterior)
+                else
+                    w = pm[m] * density(m,group[n]) / std::exp(lnsum);
+                if (w < 1e-12) continue;               // negligible cell
+                double L = 0.0;
+                for (int s = 0; s < ss; s++) {
+                    if (markocc[s] < 1 && binomN[s] != -3) {   // sighting occasions
+                        for (int k = 0; k < k1; k++) {
+                            double v = hskm(n, s, k, m);
+                            Elk[k] += w * v;
+                            L += v;
+                        }
+                    }
+                }
+                EL2 += w * L * L;
+            }
+        }
+        for (int k = 0; k < k1; k++) postout(n,k) = Elk[k];
+        postout(n,k1) = EL2;
+    }
+    //----------------------------------------------------------------------------
+
     double onehistory (std::size_t n, ThreadWorkspace& ws) {
         bool dead = false;
         double sumpm = 0.0;
@@ -490,6 +538,8 @@ struct simplehistories : public Worker {
                 // }
                 // else 
         
+        if (post) posterior (n, sumpm, ws);
+
         return sumpm; // may be -huge
     }
     //----------------------------------------------------------------------------
@@ -505,9 +555,9 @@ struct simplehistories : public Worker {
     //----------------------------------------------------------------------------
 };
 
-// [[Rcpp::export]]
-NumericVector simplehistoriescpp (
-        const int mm, 
+// Shared by the two exported functions below
+static NumericVector runsimplehistories (
+        const int mm,
         const int nc, 
         const int cc, 
         const int grain,   
@@ -535,19 +585,22 @@ NumericVector simplehistoriescpp (
         const IntegerVector mask_offsets,
         const IntegerVector mask_id,       // Maps individual to mask row
         const NumericVector telemhr,
-        const IntegerVector telemstart)
+        const IntegerVector telemstart,
+        const bool post,
+        const int k1,
+        NumericMatrix postout)
     {
-    
-    NumericVector output(nc); 
+
+    NumericVector output(nc);
 
     // Construct and initialise
     simplehistories somehist (
-            mm, nc, cc, grain, ncores, 
-            safeLL, uselog, binomN, markocc, firstocc, 
-            pID, w, group, gk, hk, 
-            density, PIA, Tsk, h, hindex, 
-            mask_indices, mask_offsets, mask_id, telemhr, telemstart, 
-            output);
+            mm, nc, cc, grain, ncores,
+            safeLL, uselog, binomN, markocc, firstocc,
+            pID, w, group, gk, hk,
+            density, PIA, Tsk, h, hindex,
+            mask_indices, mask_offsets, mask_id, telemhr, telemstart,
+            post, k1, postout, output);
     
     if (ncores>1) {
         // Run operator() on multiple threads
@@ -562,5 +615,91 @@ NumericVector simplehistoriescpp (
     // return output (log scale);
     return output;
     
+}
+//==============================================================================
+
+// [[Rcpp::export]]
+NumericVector simplehistoriescpp (
+        const int mm, 
+        const int nc, 
+        const int cc, 
+        const int grain,   
+        const int ncores,   
+        
+        const bool safeLL,
+        const bool uselog,
+        const IntegerVector binomN, 
+        const IntegerVector markocc, 
+        const IntegerVector firstocc, 
+        
+        const NumericVector pID, 
+        const IntegerVector w,
+        const IntegerVector group,
+        const NumericVector gk, 
+        const NumericVector hk, 
+        
+        const NumericMatrix density,        // relative density - sums to 1.0
+        const IntegerVector PIA, 
+        const NumericMatrix Tsk, 
+        const NumericMatrix h,
+        const IntegerMatrix hindex, 
+        
+        const IntegerVector mask_indices,
+        const IntegerVector mask_offsets,
+        const IntegerVector mask_id,       // Maps individual to mask row
+        const NumericVector telemhr,
+        const IntegerVector telemstart)
+{
+    NumericMatrix nopost(1,1);
+    return runsimplehistories (
+        mm, nc, cc, grain, ncores, safeLL, uselog, binomN, markocc, firstocc,
+        pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, 
+        mask_indices, mask_offsets, mask_id, telemhr, telemstart, 
+        false, 0, nopost);
+}
+//==============================================================================
+
+// As simplehistoriescpp, also returning for each animal the posterior-mean cue rates
+// needed for telemetry type 'marking' (see simplehistories::posterior)
+// [[Rcpp::export]]
+List simplehistoriesmarkedcpp (
+        const int mm, 
+        const int nc, 
+        const int cc, 
+        const int grain,   
+        const int ncores,   
+        
+        const bool safeLL,
+        const bool uselog,
+        const IntegerVector binomN, 
+        const IntegerVector markocc, 
+        const IntegerVector firstocc, 
+        
+        const NumericVector pID, 
+        const IntegerVector w,
+        const IntegerVector group,
+        const NumericVector gk, 
+        const NumericVector hk, 
+        
+        const NumericMatrix density,        // relative density - sums to 1.0
+        const IntegerVector PIA, 
+        const NumericMatrix Tsk, 
+        const NumericMatrix h,
+        const IntegerMatrix hindex, 
+        
+        const IntegerVector mask_indices,
+        const IntegerVector mask_offsets,
+        const IntegerVector mask_id,       // Maps individual to mask row
+        const NumericVector telemhr,
+        const IntegerVector telemstart,
+        const int k1)                      // detectors excluding notional telemetry detector
+{
+    NumericMatrix postout(nc, k1+1);
+    NumericVector lnprw = runsimplehistories (
+        mm, nc, cc, grain, ncores, safeLL, uselog, binomN, markocc, firstocc,
+        pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, 
+        mask_indices, mask_offsets, mask_id, telemhr, telemstart, 
+        true, k1, postout);
+    return List::create(Named("lnprw") = lnprw, Named("post") = postout);
 }
 //==============================================================================

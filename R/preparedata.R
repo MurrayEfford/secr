@@ -194,7 +194,7 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
     telemocc <- detector(traps(capthist)) == 'telemetry'
     anytelemetry <- any(telemocc)
     s <- ncol(capthist)
-    Tu <- Tm <- Tn <- Ta <- NULL
+    Tu <- Tm <- Tn <- NULL
     if (is.null(markocc)) {
         markocc <- rep(1, s)
         allsighting <- FALSE
@@ -203,7 +203,7 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
     }
     else {
         m <- nrow(mask)
-        defaultcontrol <- list(Tu='as.is', Tm='as.is', Tn='ignore', Ta='ignore')
+        defaultcontrol <- list(Tu='as.is', Tm='as.is', Tn='ignore')
         # possible control values
         #   ignore
         #   as.is
@@ -228,13 +228,17 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
         if(is.null(fixed$pID) & control$Tm == 'ignore')
             warning("Set fixed = list(pID=1) if no sightings of unidentified marked animals Tm")
         
+        Tu <- getsight('Tu')
+        Tm <- getsight('Tm')
+        Tn <- getsight('Tn')
         if (teltype == "marking") {
-            Ta <- getTa(capthist)
-        }
-        else {
-            Tu <- getsight('Tu')
-            Tm <- getsight('Tm')
-            Tn <- getsight('Tn')
+            if (is.null(Tu))
+                stop ("telemetrytype 'marking' requires counts Tu of unmarked animals")
+            Tn <- NULL
+            if (!is.null(Tm) && sum(Tm) > 0) {
+                warning ("unidentified marked sightings Tm are ignored by telemetrytype 'marking' (not yet modelled)")
+                Tm <- NULL
+            }
         }
         
         if (allsighting) {
@@ -299,7 +303,6 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
          Tu           = Tu, 
          Tm           = Tm, 
          Tn           = Tn,
-         Ta           = Ta,
          anysighting  = anysighting, 
          allsighting  = allsighting,
          anytelemetry = anytelemetry, 

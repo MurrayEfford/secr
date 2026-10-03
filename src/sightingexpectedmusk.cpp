@@ -14,7 +14,6 @@ public:
     const int   cc; // number of parameter combinations
     const bool  Tu;  // true if data include sightings of unmarked animals
     const bool  Tm;  // true if data include unidentified sightings of marked animals
-    const bool  Ta;  // true if data include all sightings
     const int sightmodel;
     const IntegerVector binomN;     // s 
     const IntegerVector markocc;    // s 
@@ -43,10 +42,9 @@ public:
         const int nc, 
         const int cc,
         const bool  Tu,              
-        const bool  Tm,  
-        const bool  Ta,  
+        const bool  Tm,
         const int sightmodel,
-        const IntegerVector binomN,  
+        const IntegerVector binomN,
         const IntegerVector markocc,  
         const int           anytelem,
         const NumericVector pID,  
@@ -63,7 +61,7 @@ public:
         NumericMatrix Tumusk,
         NumericMatrix Tmmusk
     )  : 
-        nc(nc), cc(cc), Tu(Tu), Tm(Tm), Ta(Ta), sightmodel(sightmodel),
+        nc(nc), cc(cc), Tu(Tu), Tm(Tm), sightmodel(sightmodel),
         binomN(binomN), markocc(markocc), anytelem(anytelem), 
         pID(pID), group(group), gk(gk), hk(hk), 
         pi_density(pi_density), Nm(Nm), PIA(PIA), Tsk(Tsk), h(h), hindex(hindex),
@@ -121,22 +119,9 @@ public:
     }
     //==============================================================================
     
-    void compute (NumericMatrix &Tumusk, NumericMatrix &Tmmusk, NumericMatrix &Tamusk) {
-        
-        if (Ta) {
-            // expected number of all sightings Ta
-            for (int s=0; s<ss; s++) { 
-                if (markocc[s]<1) {              // sighting occasions 
-                    for (int k=0; k<k1; k++) {  
-                        for (int m=0; m<mm; m++) {
-                            // "marking" telemetrytype, sightmodel 7
-                            Tamusk(k,s) += Nm(m,group[0]) * hskm(0,s,k,m);
-                        }
-                    }
-                }
-            }
-        }
-        else {
+    void compute (NumericMatrix &Tumusk, NumericMatrix &Tmmusk) {
+
+        {
             // expected number of unmarked sightings Tu
             std::vector<double> pds(ss*mm, 0.0); 
             getpdots(0, pds);                        // representative animal n=0
@@ -153,6 +138,10 @@ public:
                                     Tumusk(k,s) += (Nm(m,group[0]) - nc * pi_density(m, group[0])) * hskm(0,s,k,m);
                                 else if (sightmodel==6)    // all pre-marked, number unknown
                                     Tumusk(k,s) += (Nm(m,group[0]) - nc / a0[0] * pi_density(m, group[0])) * hskm(0,s,k,m);
+                                else if (sightmodel==7)    // telemetry 'marking': whole population;
+                                    // the marked animals' expected cues are subtracted in R
+                                    // (posterior means from simplehistoriesmarkedcpp)
+                                    Tumusk(k,s) += Nm(m,group[0]) * hskm(0,s,k,m);
                             }
                             // pID not relevant for unmarked sightings
                         }
@@ -195,7 +184,6 @@ List expectedmucpp (
         const int cc, 
         const bool Tu,                // true if data include sightings of unmarked animals
         const bool Tm,                // true if data include unidentified sightings of marked animals
-        const bool Ta,                // true if data include all sightings
         const int sightmodel,
         const IntegerVector binomN, 
         const IntegerVector markocc, 
@@ -215,21 +203,19 @@ List expectedmucpp (
     
     NumericMatrix Tumusk(Tsk.nrow(), Tsk.ncol()); 
     NumericMatrix Tmmusk(Tsk.nrow(), Tsk.ncol()); 
-    NumericMatrix Tamusk(Tsk.nrow(), Tsk.ncol()); 
-    
+
     // Construct and initialise
-    expectedmusk expectedmu (nc, cc, Tu, Tm, Ta, sightmodel, binomN, markocc, 
+    expectedmusk expectedmu (nc, cc, Tu, Tm, sightmodel, binomN, markocc,
                              anytelem, pID,  group, gk, hk, pi_density, Nm, 
                              PIA, Tsk, h, hindex, a0, Tumusk, Tmmusk);
     
     //expectedmu.operator(); 
-    expectedmu.compute (Tumusk, Tmmusk, Tamusk);
+    expectedmu.compute (Tumusk, Tmmusk);
     
     // Return consolidated result
     // return output;
     return List::create(Named("Tumusk") = Tumusk, 
-                        Named("Tmmusk") = Tmmusk,
-                        Named("Tamusk") = Tamusk);
+                        Named("Tmmusk") = Tmmusk);
     
 }
 //==============================================================================
