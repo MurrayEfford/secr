@@ -579,7 +579,27 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
         stop ("hcov mixture model incompatible with groups")
     if ((nmix == 1) & ('pmix' %in% c(fnames,names(model))))
         stop ("pmix specified for invariant detection model")
-    
+
+    ## Fixed pmix. For two classes the value is the proportion in the second latent class,
+    ## the quantity estimated when pmix is free (the first class has 1 - pmix). It is
+    ## implemented as a fixed beta on the usual 'pmix ~ h2' model (see fixedbeta below)
+    ## so that every consumer of the real parameters sees class-specific proportions.
+    ## Otherwise a fixed value would apply to every class, which is valid only for equal classes.
+    fixedpmix <- NULL
+    if (nmix > 1 && 'pmix' %in% fnames) {
+        if (length(fixed$pmix) != 1 || !is.finite(fixed$pmix) || fixed$pmix <= 0 || fixed$pmix >= 1)
+            stop ("fixed pmix must be a single value between 0 and 1")
+        if (nmix == 2) {
+            fixedpmix <- fixed$pmix
+            fixed <- fixed[names(fixed) != 'pmix']
+            fnames <- names(fixed)
+        }
+        else if (abs(fixed$pmix - 1/nmix) > 1e-8) {
+            stop ("with ", nmix, " latent classes a fixed pmix is applied to every class, ",
+                  "so must equal ", round(1/nmix, 4))
+        }
+    }
+
     if ((nmix>1) & !('pmix' %in% fnames)) {
         if (is.null(model$pmix)) model$pmix <- ~1
         pmixvars <- all.vars(model$pmix)
@@ -896,6 +916,10 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     ############################################
     # take care of sigmaxy and relativeD
     details$fixedbeta <- secr_setfixedbeta(details$fixedbeta, parindx, link, CL, nmiscparm)
+    if (!is.null(fixedpmix)) {
+        ## beta for pmix ~ h2 is the logit of the proportion in the second class
+        details$fixedbeta[parindx$pmix[1]] <- qlogis(fixedpmix)
+    }
     if (!is.null(details$fixedbeta )) {
         if (!(length(details$fixedbeta )== NP))
             stop ("invalid fixed beta - require NP-vector")

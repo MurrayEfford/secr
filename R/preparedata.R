@@ -365,8 +365,10 @@ secr_prepareSessionData <- function (capthist, mask, maskusage,
         maskcond <- secr_maskboolean2(capthist, mask, details$maxdistance, maskusage)
 
         ## known mark status of each animal on each occasion (multiplier of usage), default 1
-        Uind <- marked(capthist)
-        if (is.null(Uind)) Uind <- matrix(1, nrow = nc, ncol = s)
+        ## marked() has columns for non-telemetry occasions (as Tu); pad for telemetry occasions
+        Uind <- matrix(1, nrow = nc, ncol = s)
+        if (!is.null(marked(capthist)))
+            Uind[, 1:ncol(marked(capthist))] <- marked(capthist)
 
         if (!is.null(details$externalqx)) {
             if (!(details$externalqx %in% names(covariates(mask)))) 

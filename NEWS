@@ -10,12 +10,16 @@ New features or changed behaviour of old functions
     o  telemetrytype 'marking' accepts finite-mixture models with known classes (hcov, e.g. sex,
        with sigma ~ h2, lambda0 ~ h2). The class of every marked animal must be known. The
        population class proportions pmix are estimated, which by default are the proportions
-       among marked animals; a fixed pmix applies to every class so is useful only for equal
-       classes (an error is given if proportions do not sum to 1).
-    o  new capthist attribute 'marked' (functions marked() and marked()<-): animals x occasions
-       matrix, the animal-level analogue of markocc: the known fraction of each occasion for
-       which an animal can be identified as marked, such as the period a telemetry collar was
-       working (telemetrytype 'marking'). subset.capthist handles it.
+       among marked animals; they may be fixed (see next item).
+    o  bug fix: fixed = list(pmix = p) in a finite mixture model applied the same value to every
+       class, so was valid only for equal classes. For two classes p is now the proportion in the
+       second class and the first has 1 - p (implemented as a fixed beta for the usual pmix ~ h2).
+       With three classes only pmix = 1/3 is allowed and other values are an error.
+    o  new capthist attribute 'marked' (functions marked() and marked()<-): animals x
+       non-telemetry occasions matrix (columns as for Tu), analogous to detector usage: the
+       known fraction of each occasion for which an animal can be identified as marked, such
+       as the period a telemetry collar was working (telemetrytype 'marking').
+       subset.capthist handles it.
     o  new option details$telemetryint = "GH" integrates over the activity centres of
        telemetered animals by Gauss-Hermite quadrature rather than by summing over mask
        cells (default "mask"); currently for telemetrytype 'marking' only

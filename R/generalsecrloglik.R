@@ -791,14 +791,8 @@ secr_generalsecrloglikfn <- function (
           ## telemetry 'marking' with mixture classes: the population (unmarked animals) has the
           ## mixing proportions pmix, whereas pmixn is 0/1 for animals of known class
           pmixE <- pmixn
-          if (nrow(pmixn) > 1 && telemetrytype(data$traps) == "marking") {
-              pmixpop <- attr(pmixn, 'pmix')
-              ## a fixed pmix is one constant for every class, so is valid only if proportions sum to 1
-              if (abs(sum(pmixpop) - 1) > 1e-6)
-                  stop ("class proportions pmix must sum to 1; a fixed pmix is applied to every class ",
-                        "(e.g. fixed = list(pmix = 0.5) for two equal classes), otherwise leave pmix free")
-              pmixE[,] <- pmixpop
-          }
+          if (nrow(pmixn) > 1 && telemetrytype(data$traps) == "marking")
+              pmixE[,] <- attr(pmixn, 'pmix')
           tmp <- expectedmu (
               nrow(Xrealparval),
               haztemp,

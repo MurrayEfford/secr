@@ -59,7 +59,7 @@ test_that("log-likelihood maximal at RTMB estimates", {
 
 test_that("marked: exposure windows matter, all-ones marked is the same as none", {
     ch1 <- chq
-    marked(ch1) <- matrix(1, nrow(chq), ncol(chq))
+    marked(ch1) <- matrix(1, nrow(chq), ncol(chq) - 1)   # non-telemetry occasions
     ch0 <- chq
     marked(ch0) <- NULL
     expect_equal(LL(ch1, betaq, chatq), LL(ch0, betaq, chatq), tolerance = 1e-8)
@@ -68,10 +68,10 @@ test_that("marked: exposure windows matter, all-ones marked is the same as none"
 })
 
 test_that("marked attribute checks and subsetting", {
-    expect_error(marked(chq) <- matrix(1, 3, 3), "same number of animals and occasions")
-    expect_error(marked(chq) <- matrix(-1, nrow(chq), ncol(chq)), "non-negative")
+    expect_error(marked(chq) <- matrix(1, 3, 3), "one column per non-telemetry occasion")
+    expect_error(marked(chq) <- matrix(-1, nrow(chq), ncol(chq) - 1), "non-negative")
     sub <- suppressWarnings(subset(chq, 1:5))     # warns of occasions without detections
-    expect_equal(dim(marked(sub)), c(5, ncol(chq)))
+    expect_equal(dim(marked(sub)), c(5, ncol(chq) - 1))
     expect_equal(marked(sub), marked(chq)[1:5, , drop = FALSE], check.attributes = FALSE)
 })
 
@@ -104,39 +104,61 @@ test_that("marking input checks", {
 ##      pID 0.6, collars working on 70% of occasions, Tu = 182, Tm = 24.
 chs <- readRDS(test_path("telemetry_marking_sex.RDS"))
 chats <- c(4.758513, 1, 1)
-LLs <- function (beta, fixed = list(pmix = 0.5), x = chs) {
-    as.numeric(secr.fit(x, detectfn = "HHN", mask = msk, trace = FALSE, hcov = "sex",
-                        fixed = fixed, model = list(sigma ~ h2, lambda0 ~ h2), start = beta,
-                        details = list(safeLL = TRUE, uselog = TRUE, chat = chats,
-                                       telemetryint = "GH", LLonly = TRUE)))
+## log-likelihood at beta (log D, log lambda0 F, lambda0 M - F, log sigma F, sigma M - F, logit pID, 
+## and, if pmix is free, logit of the proportion of class M)
+LLs <- function (beta, fixed = NULL, x = chs, method = NULL) {
+    det <- list(safeLL = TRUE, uselog = TRUE, chat = chats, telemetryint = "GH")
+    if (is.null(method)) {
+        ## single evaluation (fast)
+        det$LLonly <- TRUE
+        as.numeric(secr.fit(x, detectfn = "HHN", mask = msk, trace = FALSE, hcov = "sex", 
+                            fixed = fixed, model = list(sigma ~ h2, lambda0 ~ h2), start = beta, details = det))
+    }
+    else {
+        ## as secr.fit evaluates at start without maximising; start includes a (here ignored) 
+        ## element for a fixed pmix; slower than LLonly but applies fixedbeta
+        det$hessian <- FALSE
+        as.numeric(logLik(secr.fit(x, detectfn = "HHN", mask = msk, trace = FALSE, hcov = "sex", 
+                                   fixed = fixed, model = list(sigma ~ h2, lambda0 ~ h2), start = beta, 
+                                   method = "none", details = det)))
+    }
 }
 ## RTMB TMB8 estimates with population sex ratio fixed at 0.5: D 51.33,
 ## lambda0 F 0.9929 M 0.9542, sigma F 3.5025 M 4.5877, q 0.6521
 ## beta: log D, log lambda0 (F), lambda0 M - F, log sigma (F), sigma M - F, logit pID
 betas <- c(log(51.33), log(0.9929), log(0.9542/0.9929), log(3.5025), log(4.5877/3.5025), qlogis(0.6521))
+betas5 <- c(betas, qlogis(0.5))      # pmix free, evaluated at equal classes
 
 test_that("sex classes: log-likelihood unchanged and maximal at RTMB estimates", {
-    expect_equal(LLs(betas), -8456.278150, tolerance = 1e-6)
-    ## pmix free: one more parameter, logit of the proportion of class M
-    expect_equal(LLs(c(betas, qlogis(13/24)), fixed = NULL), -8456.216831, tolerance = 1e-6)
+    ## pmix free but evaluated at equal classes (RTMB comparison uses a population ratio of 0.5)
+    expect_equal(LLs(betas5), -8456.278150, tolerance = 1e-6)
+    ## pmix at the proportion of class M among the marked animals
+    expect_equal(LLs(c(betas, qlogis(13/24))), -8456.216831, tolerance = 1e-6)
     ## no 2% change in any parameter increases the log-likelihood (D differs from RTMB by 0.7%
     ## because RTMB uses a negative binomial for Tu)
-    l0 <- LLs(betas)
+    l0 <- LLs(betas5)
     for (j in seq_along(betas)) {
         for (h in c(-0.02, 0.02)) {
-            b <- betas
+            b <- betas5
             b[j] <- if (j == 6) qlogis(plogis(betas[j]) * (1 + h)) else betas[j] + h
             expect_gt(l0, LLs(b))
         }
     }
 })
 
+test_that("sex classes: fixed pmix is the proportion in the second class", {
+    skip_on_cran()
+    ## fixed pmix = 0.4 is a free pmix at logit(0.4): class proportions 0.6 and 0.4
+    fixed4 <- LLs(c(betas, 5), fixed = list(pmix = 0.4), method = "none")   # 5 is ignored
+    expect_equal(fixed4, LLs(c(betas, qlogis(0.4))), tolerance = 1e-10)
+    fixed6 <- LLs(c(betas, 5), fixed = list(pmix = 0.6), method = "none")
+    expect_false(isTRUE(all.equal(fixed4, fixed6)))
+})
+
 test_that("sex classes: input checks", {
-    ## fixed pmix applies to every class, so proportions would not sum to 1
-    expect_error(LLs(betas, fixed = list(pmix = 11/24)), "must sum to 1")
     ch1 <- chs
     covariates(ch1)$sex[1] <- NA
-    expect_error(LLs(betas, x = ch1), "requires the class")
+    expect_error(LLs(betas5, x = ch1), "requires the class")
 })
 
 ## One fit with unidentified marked cues, estimated pID, collar windows and

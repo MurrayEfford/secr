@@ -42,7 +42,7 @@ marked(object) <- value
   \item{object}{ \code{traps} object (\code{markocc}) or capthist object
   (\code{Tu}, \code{Tm}, \code{Tn}, \code{marked})}
   \item{value}{ numeric matrix of detectors x occasions, or a vector
-    (see Details); for \code{marked} a matrix of animals x occasions }
+    (see Details); for \code{marked} a matrix of animals x non-telemetry occasions }
   \item{\dots}{ other arguments (not used) }
 }
 \details{
@@ -55,16 +55,15 @@ marked(object) <- value
   (total count) or a detectors x occasions matrix.
 
   For replacement of \code{marked}, `value' is a numeric matrix with one row per
-  animal and one column per occasion of the capthist object (telemetry occasions are
-  ignored), or NULL. Each element is a known, non-negative multiplier of detector usage
-  for that animal on that occasion, interpreted as the fraction of the occasion during
-  which the animal is identifiable as marked: usually 0 (e.g. collar not working) or 1,
-  or a fraction when the status changed during the occasion. The default (NULL) is 1 for
-  all animals. In telemetry type 'marking' a collared animal contributes cues to the
-  identified counts and Tm only while marked; at other times its cues are part of the
-  unmarked sightings Tu. The values are known exposure, not probabilities: this is not
-  availability in the sense of the \code{p.available} argument of \code{\link{sim.capthist}},
-  which describes a random process unobserved in the data.
+  animal and one column per non-telemetry occasion (the same columns as for \code{Tu}),
+  or NULL. The attribute is analogous to detector \code{\link{usage}}, which records the
+  extent to which each detector was operating on each occasion: \code{marked} records the
+  extent to which each animal was identifiable as marked on each occasion. Each element is a
+  known, non-negative multiplier of the usage of the detectors for that animal on that
+  occasion; usually 0 (e.g. collar not working) or 1, or a fraction if the status changed
+  during the occasion. The default (NULL) is 1 for all animals. In telemetry type 'marking'
+  a collared animal contributes cues to the identified counts and Tm only while marked;
+  at other times its cues are part of the unmarked sightings Tu.
 
 }
 \value{
