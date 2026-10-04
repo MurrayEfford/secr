@@ -931,7 +931,7 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     details$fixedbeta <- secr_setfixedbeta(details$fixedbeta, parindx, link, CL, nmiscparm)
     if (!is.null(fixedpmix)) {
         ## beta for pmix ~ h2 is the logit of the proportion in the second class
-        details$fixedbeta[parindx$pmix[1]] <- qlogis(fixedpmix)
+        details$fixedbeta[parindx$pmix[1]] <- logit(fixedpmix)
     }
     if (!is.null(details$fixedbeta )) {
         if (!(length(details$fixedbeta )== NP))
