@@ -608,11 +608,16 @@ secr_generalsecrloglikfn <- function (
     else {
         if (all(data$dettype %in% c(0,1,2,8,13))) {
             ## mask-based arguments, or with GH the same with nodes appended for telemetered animals
-            hh <- list(pi.density = pi.density, gkhk = gkhk, haztemp = haztemp,
+            ## telemetry type marking: uniform prior for the activity centres of marked animals
+            ## (collars are not deployed in proportion to density), whatever the density model;
+            ## D(x) enters through the expected unmarked cues
+            pi.marked <- if (telemetrytype(data$traps) == "marking")
+                matrix(1/data$m, nrow = data$m, ncol = ncol(pi.density)) else pi.density
+            hh <- list(pi.density = pi.marked, gkhk = gkhk, haztemp = haztemp,
                        maskcond = data$maskcond, telemhr = telemhr)
             if (GH && any(data$dettype == 13)) {
                 ghargs <- secr_telemGH (data, PIA, Xrealparval, detectfn, miscparm,
-                                        gkhk, pi.density, details)
+                                        gkhk, pi.marked, details)
                 if (!is.null(ghargs)) hh <- ghargs
             }
             lnprw <- allhistsimple (

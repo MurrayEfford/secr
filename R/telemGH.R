@@ -44,9 +44,6 @@ secr_telemGH <- function (data, PIA, Xrealparval, detectfn, miscparm, gkhk,
     if (length(tel) == 0) return(NULL)
     if (!is.null(details$userdist))
         stop ("details$telemetryint = 'GH' requires Euclidean distances (no userdist)")
-    if (.localstuff$iter == 0 && diff(range(pi.density[,1])) > 1e-8 * mean(pi.density[,1]))
-        warning ("details$telemetryint = 'GH' assumes uniform density for the activity centres ",
-                 "of telemetered animals")
 
     mask   <- data$mask
     M      <- nrow(mask)

@@ -221,8 +221,9 @@ centres of telemetered animals. The default \code{"mask"} sums over mask cells,
 which requires a mask spacing small relative to \eqn{\sigma/\sqrt{n}} for an animal with
 \eqn{n} fixes. The alternative \code{"GH"} uses Gauss-Hermite quadrature centred
 on the mean of the animal's fixes; it is faster and independent of mask spacing, but
-assumes a uniform prior for the activity centre (no density surface, and no restriction
-to habitat in the mask). Currently available only for telemetry type 'marking'.
+places the quadrature nodes without regard to the mask, so there is no restriction
+to habitat in the mask. Currently available only for telemetry type 'marking' (for which
+the prior for the activity centre of a marked animal is uniform, whatever the method).
 
 \code{details$telemetryscale} defunct option, superceded by 'safeLL' and 'uselog'.
 
