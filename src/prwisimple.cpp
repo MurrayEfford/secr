@@ -82,6 +82,7 @@ struct simplehistories : public Worker {
     const RMatrix<double> Uind;      // n,s  animal-specific multiplier of usage (exposure window)
     const bool            post;      // also return posterior mean cue rates (telemetry 'marking')
     const int             k1;        // number of detectors excluding notional telemetry detector
+    const bool            telemsum;  // telemhr holds, for each mask point, the log of the product over all fixes (cc x mm), used with Gauss-Hermite nodes
 
     // working variables
     int  kk, ss;
@@ -132,6 +133,7 @@ struct simplehistories : public Worker {
         const NumericMatrix Uind,
         const bool post,
         const int k1,
+        const bool telemsum,
 
         NumericMatrix postout,
         NumericVector output
@@ -164,6 +166,7 @@ struct simplehistories : public Worker {
         Uind(Uind),
         post(post),
         k1(k1),
+        telemsum(telemsum),
         postout(postout),
         output(output)
         {
@@ -208,6 +211,20 @@ struct simplehistories : public Worker {
                 c = PIA[w3] - 1;                
                 if (c<0) {
                     Rcpp::stop ("telemetry usage zero on telemetry occasion");
+                }
+                if (telemsum) {
+                    // all fixes of the animal are combined in one precomputed log-density;
+                    // add it once, at the animal's first telemetry occasion
+                    if (cumcount == 0) {
+                        for (j = mask_offsets[m_row]; j < mask_offsets[m_row+1]; ++j) {
+                            m = mask_indices[j];
+                            ps = telemhr[i3(c, m, 0, cc, mm)];
+                            if (uselog) pm[m] += ps;
+                            else pm[m] *= std::exp(ps);
+                        }
+                    }
+                    cumcount += count;
+                    return;
                 }
                 for (i=cumcount; i<(cumcount+count); i++) {
                     t = telemstart[n] + i;
@@ -592,6 +609,7 @@ static NumericVector runsimplehistories (
         const NumericMatrix Uind,
         const bool post,
         const int k1,
+        const bool telemsum,
         NumericMatrix postout)
     {
 
@@ -604,7 +622,7 @@ static NumericVector runsimplehistories (
             pID, w, group, gk, hk,
             density, PIA, Tsk, h, hindex,
             mask_indices, mask_offsets, mask_id, telemhr, telemstart,
-            Uind, post, k1, postout, output);
+            Uind, post, k1, telemsum, postout, output);
     
     if (ncores>1) {
         // Run operator() on multiple threads
@@ -661,7 +679,7 @@ NumericVector simplehistoriescpp (
         mm, nc, cc, grain, ncores, safeLL, uselog, binomN, markocc, firstocc,
         pID, w, group, gk, hk, density, PIA, Tsk, h, hindex,
         mask_indices, mask_offsets, mask_id, telemhr, telemstart,
-        Uind, false, 0, nopost);
+        Uind, false, 0, false, nopost);
 }
 //==============================================================================
 
@@ -699,14 +717,15 @@ List simplehistoriesmarkedcpp (
         const NumericVector telemhr,
         const IntegerVector telemstart,
         const NumericMatrix Uind,          // nc x s animal-specific multiplier of usage
-        const int k1)                      // detectors excluding notional telemetry detector
+        const int k1,                      // detectors excluding notional telemetry detector
+        const bool telemsum)               // telemhr is cc x mm log-product over each animal's fixes
 {
     NumericMatrix postout(nc, k1+1);
     NumericVector lnprw = runsimplehistories (
         mm, nc, cc, grain, ncores, safeLL, uselog, binomN, markocc, firstocc,
         pID, w, group, gk, hk, density, PIA, Tsk, h, hindex,
         mask_indices, mask_offsets, mask_id, telemhr, telemstart,
-        Uind, true, k1, postout);
+        Uind, true, k1, telemsum, postout);
     return List::create(Named("lnprw") = lnprw, Named("post") = postout);
 }
 //==============================================================================

@@ -40,7 +40,7 @@ allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup,
                            telemhr = 0, telemstart = 0,
                            grain, ncores, safeLL = FALSE, uselog = FALSE,
                            R = FALSE, debug = FALSE, marking = FALSE, k1 = NULL,
-                           Uind = NULL) {
+                           Uind = NULL, telemsum = FALSE) {
   ## marking = TRUE (telemetrytype 'marking') adds attribute 'post' to the result:
   ## nc x (k1+1) matrix of posterior-mean cue rates of each marked animal
   ## (simplehistoriesmarkedcpp); k1 is the number of detectors excluding the
@@ -113,7 +113,7 @@ allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup,
           if (marking) {
               if (is.null(Uind)) Uind <- matrix(1, nrow = nc, ncol = ncol(usge))
               tmp <- do.call(simplehistoriesmarkedcpp,
-                             c(args, list(as.matrix(Uind), as.integer(k1))))
+                             c(args, list(as.matrix(Uind), as.integer(k1), isTRUE(telemsum))))
               logprwi[,x] <- tmp$lnprw
               postlist[[x]] <- tmp$post
           }
@@ -645,7 +645,8 @@ secr_generalsecrloglikfn <- function (
                 debug = details$debug>3,
                 marking = telemetrytype(data$traps) == "marking",
                 k1 = nrow(data$usge) - data$MRdata$anytelemetry,
-                Uind = data$Uind)
+                Uind = data$Uind,
+                telemsum = isTRUE(hh$telemsum))
         }
         else if (all(data$dettype == 5)) {
             lnprw <- allhistsignal (

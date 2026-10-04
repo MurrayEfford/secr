@@ -69,8 +69,8 @@ simplehistoriescpp <- function(mm, nc, cc, grain, ncores, safeLL, uselog, binomN
     .Call(`_secr_simplehistoriescpp`, mm, nc, cc, grain, ncores, safeLL, uselog, binomN, markocc, firstocc, pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, telemhr, telemstart)
 }
 
-simplehistoriesmarkedcpp <- function(mm, nc, cc, grain, ncores, safeLL, uselog, binomN, markocc, firstocc, pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, telemhr, telemstart, Uind, k1) {
-    .Call(`_secr_simplehistoriesmarkedcpp`, mm, nc, cc, grain, ncores, safeLL, uselog, binomN, markocc, firstocc, pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, telemhr, telemstart, Uind, k1)
+simplehistoriesmarkedcpp <- function(mm, nc, cc, grain, ncores, safeLL, uselog, binomN, markocc, firstocc, pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, telemhr, telemstart, Uind, k1, telemsum) {
+    .Call(`_secr_simplehistoriesmarkedcpp`, mm, nc, cc, grain, ncores, safeLL, uselog, binomN, markocc, firstocc, pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, telemhr, telemstart, Uind, k1, telemsum)
 }
 
 simplehistoriesfxicpp <- function(x, mm, nc, cc, grain, ncores, binomN, w, group, gk, hk, density, PIA, Tsk, h, hindex) {

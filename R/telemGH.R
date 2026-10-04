@@ -61,20 +61,23 @@ secr_telemGH <- function (data, PIA, Xrealparval, detectfn, miscparm, gkhk,
     wgh  <- as.vector(outer(gh$w, gh$w))
     G    <- nrow(zz)
 
-    nodexy  <- matrix(0, nrow = length(tel) * G, ncol = 2)
-    nodedens <- numeric(length(tel) * G)
-    for (j in seq_along(tel)) {
-        i    <- tel[j]
-        fx   <- xy[(start[i] + 1):start[i+1], , drop = FALSE]
-        xbar <- colMeans(fx)
-        xcl  <- if (nmix > 1) data$knownclass[i] - 1 else 1     # latent class (known for marked animals)
-        sig  <- Xrealparval[PIA[1, i, telocc, K, xcl], sigcol]
-        sdx  <- sig / sqrt(nrow(fx))
-        rows <- (j-1) * G + 1:G
-        nodexy[rows, ] <- cbind(xbar[1] + sdx * zz[,1], xbar[2] + sdx * zz[,2])
-        phi  <- exp(-0.5 * (zz[,1]^2 + zz[,2]^2)) / (2 * pi * sdx^2)
-        nodedens[rows] <- wgh / (phi * Am2)
-    }
+    ## sufficient statistics of each animal's fixes: number, mean and sum of squares about the mean
+    id    <- rep(seq_len(nc), diff(start))
+    nfix  <- tabulate(id, nc)[tel]
+    sx    <- rowsum(xy, id)[match(tel, sort(unique(id))), , drop = FALSE]
+    sx2   <- rowsum(xy^2, id)[match(tel, sort(unique(id))), , drop = FALSE]
+    xbarm <- sx / nfix
+    SSfix <- rowSums(sx2) - nfix * rowSums(xbarm^2)
+
+    xcl   <- if (nmix > 1) data$knownclass[tel] - 1 else rep(1, length(tel))
+    sig   <- Xrealparval[PIA[cbind(1, tel, telocc, K, xcl)], sigcol]
+    sdx   <- sig / sqrt(nfix)
+    ## node j of animal i is row (i-1)*G + j
+    ia       <- rep(seq_along(tel), each = G)
+    nodexy   <- cbind(xbarm[ia, 1] + sdx[ia] * rep(zz[,1], length(tel)),
+                      xbarm[ia, 2] + sdx[ia] * rep(zz[,2], length(tel)))
+    phi      <- exp(-0.5 * (zz[,1]^2 + zz[,2]^2)) / (2 * pi * sdx[ia]^2)
+    nodedens <- rep(wgh, length(tel)) / (phi * Am2)
     nn <- nrow(nodexy)
 
     ## detection function at the nodes; node rows follow the mask rows
@@ -104,16 +107,32 @@ secr_telemGH <- function (data, PIA, Xrealparval, detectfn, miscparm, gkhk,
                                 PIA, data$usge)
 
     ## telemetry density at the nodes only
-    telemhr2 <- gethrcpp(
-        as.integer(detectfn),
-        as.double(start),
-        as.matrix(xy),
-        rbind(as.matrix(mask), nodexy),
-        as.integer(M + seq_len(nn) - 1),
-        as.matrix(Xrealparval))
+    if (detectfn == 14) {
+        ## HHN: product over an animal's fixes at node s is
+        ##   (2 pi sigma^2)^(-n) exp(-(n |s - xbar|^2 + SS) / (2 sigma^2))
+        ## so only the log of the product is needed, once per node and parameter combination
+        ## (array cc x (M+nn)), and no per-fix evaluation
+        sigc  <- Xrealparval[, sigcol]
+        dnode <- nfix[ia] * ((nodexy[,1] - xbarm[ia,1])^2 + (nodexy[,2] - xbarm[ia,2])^2) + SSfix[ia]
+        lg    <- matrix(0, nrow = length(sigc), ncol = M + nn)
+        lg[, M + seq_len(nn)] <- -outer(sigc, nfix[ia], function(s, n) n * log(2 * pi * s^2)) -
+            outer(1 / (2 * sigc^2), dnode)
+        telemhr2 <- as.vector(lg)
+        telemsum <- TRUE
+    }
+    else {
+        telemhr2 <- gethrcpp(
+            as.integer(detectfn),
+            as.double(start),
+            as.matrix(xy),
+            rbind(as.matrix(mask), nodexy),
+            as.integer(M + seq_len(nn) - 1),
+            as.matrix(Xrealparval))
+        telemsum <- FALSE
+    }
 
     list(pi.density = pi.density2, gkhk = gkhk2, haztemp = haztemp2,
-         maskcond = maskcond2, telemhr = telemhr2)
+         maskcond = maskcond2, telemhr = telemhr2, telemsum = telemsum)
 }
 
 ###############################################################################
