@@ -174,6 +174,10 @@ test_that("fit with Tm, pID, marked and GH agrees with RTMB reference", {
     expect_equal(est["sigma", "estimate"], 3.9629, tolerance = 0.005, check.attributes = FALSE)
     expect_equal(est["pID", "estimate"], 0.6369, tolerance = 0.005, check.attributes = FALSE)
     expect_equal(est["pID", "SE.estimate"], 0.1024, tolerance = 0.02, check.attributes = FALSE)
+    ## derived() reports Dcw, which equals D when density is uniform
+    dd <- derived(fitq)
+    expect_equal(rownames(dd), "Dcw")
+    expect_equal(dd["Dcw", "estimate"], est["D", "estimate"], tolerance = 1e-5)
 })
 
 ## Slower checks

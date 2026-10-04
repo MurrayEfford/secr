@@ -7,6 +7,15 @@ New features or changed behaviour of old functions
        marked animals' cues twice. Unidentified marked sightings Tm are modelled, with pID
        estimated when Tm is present. details$nsim is not available for this type;
        supply details$chat. Starting values come from the telemetry and counts.
+    o  telemetrytype 'marking' with a density model (e.g. model = list(D ~ z)): the density
+       coefficients are estimated from the spread of the unmarked sightings across detectors
+       (conditional multinomial likelihood, scaled by the third element of details$chat),
+       while the total count of unmarked sightings determines the level of density. The
+       prior for the activity centres of marked animals is uniform whatever the density model
+       (or follows a mask covariate named 'marking').
+    o  derived() now works for telemetrytype 'marking' and returns Dcw, the density in the
+       sampled area: the mean of the fitted density surface weighted by the cue rate at each
+       point. It equals D when density is uniform.
     o  telemetrytype 'marking' accepts finite-mixture models with known classes (hcov, e.g. sex,
        with sigma ~ h2, lambda0 ~ h2). The class of every marked animal must be known. The
        population class proportions pmix are estimated, which by default are the proportions

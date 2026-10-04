@@ -37,7 +37,13 @@ numbers. The default is not to centre coordinates.
 of unmarked sightings Tu and unidentified marked sightings Tm. It is used only 
 for mark-resight models, and is usually computed within \code{secr.fit} 
 (\code{details$nsim > 0}), but may be provided by the user. For a single session
-`chat` is a vector of length 2; for multiple sessions it is a 2-column matrix. 
+`chat` is a vector of length 2; for multiple sessions it is a 2-column matrix.
+For telemetry type `marking' (see \code{\link{addTelemetry}}) `chat' has three elements
+(a scalar is repeated): the overdispersion of the total count of unmarked sightings, of
+unidentified marked sightings Tm, and, for models with density covariates, of the spread of
+unmarked sightings across detectors (usually the Pearson chi-square statistic divided by its
+degrees of freedom, at least 1). Simulation of `chat' (\code{details$nsim}) is not available for
+this telemetry type.
 
 \code{details$chatonly} = TRUE used with \code{details$nsim > 0} causes the 
 overdispersion statistics for sighting counts Tu and Tm to be estimated and 

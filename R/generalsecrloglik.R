@@ -451,7 +451,8 @@ secr_generalsecrloglikfn <- function (
       Dsum <- apply(density,2,sum)   ## by group
       Nm <- density * secr_getcellsize(data$mask)
     
-      if (data$MRdata$allsighting && data$MRdata$pi.mask[1] != -1) {
+      ## not for telemetry type marking (sightmodel 7), where marked animals are not part of a known number of animals
+      if (data$MRdata$allsighting && data$MRdata$pi.mask[1] != -1 && data$MRdata$sightmodel != 7) {
           pi.density <- matrix(data$MRdata$pi.mask, ncol = 1)  ## by group=column?
           criterion <- Nm < (nrow(data$CH) * pi.density)
           if (any(is.na(criterion)) || any(criterion)) {
@@ -608,11 +609,12 @@ secr_generalsecrloglikfn <- function (
     else {
         if (all(data$dettype %in% c(0,1,2,8,13))) {
             ## mask-based arguments, or with GH the same with nodes appended for telemetered animals
-            ## telemetry type marking: uniform prior for the activity centres of marked animals
-            ## (collars are not deployed in proportion to density), whatever the density model;
+            ## telemetry type marking: prior for the activity centres of marked animals is
+            ## uniform (collars are not deployed in proportion to density), whatever the density
+            ## model, unless the mask has a covariate named "marking" (MRdata$pi.mask); 
             ## D(x) enters through the expected unmarked cues
             pi.marked <- if (telemetrytype(data$traps) == "marking")
-                matrix(1/data$m, nrow = data$m, ncol = ncol(pi.density)) else pi.density
+                matrix(data$MRdata$pi.mask, nrow = data$m, ncol = ncol(pi.density)) else pi.density
             hh <- list(pi.density = pi.marked, gkhk = gkhk, haztemp = haztemp,
                        maskcond = data$maskcond, telemhr = telemhr)
             if (GH && any(data$dettype == 13)) {
@@ -713,7 +715,7 @@ secr_generalsecrloglikfn <- function (
     }
     
     # 2025-08-05 ngroup now global to this fn
-    comp <- matrix(0, nrow = 6, ncol = ngroup)
+    comp <- matrix(0, nrow = 7, ncol = ngroup)
     for (g in 1:ngroup) {
       ok <- as.integer(data$grp) == g
       oknt <- ok & data$telemstatus>0  ## 2026-07-02 excludes unmodelled detection occasions (independent telemetry)
@@ -823,6 +825,7 @@ secr_generalsecrloglikfn <- function (
               ## marked animals' cues twice.
               postE <- attr(lnprw, "post")
               ElamK <- postE[, -ncol(postE), drop = FALSE]    # animals x detectors
+              .localstuff$markedpost <- postE      # for secr_shapeSandwich()
               mu <- sum(tmp$Tumusk) - sum(ElamK)
               if (!is.finite(mu)) {
                   comp[5,1] <- NA
@@ -836,6 +839,24 @@ secr_generalsecrloglikfn <- function (
                   floor <- 0.01 * max(1, Tutotal)
                   if (mu < floor) mu <- floor * exp((mu - floor) / floor)
                   comp[5,1] <- dpois(Tutotal, mu, log = TRUE) / details$chat[1]
+              }
+
+              ## Density covariates: the pooled count above informs the density level only.
+              ## The shape of the unmarked cues across detectors, given their total, is
+              ## multinomial with probabilities proportional to the population cue rates by
+              ## detector (no subtraction of marked animals; the density level cancels).
+              ## It is scaled by details$chat[3] (Pearson dispersion across detectors),
+              ## which for 'marking' replaces the unused Tn slot.
+              if (length(parindx$D) > 1) {
+                  Tuk   <- rowSums(data$MRdata$Tu)[seq_len(ncol(ElamK))]
+                  mupop <- rowSums(tmp$Tumusk)[seq_len(ncol(ElamK))]
+                  if (any(!is.finite(mupop)) || any(mupop <= 0 & Tuk > 0)) {
+                      comp[7,1] <- NA
+                  }
+                  else {
+                      pos <- Tuk > 0
+                      comp[7,1] <- sum(Tuk[pos] * (log(mupop[pos]) - log(sum(mupop)))) / details$chat[3]
+                  }
               }
 
               ## Unidentified marked cues Tm: each cue of a marked animal is identified with
@@ -896,7 +917,7 @@ secr_generalsecrloglikfn <- function (
     if (details$debug>=1) {
         ## display likelihood components summed over groups, and logmultinomial constant
         comp <- apply(comp,1,sum)
-        cat(comp[1], comp[2], comp[3], comp[4], comp[5], comp[6], data$logmult, '\n')
+        cat(comp[1], comp[2], comp[3], comp[4], comp[5], comp[6], comp[7], data$logmult, '\n')
     }
     sum(comp) + data$logmult
   
