@@ -43,10 +43,23 @@ For telemetry type `marking' (see \code{\link{addTelemetry}}) `chat' has three e
 unidentified marked sightings Tm, and, for models with density covariates, of the spread of
 unmarked sightings across detectors (usually the Pearson chi-square statistic divided by its
 degrees of freedom, at least 1). Simulation of `chat' (\code{details$nsim}) is not available for
-this telemetry type.
+this telemetry type; use \code{details$chatmethod = "analytic"}.
 
-\code{details$chatonly} = TRUE used with \code{details$nsim > 0} causes the 
-overdispersion statistics for sighting counts Tu and Tm to be estimated and 
+\code{details$chatmethod} is \code{"simulate"} (default) or \code{"analytic"}. The default
+estimates overdispersion by simulation when \code{details$nsim > 0}. With
+\code{"analytic"} the overdispersion is computed from the variance of the total count of
+unmarked sightings implied by the model (compound Poisson: the cues from one animal fall at
+several detectors), at the parameter values in \code{start}, without simulation;
+\code{details$nsim} is ignored. It is currently available only for telemetry type 'marking',
+for which the posterior variance of the marked animals' contribution is included, and for
+models with density covariates the Pearson dispersion of the spread of unmarked sightings
+across detectors. As with simulation, fit the model first (\code{chat} 1), then refit with
+\code{start} set to the first fit (or use \code{\link{secr.refit}}); \code{method = "none"}
+recomputes only the variance.
+
+\code{details$chatonly} = TRUE used with \code{details$nsim > 0} (or
+\code{details$chatmethod = "analytic"}) causes the
+overdispersion statistics for sighting counts Tu and Tm to be estimated and
 returned as a vector or 2-column matrix (multi-session models), with no further
 model fitting.
 

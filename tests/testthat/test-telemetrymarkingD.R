@@ -46,6 +46,37 @@ test_that("density model: log-likelihood maximal near RTMB estimates", {
     }
 })
 
+## Analytic overdispersion, details$chatmethod = "analytic", at the RTMB estimates.
+## RTMB (fixed number of animals, mask spacing 2.5) at the same parameter values:
+## chat for the total 6.471; Pearson dispersion across detectors 7.63
+test_that("analytic chat agrees with RTMB", {
+    detc <- list(safeLL = TRUE, uselog = TRUE, telemetryint = "GH", distribution = "binomial",
+                 chatmethod = "analytic", chatonly = TRUE)
+    cs <- secr.fit(chd, detectfn = "HHN", mask = mskd, model = list(D ~ z), trace = FALSE,
+                   start = betad, details = detc)
+    expect_equal(colnames(cs), c("Tu", "Tm", "shape"))
+    expect_equal(cs[1, "Tu"], 6.471, tolerance = 0.03)
+    expect_equal(cs[1, "Tm"], 1)
+    expect_equal(cs[1, "shape"], 7.63, tolerance = 0.03)
+    ## a Poisson number of animals adds variance relative to a fixed number
+    detc$distribution <- "poisson"
+    csp <- secr.fit(chd, detectfn = "HHN", mask = mskd, model = list(D ~ z), trace = FALSE,
+                    start = betad, details = detc)
+    expect_gt(csp[1, "Tu"], cs[1, "Tu"])
+})
+
+test_that("chatmethod input checks", {
+    expect_error(secr.fit(chd, detectfn = "HHN", mask = mskd, model = list(D ~ z), trace = FALSE,
+                          details = list(chatmethod = "none")), "should be 'simulate' or 'analytic'")
+    ch1 <- chd
+    telemetrytype(traps(ch1)) <- "concurrent"
+    expect_error(secr.fit(ch1, detectfn = "HHN", mask = mskd, trace = FALSE,
+                          details = list(chatmethod = "analytic")),
+                 "only for telemetrytype 'marking'")
+    expect_error(secr.fit(chd, detectfn = "HHN", mask = mskd, model = list(D ~ z), trace = FALSE,
+                          details = list(nsim = 10)), "chatmethod = 'analytic'")
+})
+
 test_that("density model: fit, Dcw from derived(), sandwich variance", {
     skip_on_cran()
     fit <- secr.fit(chd, detectfn = "HHN", mask = mskd, model = list(D ~ z), trace = FALSE,
@@ -77,4 +108,10 @@ test_that("density model: fit, Dcw from derived(), sandwich variance", {
     expect_gt(sw$SE.sandwich, sw$SE.model)
     expect_lt(sw$SE.sandwich, 2 * sw$SE.model)
     expect_equal(sw$SE.sandwich, 0.2736, tolerance = 0.1)
+
+    ## second pass with the analytic overdispersion (secr.refit keeps the model and starts at the fit)
+    fit2 <- secr.refit(fit, details = list(chatmethod = "analytic"), trace = FALSE)
+    expect_equal(unname(fit2$details$chat[1]), 10.4, tolerance = 0.05)   # Poisson N (default); 6.5 for fixed N
+    expect_equal(unname(fit2$details$chat[3]), 7.6, tolerance = 0.05)
+    expect_equal(coef(fit2)["D.z", "beta"], cf["D.z", "beta"], tolerance = 0.02)
 })

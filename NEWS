@@ -6,7 +6,11 @@ New features or changed behaviour of old functions
        own telemetry and detections. This replaces the 'Ta' likelihood of 5.5.0, which used the
        marked animals' cues twice. Unidentified marked sightings Tm are modelled, with pID
        estimated when Tm is present. details$nsim is not available for this type;
-       supply details$chat. Starting values come from the telemetry and counts.
+       use details$chatmethod = "analytic" or supply details$chat. Starting values come
+       from the telemetry and counts.
+    o  new details$chatmethod = "simulate" (default) or "analytic": the analytic option computes
+       the overdispersion of unmarked sightings from the model, without simulation. Currently
+       only for telemetrytype 'marking'.
     o  telemetrytype 'marking' with a density model (e.g. model = list(D ~ z)): the density
        coefficients are estimated from the spread of the unmarked sightings across detectors
        (conditional multinomial likelihood, scaled by the third element of details$chat),

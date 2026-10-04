@@ -176,6 +176,7 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
         knownmarks = TRUE,
         nsim = 0,
         chatonly = FALSE,
+        chatmethod = "simulate",                 # 2026-10-04 or "analytic"
         chat = NULL,
         savecall = TRUE,
         newdetector = NULL,
@@ -355,6 +356,14 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     if (details$telemetryint == "GH" && !telemetrymarking)
         stop ("details$telemetryint = 'GH' is currently available only for ",
               "telemetrytype 'marking'")
+    if (!(details$chatmethod %in% c("simulate", "analytic")))
+        stop ("details$chatmethod should be 'simulate' or 'analytic'")
+    if (details$chatmethod == "analytic") {
+        if (!telemetrymarking)
+            stop ("details$chatmethod = 'analytic' is currently available only for ",
+                  "telemetrytype 'marking'")
+        details$nsim <- 1     # signals that c-hat is wanted (the number of simulations is not used)
+    }
 
     #################################################
     ## optional centring of traps and mask 2010 04 27

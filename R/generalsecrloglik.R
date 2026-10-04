@@ -581,12 +581,15 @@ secr_generalsecrloglikfn <- function (
     }
     #######################################################################
     ## option to estimate sighting overdispersion by simulation and exit */
-    if (!is.null(details$nsim) && details$nsim > 0) {
+    chatanalytic <- identical(details$chatmethod, "analytic") && !is.null(details$nsim) && details$nsim > 0
+    ## analytic c-hat (telemetry type marking) is computed below, after the marked animals; 
+    ## secr.fit sets details$nsim to 1 as a signal that c-hat is wanted
+    if (!chatanalytic && !is.null(details$nsim) && details$nsim > 0) {
         if (CL)
             stop("simulation for overdispersion requires full likelihood (not CL)")
         else if (telemetrytype(data$traps) == "marking")
             stop("simulation for overdispersion is not available for telemetrytype 'marking'; ",
-                 "supply details$chat")
+                 "use details$chatmethod = 'analytic' or supply details$chat")
         else {
             chat <- getchat (
                 nrow(realparval0), nrow(data$CH), data$n.distrib,         ## or nc1?
@@ -879,6 +882,16 @@ secr_generalsecrloglikfn <- function (
                           comp[6,1] <- sum(dpois(Tmk, muTm, log = TRUE)) / details$chat[2]
                   }
               }
+
+              ## c-hat wanted (details$chatmethod = "analytic"): return it instead of the likelihood
+              if (chatanalytic) {
+                  return (secr_chatmarking (
+                      hk = gkhk$hk, PIA = PIA, usge = data$usge, markocc = data$MRdata$markocc,
+                      density = density[,1], cellsize = secr_getcellsize(data$mask),
+                      pmixpop = pmixE[,1], ElamK = ElamK, EL2 = postE[, ncol(postE)],
+                      Tu = data$MRdata$Tu, Tumusk = tmp$Tumusk, nz = length(parindx$D) - 1,
+                      n.distrib = data$n.distrib))
+              }
           }
           else {
               if (!is.null(data$MRdata$Tu) && !is.null(tmp$Tumusk)) {
@@ -961,9 +974,12 @@ secr_generalsecrloglikfn <- function (
   # Two types of call
   # (i) overdispersion of sightings simulations only
   if (details$nsim > 0) {   
+    .localstuff$Eng <- matrix(0, nrow = nsession, ncol = ngroup)   # updated by sessionLL (analytic c-hat)
     chat <- mapply (sessionLL, data, SIMPLIFY = FALSE)
     chatmat <- matrix(unlist(chat), ncol = 3, byrow = TRUE)
-    dimnames(chatmat) <- list(session = 1:nsession, chat = c('Tu', 'Tm','Tn'))
+    ## for telemetry type 'marking' the third element is the dispersion of the spread across detectors
+    marking3 <- any(sapply(data, function(d) telemetrytype(d$traps) == "marking"))
+    dimnames(chatmat) <- list(session = 1:nsession, chat = c('Tu', 'Tm', if (marking3) 'shape' else 'Tn'))
     return(chatmat)
   }
   #--------------------------------------------------------------------
