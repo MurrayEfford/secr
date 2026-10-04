@@ -359,9 +359,13 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     if (!(details$chatmethod %in% c("simulate", "analytic")))
         stop ("details$chatmethod should be 'simulate' or 'analytic'")
     if (details$chatmethod == "analytic") {
-        if (!telemetrymarking)
+        sightingonly <- all(sapply(if (MS) capthist else list(capthist), function(x) {
+            mo <- markocc(traps(x))
+            !is.null(mo) && all(mo == 0)
+        }))
+        if (!telemetrymarking && !sightingonly)
             stop ("details$chatmethod = 'analytic' is currently available only for ",
-                  "telemetrytype 'marking'")
+                  "telemetrytype 'marking' and sighting-only data (all markocc 0)")
         details$nsim <- 1     # signals that c-hat is wanted (the number of simulations is not used)
     }
 

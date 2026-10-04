@@ -38,3 +38,21 @@ test_that("correct likelihood (all sighting mark-resight)", {
     LL <- do.call(secr.fit, argssecr)[1]
     expect_equal(LL, -182.133065, tolerance = 1e-4, check.attributes = FALSE)
 })
+
+## analytic overdispersion (details$chatmethod = "analytic") for sighting-only data,
+## binary detectors with variable usage; the simulated c-hat (nsim = 40000) was 7.59
+## (Monte Carlo error about 1%)
+test_that("analytic c-hat (all sighting mark-resight)", {
+    args <- argssecr
+    args$details <- list(chatmethod = "analytic", chatonly = TRUE)
+    chat <- do.call(secr.fit, args)
+    expect_equal(chat[1, "Tu"], 7.6817, tolerance = 1e-4, check.attributes = FALSE)
+    expect_equal(chat[1, "Tu"], 7.6, tolerance = 0.03, check.attributes = FALSE)
+    expect_equal(chat[1, "Tm"], 1, check.attributes = FALSE)
+    ## not available when there are marking occasions
+    MRCHm <- MRCH
+    markocc(traps(MRCHm)) <- c(1, 0, 0, 0)
+    args$capthist <- MRCHm
+    args$verify <- FALSE      # the altered data are not consistent
+    expect_error(do.call(secr.fit, args), "sighting-only")
+})

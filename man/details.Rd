@@ -50,10 +50,16 @@ estimates overdispersion by simulation when \code{details$nsim > 0}. With
 \code{"analytic"} the overdispersion is computed from the variance of the total count of
 unmarked sightings implied by the model (compound Poisson: the cues from one animal fall at
 several detectors), at the parameter values in \code{start}, without simulation;
-\code{details$nsim} is ignored. It is currently available only for telemetry type 'marking',
-for which the posterior variance of the marked animals' contribution is included, and for
-models with density covariates the Pearson dispersion of the spread of unmarked sightings
-across detectors. As with simulation, fit the model first (\code{chat} 1), then refit with
+\code{details$nsim} is ignored. It reproduces in expectation the quantity estimated by
+simulation (the variance of the pooled count divided by its naive Poisson or binomial variance),
+for count, proximity and multi detectors, a Poisson or fixed (binomial) number of animals
+(\code{details$distribution}), and is currently available for (i) sighting-only data (all
+\code{markocc} 0, i.e. all animals marked beforehand), and (ii) telemetry type 'marking', for
+which the posterior variance of the marked animals' contribution is included and, for
+models with density covariates, the Pearson dispersion of the spread of unmarked sightings
+across detectors is also returned. It is not available when there are marking occasions or
+unresolved sightings. The overdispersion is much larger for a Poisson than a fixed number
+of animals. As with simulation, fit the model first (\code{chat} 1), then refit with
 \code{start} set to the first fit (or use \code{\link{secr.refit}}); \code{method = "none"}
 recomputes only the variance.
 

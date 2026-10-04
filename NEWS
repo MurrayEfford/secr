@@ -10,7 +10,7 @@ New features or changed behaviour of old functions
        from the telemetry and counts.
     o  new details$chatmethod = "simulate" (default) or "analytic": the analytic option computes
        the overdispersion of unmarked sightings from the model, without simulation. Currently
-       only for telemetrytype 'marking'.
+       for sighting-only data (all markocc 0) and telemetrytype 'marking'.
     o  telemetrytype 'marking' with a density model (e.g. model = list(D ~ z)): the density
        coefficients are estimated from the spread of the unmarked sightings across detectors
        (conditional multinomial likelihood, scaled by the third element of details$chat),

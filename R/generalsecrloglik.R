@@ -600,6 +600,17 @@ secr_generalsecrloglikfn <- function (
             return (chat)         
         }
     }
+    ## analytic c-hat for sighting-only (all pre-marked) models; needs no histories
+    if (chatanalytic && telemetrytype(data$traps) != "marking") {
+        if (CL) stop("overdispersion requires full likelihood (not CL)")
+        if (!(data$MRdata$sightmodel %in% c(5, 6)))
+            stop ("analytic c-hat requires sighting-only data (all markocc 0)")
+        return (secr_chatsighting (
+            hk = gkhk$hk, PIA = PIA0, usge = data$usge, markocc = data$MRdata$markocc,
+            binomN = data$binomNcode, Nm = pi.density[,1] * Dsum[1] * secr_getcellsize(data$mask),
+            pimask = pi.density[,1], nmark = nrow(data$CH), pmix = as.numeric(pmixn[,1]),
+            pID = pID, n.distrib = data$n.distrib, sightmodel = data$MRdata$sightmodel))
+    }
     #######################################################################
     if (all(data$dettype %in% c(0,1,2,3,4,6,7,8,13))) {
         ## hazard for exclusive detectors or related
