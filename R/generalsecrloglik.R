@@ -52,9 +52,9 @@ allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup,
   nmix <- nrow(pmixn)
   sump <- numeric(nc)
   if (debug) browser()
-  if (marking && (nmix > 1 || (!is.null(R) && R)))
-      stop ("telemetry 'marking' not yet available with mixture models or details$R")
-  post <- NULL
+  if (marking && !is.null(R) && R)
+      stop ("telemetry 'marking' not available with details$R")
+  postlist <- vector('list', nmix)
   logprwi <- matrix(nrow=nc, ncol=nmix)
   for (x in 1:nmix) {
       hx <- if (any(binomNcode==-2)) matrix(haztemp$h[x,,], nrow = m) else -1 ## lookup sum_k (hazard)
@@ -115,7 +115,7 @@ allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup,
               tmp <- do.call(simplehistoriesmarkedcpp,
                              c(args, list(as.matrix(Uind), as.integer(k1))))
               logprwi[,x] <- tmp$lnprw
-              post <- tmp$post
+              postlist[[x]] <- tmp$post
           }
           else {
               logprwi[,x] <- do.call(simplehistoriescpp, args)
@@ -123,7 +123,20 @@ allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup,
       }
   }
   out <- secr_logsum(logprwi, pmixn)
-  if (marking) attr(out, 'post') <- post
+  if (marking) {
+      if (nmix == 1) {
+          post <- postlist[[1]]
+      }
+      else {
+          ## posterior mean cue rates are mixed over latent classes in proportion to
+          ## pmixn * prw (class is known for the marked animals, so one weight is 1)
+          lw <- logprwi + log(t(pmixn))
+          w  <- exp(lw - apply(lw, 1, max))
+          w  <- w / rowSums(w)
+          post <- Reduce(`+`, lapply(1:nmix, function(x) w[,x] * postlist[[x]]))
+      }
+      attr(out, 'post') <- post
+  }
   out
 }
 
@@ -746,10 +759,14 @@ secr_generalsecrloglikfn <- function (
       
       #----------------------------------------------------------------------
       # adjustment for mixture probabilities when class known
-      known <- sum(data$knownclass[oknt]>1)
+      ## telemetry 'marking': all marked animals count, including those with no detections
+      okm <- if (telemetrytype(data$traps) == "marking") ok else oknt
+      known <- sum(data$knownclass[okm]>1)
+      if (telemetrytype(data$traps) == "marking" && details$nmix>1 && any(data$knownclass[ok] == 1))
+          stop ("telemetrytype 'marking' with mixture classes requires the class (hcov) of every marked animal")
       if (details$nmix>1 && known>0) {
           nb <- details$nmix + 1
-          nm <- tabulate(data$knownclass[oknt], nbins = nb)
+          nm <- tabulate(data$knownclass[okm], nbins = nb)
           pmix <- attr(pmixn, 'pmix')
           ## 2022-10-25 bug fix
           firstx <- match ((1:details$nmix)+1, data$knownclass)
@@ -771,20 +788,31 @@ secr_generalsecrloglikfn <- function (
               # 2023-10-09 require gkhk was NOT recalculated for learned response naive animal 
               # and hence still has cc x M x K values in gkhk$hk
           }
+          ## telemetry 'marking' with mixture classes: the population (unmarked animals) has the
+          ## mixing proportions pmix, whereas pmixn is 0/1 for animals of known class
+          pmixE <- pmixn
+          if (nrow(pmixn) > 1 && telemetrytype(data$traps) == "marking") {
+              pmixpop <- attr(pmixn, 'pmix')
+              ## a fixed pmix is one constant for every class, so is valid only if proportions sum to 1
+              if (abs(sum(pmixpop) - 1) > 1e-6)
+                  stop ("class proportions pmix must sum to 1; a fixed pmix is applied to every class ",
+                        "(e.g. fixed = list(pmix = 0.5) for two equal classes), otherwise leave pmix free")
+              pmixE[,] <- pmixpop
+          }
           tmp <- expectedmu (
-              nrow(Xrealparval), 
-              haztemp, 
-              gkhk, 
-              pi.density, 
-              Nm, 
-              PIA, 
+              nrow(Xrealparval),
+              haztemp,
+              gkhk,
+              pi.density,
+              Nm,
+              PIA,
               ngroup,
-              data$CH, 
-              data$binomNcode, 
-              data$MRdata, 
-              data$grp, 
-              data$usge, 
-              pmixn, 
+              data$CH,
+              data$binomNcode,
+              data$MRdata,
+              data$grp,
+              data$usge,
+              pmixE,
               pID, 
               pdot[1])
           if (details$debug) browser()
@@ -815,12 +843,16 @@ secr_generalsecrloglikfn <- function (
               ## probability pID; Tm_k ~ Poisson((1 - pID) * sum_i E_i[cue rate at k]).
               ## Marked animals' identified counts (in lnprw) carry pID.
               if (!is.null(data$MRdata$Tm)) {
-                  qq <- pID[data$MRdata$markocc < 1, 1]
-                  if (diff(range(qq)) > 1e-12)
+                  ## pID may differ between classes but not between sighting occasions
+                  qx <- apply(pID[data$MRdata$markocc < 1, , drop = FALSE], 2,
+                              function(q) if (diff(range(q)) > 1e-12) NA else q[1])
+                  if (anyNA(qx))
                       stop ("pID must be constant over sighting occasions for telemetrytype 'marking'")
-                  if (qq[1] < 1) {
+                  cls <- if (length(qx) > 1) data$knownclass - 1 else rep(1, nrow(ElamK))
+                  qa  <- qx[cls]                        # pID of each marked animal
+                  if (any(qa < 1)) {
                       Tmk  <- rowSums(data$MRdata$Tm)[seq_len(ncol(ElamK))]
-                      muTm <- (1 - qq[1]) * colSums(ElamK)
+                      muTm <- colSums((1 - qa) * ElamK)
                       if (any(muTm <= 0 & Tmk > 0))
                           comp[6,1] <- NA
                       else

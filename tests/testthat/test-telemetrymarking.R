@@ -99,6 +99,46 @@ test_that("marking input checks", {
                  "only for telemetrytype 'marking'")
 })
 
+## Sex: hcov with latent classes known for every marked animal.
+## chs: 24 collars (11 F, 13 M) x 60 fixes, 6 occasions, sigma F 3.5 M 4.5, lambda0 F 0.8 M 1.0,
+##      pID 0.6, collars working on 70% of occasions, Tu = 182, Tm = 24.
+chs <- readRDS(test_path("telemetry_marking_sex.RDS"))
+chats <- c(4.758513, 1, 1)
+LLs <- function (beta, fixed = list(pmix = 0.5), x = chs) {
+    as.numeric(secr.fit(x, detectfn = "HHN", mask = msk, trace = FALSE, hcov = "sex",
+                        fixed = fixed, model = list(sigma ~ h2, lambda0 ~ h2), start = beta,
+                        details = list(safeLL = TRUE, uselog = TRUE, chat = chats,
+                                       telemetryint = "GH", LLonly = TRUE)))
+}
+## RTMB TMB8 estimates with population sex ratio fixed at 0.5: D 51.33,
+## lambda0 F 0.9929 M 0.9542, sigma F 3.5025 M 4.5877, q 0.6521
+## beta: log D, log lambda0 (F), lambda0 M - F, log sigma (F), sigma M - F, logit pID
+betas <- c(log(51.33), log(0.9929), log(0.9542/0.9929), log(3.5025), log(4.5877/3.5025), qlogis(0.6521))
+
+test_that("sex classes: log-likelihood unchanged and maximal at RTMB estimates", {
+    expect_equal(LLs(betas), -8456.278150, tolerance = 1e-6)
+    ## pmix free: one more parameter, logit of the proportion of class M
+    expect_equal(LLs(c(betas, qlogis(13/24)), fixed = NULL), -8456.216831, tolerance = 1e-6)
+    ## no 2% change in any parameter increases the log-likelihood (D differs from RTMB by 0.7%
+    ## because RTMB uses a negative binomial for Tu)
+    l0 <- LLs(betas)
+    for (j in seq_along(betas)) {
+        for (h in c(-0.02, 0.02)) {
+            b <- betas
+            b[j] <- if (j == 6) qlogis(plogis(betas[j]) * (1 + h)) else betas[j] + h
+            expect_gt(l0, LLs(b))
+        }
+    }
+})
+
+test_that("sex classes: input checks", {
+    ## fixed pmix applies to every class, so proportions would not sum to 1
+    expect_error(LLs(betas, fixed = list(pmix = 11/24)), "must sum to 1")
+    ch1 <- chs
+    covariates(ch1)$sex[1] <- NA
+    expect_error(LLs(betas, x = ch1), "requires the class")
+})
+
 ## One fit with unidentified marked cues, estimated pID, collar windows and
 ## Gauss-Hermite integration (about 7 s). Reference: RTMB TMB8 (negative binomial Tu,
 ## so D differs slightly): D 79.25 (SE 17.23), lambda0 0.6656, sigma 3.9629, pID 0.6369 (SE 0.1024)

@@ -51,6 +51,9 @@ secr_telemGH <- function (data, PIA, Xrealparval, detectfn, miscparm, gkhk,
     mask   <- data$mask
     M      <- nrow(mask)
     K      <- dim(PIA)[4]
+    nmix   <- dim(PIA)[5]
+    if (nmix > 1 && any(data$knownclass[tel] == 1))
+        stop ("details$telemetryint = 'GH' with mixture classes requires the class (hcov) of every telemetered animal")
     telocc <- which(data$binomNcode == -3)[1]    # a telemetry occasion
     sigcol <- match('sigma', colnames(Xrealparval))
     if (is.na(sigcol)) sigcol <- 2
@@ -67,7 +70,8 @@ secr_telemGH <- function (data, PIA, Xrealparval, detectfn, miscparm, gkhk,
         i    <- tel[j]
         fx   <- xy[(start[i] + 1):start[i+1], , drop = FALSE]
         xbar <- colMeans(fx)
-        sig  <- Xrealparval[PIA[1, i, telocc, K, 1], sigcol]
+        xcl  <- if (nmix > 1) data$knownclass[i] - 1 else 1     # latent class (known for marked animals)
+        sig  <- Xrealparval[PIA[1, i, telocc, K, xcl], sigcol]
         sdx  <- sig / sqrt(nrow(fx))
         rows <- (j-1) * G + 1:G
         nodexy[rows, ] <- cbind(xbar[1] + sdx * zz[,1], xbar[2] + sdx * zz[,2])
