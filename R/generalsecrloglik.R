@@ -680,11 +680,18 @@ secr_generalsecrloglikfn <- function (
             }
             
         }
-        pdot <- secr_integralprw1 (
-            nrow(Xrealparval0), haztemp, gkhk, pi.density, PIA0, 
-            ngroup, data$CH0, data$binomNcode, data$MRdata, data$grp, 
-            data$usge, pmixn, pID, details$grain, details$ncores, 
-            details$safeLL, details$uselog, debug = details$debug>3)
+        if (telemetrytype(data$traps) == "marking") {
+            ## all animals are marked (collared) and known, so there is no conditioning on
+            ## detection; pdot is not used (skipping it saves about a third of the time)
+            pdot <- rep(1, max(1, data$nc))
+        }
+        else {
+            pdot <- secr_integralprw1 (
+                nrow(Xrealparval0), haztemp, gkhk, pi.density, PIA0,
+                ngroup, data$CH0, data$binomNcode, data$MRdata, data$grp,
+                data$usge, pmixn, pID, details$grain, details$ncores,
+                details$safeLL, details$uselog, debug = details$debug>3)
+        }
     }
     
     # 2025-08-05 ngroup now global to this fn

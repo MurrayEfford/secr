@@ -9,8 +9,8 @@
 \alias{Tm<-}
 \alias{Tn}
 \alias{Tn<-}
-\alias{atrisk}
-\alias{atrisk<-}
+\alias{marked}
+\alias{marked<-}
 
 \title{ Sighting Attributes }
 
@@ -20,8 +20,9 @@
   occasions. Also, extract or replace the attributes Tu, Tm and Tn of a capthist
   object, used for storing counts of sightings. All attributes are
   optional, but Tu, Tm and Tn require markocc to be specified. The attribute
-  atrisk records animal-specific exposure, for example the occasions on which
-  a telemetry collar was active (telemetry type 'marking').
+  marked is the animal-level analogue of markocc: it records, for each animal and
+  occasion, the fraction of the occasion for which the animal can be identified as
+  marked, for example while a telemetry collar was working (telemetry type 'marking').
 }
 
 \usage{
@@ -34,14 +35,14 @@ Tm(object, \dots)
 Tm(object) <- value
 Tn(object, \dots)
 Tn(object) <- value
-atrisk(object, \dots)
-atrisk(object) <- value
+marked(object, \dots)
+marked(object) <- value
 }
 \arguments{
   \item{object}{ \code{traps} object (\code{markocc}) or capthist object
-  (\code{Tu}, \code{Tm}, \code{Tn}, \code{atrisk})}
+  (\code{Tu}, \code{Tm}, \code{Tn}, \code{marked})}
   \item{value}{ numeric matrix of detectors x occasions, or a vector
-    (see Details); for \code{atrisk} a matrix of animals x occasions }
+    (see Details); for \code{marked} a matrix of animals x occasions }
   \item{\dots}{ other arguments (not used) }
 }
 \details{
@@ -53,13 +54,17 @@ atrisk(object) <- value
   For replacement of \code{Tu}, \code{Tm} or  \code{Tn}, `value' may be a scalar
   (total count) or a detectors x occasions matrix.
 
-  For replacement of \code{atrisk}, `value' is a numeric matrix with one row per
+  For replacement of \code{marked}, `value' is a numeric matrix with one row per
   animal and one column per occasion of the capthist object (telemetry occasions are
-  ignored), or NULL. Each element is a non-negative multiplier of the usage of every
-  detector for that animal on that occasion; usually 0 (not at risk, e.g. collar not active) or
-  1. The default (NULL) is 1 for all animals. In telemetry type 'marking' a collared animal
-  contributes cues to the identified counts and Tm only while at risk; at other times its
-  cues are part of the unmarked sightings Tu.
+  ignored), or NULL. Each element is a known, non-negative multiplier of detector usage
+  for that animal on that occasion, interpreted as the fraction of the occasion during
+  which the animal is identifiable as marked: usually 0 (e.g. collar not working) or 1,
+  or a fraction when the status changed during the occasion. The default (NULL) is 1 for
+  all animals. In telemetry type 'marking' a collared animal contributes cues to the
+  identified counts and Tm only while marked; at other times its cues are part of the
+  unmarked sightings Tu. The values are known exposure, not probabilities: this is not
+  availability in the sense of the \code{p.available} argument of \code{\link{sim.capthist}},
+  which describes a random process unobserved in the data.
 
 }
 \value{
@@ -67,7 +72,7 @@ atrisk(object) <- value
   markocc(object) returns the markocc vector of the \code{traps}
   object. \code{markocc(object)} may be NULL.
 
-  \code{Tu}, \code{Tm}, \code{Tn} and \code{atrisk} return the respective attributes of a capthist object, or
+  \code{Tu}, \code{Tm}, \code{Tn} and \code{marked} return the respective attributes of a capthist object, or
   NULL if they are unspecified.
 
   sighting(object) returns TRUE if the markocc attribute indicates at least one 

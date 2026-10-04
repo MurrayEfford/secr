@@ -7,9 +7,10 @@ New features or changed behaviour of old functions
        marked animals' cues twice. Unidentified marked sightings Tm are modelled, with pID
        estimated when Tm is present. details$nsim is not available for this type;
        supply details$chat. Starting values come from the telemetry and counts.
-    o  new capthist attribute 'atrisk' (functions atrisk() and atrisk()<-): animals x occasions
-       matrix of multipliers of detector usage, for animal-specific exposure such as the
-       period a telemetry collar was active (telemetrytype 'marking'). subset.capthist handles it.
+    o  new capthist attribute 'marked' (functions marked() and marked()<-): animals x occasions
+       matrix, the animal-level analogue of markocc: the known fraction of each occasion for
+       which an animal can be identified as marked, such as the period a telemetry collar was
+       working (telemetrytype 'marking'). subset.capthist handles it.
     o  new option details$telemetryint = "GH" integrates over the activity centres of
        telemetered animals by Gauss-Hermite quadrature rather than by summing over mask
        cells (default "mask"); currently for telemetrytype 'marking' only

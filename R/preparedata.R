@@ -364,8 +364,8 @@ secr_prepareSessionData <- function (capthist, mask, maskusage,
         }
         maskcond <- secr_maskboolean2(capthist, mask, details$maxdistance, maskusage)
 
-        ## animal-specific exposure (multiplier of usage), default 1
-        Uind <- atrisk(capthist)
+        ## known mark status of each animal on each occasion (multiplier of usage), default 1
+        Uind <- marked(capthist)
         if (is.null(Uind)) Uind <- matrix(1, nrow = nc, ncol = s)
 
         if (!is.null(details$externalqx)) {

@@ -140,7 +140,7 @@ secr_startmarking <- function (capthist, mask) {
     trxy <- as.matrix(traps)[1:K, , drop = FALSE]
     use  <- usage(traps)
     use  <- if (is.null(use)) matrix(1, K, S) else as.matrix(use)[1:K, 1:S, drop = FALSE]
-    ar   <- atrisk(capthist)
+    ar   <- marked(capthist)
     ar   <- if (is.null(ar)) matrix(1, nrow(capthist), S) else ar[, 1:S, drop = FALSE]
     rows <- match(names(xy), trimws(rownames(capthist)))
     if (anyNA(rows)) rows <- match(names(xy), rownames(capthist))

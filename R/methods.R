@@ -25,7 +25,7 @@ markocc    <- function (object, ...) UseMethod("markocc")
 Tu         <- function (object, ...) UseMethod("Tu")
 Tm         <- function (object, ...) UseMethod("Tm")
 Tn         <- function (object, ...) UseMethod("Tn")
-atrisk       <- function (object, ...) UseMethod("atrisk")
+marked       <- function (object, ...) UseMethod("marked")
 nontarget  <- function (object, ...) UseMethod("nontarget")
 clusterID  <- function (object, ...) UseMethod("clusterID")
 clustertrap <- function (object, ...) UseMethod("clustertrap")
@@ -137,9 +137,9 @@ Tu.default <- function (object, ...)       {
     else attr(object,'Tu',exact = TRUE)
 }
 
-atrisk.default <- function (object, ...)       {
-    if (ms(object)) lapply(object, atrisk.default, ...)
-    else attr(object,'atrisk',exact = TRUE)
+marked.default <- function (object, ...)       {
+    if (ms(object)) lapply(object, marked.default, ...)
+    else attr(object,'marked',exact = TRUE)
 }
 
 Tm.default <- function (object, ...)       {
@@ -984,15 +984,15 @@ flip.default <- function (object, lr = FALSE, tb = FALSE, ...) {
     }
 }
 
-'atrisk<-' <- function (object, value) {
-    ## animal-specific exposure: animals x occasions matrix of non-negative multipliers of
-    ## detector usage (e.g. 0/1 for collar active); see ?sighting
+'marked<-' <- function (object, value) {
+    ## known mark status: animals x occasions matrix of non-negative multipliers of
+    ## detector usage (fraction of occasion identifiable as marked, e.g. collar working); see ?sighting
     if (ms(object)) {
         if (!is.list(value)) {
-            stop("replacement of atrisk for multisession object requires a list")
+            stop("replacement of marked for multisession object requires a list")
         }
         else {
-            temp <- mapply('atrisk<-', object, value, SIMPLIFY = FALSE)
+            temp <- mapply('marked<-', object, value, SIMPLIFY = FALSE)
             class(temp) <- class(object)
             temp
         }
@@ -1000,13 +1000,13 @@ flip.default <- function (object, lr = FALSE, tb = FALSE, ...) {
     else {
         if (!is.null(value)) {
             if (!is.matrix(value) || !is.numeric(value))
-                stop ("atrisk should be a numeric matrix with rows = animals, columns = occasions")
+                stop ("marked should be a numeric matrix with rows = animals, columns = occasions")
             if (nrow(value) != nrow(object) || ncol(value) != ncol(object))
-                stop ("atrisk should have the same number of animals and occasions as the capthist object")
+                stop ("marked should have the same number of animals and occasions as the capthist object")
             if (any(!is.finite(value)) || any(value < 0))
-                stop ("atrisk values must be finite and non-negative")
+                stop ("marked values must be finite and non-negative")
         }
-        structure (object, atrisk = value)
+        structure (object, marked = value)
     }
 }
 
@@ -1879,8 +1879,8 @@ subset.capthist <- function (x, subset=NULL, occasions=NULL, traps=NULL,
             usage(secr::traps(temp)) <- NULL  ## until we fix markocc
         }
         covariates(temp) <- covariates(x)[subset,,drop = FALSE]
-        if (!is.null(atrisk(x)))
-            atrisk(temp) <- atrisk(x)[subset, occasions, drop = FALSE][, OK2, drop = FALSE]
+        if (!is.null(marked(x)))
+            marked(temp) <- marked(x)[subset, occasions, drop = FALSE][, OK2, drop = FALSE]
         session(temp) <- session(x)
         attr(temp, 'n.mash') <- attr(x, 'n.mash',exact = TRUE)
         attr(temp, 'centres') <- attr(x, 'centres',exact = TRUE)
