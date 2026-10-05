@@ -36,12 +36,12 @@ struct chat : public Worker {
     const RMatrix<double> Tsk;        // k x s
     const RVector<double> pmix;
     
-    uint64_t base_seed;
-    
-    // output 
+    // output
     RMatrix<double> chatmat;
     RVector<double> chatout;
-    
+
+    uint64_t base_seed;     // declared after the outputs to match initialiser order (-Wreorder)
+
     // working variables
     int  kk, k1, ss, resultcode;
     double sumNm;

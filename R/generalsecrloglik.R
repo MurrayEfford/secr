@@ -38,8 +38,13 @@
 allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup, 
                            CH, binomNcode, MRdata, grp, usge, pmixn, pID, maskcond,
                            telemhr = 0, telemstart = 0,
-                           grain, ncores, safeLL = FALSE, uselog = FALSE, 
-                           R = FALSE, debug = FALSE) {
+                           grain, ncores, safeLL = FALSE, uselog = FALSE,
+                           R = FALSE, debug = FALSE, marking = FALSE, k1 = NULL,
+                           Uind = NULL, telemsum = FALSE) {
+  ## marking = TRUE (telemetrytype 'marking') adds attribute 'post' to the result:
+  ## nc x (k1+1) matrix of posterior-mean cue rates of each marked animal
+  ## (simplehistoriesmarkedcpp); k1 is the number of detectors excluding the
+  ## notional telemetry detector
   nc <- nrow(CH)
   if (nc<1) return(0)   # log(1)
   k <- nrow(usge)
@@ -47,6 +52,9 @@ allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup,
   nmix <- nrow(pmixn)
   sump <- numeric(nc)
   if (debug) browser()
+  if (marking && !is.null(R) && R)
+      stop ("telemetry 'marking' not available with details$R")
+  postlist <- vector('list', nmix)
   logprwi <- matrix(nrow=nc, ncol=nmix)
   for (x in 1:nmix) {
       hx <- if (any(binomNcode==-2)) matrix(haztemp$h[x,,], nrow = m) else -1 ## lookup sum_k (hazard)
@@ -76,7 +84,7 @@ allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup,
           }
       } 
       else {
-          logprwi[,x] <- simplehistoriescpp(
+          args <- list(
               as.integer(m),
               as.integer(nc),
               as.integer(cc),
@@ -88,23 +96,48 @@ allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup,
               as.integer(MRdata$markocc),
               as.integer(MRdata$firstocc),
               as.double (pID[,x]),
-              as.integer(CH),   
+              as.integer(CH),
               as.integer(grp)-1L,
-              as.double (gkhk$gk),     ## precomputed probability 
+              as.double (gkhk$gk),     ## precomputed probability
               as.double (gkhk$hk),     ## precomputed hazard
               as.matrix (pi.density),
               as.integer(PIA[1,,,,x]),
               as.matrix (usge),
-              as.matrix (hx),                
-              as.matrix (hi),      
+              as.matrix (hx),
+              as.matrix (hi),
               as.integer(maskcond$mask_indices),
               as.integer(maskcond$mask_offsets),
               as.integer(maskcond$mask_id),
               as.double (telemhr),
               as.integer (telemstart))
+          if (marking) {
+              if (is.null(Uind)) Uind <- matrix(1, nrow = nc, ncol = ncol(usge))
+              tmp <- do.call(simplehistoriesmarkedcpp,
+                             c(args, list(as.matrix(Uind), as.integer(k1), isTRUE(telemsum))))
+              logprwi[,x] <- tmp$lnprw
+              postlist[[x]] <- tmp$post
+          }
+          else {
+              logprwi[,x] <- do.call(simplehistoriescpp, args)
+          }
       }
   }
-  secr_logsum(logprwi, pmixn)
+  out <- secr_logsum(logprwi, pmixn)
+  if (marking) {
+      if (nmix == 1) {
+          post <- postlist[[1]]
+      }
+      else {
+          ## posterior mean cue rates are mixed over latent classes in proportion to
+          ## pmixn * prw (class is known for the marked animals, so one weight is 1)
+          lw <- logprwi + log(t(pmixn))
+          w  <- exp(lw - apply(lw, 1, max))
+          w  <- w / rowSums(w)
+          post <- Reduce(`+`, lapply(1:nmix, function(x) w[,x] * postlist[[x]]))
+      }
+      attr(out, 'post') <- post
+  }
+  out
 }
 
 #--------------------------------------------------------------------------------
@@ -117,7 +150,7 @@ expectedmu <- function (cc, haztemp, gkhk, pi.density, Nm, PIA, ngroup,
     m <- nrow(pi.density)
     nmix <- nrow(pmixn)
     # include notional detector if any telemetry
-    Tumusk <- Tmmusk <- Tamusk <- matrix(0, k, s)
+    Tumusk <- Tmmusk <- matrix(0, k, s)
     for (x in 1:nmix) {
         hx <- if (any(binomNcode==-2)) matrix(haztemp$h[x,,], nrow = m) else -1 ## lookup sum_k (hazard)
         hi <- if (any(binomNcode==-2)) haztemp$hindex else -1                   ## index to hx
@@ -127,7 +160,6 @@ expectedmu <- function (cc, haztemp, gkhk, pi.density, Nm, PIA, ngroup,
             as.integer(cc),
             as.logical(!is.null(MRdata$Tu)),
             as.logical(!is.null(MRdata$Tm)),
-            as.logical(!is.null(MRdata$Ta)),
             as.integer(MRdata$sightmodel),
             as.integer(binomNcode),
             as.integer(MRdata$markocc),
@@ -144,10 +176,9 @@ expectedmu <- function (cc, haztemp, gkhk, pi.density, Nm, PIA, ngroup,
             as.matrix (hi),
             as.double (a0))
         Tumusk <- Tumusk + pmixn[x,1] * temp$Tumusk  
-        Tmmusk <- Tmmusk + pmixn[x,1] * temp$Tmmusk  
-        Tamusk <- Tamusk + pmixn[x,1] * temp$Tamusk  
+        Tmmusk <- Tmmusk + pmixn[x,1] * temp$Tmmusk
     }
-    list(Tumusk=Tumusk, Tmmusk=Tmmusk, Tamusk=Tamusk)
+    list(Tumusk=Tumusk, Tmmusk=Tmmusk)
 }
 #--------------------------------------------------------------------------------
 
@@ -420,7 +451,8 @@ secr_generalsecrloglikfn <- function (
       Dsum <- apply(density,2,sum)   ## by group
       Nm <- density * secr_getcellsize(data$mask)
     
-      if (data$MRdata$allsighting && data$MRdata$pi.mask[1] != -1) {
+      ## not for telemetry type marking (sightmodel 7), where marked animals are not part of a known number of animals
+      if (data$MRdata$allsighting && data$MRdata$pi.mask[1] != -1 && data$MRdata$sightmodel != 7) {
           pi.density <- matrix(data$MRdata$pi.mask, ncol = 1)  ## by group=column?
           criterion <- Nm < (nrow(data$CH) * pi.density)
           if (any(is.na(criterion)) || any(criterion)) {
@@ -525,17 +557,23 @@ secr_generalsecrloglikfn <- function (
     }
     
     ## telemetry precalculation
+    GH <- identical(details$telemetryint, "GH")   # Gauss-Hermite integration over telemetered ACs
     if (any(data$dettype == 13)) {
         telemstart <- data$xy$start
-        maskused <- unique(unlist(data$maskcond$mask_indices))
-        # dropped unused argument nc 2026-07-01
-        telemhr <- gethrcpp(
-            as.integer(detectfn), 
-            as.double(telemstart), 
-            as.matrix(data$xy$xy), 
-            as.matrix(data$mask),
-            as.integer(maskused),
-            as.matrix(Xrealparval))
+        if (GH) {
+            telemhr <- 0   # computed at GH nodes by secr_telemGH
+        }
+        else {
+            maskused <- unique(unlist(data$maskcond$mask_indices))
+            # dropped unused argument nc 2026-07-01
+            telemhr <- gethrcpp(
+                as.integer(detectfn),
+                as.double(telemstart),
+                as.matrix(data$xy$xy),
+                as.matrix(data$mask),
+                as.integer(maskused),
+                as.matrix(Xrealparval))
+        }
     }
     else {
         telemhr <- 0
@@ -543,9 +581,15 @@ secr_generalsecrloglikfn <- function (
     }
     #######################################################################
     ## option to estimate sighting overdispersion by simulation and exit */
-    if (!is.null(details$nsim) && details$nsim > 0) {
+    chatanalytic <- identical(details$chatmethod, "analytic") && !is.null(details$nsim) && details$nsim > 0
+    ## analytic c-hat (telemetry type marking) is computed below, after the marked animals; 
+    ## secr.fit sets details$nsim to 1 as a signal that c-hat is wanted
+    if (!chatanalytic && !is.null(details$nsim) && details$nsim > 0) {
         if (CL)
             stop("simulation for overdispersion requires full likelihood (not CL)")
+        else if (telemetrytype(data$traps) == "marking")
+            stop("simulation for overdispersion is not available for telemetrytype 'marking'; ",
+                 "use details$chatmethod = 'analytic' or supply details$chat")
         else {
             chat <- getchat (
                 nrow(realparval0), nrow(data$CH), data$n.distrib,         ## or nc1?
@@ -555,6 +599,17 @@ secr_generalsecrloglikfn <- function (
                 details$debug)
             return (chat)         
         }
+    }
+    ## analytic c-hat for sighting-only (all pre-marked) models; needs no histories
+    if (chatanalytic && telemetrytype(data$traps) != "marking") {
+        if (CL) stop("overdispersion requires full likelihood (not CL)")
+        if (!(data$MRdata$sightmodel %in% c(5, 6)))
+            stop ("analytic c-hat requires sighting-only data (all markocc 0)")
+        return (secr_chatsighting (
+            hk = gkhk$hk, PIA = PIA0, usge = data$usge, markocc = data$MRdata$markocc,
+            binomN = data$binomNcode, Nm = pi.density[,1] * Dsum[1] * secr_getcellsize(data$mask),
+            pimask = pi.density[,1], nmark = nrow(data$CH), pmix = as.numeric(pmixn[,1]),
+            pID = pID, n.distrib = data$n.distrib, sightmodel = data$MRdata$sightmodel))
     }
     #######################################################################
     if (all(data$dettype %in% c(0,1,2,3,4,6,7,8,13))) {
@@ -567,13 +622,31 @@ secr_generalsecrloglikfn <- function (
     }
     else {
         if (all(data$dettype %in% c(0,1,2,8,13))) {
+            ## mask-based arguments, or with GH the same with nodes appended for telemetered animals
+            ## telemetry type marking: prior for the activity centres of marked animals is
+            ## uniform (collars are not deployed in proportion to density), whatever the density
+            ## model, unless the mask has a covariate named "marking" (MRdata$pi.mask); 
+            ## D(x) enters through the expected unmarked cues
+            pi.marked <- if (telemetrytype(data$traps) == "marking")
+                matrix(data$MRdata$pi.mask, nrow = data$m, ncol = ncol(pi.density)) else pi.density
+            hh <- list(pi.density = pi.marked, gkhk = gkhk, haztemp = haztemp,
+                       maskcond = data$maskcond, telemhr = telemhr)
+            if (GH && any(data$dettype == 13)) {
+                ghargs <- secr_telemGH (data, PIA, Xrealparval, detectfn, miscparm,
+                                        gkhk, pi.marked, details)
+                if (!is.null(ghargs)) hh <- ghargs
+            }
             lnprw <- allhistsimple (
-                nrow(Xrealparval), haztemp, gkhk, pi.density, PIA, ngroup,
-                data$CH, data$binomNcode, data$MRdata, data$grp, data$usge, pmixn, 
-                pID, data$maskcond, 
-                telemhr, telemstart, 
-                details$grain, details$ncores, details$safeLL, details$uselog, details$R, 
-                debug = details$debug>3)
+                nrow(Xrealparval), hh$haztemp, hh$gkhk, hh$pi.density, PIA, ngroup,
+                data$CH, data$binomNcode, data$MRdata, data$grp, data$usge, pmixn,
+                pID, hh$maskcond,
+                hh$telemhr, telemstart,
+                details$grain, details$ncores, details$safeLL, details$uselog, details$R,
+                debug = details$debug>3,
+                marking = telemetrytype(data$traps) == "marking",
+                k1 = nrow(data$usge) - data$MRdata$anytelemetry,
+                Uind = data$Uind,
+                telemsum = isTRUE(hh$telemsum))
         }
         else if (all(data$dettype == 5)) {
             lnprw <- allhistsignal (
@@ -642,15 +715,22 @@ secr_generalsecrloglikfn <- function (
             }
             
         }
-        pdot <- secr_integralprw1 (
-            nrow(Xrealparval0), haztemp, gkhk, pi.density, PIA0, 
-            ngroup, data$CH0, data$binomNcode, data$MRdata, data$grp, 
-            data$usge, pmixn, pID, details$grain, details$ncores, 
-            details$safeLL, details$uselog, debug = details$debug>3)
+        if (telemetrytype(data$traps) == "marking") {
+            ## all animals are marked (collared) and known, so there is no conditioning on
+            ## detection; pdot is not used (skipping it saves about a third of the time)
+            pdot <- rep(1, max(1, data$nc))
+        }
+        else {
+            pdot <- secr_integralprw1 (
+                nrow(Xrealparval0), haztemp, gkhk, pi.density, PIA0,
+                ngroup, data$CH0, data$binomNcode, data$MRdata, data$grp,
+                data$usge, pmixn, pID, details$grain, details$ncores,
+                details$safeLL, details$uselog, debug = details$debug>3)
+        }
     }
     
     # 2025-08-05 ngroup now global to this fn
-    comp <- matrix(0, nrow = 6, ncol = ngroup)
+    comp <- matrix(0, nrow = 7, ncol = ngroup)
     for (g in 1:ngroup) {
       ok <- as.integer(data$grp) == g
       oknt <- ok & data$telemstatus>0  ## 2026-07-02 excludes unmodelled detection occasions (independent telemetry)
@@ -701,10 +781,14 @@ secr_generalsecrloglikfn <- function (
       
       #----------------------------------------------------------------------
       # adjustment for mixture probabilities when class known
-      known <- sum(data$knownclass[oknt]>1)
+      ## telemetry 'marking': all marked animals count, including those with no detections
+      okm <- if (telemetrytype(data$traps) == "marking") ok else oknt
+      known <- sum(data$knownclass[okm]>1)
+      if (telemetrytype(data$traps) == "marking" && details$nmix>1 && any(data$knownclass[ok] == 1))
+          stop ("telemetrytype 'marking' with mixture classes requires the class (hcov) of every marked animal")
       if (details$nmix>1 && known>0) {
           nb <- details$nmix + 1
-          nm <- tabulate(data$knownclass[oknt], nbins = nb)
+          nm <- tabulate(data$knownclass[okm], nbins = nb)
           pmix <- attr(pmixn, 'pmix')
           ## 2022-10-25 bug fix
           firstx <- match ((1:details$nmix)+1, data$knownclass)
@@ -726,37 +810,100 @@ secr_generalsecrloglikfn <- function (
               # 2023-10-09 require gkhk was NOT recalculated for learned response naive animal 
               # and hence still has cc x M x K values in gkhk$hk
           }
+          ## telemetry 'marking' with mixture classes: the population (unmarked animals) has the
+          ## mixing proportions pmix, whereas pmixn is 0/1 for animals of known class
+          pmixE <- pmixn
+          if (nrow(pmixn) > 1 && telemetrytype(data$traps) == "marking")
+              pmixE[,] <- attr(pmixn, 'pmix')
           tmp <- expectedmu (
-              nrow(Xrealparval), 
-              haztemp, 
-              gkhk, 
-              pi.density, 
-              Nm, 
-              PIA, 
+              nrow(Xrealparval),
+              haztemp,
+              gkhk,
+              pi.density,
+              Nm,
+              PIA,
               ngroup,
-              data$CH, 
-              data$binomNcode, 
-              data$MRdata, 
-              data$grp, 
-              data$usge, 
-              pmixn, 
+              data$CH,
+              data$binomNcode,
+              data$MRdata,
+              data$grp,
+              data$usge,
+              pmixE,
               pID, 
               pdot[1])
           if (details$debug) browser()
-          ## 2026-08-20 added Ta option cf Whittington et al. 2025
-          if (telemetrytype(data$traps) == "marking" && !is.null(data$MRdata$Ta)) {
-              Talik <- Tsightinglikcpp (
-                  data$MRdata$Ta, 
-                  data$MRdata$markocc, 
-                  data$MRdata$anytelemetry,
-                  data$binomNcode,
-                  data$usge, 
-                  tmp$Tamusk, 
-                  details$debug)
-              if (Talik$resultcode != 0) 
+          if (telemetrytype(data$traps) == "marking") {
+              ## Unmarked cues: total cue rate of the population less the expected
+              ## cues of the marked animals, each at its own posterior locations
+              ## (given its telemetry and detections). Pooled count, Poisson, scaled
+              ## by chat. Replaces the 2026-08-20 'Ta' likelihood, which used the
+              ## marked animals' cues twice.
+              postE <- attr(lnprw, "post")
+              ElamK <- postE[, -ncol(postE), drop = FALSE]    # animals x detectors
+              .localstuff$markedpost <- postE      # for secr_shapeSandwich()
+              mu <- sum(tmp$Tumusk) - sum(ElamK)
+              if (!is.finite(mu)) {
                   comp[5,1] <- NA
-              else
-                  comp[5,1] <- Talik$Tlik/details$chat[1] 
+              }
+              else {
+                  ## mu can be negative when D is small relative to the marked animals'
+                  ## own cue rates (e.g. at starting values); continue smoothly below
+                  ## a floor (positive, increasing in D) so that the optimiser can recover.
+                  ## The floor is far below the estimate (mu is about the unmarked count at the MLE).
+                  Tutotal <- sum(data$MRdata$Tu)
+                  floor <- 0.01 * max(1, Tutotal)
+                  if (mu < floor) mu <- floor * exp((mu - floor) / floor)
+                  comp[5,1] <- dpois(Tutotal, mu, log = TRUE) / details$chat[1]
+              }
+
+              ## Density covariates: the pooled count above informs the density level only.
+              ## The shape of the unmarked cues across detectors, given their total, is
+              ## multinomial with probabilities proportional to the population cue rates by
+              ## detector (no subtraction of marked animals; the density level cancels).
+              ## It is scaled by details$chat[3] (Pearson dispersion across detectors),
+              ## which for 'marking' replaces the unused Tn slot.
+              if (length(parindx$D) > 1) {
+                  Tuk   <- rowSums(data$MRdata$Tu)[seq_len(ncol(ElamK))]
+                  mupop <- rowSums(tmp$Tumusk)[seq_len(ncol(ElamK))]
+                  if (any(!is.finite(mupop)) || any(mupop <= 0 & Tuk > 0)) {
+                      comp[7,1] <- NA
+                  }
+                  else {
+                      pos <- Tuk > 0
+                      comp[7,1] <- sum(Tuk[pos] * (log(mupop[pos]) - log(sum(mupop)))) / details$chat[3]
+                  }
+              }
+
+              ## Unidentified marked cues Tm: each cue of a marked animal is identified with
+              ## probability pID; Tm_k ~ Poisson((1 - pID) * sum_i E_i[cue rate at k]).
+              ## Marked animals' identified counts (in lnprw) carry pID.
+              if (!is.null(data$MRdata$Tm)) {
+                  ## pID may differ between classes but not between sighting occasions
+                  qx <- apply(pID[data$MRdata$markocc < 1, , drop = FALSE], 2,
+                              function(q) if (diff(range(q)) > 1e-12) NA else q[1])
+                  if (anyNA(qx))
+                      stop ("pID must be constant over sighting occasions for telemetrytype 'marking'")
+                  cls <- if (length(qx) > 1) data$knownclass - 1 else rep(1, nrow(ElamK))
+                  qa  <- qx[cls]                        # pID of each marked animal
+                  if (any(qa < 1)) {
+                      Tmk  <- rowSums(data$MRdata$Tm)[seq_len(ncol(ElamK))]
+                      muTm <- colSums((1 - qa) * ElamK)
+                      if (any(muTm <= 0 & Tmk > 0))
+                          comp[6,1] <- NA
+                      else
+                          comp[6,1] <- sum(dpois(Tmk, muTm, log = TRUE)) / details$chat[2]
+                  }
+              }
+
+              ## c-hat wanted (details$chatmethod = "analytic"): return it instead of the likelihood
+              if (chatanalytic) {
+                  return (secr_chatmarking (
+                      hk = gkhk$hk, PIA = PIA, usge = data$usge, markocc = data$MRdata$markocc,
+                      density = density[,1], cellsize = secr_getcellsize(data$mask),
+                      pmixpop = pmixE[,1], ElamK = ElamK, EL2 = postE[, ncol(postE)],
+                      Tu = data$MRdata$Tu, Tumusk = tmp$Tumusk, nz = length(parindx$D) - 1,
+                      n.distrib = data$n.distrib))
+              }
           }
           else {
               if (!is.null(data$MRdata$Tu) && !is.null(tmp$Tumusk)) {
@@ -795,7 +942,7 @@ secr_generalsecrloglikfn <- function (
     if (details$debug>=1) {
         ## display likelihood components summed over groups, and logmultinomial constant
         comp <- apply(comp,1,sum)
-        cat(comp[1], comp[2], comp[3], comp[4], comp[5], comp[6], data$logmult, '\n')
+        cat(comp[1], comp[2], comp[3], comp[4], comp[5], comp[6], comp[7], data$logmult, '\n')
     }
     sum(comp) + data$logmult
   
@@ -839,9 +986,12 @@ secr_generalsecrloglikfn <- function (
   # Two types of call
   # (i) overdispersion of sightings simulations only
   if (details$nsim > 0) {   
+    .localstuff$Eng <- matrix(0, nrow = nsession, ncol = ngroup)   # updated by sessionLL (analytic c-hat)
     chat <- mapply (sessionLL, data, SIMPLIFY = FALSE)
     chatmat <- matrix(unlist(chat), ncol = 3, byrow = TRUE)
-    dimnames(chatmat) <- list(session = 1:nsession, chat = c('Tu', 'Tm','Tn'))
+    ## for telemetry type 'marking' the third element is the dispersion of the spread across detectors
+    marking3 <- any(sapply(data, function(d) telemetrytype(d$traps) == "marking"))
+    dimnames(chatmat) <- list(session = 1:nsession, chat = c('Tu', 'Tm', if (marking3) 'shape' else 'Tn'))
     return(chatmat)
   }
   #--------------------------------------------------------------------

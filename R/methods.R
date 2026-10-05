@@ -25,6 +25,7 @@ markocc    <- function (object, ...) UseMethod("markocc")
 Tu         <- function (object, ...) UseMethod("Tu")
 Tm         <- function (object, ...) UseMethod("Tm")
 Tn         <- function (object, ...) UseMethod("Tn")
+marked       <- function (object, ...) UseMethod("marked")
 nontarget  <- function (object, ...) UseMethod("nontarget")
 clusterID  <- function (object, ...) UseMethod("clusterID")
 clustertrap <- function (object, ...) UseMethod("clustertrap")
@@ -134,6 +135,11 @@ telemetrytype.default <- function (object, ...)       {
 Tu.default <- function (object, ...)       {
     if (ms(object)) lapply(object, Tu.default, ...)
     else attr(object,'Tu',exact = TRUE)
+}
+
+marked.default <- function (object, ...)       {
+    if (ms(object)) lapply(object, marked.default, ...)
+    else attr(object,'marked',exact = TRUE)
 }
 
 Tm.default <- function (object, ...)       {
@@ -975,6 +981,33 @@ flip.default <- function (object, lr = FALSE, tb = FALSE, ...) {
                 stop ("sighting counts cannot be negative")
         }
         structure (object, Tu = value)
+    }
+}
+
+'marked<-' <- function (object, value) {
+    ## known mark status: animals x occasions matrix of non-negative multipliers of
+    ## detector usage (fraction of occasion identifiable as marked, e.g. collar working); see ?sighting
+    ## columns are the non-telemetry occasions, as for Tu, Tm, Tn
+    if (ms(object)) {
+        if (!is.list(value)) {
+            stop("replacement of marked for multisession object requires a list")
+        }
+        else {
+            temp <- mapply('marked<-', object, value, SIMPLIFY = FALSE)
+            class(temp) <- class(object)
+            temp
+        }
+    }
+    else {
+        if (!is.null(value)) {
+            if (!is.matrix(value) || !is.numeric(value))
+                stop ("marked should be a numeric matrix with rows = animals, columns = occasions")
+            if (nrow(value) != nrow(object) || ncol(value) != secr_noccasions(object, notelem = TRUE))
+                stop ("marked should have one row per animal and one column per non-telemetry occasion of the capthist object")
+            if (any(!is.finite(value)) || any(value < 0))
+                stop ("marked values must be finite and non-negative")
+        }
+        structure (object, marked = value)
     }
 }
 
@@ -1847,6 +1880,11 @@ subset.capthist <- function (x, subset=NULL, occasions=NULL, traps=NULL,
             usage(secr::traps(temp)) <- NULL  ## until we fix markocc
         }
         covariates(temp) <- covariates(x)[subset,,drop = FALSE]
+        if (!is.null(marked(x))) {
+            ## non-telemetry occasions only, as for Tu
+            S0 <- secr_noccasions(x, notelem = TRUE)
+            marked(temp) <- marked(x)[subset, occasions[1:S0], drop = FALSE]
+        }
         session(temp) <- session(x)
         attr(temp, 'n.mash') <- attr(x, 'n.mash',exact = TRUE)
         attr(temp, 'centres') <- attr(x, 'centres',exact = TRUE)

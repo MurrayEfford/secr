@@ -191,7 +191,8 @@ derived.secr <- function (object, sessnum = NULL, groups=NULL, alpha=0.05, se.es
         telem <- telemetered(capthist)
         
         if (telemetrytype(traps(capthist)) == "marking") {
-            stop ("derived() does not currently allow telemetry type 'marking'")
+            ## no Horvitz-Thompson estimates: report the density in the sampled area, Dcw
+            return (secr_derivedDcw (object, sessnum, alpha, loginterval))
         }
         else if (telemetrytype(traps(capthist)) %in% c('independent','concurrent')) {
                 OK <- !secr_allzero(capthist)

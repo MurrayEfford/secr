@@ -194,7 +194,7 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
     telemocc <- detector(traps(capthist)) == 'telemetry'
     anytelemetry <- any(telemocc)
     s <- ncol(capthist)
-    Tu <- Tm <- Tn <- Ta <- NULL
+    Tu <- Tm <- Tn <- NULL
     if (is.null(markocc)) {
         markocc <- rep(1, s)
         allsighting <- FALSE
@@ -203,7 +203,7 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
     }
     else {
         m <- nrow(mask)
-        defaultcontrol <- list(Tu='as.is', Tm='as.is', Tn='ignore', Ta='ignore')
+        defaultcontrol <- list(Tu='as.is', Tm='as.is', Tn='ignore')
         # possible control values
         #   ignore
         #   as.is
@@ -228,13 +228,15 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
         if(is.null(fixed$pID) & control$Tm == 'ignore')
             warning("Set fixed = list(pID=1) if no sightings of unidentified marked animals Tm")
         
+        Tu <- getsight('Tu')
+        Tm <- getsight('Tm')
+        Tn <- getsight('Tn')
         if (teltype == "marking") {
-            Ta <- getTa(capthist)
-        }
-        else {
-            Tu <- getsight('Tu')
-            Tm <- getsight('Tm')
-            Tn <- getsight('Tn')
+            if (is.null(Tu))
+                stop ("telemetrytype 'marking' requires counts Tu of unmarked animals")
+            Tn <- NULL
+            if (!is.null(Tm) && !is.matrix(Tm))
+                stop ("telemetrytype 'marking' requires Tm as a detectors x occasions matrix")
         }
         
         if (allsighting) {
@@ -299,7 +301,6 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
          Tu           = Tu, 
          Tm           = Tm, 
          Tn           = Tn,
-         Ta           = Ta,
          anysighting  = anysighting, 
          allsighting  = allsighting,
          anytelemetry = anytelemetry, 
@@ -362,7 +363,13 @@ secr_prepareSessionData <- function (capthist, mask, maskusage,
             usge <- matrix(1, nrow = K, ncol = s)
         }
         maskcond <- secr_maskboolean2(capthist, mask, details$maxdistance, maskusage)
-        
+
+        ## known mark status of each animal on each occasion (multiplier of usage), default 1
+        ## marked() has columns for non-telemetry occasions (as Tu); pad for telemetry occasions
+        Uind <- matrix(1, nrow = nc, ncol = s)
+        if (!is.null(marked(capthist)))
+            Uind[, 1:ncol(marked(capthist))] <- marked(capthist)
+
         if (!is.null(details$externalqx)) {
             if (!(details$externalqx %in% names(covariates(mask)))) 
                 stop ("externalqx '", details$externalqx, "' not found in mask covariates")
@@ -415,6 +422,7 @@ secr_prepareSessionData <- function (capthist, mask, maskusage,
             dettype = dettype,
             binomNcode = binomNcode,
             usge = usge,
+            Uind = Uind,
             mask = mask,
             externalqx = externalqx,
             distmat2 = distmat2,

@@ -9,6 +9,8 @@
 \alias{Tm<-}
 \alias{Tn}
 \alias{Tn<-}
+\alias{marked}
+\alias{marked<-}
 
 \title{ Sighting Attributes }
 
@@ -17,7 +19,10 @@
   object that distinguishes marking occasions from sighting
   occasions. Also, extract or replace the attributes Tu, Tm and Tn of a capthist
   object, used for storing counts of sightings. All attributes are
-  optional, but Tu, Tm and Tn require markocc to be specified.
+  optional, but Tu, Tm and Tn require markocc to be specified. The attribute
+  marked is the animal-level analogue of markocc: it records, for each animal and
+  occasion, the fraction of the occasion for which the animal can be identified as
+  marked, for example while a telemetry collar was working (telemetry type 'marking').
 }
 
 \usage{
@@ -30,12 +35,14 @@ Tm(object, \dots)
 Tm(object) <- value
 Tn(object, \dots)
 Tn(object) <- value
+marked(object, \dots)
+marked(object) <- value
 }
 \arguments{
   \item{object}{ \code{traps} object (\code{markocc}) or capthist object
-  (\code{Tu}, \code{Tm}, \code{Tn})}
+  (\code{Tu}, \code{Tm}, \code{Tn}, \code{marked})}
   \item{value}{ numeric matrix of detectors x occasions, or a vector
-    (see Details) }
+    (see Details); for \code{marked} a matrix of animals x non-telemetry occasions }
   \item{\dots}{ other arguments (not used) }
 }
 \details{
@@ -45,15 +52,26 @@ Tn(object) <- value
   marked or recaptured (1).
 
   For replacement of \code{Tu}, \code{Tm} or  \code{Tn}, `value' may be a scalar
-  (total count) or a detectors x occasions matrix.  
-  
+  (total count) or a detectors x occasions matrix.
+
+  For replacement of \code{marked}, `value' is a numeric matrix with one row per
+  animal and one column per non-telemetry occasion (the same columns as for \code{Tu}),
+  or NULL. The attribute is analogous to detector \code{\link{usage}}, which records the
+  extent to which each detector was operating on each occasion: \code{marked} records the
+  extent to which each animal was identifiable as marked on each occasion. Each element is a
+  known, non-negative multiplier of the usage of the detectors for that animal on that
+  occasion; usually 0 (e.g. collar not working) or 1, or a fraction if the status changed
+  during the occasion. The default (NULL) is 1 for all animals. In telemetry type 'marking'
+  a collared animal contributes cues to the identified counts and Tm only while marked;
+  at other times its cues are part of the unmarked sightings Tu.
+
 }
 \value{
   
   markocc(object) returns the markocc vector of the \code{traps}
   object. \code{markocc(object)} may be NULL.
 
-  \code{Tu}, \code{Tm} and \code{Tn} return the respective attributes of a capthist object, or
+  \code{Tu}, \code{Tm}, \code{Tn} and \code{marked} return the respective attributes of a capthist object, or
   NULL if they are unspecified.
 
   sighting(object) returns TRUE if the markocc attribute indicates at least one 

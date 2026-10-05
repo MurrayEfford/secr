@@ -37,10 +37,35 @@ numbers. The default is not to centre coordinates.
 of unmarked sightings Tu and unidentified marked sightings Tm. It is used only 
 for mark-resight models, and is usually computed within \code{secr.fit} 
 (\code{details$nsim > 0}), but may be provided by the user. For a single session
-`chat` is a vector of length 2; for multiple sessions it is a 2-column matrix. 
+`chat` is a vector of length 2; for multiple sessions it is a 2-column matrix.
+For telemetry type `marking' (see \code{\link{addTelemetry}}) `chat' has three elements
+(a scalar is repeated): the overdispersion of the total count of unmarked sightings, of
+unidentified marked sightings Tm, and, for models with density covariates, of the spread of
+unmarked sightings across detectors (usually the Pearson chi-square statistic divided by its
+degrees of freedom, at least 1). Simulation of `chat' (\code{details$nsim}) is not available for
+this telemetry type; use \code{details$chatmethod = "analytic"}.
 
-\code{details$chatonly} = TRUE used with \code{details$nsim > 0} causes the 
-overdispersion statistics for sighting counts Tu and Tm to be estimated and 
+\code{details$chatmethod} is \code{"simulate"} (default) or \code{"analytic"}. The default
+estimates overdispersion by simulation when \code{details$nsim > 0}. With
+\code{"analytic"} the overdispersion is computed from the variance of the total count of
+unmarked sightings implied by the model (compound Poisson: the cues from one animal fall at
+several detectors), at the parameter values in \code{start}, without simulation;
+\code{details$nsim} is ignored. It reproduces in expectation the quantity estimated by
+simulation (the variance of the pooled count divided by its naive Poisson or binomial variance),
+for count, proximity and multi detectors, a Poisson or fixed (binomial) number of animals
+(\code{details$distribution}), and is currently available for (i) sighting-only data (all
+\code{markocc} 0, i.e. all animals marked beforehand), and (ii) telemetry type 'marking', for
+which the posterior variance of the marked animals' contribution is included and, for
+models with density covariates, the Pearson dispersion of the spread of unmarked sightings
+across detectors is also returned. It is not available when there are marking occasions or
+unresolved sightings. The overdispersion is much larger for a Poisson than a fixed number
+of animals. As with simulation, fit the model first (\code{chat} 1), then refit with
+\code{start} set to the first fit (or use \code{\link{secr.refit}}); \code{method = "none"}
+recomputes only the variance.
+
+\code{details$chatonly} = TRUE used with \code{details$nsim > 0} (or
+\code{details$chatmethod = "analytic"}) causes the
+overdispersion statistics for sighting counts Tu and Tm to be estimated and
 returned as a vector or 2-column matrix (multi-session models), with no further
 model fitting.
 
@@ -215,6 +240,15 @@ slightly slower so the default remains safeLL = FALSE. Used together with
 animals is allowed to move between the marking (markocc = 1) and sighting (markocc = 0) 
 phases of a spatial capture--mark--resight study. The default is to assume a 
 common home-range centre (\code{splitmarked = FALSE}). 
+
+\code{details$telemetryint} selects the method for integrating over the activity
+centres of telemetered animals. The default \code{"mask"} sums over mask cells,
+which requires a mask spacing small relative to \eqn{\sigma/\sqrt{n}} for an animal with
+\eqn{n} fixes. The alternative \code{"GH"} uses Gauss-Hermite quadrature centred
+on the mean of the animal's fixes; it is faster and independent of mask spacing, but
+places the quadrature nodes without regard to the mask, so there is no restriction
+to habitat in the mask. Currently available only for telemetry type 'marking' (for which
+the prior for the activity centre of a marked animal is uniform, whatever the method).
 
 \code{details$telemetryscale} defunct option, superceded by 'safeLL' and 'uselog'.
 

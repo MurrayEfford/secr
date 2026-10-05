@@ -108,26 +108,33 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
             ## not for signal attenuation
             if (!(detectfn %in% c(9,10,11,12,13)) & !anypoly & !anytrans) {
                 secr_memo('Finding initial parameter values...', details$trace)
-                # specific to session, do not use anytelem
-                if (any(detector(traps(ch))=="telemetry")) {
-                    if (all(detector(traps(ch))=="telemetry"))
-                        stop("cannot compute start from telemetry data; \n",
-                            "set manually or select different session with details autoini")
-                    ch <- suppressWarnings(subset(ch, occasions = detector(traps(ch)) != "telemetry"))
+                ## telemetry type 'marking': start from the telemetry and cue counts
+                chmarking <- !ms(ch) && identical(telemetrytype(traps(ch)), "marking")
+                if (chmarking) {
+                    start3 <- secr_startmarking (ch, msk)
                 }
-                if (nrow(ch)<5)
-                    stop ("too few values session ", details$autoini, " to determine start; \n",
-                        "set manually or select different session with details autoini")
-                tempbinomN <- if (details$binomN==1 || details$fastproximity) 
-                    max(unlist(usage(traps(capthist)))) else details$binomN
-                start3 <- autoini (
-                    capthist = ch, 
-                    mask = msk, 
-                    binomN = tempbinomN,
-                    adjustg0 = details$binomN[1]==0 && !details$fastproximity,
-                    ignoreusage = details$ignoreusage,
-                    ncores = details$ncores)   ## use ncores set previously
-                
+                else {
+                    # specific to session, do not use anytelem
+                    if (any(detector(traps(ch))=="telemetry")) {
+                        if (all(detector(traps(ch))=="telemetry"))
+                            stop("cannot compute start from telemetry data; \n",
+                                "set manually or select different session with details autoini")
+                        ch <- suppressWarnings(subset(ch, occasions = detector(traps(ch)) != "telemetry"))
+                    }
+                    if (nrow(ch)<5)
+                        stop ("too few values session ", details$autoini, " to determine start; \n",
+                            "set manually or select different session with details autoini")
+                    tempbinomN <- if (details$binomN==1 || details$fastproximity)
+                        max(unlist(usage(traps(capthist)))) else details$binomN
+                    start3 <- autoini (
+                        capthist = ch,
+                        mask = msk,
+                        binomN = tempbinomN,
+                        adjustg0 = details$binomN[1]==0 && !details$fastproximity,
+                        ignoreusage = details$ignoreusage,
+                        ncores = details$ncores)   ## use ncores set previously
+                }
+
                 if (any(is.na(unlist(start3)))) {
                     warning ("'secr.fit' failed because initial values not found",
                         " (data sparse?); specify transformed values in 'start'", 

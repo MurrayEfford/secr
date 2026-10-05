@@ -176,6 +176,7 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
         knownmarks = TRUE,
         nsim = 0,
         chatonly = FALSE,
+        chatmethod = "simulate",                 # 2026-10-04 or "analytic"
         chat = NULL,
         savecall = TRUE,
         newdetector = NULL,
@@ -191,7 +192,8 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
         saveprogress = FALSE,
         progressfilename = "progress.RDS",
         safeLL = FALSE,                          # 2026-06-13
-        uselog = FALSE
+        uselog = FALSE,
+        telemetryint = "mask"                    # 2026-10-04 or "GH"
     )
     if (!is.null(attr(capthist,'cutval'))) {
         defaultdetails$cutval <- attr(capthist,'cutval')
@@ -349,7 +351,24 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     if (sighting && CL && !is.null(Tu) &&  !telemetrymarking) {
         warning ("mark-resight unmarked (but not nonID) sightings ignored when CL = TRUE")
     }
-    
+    if (!(details$telemetryint %in% c("mask", "GH")))
+        stop ("details$telemetryint should be 'mask' or 'GH'")
+    if (details$telemetryint == "GH" && !telemetrymarking)
+        stop ("details$telemetryint = 'GH' is currently available only for ",
+              "telemetrytype 'marking'")
+    if (!(details$chatmethod %in% c("simulate", "analytic")))
+        stop ("details$chatmethod should be 'simulate' or 'analytic'")
+    if (details$chatmethod == "analytic") {
+        sightingonly <- all(sapply(if (MS) capthist else list(capthist), function(x) {
+            mo <- markocc(traps(x))
+            !is.null(mo) && all(mo == 0)
+        }))
+        if (!telemetrymarking && !sightingonly)
+            stop ("details$chatmethod = 'analytic' is currently available only for ",
+                  "telemetrytype 'marking' and sighting-only data (all markocc 0)")
+        details$nsim <- 1     # signals that c-hat is wanted (the number of simulations is not used)
+    }
+
     #################################################
     ## optional centring of traps and mask 2010 04 27
     if (details$centred) {
@@ -573,7 +592,27 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
         stop ("hcov mixture model incompatible with groups")
     if ((nmix == 1) & ('pmix' %in% c(fnames,names(model))))
         stop ("pmix specified for invariant detection model")
-    
+
+    ## Fixed pmix. For two classes the value is the proportion in the second latent class,
+    ## the quantity estimated when pmix is free (the first class has 1 - pmix). It is
+    ## implemented as a fixed beta on the usual 'pmix ~ h2' model (see fixedbeta below)
+    ## so that every consumer of the real parameters sees class-specific proportions.
+    ## Otherwise a fixed value would apply to every class, which is valid only for equal classes.
+    fixedpmix <- NULL
+    if (nmix > 1 && 'pmix' %in% fnames) {
+        if (length(fixed$pmix) != 1 || !is.finite(fixed$pmix) || fixed$pmix <= 0 || fixed$pmix >= 1)
+            stop ("fixed pmix must be a single value between 0 and 1")
+        if (nmix == 2) {
+            fixedpmix <- fixed$pmix
+            fixed <- fixed[names(fixed) != 'pmix']
+            fnames <- names(fixed)
+        }
+        else if (abs(fixed$pmix - 1/nmix) > 1e-8) {
+            stop ("with ", nmix, " latent classes a fixed pmix is applied to every class, ",
+                  "so must equal ", round(1/nmix, 4))
+        }
+    }
+
     if ((nmix>1) & !('pmix' %in% fnames)) {
         if (is.null(model$pmix)) model$pmix <- ~1
         pmixvars <- all.vars(model$pmix)
@@ -600,7 +639,9 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
         marking <- any(sapply(traps(capthist), telemetrytype)=="marking") 
     else 
         marking <- telemetrytype(traps(capthist))=="marking"
-    pnames <- secr_valid.pnames (details, CL, detectfn, alltelem, sighting, marking, nmix)
+    Tmpresent <- !is.null(Tm) && sum(unlist(Tm)) > 0
+    pnames <- secr_valid.pnames (details, CL, detectfn, alltelem, sighting, marking, nmix,
+                                 Tmpresent)
     
     #################################################
     ## test for irrelevant parameters in user's model
@@ -888,6 +929,10 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     ############################################
     # take care of sigmaxy and relativeD
     details$fixedbeta <- secr_setfixedbeta(details$fixedbeta, parindx, link, CL, nmiscparm)
+    if (!is.null(fixedpmix)) {
+        ## beta for pmix ~ h2 is the logit of the proportion in the second class
+        details$fixedbeta[parindx$pmix[1]] <- logit(fixedpmix)
+    }
     if (!is.null(details$fixedbeta )) {
         if (!(length(details$fixedbeta )== NP))
             stop ("invalid fixed beta - require NP-vector")

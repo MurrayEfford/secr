@@ -69,6 +69,10 @@ simplehistoriescpp <- function(mm, nc, cc, grain, ncores, safeLL, uselog, binomN
     .Call(`_secr_simplehistoriescpp`, mm, nc, cc, grain, ncores, safeLL, uselog, binomN, markocc, firstocc, pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, telemhr, telemstart)
 }
 
+simplehistoriesmarkedcpp <- function(mm, nc, cc, grain, ncores, safeLL, uselog, binomN, markocc, firstocc, pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, telemhr, telemstart, Uind, k1, telemsum) {
+    .Call(`_secr_simplehistoriesmarkedcpp`, mm, nc, cc, grain, ncores, safeLL, uselog, binomN, markocc, firstocc, pID, w, group, gk, hk, density, PIA, Tsk, h, hindex, mask_indices, mask_offsets, mask_id, telemhr, telemstart, Uind, k1, telemsum)
+}
+
 simplehistoriesfxicpp <- function(x, mm, nc, cc, grain, ncores, binomN, w, group, gk, hk, density, PIA, Tsk, h, hindex) {
     .Call(`_secr_simplehistoriesfxicpp`, x, mm, nc, cc, grain, ncores, binomN, w, group, gk, hk, density, PIA, Tsk, h, hindex)
 }
@@ -81,8 +85,8 @@ sightingchatcpp <- function(mm, nc, cc0, grain, ncores, nsim, sightmodel, sumD, 
     .Call(`_secr_sightingchatcpp`, mm, nc, cc0, grain, ncores, nsim, sightmodel, sumD, area, distrib, anytelem, binomN, markocc, pID, group, gk0, hk0, density, PIA0, Tsk, pmix, seed, verbose)
 }
 
-expectedmucpp <- function(nc, cc, Tu, Tm, Ta, sightmodel, binomN, markocc, anytelem, pID, group, gk, hk, pi_density, Nm, PIA, Tsk, h, hindex, a0) {
-    .Call(`_secr_expectedmucpp`, nc, cc, Tu, Tm, Ta, sightmodel, binomN, markocc, anytelem, pID, group, gk, hk, pi_density, Nm, PIA, Tsk, h, hindex, a0)
+expectedmucpp <- function(nc, cc, Tu, Tm, sightmodel, binomN, markocc, anytelem, pID, group, gk, hk, pi_density, Nm, PIA, Tsk, h, hindex, a0) {
+    .Call(`_secr_expectedmucpp`, nc, cc, Tu, Tm, sightmodel, binomN, markocc, anytelem, pID, group, gk, hk, pi_density, Nm, PIA, Tsk, h, hindex, a0)
 }
 
 simdetectpointcpp <- function(detect, N, cc0, cc, gk0, gk, hk0, hk, PIA0, PIA1, nmix, knownclass, pmix, Tsk, btype, Markov, binomN) {
