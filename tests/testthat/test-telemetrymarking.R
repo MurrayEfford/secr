@@ -165,7 +165,8 @@ test_that("sex classes: input checks", {
 ## Gauss-Hermite integration (about 7 s). Reference: RTMB TMB8 (negative binomial Tu,
 ## so D differs slightly): D 79.25 (SE 17.23), lambda0 0.6656, sigma 3.9629, pID 0.6369 (SE 0.1024)
 test_that("fit with Tm, pID, marked and GH agrees with RTMB reference", {
-    fitq <- secr.fit(chq, detectfn = "HHN", mask = msk, trace = FALSE,
+    skip_on_cran()      # about 4 s; the likelihood anchors above run on CRAN
+    fitq <-secr.fit(chq, detectfn = "HHN", mask = msk, trace = FALSE,
                      details = list(safeLL = TRUE, uselog = TRUE, chat = chatq,
                                     telemetryint = "GH"))
     est <- predict(fitq)

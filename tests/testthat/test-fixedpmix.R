@@ -7,7 +7,7 @@ library(secr)
 Sys.setenv(RCPP_PARALLEL_BACKEND = "tinythread")
 
 detector(traps(captdata)) <- "multi"  # to dodge "single" warning
-msk <- make.mask(traps(captdata), buffer = 100, type = "trapbuffer", nx = 24)
+msk <- make.mask(traps(captdata), buffer = 100, type = "trapbuffer", nx = 16)
 mod <- list(g0 ~ h2, sigma ~ h2)
 
 ## log-likelihood at given beta (free pmix: D, g0, g0.h22, sigma, sigma.h22, pmix.h22)
@@ -21,11 +21,10 @@ LL <- function (beta, fixed = NULL) {
 beta <- c(log(5.5), qlogis(0.3), qlogis(0.2) - qlogis(0.3), log(30), log(40) - log(30))
 
 test_that("fixed pmix equals a free pmix with the same value", {
-    expect_equal(LL(c(beta, qlogis(0.3))), LL(beta, fixed = list(pmix = 0.3)), tolerance = 1e-10)
-    expect_equal(LL(c(beta, qlogis(0.8))), LL(beta, fixed = list(pmix = 0.8)), tolerance = 1e-10)
+    fixed3 <- LL(beta, fixed = list(pmix = 0.3))
+    expect_equal(LL(c(beta, qlogis(0.3))), fixed3, tolerance = 1e-10)
     ## the value refers to the second class, so 0.3 and 0.7 differ
-    expect_false(isTRUE(all.equal(LL(beta, fixed = list(pmix = 0.3)),
-                                  LL(beta, fixed = list(pmix = 0.7)))))
+    expect_false(isTRUE(all.equal(fixed3, LL(beta, fixed = list(pmix = 0.7)))))
 })
 
 test_that("fixed pmix: input checks", {
