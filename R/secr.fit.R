@@ -195,6 +195,12 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
         uselog = FALSE,
         telemetryint = "mask"                    # 2026-10-04 or "GH"
     )
+    ## with telemetry the product of many fixes can underflow (likelihood fails);
+    ## the log-sum forms avoid this at negligible cost 2026-10-06
+    if (anytelem) {
+        defaultdetails$safeLL <- TRUE
+        defaultdetails$uselog <- TRUE
+    }
     if (!is.null(attr(capthist,'cutval'))) {
         defaultdetails$cutval <- attr(capthist,'cutval')
     }

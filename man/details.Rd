@@ -243,8 +243,10 @@ values of the coefficients.
 
 \code{details$safeLL} uses the 'log-sum-exp' algorithm to avoid numeric 
 underflow in C++ code for the likelihood. Computation with safeLL = TRUE is 
-slightly slower so the default remains safeLL = FALSE. Used together with 
-'uselog' for telemetry data. 
+slightly slower so the default is safeLL = FALSE, except that it is TRUE when
+\code{capthist} includes telemetry. Used together with 'uselog' for telemetry data
+(with many fixes, as a rule of thumb more than a few tens, the likelihood otherwise
+underflows and the fit fails).
 
 \code{details$splitmarked} determines whether the home range centre of marked 
 animals is allowed to move between the marking (markocc = 1) and sighting (markocc = 0) 
@@ -270,7 +272,8 @@ distinguishing habitat from non-habitat.
 
 \code{details$uselog} selects robust (log sum) likelihood that avoids numeric 
 underflow especially with telemetry data, where it makes 'telemetryscale' obsolete. 
-Computation of other likelihoods is slower so the default remains FALSE.
+Computation of other likelihoods is slower so the default is FALSE, except that it is
+TRUE when \code{capthist} includes telemetry (as for safeLL).
 
 \code{details$userDfn} is a user-provided function for modelling a density 
 surface. See \href{https://www.otago.ac.nz/density/pdfs/secr-densitysurfaces.pdf}{secr-densitysurfaces.pdf}
