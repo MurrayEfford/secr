@@ -75,3 +75,19 @@ test_that("correct combined likelihood, dependent telemetry", {
     expect_equal(LL, -824.33822, tolerance = 1e-4, check.attributes = FALSE)
 })
 
+
+## With telemetry, details safeLL and uselog default to TRUE: the product of many fixes at metre
+## scale underflows otherwise (secr 5.5.1). The data are a stored fixture (simulated once:
+## 6 x 6 proximity detectors 12 km apart, 8 telemetered animals with 150 fixes, sigma 10 km)
+## so that the test does not depend on simulation. Only relationships between likelihoods are
+## tested, not an absolute value (about -27028 where checked).
+test_that("log-sum likelihood is the default with telemetry", {
+    comb <- readRDS(test_path("telemetry_metrescale.RDS"))
+    msk  <- make.mask(traps(comb), buffer = 40000, spacing = 4000)
+    LL <- function (...) as.numeric(secr.fit(comb, mask = msk, detectfn = "HHN", CL = TRUE, trace = FALSE,
+                                             start = list(lambda0 = 0.2, sigma = 10000),
+                                             details = list(LLonly = TRUE, ...)))
+    expect_gt(LL(), -1e9)                                  # default does not underflow
+    expect_equal(LL(), LL(safeLL = TRUE, uselog = TRUE))
+    expect_lt(LL(safeLL = FALSE, uselog = FALSE), -1e9)    # explicit FALSE is respected (underflow)
+})

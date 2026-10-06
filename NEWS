@@ -41,6 +41,9 @@ New features or changed behaviour of old functions
        form for the telemetry fixes with detectfn 'HHN'; the probability of detection pdot is
        not computed because it is not needed)
     o  addTelemetry() help page describes telemetry type 'marking' and has an example
+    o  details safeLL and uselog now default to TRUE when the capthist includes telemetry (they
+       remain FALSE otherwise, unless set). With many fixes at metre scale the likelihood
+       underflowed and fits failed without them; results are unchanged where the old defaults worked.
     o  fixed -Wreorder warning in sightingchat.cpp
     o  .Rbuildignore: removed merge-conflict markers
 

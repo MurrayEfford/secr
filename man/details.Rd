@@ -63,6 +63,16 @@ of animals. As with simulation, fit the model first (\code{chat} 1), then refit 
 \code{start} set to the first fit (or use \code{\link{secr.refit}}); \code{method = "none"}
 recomputes only the variance.
 
+The analytic value for Tm treats the marked animals as fixed at their expected spatial
+distribution, so for count detectors it is 1. The simulation for sighting-only models
+(\code{sightmodel} 5 and 6) is not quite the same: it places the marked animals at random
+but adds their expected cues (from the expected rather than the realised number in each
+mask cell) only in cells that contain a marked animal. The simulated overdispersion of Tm
+is then about 10 percent greater than the analytic value (for example 1.10--1.12 in a test
+with 25 marked animals; Tu is unaffected). Treating the realised locations of the marked
+animals as random would give a much larger value (about 2.2--2.6 in the same test).
+The simulation has been left unchanged for compatibility with earlier results.
+
 \code{details$chatonly} = TRUE used with \code{details$nsim > 0} (or
 \code{details$chatmethod = "analytic"}) causes the
 overdispersion statistics for sighting counts Tu and Tm to be estimated and
@@ -233,8 +243,10 @@ values of the coefficients.
 
 \code{details$safeLL} uses the 'log-sum-exp' algorithm to avoid numeric 
 underflow in C++ code for the likelihood. Computation with safeLL = TRUE is 
-slightly slower so the default remains safeLL = FALSE. Used together with 
-'uselog' for telemetry data. 
+slightly slower so the default is safeLL = FALSE, except that it is TRUE when
+\code{capthist} includes telemetry. Used together with 'uselog' for telemetry data
+(with many fixes, as a rule of thumb more than a few tens, the likelihood otherwise
+underflows and the fit fails).
 
 \code{details$splitmarked} determines whether the home range centre of marked 
 animals is allowed to move between the marking (markocc = 1) and sighting (markocc = 0) 
@@ -260,7 +272,8 @@ distinguishing habitat from non-habitat.
 
 \code{details$uselog} selects robust (log sum) likelihood that avoids numeric 
 underflow especially with telemetry data, where it makes 'telemetryscale' obsolete. 
-Computation of other likelihoods is slower so the default remains FALSE.
+Computation of other likelihoods is slower so the default is FALSE, except that it is
+TRUE when \code{capthist} includes telemetry (as for safeLL).
 
 \code{details$userDfn} is a user-provided function for modelling a density 
 surface. See \href{https://www.otago.ac.nz/density/pdfs/secr-densitysurfaces.pdf}{secr-densitysurfaces.pdf}

@@ -464,9 +464,12 @@ compare results using a mask with a plausible `"marking"` covariate.
   review.
 * The prior for collared ACs (Section 7) needs checking for strongly location-biased collaring and for
   collared animals with no fixes.
-* The analytic $\hat c$ for sighting-only models follows the simulation in `sightingchat.cpp`, including a
-  feature in the simulated `Tm` dispersion for binary detectors (the expected unidentified count is based on the expected
-  rather than realised number of marked animals) that may be unintended; it affects only $\hat c_2$.
+* For sighting-only models the analytic $\hat c_2$ (for `Tm`) treats the marked animals as fixed at their
+  expected distribution. The simulation in `sightingchat.cpp` (`sightmodel` 5 and 6) places marked animals at random
+  but adds expected cues only for mask cells that contain a marked animal, which gives a simulated $\hat c_2$
+  about 10% above the analytic value (1.10--1.12 against 1.00 in a test with 25 marked animals). Using the
+  realised locations, as the other sighting models do, would give about 2.2--2.6. The simulation is unchanged for
+  compatibility; which version is intended is undecided. $\hat c_1$ (for `Tu`) is unaffected.
 * The sandwich variance for density coefficients is available only internally.
 
 # References
