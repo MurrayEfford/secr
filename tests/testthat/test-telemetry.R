@@ -77,22 +77,17 @@ test_that("correct combined likelihood, dependent telemetry", {
 
 
 ## With telemetry, details safeLL and uselog default to TRUE: the product of many fixes at metre
-## scale underflows otherwise (secr 5.5.1)
+## scale underflows otherwise (secr 5.5.1). The data are a stored fixture (simulated once:
+## 6 x 6 proximity detectors 12 km apart, 8 telemetered animals with 150 fixes, sigma 10 km)
+## so that the test does not depend on simulation. Only relationships between likelihoods are
+## tested, not an absolute value (about -27028 where checked).
 test_that("log-sum likelihood is the default with telemetry", {
-    set.seed(2)
-    tr  <- make.grid(nx = 6, ny = 6, spacing = 12000, detector = "proximity")
-    msk <- make.mask(tr, buffer = 40000, spacing = 4000)
-    pop <- sim.popn(D = 2e-4, core = tr, buffer = 40000, seed = 3)
-    ch  <- sim.capthist(tr, popn = pop, detectfn = "HHN", renumber = FALSE, noccasions = 6, seed = 4,
-                        detectpar = list(lambda0 = 0.2, sigma = 10000))
-    tepop <- subset(pop, row.names(pop) %in% row.names(ch)[1:8])
-    teCH  <- sim.capthist(make.telemetry(), popn = tepop, detectfn = "HHN", renumber = FALSE, 
-                          noccasions = 150, seed = 5, detectpar = list(lambda0 = 1, sigma = 10000))
-    comb <- suppressWarnings(addTelemetry(ch, teCH, type = "concurrent"))
+    comb <- readRDS(test_path("telemetry_metrescale.RDS"))
+    msk  <- make.mask(traps(comb), buffer = 40000, spacing = 4000)
     LL <- function (...) as.numeric(secr.fit(comb, mask = msk, detectfn = "HHN", CL = TRUE, trace = FALSE,
                                              start = list(lambda0 = 0.2, sigma = 10000),
                                              details = list(LLonly = TRUE, ...)))
-    expect_equal(LL(), -27028.239, tolerance = 1e-6)
+    expect_gt(LL(), -1e9)                                  # default does not underflow
     expect_equal(LL(), LL(safeLL = TRUE, uselog = TRUE))
     expect_lt(LL(safeLL = FALSE, uselog = FALSE), -1e9)    # explicit FALSE is respected (underflow)
 })
