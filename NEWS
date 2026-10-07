@@ -1,51 +1,25 @@
-Changes in version 5.5.1 (2026-10-04)
+Changes in version 5.5.1 (2026-10-08)
 
 New features or changed behaviour of old functions
-    o  telemetrytype 'marking' now uses the unmarked counts Tu: expected unmarked cues are the cue
-       rate of the whole population less the expected cues of the marked animals, each given its
-       own telemetry and detections. This replaces the 'Ta' likelihood of 5.5.0, which used the
-       marked animals' cues twice. Unidentified marked sightings Tm are modelled, with pID
-       estimated when Tm is present. details$nsim is not available for this type;
-       use details$chatmethod = "analytic" or supply details$chat. Starting values come
-       from the telemetry and counts.
-    o  new details$chatmethod = "simulate" (default) or "analytic": the analytic option computes
-       the overdispersion of unmarked sightings from the model, without simulation. Currently
-       for sighting-only data (all markocc 0) and telemetrytype 'marking'.
-    o  telemetrytype 'marking' with a density model (e.g. model = list(D ~ z)): the density
-       coefficients are estimated from the spread of the unmarked sightings across detectors
-       (conditional multinomial likelihood, scaled by the third element of details$chat),
-       while the total count of unmarked sightings determines the level of density. The
-       prior for the activity centres of marked animals is uniform whatever the density model
-       (or follows a mask covariate named 'marking').
-    o  derived() now works for telemetrytype 'marking' and returns Dcw, the density in the
-       sampled area: the mean of the fitted density surface weighted by the cue rate at each
-       point. It equals D when density is uniform.
-    o  telemetrytype 'marking' accepts finite-mixture models with known classes (hcov, e.g. sex,
-       with sigma ~ h2, lambda0 ~ h2). The class of every marked animal must be known. The
-       population class proportions pmix are estimated, which by default are the proportions
-       among marked animals; they may be fixed (see next item).
-    o  bug fix: fixed = list(pmix = p) in a finite mixture model applied the same value to every
-       class, so was valid only for equal classes. For two classes p is now the proportion in the
-       second class and the first has 1 - p (implemented as a fixed beta for the usual pmix ~ h2).
-       With three classes only pmix = 1/3 is allowed and other values are an error.
-    o  new capthist attribute 'marked' (functions marked() and marked()<-): animals x
-       non-telemetry occasions matrix (columns as for Tu), analogous to detector usage: the
-       known fraction of each occasion for which an animal can be identified as marked, such
-       as the period a telemetry collar was working (telemetrytype 'marking').
-       subset.capthist handles it.
-    o  new option details$telemetryint = "GH" integrates over the activity centres of
-       telemetered animals by Gauss-Hermite quadrature rather than by summing over mask
-       cells (default "mask"); currently for telemetrytype 'marking' only
-    o  internal: simplehistoriesmarkedcpp() returns posterior-mean cue rates of marked animals
-    o  telemetrytype 'marking' fits are much faster (details$telemetryint = "GH" uses a closed
-       form for the telemetry fixes with detectfn 'HHN'; the probability of detection pdot is
-       not computed because it is not needed)
-    o  addTelemetry() help page describes telemetry type 'marking' and has an example
-    o  details safeLL and uselog now default to TRUE when the capthist includes telemetry (they
-       remain FALSE otherwise, unless set). With many fixes at metre scale the likelihood
-       underflowed and fits failed without them; results are unchanged where the old defaults worked.
-    o  fixed -Wreorder warning in sightingchat.cpp
-    o  .Rbuildignore: removed merge-conflict markers
+    o  improved telemetry/sighting model (telemetrytype 'marking') (Claude): 
+    -    uses Tu unmarked counts only; 
+    -    unidentified marked sightings Tm are modelled (pID estimated)
+    -    density model implemented   
+    -    derived() returns Dcw, the density in the sampled area
+    -    allows finite-mixture models with known classes (hcov)
+    -    capthist attribute 'marked' has individual telemetry availability per occasion
+         (new functions marked(), marked<-)
+    -    details$telemetryint = "GH" uses Gauss-Hermite quadrature for activity centres
+    -    addTelemetry() help page describes telemetry type 'marking'
+    o  details$chatmethod = "analytic" option for overdispersion of unmarked sightings
+    o  details safeLL and uselog now default to TRUE when the capthist includes telemetry 
+
+Bugs fixed
+    o  specifying fixed 'pmix' parameter of h2 finite mixture model applied one value 
+       to both classes, i.e. (p,p), now (1-p,p)
+
+Other
+    o  tests for telemetrytype 'marking'
 
 Changes in version 5.5.0 (2026-09-19)
 
@@ -57,7 +31,7 @@ New features or changed behaviour of old functions
     o  RSE() accepts secrlist (multiple fitted models)
     o  sim.resight() retains popn rownames as ID and no longer renumbers rows of 
        a saved popn object, for compatibility with telemetry
-    o  secr.fit() fits 1-step telemetry/marking/sighting model of Whittington et al. 2025
+    o  secr.fit() fits 1-step telemetry/sighting model of Whittington et al. 2025
     o  sightingPlot() extended for type = 'Ta' (detections+sightings)
 
 Other
