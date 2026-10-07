@@ -110,9 +110,9 @@ at a particular detector, on a particular occasion, when the detectors
 are of type `count', `polygon' or `transect':
 
 \itemize{
-\item{binomN > 1  --- binomial with size binomN}
-\item{binomN = 1  --- binomial with size determined by \link{usage}}
-\item{binomN = 0  --- Poisson}
+\item binomN > 1  --- binomial with size binomN
+\item binomN = 1  --- binomial with size determined by \link{usage}
+\item binomN = 0  --- Poisson
 %\item{binomN < 0} {negative binomial with size abs(binomN) -- see 
 %  \code{\link[stats]{NegBinomial}}}
 }
@@ -126,7 +126,8 @@ see \code{\link{details}} for the full list and description.
 \tabular{ll}{
 autoini \tab session to use for starting values (default 1) \cr
 centred \tab centre x-y coordinates\cr
-chat \tab overdispersion of sighting counts Tu, Tm \cr
+chat \tab overdispersion of sighting counts Tu, Tm (and shape, for 'marking') \cr
+chatmethod \tab "simulate" (default) or "analytic" \cr
 chatonly \tab compute overdispersion for Tu and Tm, then exit \cr
 contrasts \tab coding of factor predictors \cr
 convexpolygon \tab allows non-convex polygons (slower) \cr
@@ -145,8 +146,11 @@ miscparm \tab starting values for extra parameters fitted via userdist function 
 newdetector \tab detector type to override detector(traps(capthist)) \cr
 nsim \tab number of simulations to compute mark-resight overdispersion \cr
 param \tab optional parameterisation code\cr
+safeLL \tab log-sum-exp algorithm to avoid underflow \cr
 savecall \tab optionally suppress saving of call\cr
 saveprogress \tab save results to RDS file at given frequency \cr
+telemetryint \tab method for integration over activity centres of telemetered animals \cr
+uselog \tab log-sum likelihood to avoid underflow, mainly telemetry \cr
 userdist \tab user-provided distance function or matrix \cr
 %maxcallsize \tab limit to size of saved call \cr
 }
