@@ -97,6 +97,12 @@ test_that("marking input checks", {
     expect_error(secr.fit(ch1, detectfn = "HHN", mask = msk, trace = FALSE,
                           details = list(telemetryint = "GH")),
                  "only for telemetrytype 'marking'")
+    ## binary detectors are not supported
+    chp <- ch
+    dd <- detector(traps(chp))
+    detector(traps(chp)) <- ifelse(dd == "count", "proximity", dd)
+    expect_error(secr.fit(chp, detectfn = "HHN", mask = msk, trace = FALSE),
+                 "requires count detectors")
 })
 
 ## Sex: hcov with latent classes known for every marked animal.

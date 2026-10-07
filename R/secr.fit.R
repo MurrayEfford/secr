@@ -350,6 +350,15 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
         Tu <- Tu(capthist)
         Tm <- Tm(capthist)
     }
+    if (telemetrymarking) {
+        ## expected sightings are computed as hazard (Poisson counts); binary detection of
+        ## unmarked animals is not modelled and gives biased estimates
+        dets <- unlist(lapply(if (MS) capthist else list(capthist),
+                              function(x) detector(traps(x))))
+        if (any(!dets %in% c("count", "telemetry")))
+            stop ("telemetrytype 'marking' requires count detectors; ",
+                  "proximity and other binary detector types are not supported")
+    }
     if (('pID' %in% names(fixed)) && !is.null(Tm)){
         if ((fixed$pID == 1) && (sum(Tm)>0) && any(unlist(markocc(traps(capthist)))==0))
             warning ("mark-resight nonID sightings ignored when fixed$pID = 1")
