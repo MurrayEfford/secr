@@ -17,6 +17,8 @@ New features or changed behaviour of old functions
 Bugs fixed
     o  specifying fixed 'pmix' parameter of h2 finite mixture model applied one value 
        to both classes, i.e. (p,p), now (1-p,p)
+    o  mixture models failed or gave wrong class weights when detector 1 was not in 
+       use on occasion 1
 
 Other
     o  tests for telemetrytype 'marking'

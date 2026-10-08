@@ -36,8 +36,10 @@ secr_getpmix <- function(knownclass, PIA, realparval)
     if (nmix>1) {
         # index of first non-missing occasion s and detector k
         fsk <- sapply(1:nc, function(i) secr_firstsk(PIA[1,i,,,1, drop = FALSE]))
-        kc <- as.vector((fsk-1) %/% k + 1)
-        sc <- as.vector((fsk-1) %/% k + 1)
+        ## fsk indexes the (s,k) array in column order: s varies fastest
+        S <- dim(PIA)[3]
+        sc <- as.vector((fsk-1) %% S + 1)
+        kc <- as.vector((fsk-1) %/% S + 1)
         for (x in 1:nmix) {
             c <- PIA[cbind(1,1:nc,sc,kc,x)]
             pmixx <- realparval[c, 'pmix']    ## NOT CONSISTENT WITH pmix numeric(nmix)
