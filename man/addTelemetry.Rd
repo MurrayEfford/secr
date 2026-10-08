@@ -15,6 +15,10 @@ with true capture--recapture data (e.g. detections from hair-snag DNA)
 in another capthist object.  \code{secr.fit} automatically detects the
 telemetry data in the new object.
 
+Data from an arbitrary sample of telemetered animals combined with cue counts 
+for unmarked animals are a special case that is discussed below 
+('Telemetry-calibrated cue counts').
+
 }
 
 \usage{
@@ -81,9 +85,12 @@ detector type `telemetry'.
   \code{detectionCH}, but possibly with empty rows and an `telemetryxy' attribute.
 }
 
-\section{Telemetry type `marking'}{
+\section{Telemetry-calibrated cue counts}{
 
-This type is for spatial mark--resight with cameras (or other `count' detectors) that detect \emph{all} animals, but identify only animals wearing radio-collars (the `marked' animals). The collared animals also provide telemetry fixes. The data are assembled as follows.
+Telemetry type `marking' is used for telemetry-calibrated cue counts: cameras (or other `count' 
+detectors) detect \emph{all} animals, but identify only animals wearing 
+radio-collars (the `marked' animals). The collared animals also provide 
+telemetry fixes. The data are assembled as follows.
 
 \itemize{
 \item \code{detectionCH} holds the identified sightings of collared animals on the sighting occasions, one history for each collared animal. Animals never sighted have all-zero histories; they are added by \code{addTelemetry} if they are present in \code{telemetryCH}. Detector type should be `count'.
