@@ -31,7 +31,6 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
     group = NULL, se.N = TRUE, alpha = 0.05, loginterval = TRUE,
     keep.region = FALSE, nlowerbound = TRUE, RN.method = 'poisson',
     pooled.RN = FALSE, ncores = NULL, ...) {
-
     ## Notes
     ## se.N = FALSE returns scalar N
     ###########################################################
@@ -239,9 +238,15 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
         if (is.null(markocc)) markocc <- rep(1, ncol(CH))
         markingoccasion <- markocc == 1 & det != 'telemetry'
 
-        # keep all rows, only marking occasions
-        CH <- subset(CH, occasion = markingoccasion, dropnullCH = FALSE)
+        # realised N is not estimable for telemetrytype 'marking': it needs the probability
+        # that an animal is marked (collared), which the model does not describe
+        telmarking <- identical(telemetrytype(traps(CH)), "marking")
 
+        # keep all rows, only marking occasions
+        # (none for all-sighting data, including telemetrytype 'marking': n = 0;
+        # subset.capthist cannot return a capthist with no occasions)
+        nomarking <- !any(markingoccasion)
+        if (!nomarking) CH <- subset(CH, occasion = markingoccasion, dropnullCH = FALSE)
         # number in group
         ngrp <- function(x) {
             ingroup <- secr_getgrpnum(x, object$groups) == group
@@ -250,19 +255,24 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
             sum(ingroup)
         }
 
-        if (ms(object)) {
-            if (pooled.RN) {
-                if (!all(markingoccasion)) stop("sighting not currently compatible with pooled.RN")
-                n <- sum(sapply(object$capthist, ngrp))
-            }
-            else
-                n <- ngrp(CH)
+        if (ms(object) && pooled.RN) {
+            if (!all(markingoccasion)) stop("sighting not currently compatible with pooled.RN")
+            n <- sum(sapply(object$capthist, ngrp))
+        }
+        else if (telmarking) {
+            n <- NA_real_
+        }
+        else if (nomarking) {
+            n <- 0
+        }
+        else if (ms(object)) {
+            n <- ngrp(CH)
         }
         else {
             # n <- nrow(object$capthist)
             n <- sum(apply(abs(CH)>0,1,sum)>0)
         }
-        if (all(det %in% .localstuff$individualdetectors)) {
+        if (all(det %in% .localstuff$individualdetectors) && !telmarking) {
             if (any(!markingoccasion)) warning("n = ", n, " for marking occasions; other occasions ignored")
             NElist  <- secr_makeNElist(object, regionmask, group = group, sessnum)
 

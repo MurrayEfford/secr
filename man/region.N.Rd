@@ -119,6 +119,10 @@ RCPP_PARALLEL_NUM_THREADS (see \code{\link{setNumThreads}}).
 From version 5.5.0, detections on sighting and telemetry occasions are excluded 
 in the computation of  realised \eqn{N}, with a warning.
 
+Realised \eqn{N} is not estimable for telemetry type `marking' (see \code{\link{addTelemetry}})
+because it depends on the probability that an animal is marked, which the model does not describe.
+For such models `R.N' and \code{n} are returned as NA; expected \eqn{N} is unaffected.
+
 }
 
 \value{

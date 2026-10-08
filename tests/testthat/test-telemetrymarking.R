@@ -206,3 +206,18 @@ test_that("fits of ch: mask summation and GH integration", {
     expect_equal(est["D", "estimate"], 32.26, tolerance = 0.05, check.attributes = FALSE)
     expect_equal(est["sigma", "estimate"], 3.943, tolerance = 0.10, check.attributes = FALSE)
 })
+
+## region.N: telemetry 'marking' has no marking occasions (the collared animals are marked from the
+## start); this used to fail in subset.capthist. Realised N is not estimable (NA), expected N is.
+test_that("region.N works with telemetrytype 'marking'", {
+    skip_on_cran()
+    fit <- secr.fit(ch, detectfn = "HHN", mask = msk, trace = FALSE,
+                    details = list(safeLL = TRUE, uselog = TRUE, chat = chat1, telemetryint = "GH"))
+    expect_no_warning(rn <- region.N(fit))
+    Dhat <- predict(fit)["D", "estimate"]
+    expect_equal(rn["E.N", "estimate"], Dhat * nrow(msk) * attr(msk, "area"),
+                 tolerance = 1e-6, check.attributes = FALSE)
+    expect_true(is.finite(rn["E.N", "SE.estimate"]))
+    expect_true(all(is.na(unlist(rn["R.N", ]))))
+    expect_equal(rn["E.N", "estimate"], region.N(fit, se.N = FALSE), check.attributes = FALSE)
+})
