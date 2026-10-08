@@ -1,7 +1,7 @@
 Changes in version 5.5.1 (2026-10-08)
 
 New features or changed behaviour of old functions
-    o  improved telemetry/sighting model (telemetrytype 'marking') (Claude): 
+    o  improved telemetry-calibrated cue count model (telemetrytype 'marking') (Claude): 
     -    uses Tu unmarked counts only; 
     -    unidentified marked sightings Tm are modelled (pID estimated)
     -    density model implemented   
