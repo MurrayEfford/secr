@@ -6,6 +6,7 @@
 \alias{miscparm}
 \alias{maxdistance}
 \alias{saveprogress}
+\alias{safeLL}
 \alias{uselog}
 
 \title{ Detail Specification for secr.fit }
