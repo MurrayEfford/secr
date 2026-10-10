@@ -39,6 +39,13 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
         names(fb) <- secr_fullbetanames(start)
         oldbeta <- secr_fullbeta(oldbeta, fb) # matches start$parindx
         if (!is.null(details) && !is.null(details$nsim) && details$nsim > 0) {
+            ## overdispersion (simulation or analytic) uses the old coefficients as they are, so
+            ## the start fit cannot lack coefficients of the new model (e.g. a CL fit has no
+            ## density intercept); mapping would evaluate c-hat at meaningless values
+            if (length(oldbeta) < max(unlist(parindx)))
+                stop ("start is a fit with fewer coefficients than the model (e.g. CL = TRUE), ",
+                      "so overdispersion cannot be computed in the same call; ",
+                      "fit the model first, then use secr.refit() with chatmethod = 'analytic'")
             start <- oldbeta    ## chat simulations
         }
         else {

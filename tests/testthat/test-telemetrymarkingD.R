@@ -93,6 +93,19 @@ test_that("CL fit of telemetrytype 'marking': density functions refuse", {
     expect_silent(secr:::secr_stopCLmarking(list(CL = TRUE, capthist = captdata), "derived()"))
 })
 
+## A CL fit can be the start for the full likelihood, but not together with chatmethod: overdispersion
+## uses the old coefficients as they are, and a CL fit lacks the density intercept. The fits here are
+## single evaluations at the start (method = "none"); the error arises before any optimisation.
+test_that("start from a CL fit with chatmethod gives an informative error", {
+    fitcl <- secr.fit(chd, detectfn = "HHN", mask = mskd, CL = TRUE, trace = FALSE, start = betad[3:4],
+                      method = "none", details = list(safeLL = TRUE, uselog = TRUE, telemetryint = "GH",
+                                                      chat = chatd, hessian = FALSE))
+    expect_error(secr.fit(chd, detectfn = "HHN", mask = mskd, trace = FALSE, start = fitcl,
+                          details = list(safeLL = TRUE, uselog = TRUE, telemetryint = "GH",
+                                         chatmethod = "analytic")),
+                 "fewer coefficients")
+})
+
 ## Analytic overdispersion, details$chatmethod = "analytic", at the RTMB estimates.
 ## RTMB (fixed number of animals, mask spacing 2.5) at the same parameter values:
 ## chat for the total 6.471; Pearson dispersion across detectors 7.63

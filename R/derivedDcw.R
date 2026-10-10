@@ -13,8 +13,7 @@ secr_stopCLmarking <- function (object, what) {
     cap <- object$capthist
     if (isTRUE(object$CL) &&
         identical(telemetrytype(traps(if (ms(cap)) cap[[1]] else cap)), "marking"))
-        stop (what, " for telemetrytype 'marking' requires the full likelihood: ",
-              "refit with CL = FALSE (the CL fit may be used as 'start')")
+        stop (what, " for telemetrytype 'marking' requires the full likelihood")
     invisible(NULL)
 }
 
