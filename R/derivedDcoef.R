@@ -12,6 +12,7 @@ derivedDcoef.secrlist <- function (object, se = FALSE, ...) {
 }
 
 derivedDcoef.secr <- function (object, se = FALSE, ...) {
+    secr_stopCLmarking (object, "derivedDcoef()")
     #-------------------------------------------------------------------------------
     onelinkk <- function (beta)
     {
@@ -108,6 +109,7 @@ derivedDcoef.secr <- function (object, se = FALSE, ...) {
 # used by region.N etc.
 
 derivedDfit <- function(object, vcv = TRUE) {
+    secr_stopCLmarking (object, "derivedDfit()")
     if (is.null(object$model$D) || is.null(object$link$D) || !object$CL) {
         return(object) # unchanged
     }

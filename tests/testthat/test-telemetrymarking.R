@@ -23,8 +23,8 @@ chatq <- c(2.498894, 1, 1)
 
 ## log-likelihood at given parameter values (transformed scale: log D, log lambda0,
 ## log sigma, logit pID)
-LL <- function (x, beta, chat, int = "GH") {
-    as.numeric(secr.fit(x, detectfn = "HHN", mask = msk, trace = FALSE, start = beta,
+LL <- function (x, beta, chat, int = "GH", CL = FALSE) {
+    as.numeric(secr.fit(x, detectfn = "HHN", mask = msk, trace = FALSE, start = beta, CL = CL,
                         details = list(safeLL = TRUE, uselog = TRUE, chat = chat,
                                        telemetryint = int, LLonly = TRUE)))
 }
@@ -185,6 +185,30 @@ test_that("fit with Tm, pID, marked and GH agrees with RTMB reference", {
     dd <- derived(fitq)
     expect_equal(rownames(dd), "Dcw")
     expect_equal(dd["Dcw", "estimate"], est["D", "estimate"], tolerance = 1e-5)
+})
+
+## Conditional likelihood (CL = TRUE): Tu is ignored (it informs only density) but the unidentified
+## marked cues Tm, which do not involve density, are retained so that lambda0 and pID can be
+## separated (previously the CL variance was NaN). Swapping the Tm counts of two detectors changes
+## the full and CL log-likelihoods by the same amount, as the pooled Tu term is untouched.
+test_that("CL keeps the unidentified marked cues Tm", {
+    tm <- Tm(chq); K <- nrow(tm); S <- ncol(tm)
+    full <- which(rowSums(usage(traps(chq))[1:K, 1:S]) == S)       # detectors used on every occasion
+    i <- full[1]
+    j <- full[which(rowSums(tm)[full] != rowSums(tm)[i])[1]]
+    tm[c(i, j), ] <- tm[c(j, i), ]
+    chq2 <- chq
+    Tm(chq2) <- tm
+    bcl <- betaq[-1]                                                 # no density intercept
+    dfull <- LL(chq2, betaq, chatq) - LL(chq, betaq, chatq)
+    dcl   <- LL(chq2, bcl, chatq, CL = TRUE) - LL(chq, bcl, chatq, CL = TRUE)
+    expect_gt(abs(dcl), 0.01)
+    expect_equal(dcl, dfull, tolerance = 1e-8)
+    ## nothing to scale: overdispersion is 1
+    chat <- secr.fit(chq, detectfn = "HHN", mask = msk, trace = FALSE, start = bcl, CL = TRUE,
+                     details = list(safeLL = TRUE, uselog = TRUE, telemetryint = "GH",
+                                    chatmethod = "analytic", chatonly = TRUE))
+    expect_equal(as.numeric(chat), rep(1, 3))
 })
 
 ## Slower checks

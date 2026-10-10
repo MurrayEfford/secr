@@ -35,7 +35,31 @@
 
 #--------------------------------------------------------------------------------
 
-allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup, 
+## Unidentified marked cues Tm for telemetry type 'marking': each cue of a collared animal is
+## identified with probability pID, so Tm_k ~ Poisson((1 - pID) * sum_i E_i[cue rate at k]),
+## where ElamK (animals x detectors) holds the posterior-mean cue rates E_i. The term involves
+## only the collared animals (not density) and so also applies to the conditional likelihood.
+## Returns the log-likelihood (NA if impossible), scaled by chat2 (details$chat[2]); 0 if pID = 1.
+secr_Tmmarking <- function (ElamK, pID, MRdata, knownclass, chat2) {
+    ## pID may differ between classes but not between sighting occasions
+    qx <- apply(pID[MRdata$markocc < 1, , drop = FALSE], 2,
+                function(q) if (diff(range(q)) > 1e-12) NA else q[1])
+    if (anyNA(qx))
+        stop ("pID must be constant over sighting occasions for telemetrytype 'marking'")
+    cls <- if (length(qx) > 1) knownclass - 1 else rep(1, nrow(ElamK))
+    qa  <- qx[cls]                        # pID of each marked animal
+    if (!any(qa < 1)) return (0)
+    Tmk  <- rowSums(MRdata$Tm)[seq_len(ncol(ElamK))]
+    muTm <- colSums((1 - qa) * ElamK)
+    if (any(muTm <= 0 & Tmk > 0))
+        NA
+    else
+        sum(dpois(Tmk, muTm, log = TRUE)) / chat2
+}
+
+#--------------------------------------------------------------------------------
+
+allhistsimple <- function (cc, haztemp, gkhk, pi.density, PIA, ngroup,
                            CH, binomNcode, MRdata, grp, usge, pmixn, pID, maskcond,
                            telemhr = 0, telemstart = 0,
                            grain, ncores, safeLL = FALSE, uselog = FALSE,
@@ -800,7 +824,14 @@ secr_generalsecrloglikfn <- function (
       #----------------------------------------------------------------------
       # sightings
       sightingocc <- data$MRdata$markocc < 1
-      if (any(sightingocc) && !CL) {
+      marking <- telemetrytype(data$traps) == "marking"
+      ## density coefficients other than the intercept (for CL with relative density the intercept
+      ## keeps its place in parindx but is fixed)
+      nzD <- max(length(parindx$D) - 1, 0)
+      ## telemetry 'marking' with CL: the unmarked sightings Tu inform only density, but the
+      ## unidentified marked cues Tm do not involve density, and the shape of Tu across detectors
+      ## (relative density) is free of the density level, so these are retained
+      if (any(sightingocc) && (!CL || (marking && nzD > 0))) {
           # 2026-07-16 reconciling sighting with telemetry requires a switch 
           # MRdata$anytelemetry to flag supernumerary detector in telemetry CH
           Nm <- density * secr_getcellsize(data$mask)
@@ -842,7 +873,10 @@ secr_generalsecrloglikfn <- function (
               ElamK <- postE[, -ncol(postE), drop = FALSE]    # animals x detectors
               .localstuff$markedpost <- postE      # for secr_shapeSandwich()
               mu <- sum(tmp$Tumusk) - sum(ElamK)
-              if (!is.finite(mu)) {
+              if (CL) {
+                  ## conditional likelihood: the pooled count informs only the density level
+              }
+              else if (!is.finite(mu)) {
                   comp[5,1] <- NA
               }
               else {
@@ -862,7 +896,7 @@ secr_generalsecrloglikfn <- function (
               ## detector (no subtraction of marked animals; the density level cancels).
               ## It is scaled by details$chat[3] (Pearson dispersion across detectors),
               ## which for 'marking' replaces the unused Tn slot.
-              if (length(parindx$D) > 1) {
+              if (nzD > 0) {
                   Tuk   <- rowSums(data$MRdata$Tu)[seq_len(ncol(ElamK))]
                   mupop <- rowSums(tmp$Tumusk)[seq_len(ncol(ElamK))]
                   if (any(!is.finite(mupop)) || any(mupop <= 0 & Tuk > 0)) {
@@ -874,35 +908,21 @@ secr_generalsecrloglikfn <- function (
                   }
               }
 
-              ## Unidentified marked cues Tm: each cue of a marked animal is identified with
-              ## probability pID; Tm_k ~ Poisson((1 - pID) * sum_i E_i[cue rate at k]).
-              ## Marked animals' identified counts (in lnprw) carry pID.
-              if (!is.null(data$MRdata$Tm)) {
-                  ## pID may differ between classes but not between sighting occasions
-                  qx <- apply(pID[data$MRdata$markocc < 1, , drop = FALSE], 2,
-                              function(q) if (diff(range(q)) > 1e-12) NA else q[1])
-                  if (anyNA(qx))
-                      stop ("pID must be constant over sighting occasions for telemetrytype 'marking'")
-                  cls <- if (length(qx) > 1) data$knownclass - 1 else rep(1, nrow(ElamK))
-                  qa  <- qx[cls]                        # pID of each marked animal
-                  if (any(qa < 1)) {
-                      Tmk  <- rowSums(data$MRdata$Tm)[seq_len(ncol(ElamK))]
-                      muTm <- colSums((1 - qa) * ElamK)
-                      if (any(muTm <= 0 & Tmk > 0))
-                          comp[6,1] <- NA
-                      else
-                          comp[6,1] <- sum(dpois(Tmk, muTm, log = TRUE)) / details$chat[2]
-                  }
-              }
+              ## Unidentified marked cues Tm (marked animals' identified counts, in lnprw, carry pID)
+              if (!is.null(data$MRdata$Tm))
+                  comp[6,1] <- secr_Tmmarking (ElamK, pID, data$MRdata, data$knownclass, details$chat[2])
 
               ## c-hat wanted (details$chatmethod = "analytic"): return it instead of the likelihood
               if (chatanalytic) {
-                  return (secr_chatmarking (
+                  chat <- secr_chatmarking (
                       hk = gkhk$hk, PIA = PIA, usge = data$usge, markocc = data$MRdata$markocc,
                       density = density[,1], cellsize = secr_getcellsize(data$mask),
                       pmixpop = pmixE[,1], ElamK = ElamK, EL2 = postE[, ncol(postE)],
-                      Tu = data$MRdata$Tu, Tumusk = tmp$Tumusk, nz = length(parindx$D) - 1,
-                      n.distrib = data$n.distrib))
+                      Tu = data$MRdata$Tu, Tumusk = tmp$Tumusk, nz = nzD,
+                      n.distrib = data$n.distrib)
+                  ## CL: the total count is not used (and density is relative); only the shape element applies
+                  if (CL) chat[1] <- 1
+                  return (chat)
               }
           }
           else {
@@ -935,7 +955,17 @@ secr_generalsecrloglikfn <- function (
                       comp[6,1] <- Tmlik$Tlik/details$chat[2]
               }
           }
-      }    
+      }
+      else if (any(sightingocc) && CL && marking) {
+          ## conditional likelihood without density coefficients: Tu is ignored, but the unidentified
+          ## marked cues involve only the collared animals, and are needed to separate lambda0 from pID
+          if (!is.null(data$MRdata$Tm)) {
+              postE <- attr(lnprw, "post")
+              comp[6,1] <- secr_Tmmarking (postE[, -ncol(postE), drop = FALSE], pID, data$MRdata,
+                                           data$knownclass, details$chat[2])
+          }
+          if (chatanalytic) return (c(1, 1, 1))      # nothing to scale
+      }
       #----------------------------------------------------------------------
 
     }   ## end loop over groups

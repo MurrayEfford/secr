@@ -46,6 +46,53 @@ test_that("density model: log-likelihood maximal near RTMB estimates", {
     }
 })
 
+## Conditional likelihood (CL = TRUE) with a relative density model: Tu enters only through the
+## shape of the unmarked cues across detectors (the pooled count informs the density level, absent
+## here). Swapping the Tu counts of two detectors leaves the total unchanged, so the full and CL
+## log-likelihoods change by the same amount. In CL the intercept is absent and the
+## overdispersion of the total is not used (returned as 1; the shape element is kept).
+test_that("CL with density model: shape of unmarked sightings retained", {
+    tu <- Tu(chd); K <- nrow(tu); S <- ncol(tu)
+    full <- which(rowSums(usage(traps(chd))[1:K, 1:S]) == S)      # detectors used on every occasion
+    i <- full[1]
+    j <- full[which(rowSums(tu)[full] != rowSums(tu)[i])[1]]
+    tu[c(i, j), ] <- tu[c(j, i), ]
+    chd2 <- chd
+    Tu(chd2) <- tu
+    LLcl <- function (x, beta) {
+        as.numeric(secr.fit(x, detectfn = "HHN", mask = mskd, model = list(D ~ z), CL = TRUE,
+                            trace = FALSE, start = beta,
+                            details = list(safeLL = TRUE, uselog = TRUE, chat = chatd,
+                                           telemetryint = "GH", LLonly = TRUE)))
+    }
+    bcl <- betad                                                    # the intercept is ignored in CL
+    dcl <- LLcl(chd2, bcl) - LLcl(chd, bcl)
+    dfull <- as.numeric(secr.fit(chd2, detectfn = "HHN", mask = mskd, model = list(D ~ z), trace = FALSE,
+                                 start = betad, details = list(safeLL = TRUE, uselog = TRUE, chat = chatd,
+                                                               telemetryint = "GH", LLonly = TRUE))) - LLd(betad)
+    expect_gt(abs(dcl), 0.01)
+    expect_equal(dcl, dfull, tolerance = 1e-8)
+    chat <- secr.fit(chd, detectfn = "HHN", mask = mskd, model = list(D ~ z), CL = TRUE, trace = FALSE,
+                     start = bcl, details = list(safeLL = TRUE, uselog = TRUE, telemetryint = "GH",
+                                                 chatmethod = "analytic", chatonly = TRUE))
+    expect_equal(as.numeric(chat)[1:2], c(1, 1))
+    expect_gt(as.numeric(chat)[3], 1)
+    ## CL without a density model (and no Tm in these data): nothing to scale
+    chat1 <- secr.fit(chd, detectfn = "HHN", mask = mskd, CL = TRUE, trace = FALSE,
+                      start = betad[3:4], details = list(safeLL = TRUE, uselog = TRUE, telemetryint = "GH",
+                                                         chatmethod = "analytic", chatonly = TRUE))
+    expect_equal(as.numeric(chat1), rep(1, 3))
+})
+
+## Horvitz-Thompson density (derived, derivedDcoef, derivedDfit, derivedDsurface, region.N) does not
+## apply to a CL fit of telemetry type 'marking'; the guard needs only $CL and $capthist
+test_that("CL fit of telemetrytype 'marking': density functions refuse", {
+    expect_error(secr:::secr_stopCLmarking(list(CL = TRUE, capthist = chd), "derived()"),
+                 "requires the full likelihood")
+    expect_silent(secr:::secr_stopCLmarking(list(CL = FALSE, capthist = chd), "derived()"))
+    expect_silent(secr:::secr_stopCLmarking(list(CL = TRUE, capthist = captdata), "derived()"))
+})
+
 ## Analytic overdispersion, details$chatmethod = "analytic", at the RTMB estimates.
 ## RTMB (fixed number of animals, mask spacing 2.5) at the same parameter values:
 ## chat for the total 6.471; Pearson dispersion across detectors 7.63

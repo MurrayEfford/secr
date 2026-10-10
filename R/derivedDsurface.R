@@ -180,6 +180,7 @@ pxi <- function (object, i = NULL, sessnum = 1, X = NULL, ncores = NULL, ...) {
 # exported
 # density only: no equivalent of noneuc etc. for 'relativeD' 
 derivedDsurface <- function (object, mask = NULL, sessnum = NULL, groups = NULL) {
+    secr_stopCLmarking (object, "derivedDsurface()")
     Dx <- function(object, mask, sessnum, selection) {
         D <- secr_predictD(object, mask, group = NULL, session = sessnum, parameter = 'D')
         cellsize <- secr_getcellsize(mask)

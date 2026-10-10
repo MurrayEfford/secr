@@ -118,6 +118,7 @@ region.N.secr <- function (object, region = NULL, spacing = NULL, session = NULL
     ####################################################################
     ## otherwise, this is a non-recursive call for one session...
     else {
+        secr_stopCLmarking (object, "region.N()")
         # 2026-02-24
         if (tolower(object$details$distribution) == "binomial") {
             warning ("Model fitted with distribution = 'binomial'; the results reported as R.N do not apply for this model")

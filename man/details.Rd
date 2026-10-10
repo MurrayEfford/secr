@@ -58,7 +58,9 @@ for count, proximity and multi detectors, a Poisson or fixed (binomial) number o
 which the posterior variance of the marked animals' contribution is included and, for
 models with density covariates, the Pearson dispersion of the spread of unmarked sightings
 across detectors is also returned. It is not available when there are marking occasions or
-unresolved sightings. The overdispersion is much larger for a Poisson than a fixed number
+unresolved sightings. For telemetry type 'marking' with \code{CL = TRUE} the overdispersion of
+the total count is not used and is returned as 1; the dispersion across detectors applies as
+usual when there is a density model. The overdispersion is much larger for a Poisson than a fixed number
 of animals. As with simulation, fit the model first (\code{chat} 1), then refit with
 \code{start} set to the first fit (or use \code{\link{secr.refit}}); \code{method = "none"}
 recomputes only the variance.

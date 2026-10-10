@@ -5,6 +5,19 @@
 ##            sandwich variance for the density coefficients
 ###############################################################################
 
+## Horvitz-Thompson estimates of density (derived, derivedDcoef, derivedDfit, derivedDsurface,
+## and region.N for conditional-likelihood fits) do not apply to a CL fit of telemetry type
+## 'marking': collared animals are not a sample of the population by detection, and the unmarked
+## sightings that inform density are not used in CL. The full likelihood gives density.
+secr_stopCLmarking <- function (object, what) {
+    cap <- object$capthist
+    if (isTRUE(object$CL) &&
+        identical(telemetrytype(traps(if (ms(cap)) cap[[1]] else cap)), "marking"))
+        stop (what, " for telemetrytype 'marking' requires the full likelihood: ",
+              "refit with CL = FALSE (the CL fit may be used as 'start')")
+    invisible(NULL)
+}
+
 ## Density surface and cue-rate surfaces for a fitted model of telemetry type 'marking',
 ## as functions of the coefficients (beta, in the form of object$fit$par)
 ##   D    density per ha at each mask point
