@@ -1,11 +1,12 @@
-Changes in version 5.5.1 (2026-10-08)
+Changes in version 5.5.1 (2026-10-11)
 
 New features or changed behaviour of old functions
-    o  improved telemetry-calibrated cue count model (telemetrytype 'marking') (Claude): 
+    o  improved telemetry-calibrated cue count model (telemetrytype 'marking'), 
+       developed with assistance from Claude (Anthropic):
     -    uses Tu unmarked counts only; 
     -    unidentified marked sightings Tm are modelled (pID estimated)
     -    density model implemented   
-    -    derived() returns Dcw, the density in the sampled area
+    -    derived() returns Dcw, the cue-weighted mean density
     -    allows finite-mixture models with known classes (hcov)
     -    capthist attribute 'marked' has individual telemetry availability per occasion
          (new functions marked(), marked<-)
@@ -37,7 +38,8 @@ New features or changed behaviour of old functions
     o  sightingPlot() extended for type = 'Ta' (detections+sightings)
 
 Other
-    o  details 'uselog' and more robust telemetry likelihood; details 'telemetryscale' redundant
+    o  details 'safeLL' and 'uselog' (avoid underflow) and more robust telemetry likelihood;
+       details 'telemetryscale' redundant
     o  better implementation of mask 'maxdistance'; uses telemetry centres if available
     o  better implementation of thread workspaces in C++, with speed improvement for multi-threaded fastproximity
     o  increased buffer width in read.telemetry() example
