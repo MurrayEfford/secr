@@ -75,6 +75,13 @@ Settlage, K. E., Van Manen, F. T., Clark, J. D., and King, T. L. (2008) Challeng
 
 summary(blackbearCH)
 
+# Fitted models are included as data
+AIC(blackbear.0, blackbear.h2bk)
+summary(blackbear.h2bk)
+
+# How many if we extrapolate to GSM NP?
+region.N(blackbear.h2bk, region = GSM)
+
 \donttest{
 
 # GSM is the approximate boundary of Great Smoky Mountains National Park
@@ -90,7 +97,11 @@ plot(msk, add = TRUE)
 plot(blackbearCH, tracks = TRUE, add = TRUE)
 plot(tr, add = TRUE)
 
-# Fit models
+}
+
+\dontrun{
+
+# The models were fitted as follows (several minutes)
 # suppress fastproximity to allow learned response
 
 setNumThreads()   # as appropriate
@@ -103,15 +114,8 @@ blackbear.0 <- secr.fit(blackbearCH,  detectfn = 'EX', hcov = 'sex',
 blackbear.h2bk <- secr.fit(blackbearCH,  detectfn = 'EX', hcov = 'sex', 
     model = list(g0~bk+h2, sigma~h2), mask = msk, 
     details = list(fastproximity = FALSE), trace = FALSE)
-    
-AIC(blackbear.0, blackbear.h2bk)
-summary(blackbear.h2bk)   
-
-# How many if we extrapolate to GSM NP?
-region.N(blackbear.h2bk, region = GSM)
 
 }
-
 
 }
 
