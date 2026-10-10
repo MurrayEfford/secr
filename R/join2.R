@@ -86,10 +86,9 @@ join <- function (object, remove.dupl.sites = TRUE, tol = 0.001,
             else {
                 s1 <- c(1, cumsum(nocc)+1)[i]
                 s2 <- cumsum(nocc)[i]
-                if (any(is.na(c(s1,s2)))) {
-                    cat("Houston, we have a problem\n")
-                    browser()
-                }
+                if (any(is.na(c(s1,s2))))
+                    stop ("join: could not determine the occasions of session ", i,
+                          " when conditioning usage")
                 occasions <- s1:s2
             }
             if (is.null(usage(trp))) {
