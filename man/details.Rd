@@ -116,10 +116,9 @@ superpopulation of this size, with consequences for the variance of
 density estimates. This can help to reconcile MLE with Bayesian
 estimates using data augmentation.
 
-\code{details$externalpdot} names a mask covariate that is used as an offset for 
+\code{details$externalqx} names a mask covariate that is used as an offset for 
 relative density. This can be useful in a two-phase study when animals are tagged 
-in phase one and sampled in phase two, with no further tagging (Efford in prep.). 
-The covariate may differ from \eqn{p.(x)} by a constant factor. 
+in phase one and sampled in phase two, with no further tagging. 
 
 \code{details$fastproximity} controls special handling of data from binary 
 proximity and count detectors. If TRUE and other conditions are met (no temporal 
