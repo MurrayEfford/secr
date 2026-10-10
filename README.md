@@ -26,3 +26,5 @@ Help is also available from the
 DENSITY | secr forum at [phidot.org](http://www.phidot.org/forum/index.php) or the Google group [secr](https://groups.google.com/g/secrgroup).
 
 See [www.otago.ac.nz/density](https://www.otago.ac.nz/density/) and [The SECR Book](https://murrayefford.github.io/SECRbook/) for general background.
+
+I used Claude (Anthropic), through Claude Code, to help write and test the code for telemetry-calibrated cue counts and to help maintain other parts of the package.
