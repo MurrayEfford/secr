@@ -33,7 +33,7 @@ New features or changed behaviour of old functions
     o  RSE() accepts secrlist (multiple fitted models)
     o  sim.resight() retains popn rownames as ID and no longer renumbers rows of 
        a saved popn object, for compatibility with telemetry
-    o  secr.fit() fits 1-step telemetry/sighting model of Whittington et al. 2025
+    o  telemetrytype 'marking' for telemetry-calibrated cue counts cf Whittington et al. 2025
     o  sightingPlot() extended for type = 'Ta' (detections+sightings)
 
 Other
