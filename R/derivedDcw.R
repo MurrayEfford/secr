@@ -83,7 +83,7 @@ secr_markingsurfaces <- function (beta, object, sessnum = 1) {
     list(D = D, Lmk = Lmk, pmix = pmix, a = secr_getcellsize(mask), K = K1)
 }
 
-## Density in the sampled area: the average of the fitted density surface D(x) over
+## Cue-weighted density: the average of the fitted density surface D(x) over
 ## the mask, weighted by the cue rate L(x) of an animal with activity centre at x
 ##
 ##     Dcw = sum_x D(x) L(x) / sum_x L(x)

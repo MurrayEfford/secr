@@ -150,8 +150,8 @@ The result will also be a list if \code{object} is an `secrlist'.
 
 For models of telemetry type `marking' (see \code{\link{addTelemetry}}) the
 Horvitz-Thompson estimators above do not apply. Instead \code{derived} returns a matrix with
-a single row `Dcw' and columns estimate, SE.estimate, lcl and ucl. \code{Dcw} is the density
-in the sampled area: the mean of the fitted density surface over the mask, weighted by the
+a single row `Dcw' and columns estimate, SE.estimate, lcl and ucl. \code{Dcw} is the cue-weighted
+mean density: the mean of the fitted density surface over the mask, weighted by the
 expected number of cues from an animal centred at each point (\eqn{D_{cw} = \sum_x D(x) L(x) /
 \sum_x L(x)}). It equals \eqn{D} when density is uniform. When density varies it is the estimate
 to report, because the unweighted mean of \eqn{D(x)} over the mask depends on extrapolation
