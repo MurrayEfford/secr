@@ -23,6 +23,7 @@ Bugs fixed
 
 Other
     o  tests for telemetrytype 'marking'
+    o  faster compilation: specific Boost distribution headers
 
 Changes in version 5.5.0 (2026-09-19)
 

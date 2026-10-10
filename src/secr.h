@@ -9,7 +9,14 @@
 // and https://www.boost.org/doc/libs/1_77_0/libs/math/doc/html/math_toolkit/pol_tutorial/changing_policy_defaults.html
 #define BOOST_MATH_DOMAIN_ERROR_POLICY ignore_error
 // must follow define domain error policy...
-#include <boost/math/distributions.hpp>     
+// only the distributions used (the all-in-one header distributions.hpp is slow to compile)
+#include <boost/math/distributions/normal.hpp>
+#include <boost/math/distributions/poisson.hpp>
+#include <boost/math/distributions/gamma.hpp>
+#include <boost/math/distributions/binomial.hpp>
+#include <boost/math/distributions/lognormal.hpp>
+#include <boost/math/distributions/negative_binomial.hpp>
+#include <boost/math/distributions/bernoulli.hpp>
 //------------------------------------------------------------------------------
 
 #include <Rcpp.h>

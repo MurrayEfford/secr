@@ -6,7 +6,9 @@
 // and https://www.boost.org/doc/libs/1_77_0/libs/math/doc/html/math_toolkit/pol_tutorial/changing_policy_defaults.html
 // return NAN for invalid inputs
 #define BOOST_MATH_DOMAIN_ERROR_POLICY ignore_error
-#include <boost/math/distributions.hpp>       // gamma, normal, lognormal distributions
+#include <boost/math/distributions/normal.hpp>      // only the distributions used: normal, gamma, lognormal
+#include <boost/math/distributions/gamma.hpp>
+#include <boost/math/distributions/lognormal.hpp>
 
 #include "secr.h"
 
