@@ -81,6 +81,21 @@ test_that("starting values from telemetry and counts", {
     expect_equal(st$D, 79, tolerance = 0.2)
 })
 
+test_that("addTelemetry sets markocc for type 'marking' unless already set", {
+    set.seed(1)
+    tr  <- make.grid(nx = 5, ny = 5, spacing = 10, detector = "count")
+    pop <- sim.popn(D = 50, core = make.mask(tr, buffer = 20, spacing = 5), buffer = 0)
+    dp  <- list(lambda0 = 1, sigma = 5)
+    sightCH <- sim.capthist(tr, popn = pop, detectfn = "HHN", detectpar = dp,
+                            noccasions = 3, renumber = FALSE)
+    teCH <- sim.capthist(make.telemetry(), popn = pop, detectfn = "HHN", detectpar = dp,
+                         noccasions = 10, renumber = FALSE)
+    expect_null(markocc(traps(sightCH)))
+    expect_equal(markocc(traps(addTelemetry(sightCH, teCH, type = "marking"))), c(0, 0, 0, 1))
+    markocc(traps(sightCH)) <- c(0, 1, 0)     # an existing markocc is extended, not replaced
+    expect_equal(markocc(traps(addTelemetry(sightCH, teCH, type = "marking"))), c(0, 1, 0, 1))
+})
+
 test_that("marking input checks", {
     ch0 <- ch
     Tu(ch0) <- NULL

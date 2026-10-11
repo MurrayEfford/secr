@@ -95,7 +95,7 @@ telemetry fixes. The data are assembled as follows.
 \itemize{
 \item \code{detectionCH} holds the identified sightings of collared animals on the sighting occasions, one history for each collared animal. Animals never sighted have all-zero histories; they are added by \code{addTelemetry} if they are present in \code{telemetryCH}. Detector type should be `count'.
 \item \code{telemetryCH} holds the telemetry fixes. They are collapsed to a single telemetry occasion (the last), recorded at a notional extra detector.
-\item The traps attribute \code{markocc} must be set (see \code{\link{markocc}}) with 0 for each sighting occasion and 1 for the telemetry occasion, e.g. \code{c(0,0,0,0,0,1)}.
+\item The traps attribute \code{markocc} (see \code{\link{markocc}}) is set by \code{addTelemetry} to 0 for each sighting occasion and 1 for the telemetry occasion, e.g. \code{c(0,0,0,0,0,1)}, unless \code{markocc} has already been set for \code{detectionCH}.
 \item The counts of sightings of animals that were \emph{not} identified as collared are added with \code{\link{addSightings}}: argument \code{unmarked} (attribute Tu, a K x S matrix of counts) for animals without collars and, optionally, \code{nonID} (attribute Tm) for collared animals that were seen but not identified.
 }
 
@@ -163,7 +163,7 @@ uCH <- sim.capthist(tr, popn = subset(pop, !collared), detectfn = "HHN",
 Tu <- t(apply(uCH, 2:3, sum))
 
 ch <- addTelemetry(sightCH, teCH, type = "marking")
-markocc(traps(ch)) <- c(0,0,0,0,0,1)    # 5 sighting occasions + telemetry
+markocc(traps(ch))     # 5 sighting occasions + telemetry
 ch <- addSightings(ch, unmarked = Tu)
 
 \donttest{

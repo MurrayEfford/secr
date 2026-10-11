@@ -161,6 +161,10 @@ addTelemetry <- function (detectionCH, telemetryCH,
             if (!is.null(markocc(oldtraps))) {
                 markocc(traps(newCH)) <- c(markocc(oldtraps), rep(1, ncol(telemCH)))
             }
+            else if (type == "marking") {
+                ## all sighting occasions 0, telemetry occasion(s) 1
+                markocc(traps(newCH)) <- c(rep(0, ncol(detectionCH)), rep(1, ncol(telemCH)))
+            }
             usage(traps(newCH)) <- newusge
             telemetrytype(traps(newCH)) <- type
             
