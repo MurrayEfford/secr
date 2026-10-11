@@ -1,3 +1,8 @@
+Changes in version 5.5.2 (2026-10-12)
+
+New features or changed behaviour of old functions
+    o  none
+
 Changes in version 5.5.1 (2026-10-11)
 
 New features or changed behaviour of old functions
@@ -5,7 +10,6 @@ New features or changed behaviour of old functions
        developed with assistance from Claude (Anthropic); uses Tu unmarked counts
        only, models unidentified marked sightings Tm (pID estimated), and allows
        a density model and finite-mixture models with known classes (hcov)
-    o  derived() returns Dcw, the cue-weighted mean density
     o  capthist attribute 'marked' has individual telemetry availability per occasion
        (new functions marked(), marked<-)
     o  details$telemetryint = "GH" uses Gauss-Hermite quadrature for activity centres
@@ -18,7 +22,7 @@ Bugs fixed
        to both classes, i.e. (p,p), now (1-p,p)
     o  mixture models failed or gave wrong class weights when detector 1 was not in 
        use on occasion 1
-
+       
 Other
     o  tests for telemetrytype 'marking'
     o  faster compilation: specific Boost distribution headers
