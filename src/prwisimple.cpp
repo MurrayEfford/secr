@@ -287,8 +287,6 @@ struct simplehistories : public Worker {
                 else {
                     if (H > fuzz)
                         pm[m] *= exp(-H);
-                    else
-                        pm[m] = 0.0;
                 }
             }
         }
