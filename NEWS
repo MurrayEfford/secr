@@ -1,17 +1,15 @@
 Changes in version 5.5.1 (2026-10-11)
 
 New features or changed behaviour of old functions
-    o  improved telemetry-calibrated cue count model (telemetrytype 'marking'), 
-       developed with assistance from Claude (Anthropic):
-    -    uses Tu unmarked counts only; 
-    -    unidentified marked sightings Tm are modelled (pID estimated)
-    -    density model implemented   
-    -    derived() returns Dcw, the cue-weighted mean density
-    -    allows finite-mixture models with known classes (hcov)
-    -    capthist attribute 'marked' has individual telemetry availability per occasion
-         (new functions marked(), marked<-)
-    -    details$telemetryint = "GH" uses Gauss-Hermite quadrature for activity centres
-    -    addTelemetry() help page describes telemetry type 'marking'
+    o  improved telemetry-calibrated cue count model (telemetrytype 'marking'),
+       developed with assistance from Claude (Anthropic); uses Tu unmarked counts
+       only, models unidentified marked sightings Tm (pID estimated), and allows
+       a density model and finite-mixture models with known classes (hcov)
+    o  derived() returns Dcw, the cue-weighted mean density
+    o  capthist attribute 'marked' has individual telemetry availability per occasion
+       (new functions marked(), marked<-)
+    o  details$telemetryint = "GH" uses Gauss-Hermite quadrature for activity centres
+    o  addTelemetry() help page describes telemetry type 'marking'
     o  details$chatmethod = "analytic" option for overdispersion of unmarked sightings
     o  details safeLL and uselog now default to TRUE when the capthist includes telemetry 
 
