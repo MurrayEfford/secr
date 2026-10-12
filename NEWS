@@ -4,7 +4,7 @@ New features or changed behaviour of old functions
     o  addTelemetry() generates markocc automatically if needed when telemetrytype = 'marking'
 
 Bugs fixed
-    o  none
+    o  previous version mismatched ID for maxdistance in telemetry
 
 Changes in version 5.5.1 (2026-10-11)
 

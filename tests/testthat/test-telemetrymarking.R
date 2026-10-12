@@ -96,6 +96,42 @@ test_that("addTelemetry sets markocc for type 'marking' unless already set", {
     expect_equal(markocc(traps(addTelemetry(sightCH, teCH, type = "marking"))), c(0, 1, 0, 1))
 })
 
+test_that("per-animal mask limit (maxdistance) is keyed by animal ID, not by row number", {
+    ## IDs that are not 1..n, and animals with telemetry only (prefix 'T')
+    set.seed(1)
+    tr   <- make.grid(nx = 5, ny = 5, spacing = 10, detector = "count")
+    msk0 <- make.mask(tr, buffer = 20, spacing = 5)
+    pop  <- sim.popn(D = 50, core = msk0, buffer = 0)
+    dp   <- list(lambda0 = 1, sigma = 5)
+    sightCH <- sim.capthist(tr, popn = pop, detectfn = "HHN", detectpar = dp,
+                            noccasions = 3, renumber = FALSE)
+    teCH <- sim.capthist(make.telemetry(), popn = pop, detectfn = "HHN", detectpar = dp,
+                         noccasions = 10, renumber = FALSE)
+    ch <- addTelemetry(sightCH, teCH, type = "marking")
+    expect_true(any(grepl("^ *T", rownames(ch))))
+    expect_false(identical(trimws(rownames(ch)), as.character(seq_len(nrow(ch)))))
+
+    thr <- 12
+    mb  <- secr:::secr_maskboolean2(ch, msk0, thr)
+    n   <- nrow(ch)
+    expect_equal(mb$mask_id, 0:(n - 1))
+    expect_length(mb$mask_offsets, n + 1)
+
+    ## expected: mask points within thr of the centroid of the animal's detections and fixes
+    trxy <- as.matrix(traps(ch))[seq_len(nrow(tr)), ]
+    mxy  <- as.matrix(msk0)
+    xyl  <- telemetryxy(ch)
+    for (i in seq_len(n)) {
+        id  <- rownames(ch)[i]
+        cnt <- colSums(unclass(ch)[i, 1:3, seq_len(nrow(tr)), drop = FALSE], dims = 2)  # events per camera
+        pts <- rbind(trxy[rep(seq_along(cnt), cnt), , drop = FALSE], as.matrix(xyl[[id]]))
+        ctr <- colMeans(pts)
+        expected <- as.vector(which((mxy[, 1] - ctr[1])^2 + (mxy[, 2] - ctr[2])^2 <= thr^2))
+        got <- mb$mask_indices[(mb$mask_offsets[i] + 1):mb$mask_offsets[i + 1]] + 1
+        expect_equal(as.vector(got), expected)
+    }
+})
+
 test_that("marking input checks", {
     ch0 <- ch
     Tu(ch0) <- NULL

@@ -1747,10 +1747,12 @@ secr_captxy <- function (ch) {
     # avoid telemetry occasions
     ch <- subset(ch, occasions = det)
     if (nrow(ch)==0) return (NULL)
-    id <- animalID(ch, names = FALSE)
+    ## key by row name (ID), as for telemetryxy(); animalID(ch, names = FALSE) would give
+    ## row numbers of the subset above, which differ from those of the original ch
+    id <- factor(animalID(ch, names = TRUE), levels = rownames(ch))
     tr <- trap(ch, names = FALSE)
     df <- data.frame(x = traps(ch)$x[tr], y = traps(ch)$y[tr])
-    split(df, id)
+    split(df, id, drop = TRUE)
 }
 
 secr_mergelists <- function (list1, list2) {
@@ -1789,6 +1791,7 @@ secr_maskboolean2 <- function (ch, mask, threshold, maskusage = NULL) {
         }
         else {
             one_ind <- function (dfi) {
+                if (is.null(dfi)) return(seq_len(nrow(mask)))   # no locations: all mask points
                 xy <- t(colMeans(dfi))
                 d2 <- edist2cpp(as.matrix(xy), as.matrix(mask))
                 which(d2 <= threshold^2)
@@ -1800,6 +1803,9 @@ secr_maskboolean2 <- function (ch, mask, threshold, maskusage = NULL) {
                 polyxy <- split(xy(ch), animalID(ch))
                 ind_xy <- secr_mergelists(ind_xy, polyxy)
             }
+            ## lists are keyed by row name; mask_id assumes one entry per animal in row order
+            if (is.null(ind_xy)) ind_xy <- list()
+            ind_xy <- ind_xy[rownames(ch)]
             mask_list <- lapply(ind_xy, one_ind)
             mask_id <- 0:(nrow(ch)-1)
         }
