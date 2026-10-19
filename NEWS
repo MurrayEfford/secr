@@ -1,10 +1,18 @@
-Changes in version 5.5.2 (2026-10-12)
+Changes in version 5.5.2 (2026-10-19)
 
 New features or changed behaviour of old functions
     o  addTelemetry() generates markocc automatically if needed when telemetrytype = 'marking'
+    o  details$userDfn (user-defined density function) is now called once with nsession equal
+       to the number of sessions when all session masks are identical, as documented;
+       otherwise once per session. It may declare an argument 'sessioncov' to receive session
+       covariates (including automatic 'session' and 'Session'); see ?details
 
 Bugs fixed
     o  previous version mismatched ID for maxdistance in telemetry
+    o  userDfn was always called with nsession = 1, so a function written for
+       several sessions gave wrong densities without warning; it now stops if the array
+       returned has the wrong dimensions
+    o  predictDsurface() failed for a model with userDfn (groupn + 1 out of bounds)
 
 Changes in version 5.5.1 (2026-10-11)
 

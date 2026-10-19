@@ -100,7 +100,7 @@ that had lost a previous tag. A further three histories may also have
 been animals that were tagged previously or mis-recorded. Analyses that
 treat each previously tagged animal as a new individual are in error
 (this includes the published analyses, the pre-fitted models described
-here, and those in the vignette secr-densitysurfaces.pdf). All eight
+here, and those in Chapter 11 of The SECR book). All eight
 questionable histories are now indicated in possumCH with the logical
 covariate `prev.tagged'.
 

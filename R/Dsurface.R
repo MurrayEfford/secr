@@ -101,11 +101,10 @@ secr_predictD <- function (object, regionmask, group, session,
             ## does not use link$D when calling user function userDfn
             D <- secr_getD (designD, object$fit$par, regionmask, object$parindx,
                        object$link$D, object$fixed, grouplevels, sessionlevels,
-                       'D')
+                       'D', object$sessioncov)
             ###########################################
-            ## 2022-05-24 temp fix for unresolved issue
-            ## return(D[,groupn,session])
-            return(D[,groupn+1,session])
+            ## 2022-05-24 temp fix for unresolved issue (groupn+1 was out of bounds)
+            return(D[,groupn,session])
             ###########################################
         }
         ## linear density model on link scale

@@ -61,7 +61,7 @@
 %  than one predictor, but in this case the degree argument must be
 %  named (e.g., \code{poly(x, y, degree = 2)}).
 
-See also the example in \href{https://www.otago.ac.nz/density/pdfs/secr-densitysurfaces.pdf}{secr-densitysurfaces.pdf}.
+See also the example in Chapter 11 of \href{https://murrayefford.github.io/SECRbook/11-density-model.html}{The SECR book}.
 
 }
 

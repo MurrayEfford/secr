@@ -749,10 +749,14 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     else {
         if (!is.null(details$userDfn)) {
             ## may provide a function used by secr_getD in functions.R
-            ## userDfn(mask, beta[parindx$D], ngrp, nsession)
+            ## userDfn(beta[parindx$D], mask, ngrp, nsession), optionally with
+            ## arguments sessioncov and session (see secr_calluserDfn)
             designD <- details$userDfn
             if (!is.function(designD))
                 stop ("details$userDfn should be a function")
+            ## once only: do all sessions share the same mask?
+            attr(designD, 'samemask') <- secr_samemask(mask)
+            attr(designD, 'sessioncov') <- sessioncov
             ## this form of call returns only coefficient names
             Dnames <- designD('parameters', mask)
         }

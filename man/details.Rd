@@ -278,7 +278,17 @@ Computation of other likelihoods is slower so the default is FALSE, except that 
 TRUE when \code{capthist} includes telemetry (as for safeLL).
 
 \code{details$userDfn} is a user-provided function for modelling a density 
-surface. See \href{https://www.otago.ac.nz/density/pdfs/secr-densitysurfaces.pdf}{secr-densitysurfaces.pdf}
+surface (see Appendix I of \href{https://murrayefford.github.io/SECRbook/A09-densityappendix.html}{The SECR book}).
+The function has arguments \code{Dbeta, mask, ngroup, nsession} and returns an array with
+dimensions \code{c(nrow(mask), ngroup, nsession)}. When the session-specific masks are identical
+(same cells and covariates) it is called once with \code{nsession} equal to the number of sessions.
+Otherwise it is called once per session with that session's mask and \code{nsession = 1}.
+A function may also declare the optional argument \code{sessioncov},
+which is then supplied. This is a copy of the \code{sessioncov} argument of \code{secr.fit}
+restricted to the sessions in the call (one row per session), with the automatic covariates
+\code{session} (factor) and \code{Session} (0, 1, \ldots, nsessions-1) added if not already present.
+A function that returns a single session (an array with last dimension 1) is used for
+every session, as in earlier versions.
 
 \code{details$userdist} is either a function to compute non-Euclidean
 distances between detectors and mask points, or a pre-computed matrix of

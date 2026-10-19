@@ -64,8 +64,8 @@ fixing the value of a difficult-to-estimate parameter (argument
 
 }
 
-See also the section `Potential problems' in
-\href{https://www.otago.ac.nz/density/pdfs/secr-densitysurfaces.pdf}{secr-densitysurfaces.pdf}.
+See also Chapter 11 of
+\href{https://murrayefford.github.io/SECRbook/11-density-model.html}{The SECR book}.
 
 }
 

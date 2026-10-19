@@ -94,8 +94,50 @@ secr_getmiscparm <- function(miscparm, detectfn, beta, parindx, cutval) {
 }
 #--------------------------------------------------------------------------------
 # returns array [nmask, ngroup, nsession] of real parameter values
+# TRUE if all session masks have the same cells and covariates (or there is only one mask)
+# called once per fit by secr.fit for userDfn (result stored as attribute of the function)
+secr_samemask <- function (mask) {
+    if (!ms(mask) || length(mask) == 1) return(TRUE)
+    m1 <- mask[[1]]
+    c1 <- covariates(m1)
+    all(vapply(mask[-1], function (m) {
+        nrow(m) == nrow(m1) && identical(m$x, m1$x) && identical(m$y, m1$y) &&
+            identical(covariates(m), c1)
+    }, logical(1)))
+}
+#--------------------------------------------------------------------------------
+# Call a user-defined density function (details$userDfn) and check the result.
+# The function has arguments (Dbeta, mask, ngroup, nsession). If it declares
+# argument 'sessioncov' (data frame, one row per session in the call, with automatic
+# covariates 'session' (factor) and 'Session' (0:(nsessions-1))) it is also supplied.
+# Returns an array [nmask, ngroup, nsession].
+# A result for a single session (legacy functions) is repeated for all sessions.
+secr_calluserDfn <- function (f, Dbeta, mask, ngroup, nsession, sessioncov,
+                              sessionlevels, which = 1:length(sessionlevels)) {
+    fm <- names(formals(f))
+    args <- list(Dbeta, mask, ngroup, nsession)
+    if ('sessioncov' %in% fm) {
+        sc <- if (is.null(sessioncov)) data.frame(row.names = seq_along(sessionlevels)) else sessioncov
+        ## automatic covariates as in makeNewData: factor 'session', integer 'Session'
+        if (!('session' %in% names(sc))) sc$session <- factor(sessionlevels, levels = sessionlevels)
+        if (!('Session' %in% names(sc))) sc$Session <- seq_along(sessionlevels) - 1L
+        args$sessioncov <- sc[which, , drop = FALSE]
+    }
+    D <- do.call(f, args)
+    n <- nrow(mask) * ngroup
+    if (length(D) == n) {
+        D <- array(D, dim = c(nrow(mask), ngroup, nsession))   # same for all sessions
+    }
+    else if (length(D) != n * nsession) {
+        stop ("details$userDfn returned an array of length ", length(D),
+              "; expected dim = c(nmask, ngroup, nsession) = c(", nrow(mask), ", ", ngroup,
+              ", ", nsession, ")")
+    }
+    array(D, dim = c(nrow(mask), ngroup, nsession))
+}
+#--------------------------------------------------------------------------------
 secr_getD <- function (designD, beta, mask, parindx, link, fixed,
-                  grouplevels, sessionlevels, parameter = 'D') {
+                  grouplevels, sessionlevels, parameter = 'D', sessioncov = NULL) {
     ## for .localstuff$spatialparametersD 'D', 'noneuc', 'sigmaxy', 'lambda0xy', 'a0'
     whichbeta <- beta[parindx[[parameter]]]
     if (length(whichbeta) == 0) return(NULL)
@@ -115,16 +157,24 @@ secr_getD <- function (designD, beta, mask, parindx, link, fixed,
     }
     else {
         if (is.function(designD)) {
-            ## fixed 2021-12-10, 2022-05-24
-            if (ms(mask)) {
+            ## user-defined density function; see secr_calluserDfn
+            if (is.null(sessioncov)) sessioncov <- attr(designD, 'sessioncov')
+            same <- attr(designD, 'samemask')
+            if (!is.logical(same)) same <- secr_samemask(mask)
+            if (same) {
+                ## one call covering all sessions
+                if (ms(mask)) mask <- mask[[1]]
+                m <- nrow(mask)
+                D[1:m,,] <- secr_calluserDfn(designD, whichbeta, mask, ngroup, nsession,
+                                             sessioncov, sessionlevels)
+            }
+            else {
+                ## session-specific masks differ (fixed 2021-12-10, 2022-05-24)
                 for (session in 1:nsession) {
                     m <- nrow(mask[[session]])
-                    D[1:m,,session] <- designD(whichbeta, mask[[session]], ngroup, 1)
+                    D[1:m,,session] <- secr_calluserDfn(designD, whichbeta, mask[[session]],
+                                                        ngroup, 1, sessioncov, sessionlevels, session)
                 }
-            } 
-            else {
-                m <- nrow(mask)
-                D[1:m,,1] <- designD(whichbeta, mask, ngroup, 1)
             }
         }
         else {
