@@ -615,16 +615,31 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     ## Otherwise a fixed value would apply to every class, which is valid only for equal classes.
     fixedpmix <- NULL
     if (nmix > 1 && 'pmix' %in% fnames) {
-        if (length(fixed$pmix) != 1 || !is.finite(fixed$pmix) || fixed$pmix <= 0 || fixed$pmix >= 1)
-            stop ("fixed pmix must be a single value between 0 and 1")
+        ## 2026-10-31 more than two classes: a single value (equal classes), or the proportions
+        ## in classes 2..nmix (nmix-1 values), or in all nmix classes (summing to 1)
+        if (!is.numeric(fixed$pmix) || any(!is.finite(fixed$pmix)) || any(fixed$pmix <= 0) || any(fixed$pmix >= 1))
+            stop ("fixed pmix must be a value between 0 and 1")
         if (nmix == 2) {
-            fixedpmix <- fixed$pmix
+            if (length(fixed$pmix) != 1)
+                stop ("fixed pmix must be a single value between 0 and 1")
+            fixedpmix <- c(1 - fixed$pmix, fixed$pmix)
             fixed <- fixed[names(fixed) != 'pmix']
             fnames <- names(fixed)
         }
-        else if (abs(fixed$pmix - 1/nmix) > 1e-8) {
-            stop ("with ", nmix, " latent classes a fixed pmix is applied to every class, ",
-                  "so must equal ", round(1/nmix, 4))
+        else if (length(fixed$pmix) == 1) {
+            if (abs(fixed$pmix - 1/nmix) > 1e-8)
+                stop ("with ", nmix, " latent classes a single fixed pmix is applied to every class, ",
+                      "so must equal ", round(1/nmix, 4),
+                      "; otherwise give the proportions in classes 2 to ", nmix)
+        }
+        else {
+            if (!(length(fixed$pmix) %in% c(nmix-1, nmix)))
+                stop ("with ", nmix, " latent classes fixed pmix must have 1, ", nmix-1, " or ", nmix, " values")
+            fixedpmix <- if (length(fixed$pmix) == nmix) fixed$pmix else c(1 - sum(fixed$pmix), fixed$pmix)
+            if (any(fixedpmix <= 0) || abs(sum(fixedpmix) - 1) > 1e-8)
+                stop ("fixed pmix must give positive proportions that sum to 1")
+            fixed <- fixed[names(fixed) != 'pmix']
+            fnames <- names(fixed)
         }
     }
 
@@ -949,8 +964,9 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     # take care of sigmaxy and relativeD
     details$fixedbeta <- secr_setfixedbeta(details$fixedbeta, parindx, link, CL, nmiscparm)
     if (!is.null(fixedpmix)) {
-        ## beta for pmix ~ h2 is the logit of the proportion in the second class
-        details$fixedbeta[parindx$pmix[1]] <- logit(fixedpmix)
+        ## betas for pmix ~ h2 (h3) are log(p[j]/p[1]), j = 2..nmix; for two classes the logit
+        ## of the proportion in the second class
+        details$fixedbeta[parindx$pmix[seq_len(length(fixedpmix)-1)]] <- log(fixedpmix[-1] / fixedpmix[1])
     }
     if (!is.null(details$fixedbeta )) {
         if (!(length(details$fixedbeta )== NP))

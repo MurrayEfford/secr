@@ -246,8 +246,17 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
         }
         #########################################
         
-        if ((details$nmix>1) && !('pmix' %in% names(fixed)) && !('pmix' %in% startnames))
-            start[parindx[['pmix']][1]] <- clean.mlogit((1:details$nmix)-0.5)[2]
+        if ((details$nmix>1) && !('pmix' %in% names(fixed)) && !('pmix' %in% startnames)) {
+            if (details$nmix == 2) {
+                start[parindx[['pmix']][1]] <- clean.mlogit((1:details$nmix)-0.5)[2]
+            }
+            else {
+                ## 2026-10-31 mlogit coefficients log(p[j]/p[1]) for classes 2..nmix, with
+                ## unequal proportions (classes 1 and 3 had equal proportions, a symmetric start)
+                p <- (details$nmix:1) / sum(1:details$nmix)
+                start[parindx[['pmix']][1:(details$nmix-1)]] <- log(p[-1] / p[1])
+            }
+        }
         
         if (detectfn %in% c(12,13))
             start <- c(start, 46,3)    ## muN, sdN

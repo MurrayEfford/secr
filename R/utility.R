@@ -1084,7 +1084,7 @@ secr_lpredictor <- function (formula, newdata, indx, beta, field, beta.vcv=NULL,
                 if (nmix==2)
                     vcv[h2.1,h2.1] <- vcv[h2.2,h2.2]
                 else
-                    vcv[,] <- NA
+                    vcv <- secr_mlogitvcv(vcv, invlogit(as.numeric(Yp)), latentmodel, refclass)
             }
             lpred[,2] <- diag(vcv)^0.5
         }
@@ -2115,6 +2115,23 @@ mlogit.untransform <- function (beta, latentmodel) {
             pmix
         }
     }
+}
+
+#-------------------------------------------------------------------------------
+
+secr_mlogitvcv <- function (vcv, p, latentmodel, refclass) {
+    ## Delta method from the linear predictors of the non-reference classes (rows of vcv;
+    ## the reference class has eta = 0 and no variance) to logit(p_j), where p = softmax(eta)
+    ## within each latent model. d logit(p_j) / d eta_k = (delta_jk - p_k) / (1 - p_j).
+    ## 2026-10-31 for more than two mixture classes
+    vcv[refclass, ] <- 0
+    vcv[, refclass] <- 0
+    J <- matrix(0, nrow = length(p), ncol = length(p))
+    for (g in unique(latentmodel)) {
+        i <- which(latentmodel == g)
+        J[i, i] <- (diag(length(i)) - matrix(p[i], nrow = length(i), ncol = length(i), byrow = TRUE)) / (1 - p[i])
+    }
+    J %*% vcv %*% t(J)
 }
 
 #-------------------------------------------------------------------------------
