@@ -96,6 +96,35 @@ test_that("addTelemetry sets markocc for type 'marking' unless already set", {
     expect_equal(markocc(traps(addTelemetry(sightCH, teCH, type = "marking"))), c(0, 1, 0, 1))
 })
 
+test_that("Gauss-Hermite integration is accurate for HEX (few fixes per collar)", {
+    ## simulated HEX data, 5 fixes per collar (the hardest case); the default 7 x 7 rule is
+    ## compared with a 25 x 25 rule by forcing the number of nodes
+    set.seed(1)
+    tr  <- make.grid(nx = 9, ny = 9, spacing = 11, detector = "count")
+    msk <- make.mask(tr, buffer = 40, spacing = 5, type = "traprect")
+    pop <- sim.popn(D = 50, core = msk, buffer = 0)
+    collared <- 1:nrow(pop) %in% sample(nrow(pop), 15)
+    dp <- list(lambda0 = 1, sigma = 4)
+    sightCH <- sim.capthist(tr, popn = subset(pop, collared), detectfn = "HEX", detectpar = dp,
+                            noccasions = 5, renumber = FALSE)
+    teCH <- sim.capthist(make.telemetry(), popn = subset(pop, collared), detectfn = "HEX",
+                         detectpar = dp, noccasions = 5, renumber = FALSE)
+    uCH <- sim.capthist(tr, popn = subset(pop, !collared), detectfn = "HEX", detectpar = dp,
+                        noccasions = 5, renumber = FALSE)
+    Tu <- t(apply(uCH, 2:3, sum))
+    ch <- addTelemetry(sightCH, teCH, type = "marking", verify = FALSE)
+    ch <- addSightings(ch, unmarked = Tu, verify = FALSE)
+    LLgh <- function () {
+        as.numeric(secr.fit(ch, mask = msk, detectfn = "HEX", trace = FALSE, start = log(c(50, 1, 4)),
+                            details = list(safeLL = TRUE, uselog = TRUE, telemetryint = "GH", LLonly = TRUE)))
+    }
+    ll7 <- LLgh()
+    orig <- secr:::secr_telemGH
+    testthat::local_mocked_bindings(secr_telemGH = function(...) orig(..., ngh = 25), .package = "secr")
+    ll25 <- LLgh()
+    expect_lt(abs(ll7 - ll25), 0.1)
+})
+
 test_that("per-animal mask limit (maxdistance) is keyed by animal ID, not by row number", {
     ## IDs that are not 1..n, and animals with telemetry only (prefix 'T')
     set.seed(1)
