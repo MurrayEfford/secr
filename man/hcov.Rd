@@ -55,8 +55,12 @@ class membership.
   classes are assumed if neither `h2' nor `h3' appears in the model
   formulae. However, there is a small exception: \code{hcov} may have
   three non-missing levels if `h3' appears in a model formula. Note
-  that h2 cannot be combined with h3; h3 is for advanced use only and
-  has not been fully tested.
+  that h2 cannot be combined with h3; h3 is for advanced use only.
+  With three classes the proportions are modelled by a multinomial
+  logit (the first class is the reference) and their standard errors in
+  \code{predict} are found by the delta method. Three-class mixtures
+  with unknown membership are often poorly identified and may have
+  local maxima; they are not fully tested.
 
   The number of fitted parameters is the same as the corresponding
   finite mixture model if mixture terms (`h2', `h3') appear in the model
@@ -121,7 +125,11 @@ class membership.
 
   The preceding refers to the default behaviour when pmix ~ h2. It is
   possible also to fix the mixing proportion at any arbitrary value
-  (e.g., fixed = list(pmix = 0.5) for 1:1 sex ratio).
+  (e.g., fixed = list(pmix = 0.5) for 1:1 sex ratio). For two classes
+  the value is the proportion in the second class. For three classes
+  (h3) give the proportions in classes 2 and 3 (two values) or in all
+  three classes (three values summing to 1); a single value is accepted
+  only if it equals 1/3.
 
   On output the classes are tagged with the factor levels of \code{hcov},
   regardless of how few or how many individuals were actually of known

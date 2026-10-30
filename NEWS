@@ -1,4 +1,4 @@
-Changes in version 5.5.2 (2026-10-19)
+Changes in version 5.5.2 (2026-10-31)
 
 New features or changed behaviour of old functions
     o  addTelemetry() generates markocc automatically if needed when telemetrytype = 'marking'
@@ -6,8 +6,14 @@ New features or changed behaviour of old functions
        to the number of sessions when all session masks are identical, as documented;
        otherwise once per session. It may declare an argument 'sessioncov' to receive session
        covariates (including automatic 'session' and 'Session'); see ?details
+    o  fixed = list(pmix = ) for three-class finite mixtures (h3) may be the proportions in
+       classes 2 and 3, or in all three classes; see ?hcov
 
 Bugs fixed
+    o  predict() returned NA standard errors for pmix in three-class mixtures; now by the
+       delta method (multinomial logit)
+    o  starting values for pmix in three-class mixtures gave classes 1 and 3 equal
+       proportions (a symmetric start); now unequal
     o  previous version mismatched ID for maxdistance in telemetry
     o  userDfn was always called with nsession = 1, so a function written for
        several sessions gave wrong densities without warning; it now stops if the array
