@@ -4,6 +4,7 @@
 ## 2026-10-04 Gauss-Hermite integration over the activity centres of telemetered
 ##            animals (details$telemetryint = "GH"); alternative to the default
 ##            summation over mask cells (details$telemetryint = "mask")
+## 2026-10-20 node spread widened by sqrt(2) for HEX (detectfn 16)
 ###############################################################################
 
 ## Given an animal's telemetry fixes x_t, the likelihood of the fixes as a function
@@ -71,7 +72,11 @@ secr_telemGH <- function (data, PIA, Xrealparval, detectfn, miscparm, gkhk,
 
     xcl   <- if (nmix > 1) data$knownclass[tel] - 1 else rep(1, length(tel))
     sig   <- Xrealparval[PIA[cbind(1, tel, telocc, K, xcl)], sigcol]
-    sdx   <- sig / sqrt(nfix)
+    ## node spread: sigma / sqrt(n) matches the posterior of the activity centre for HHN. For HEX
+    ## (fix density proportional to exp(-r/sigma)) each fix carries half the information, so the
+    ## posterior is wider, about sqrt(2) sigma / sqrt(n); the wider spread makes the 7 x 7 rule
+    ## accurate for HEX (log-likelihood error < 0.03 with 5-100 fixes, against up to 0.4)
+    sdx   <- sig / sqrt(nfix) * (if (detectfn == 16) sqrt(2) else 1)
     ## node j of animal i is row (i-1)*G + j
     ia       <- rep(seq_along(tel), each = G)
     nodexy   <- cbind(xbarm[ia, 1] + sdx[ia] * rep(zz[,1], length(tel)),
