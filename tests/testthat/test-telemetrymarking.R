@@ -241,6 +241,18 @@ test_that("sex classes: fixed pmix is the proportion in the second class", {
     expect_false(isTRUE(all.equal(fixed4, fixed6)))
 })
 
+test_that("sex classes: derived() reports Dcw (known classes of the collared animals)", {
+    skip_on_cran()
+    ## failed with 'number of items to replace is not a multiple of replacement length'
+    ## when the number of collared animals exceeded one
+    fits <- secr.fit(chs, detectfn = "HHN", mask = msk, trace = FALSE, hcov = "sex",
+                     model = list(sigma ~ h2, lambda0 ~ h2), start = betas5,
+                     details = list(safeLL = TRUE, uselog = TRUE, chat = chats, telemetryint = "GH"))
+    dd <- derived(fits)
+    expect_equal(dd["Dcw", "estimate"], predict(fits)[[1]]["D", "estimate"], tolerance = 1e-6)
+    expect_true(is.finite(dd["Dcw", "SE.estimate"]))
+})
+
 test_that("sex classes: input checks", {
     ch1 <- chs
     covariates(ch1)$sex[1] <- NA

@@ -65,8 +65,9 @@ secr_markingsurfaces <- function (beta, object, sessnum = 1) {
 
     ## class proportions
     pmix <- if (nmix > 1) {
-        knownclass <- secr_getknownclass(capthist, nmix, object$hcov)
-        attr(secr_getpmix (knownclass, PIA0, Xrealparval0), 'pmix')
+        ## only the population proportions are used; PIA0 holds a single notional animal,
+        ## so the known classes of the collared animals (one per animal) do not apply
+        attr(secr_getpmix (rep(0, dim(PIA0)[2]), PIA0, Xrealparval0), 'pmix')
     } else 1
 
     K1 <- K - as.integer(any(detector(trps) == "telemetry"))     # excluding the notional telemetry detector
