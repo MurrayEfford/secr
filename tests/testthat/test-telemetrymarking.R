@@ -124,9 +124,15 @@ test_that("Gauss-Hermite integration is accurate for HEX (few fixes per collar)"
     ll25 <- LLgh()
     expect_lt(abs(ll7 - ll25), 0.1)
     ## the HEX telemetry density at the nodes is in closed form (sum of distances to the animal's
-    ## own fixes); the value is that from the earlier code, which evaluated every fix at every
-    ## node with gethrcpp (2026-11-03)
-    expect_equal(ll7, -704.685143218, tolerance = 1e-8)
+    ## own fixes); mask summation (telemetryint = "mask") evaluates every fix directly, and
+    ## agrees closely when the mask is fine and wide enough (2026-11-03). The absolute
+    ## log-likelihood of simulated data is not used because it differs between platforms
+    fine <- make.mask(tr, buffer = 90, spacing = 1.5, type = "traprect")
+    llfine <- function (int) {
+        as.numeric(secr.fit(ch, mask = fine, detectfn = "HEX", trace = FALSE, start = log(c(50, 1, 4)),
+                            details = list(safeLL = TRUE, uselog = TRUE, telemetryint = int, LLonly = TRUE)))
+    }
+    expect_lt(abs(llfine("GH") - llfine("mask")), 0.05)
 })
 
 test_that("per-animal mask limit (maxdistance) is keyed by animal ID, not by row number", {
