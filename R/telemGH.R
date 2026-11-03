@@ -5,6 +5,8 @@
 ##            animals (details$telemetryint = "GH"); alternative to the default
 ##            summation over mask cells (details$telemetryint = "mask")
 ## 2026-10-20 node spread widened by sqrt(2) for HEX (detectfn 16)
+## 2026-11-03 HEX telemetry density at the nodes in closed form (sum of distances to the
+##            animal's own fixes), as for HHN; replaces gethrcpp for GH
 ###############################################################################
 
 ## Given an animal's telemetry fixes x_t, the likelihood of the fixes as a function
@@ -122,6 +124,26 @@ secr_telemGH <- function (data, PIA, Xrealparval, detectfn, miscparm, gkhk,
         lg    <- matrix(0, nrow = length(sigc), ncol = M + nn)
         lg[, M + seq_len(nn)] <- -outer(sigc, nfix[ia], function(s, n) n * log(2 * pi * s^2)) -
             outer(1 / (2 * sigc^2), dnode)
+        telemhr2 <- as.vector(lg)
+        telemsum <- TRUE
+    }
+    else if (detectfn == 16) {
+        ## HEX: the product over an animal's n fixes at node s is
+        ##   (2 pi sigma^2)^(-n) exp(-sum_t |x_t - s| / sigma)
+        ## so only the sum of distances from each node to the animal's own fixes is needed;
+        ## it does not depend on sigma and is computed once per evaluation, for the
+        ## animal's own nodes only
+        sigc  <- Xrealparval[, sigcol]
+        dsum  <- numeric(nn)
+        for (p in seq_along(tel)) {
+            fx  <- xy[id == tel[p], , drop = FALSE]
+            rows <- (p - 1) * G + seq_len(G)
+            dsum[rows] <- rowSums(sqrt(outer(nodexy[rows, 1], fx[, 1], '-')^2 +
+                                       outer(nodexy[rows, 2], fx[, 2], '-')^2))
+        }
+        lg    <- matrix(0, nrow = length(sigc), ncol = M + nn)
+        lg[, M + seq_len(nn)] <- -outer(sigc, nfix[ia], function(s, n) n * log(2 * pi * s^2)) -
+            outer(1 / sigc, dsum)
         telemhr2 <- as.vector(lg)
         telemsum <- TRUE
     }

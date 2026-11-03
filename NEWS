@@ -1,4 +1,4 @@
-Changes in version 5.5.2 (2026-11-02)
+Changes in version 5.5.2 (2026-11-03)
 
 New features or changed behaviour of old functions
     o  addTelemetry() generates markocc automatically if needed when telemetrytype = 'marking'
@@ -20,6 +20,9 @@ Bugs fixed
        returned has the wrong dimensions
     o  predictDsurface() failed for a model with userDfn (groupn + 1 out of bounds)
     o  derived() failed for telemetrytype ‘marking’ with hcov classes
+
+Other
+    o  telemetrytype 'marking' with detectfn = 'HEX' and telemetryint = 'GH' is much faster
 
 Changes in version 5.5.1 (2026-10-11)
 

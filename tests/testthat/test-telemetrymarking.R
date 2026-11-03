@@ -123,6 +123,10 @@ test_that("Gauss-Hermite integration is accurate for HEX (few fixes per collar)"
     testthat::local_mocked_bindings(secr_telemGH = function(...) orig(..., ngh = 25), .package = "secr")
     ll25 <- LLgh()
     expect_lt(abs(ll7 - ll25), 0.1)
+    ## the HEX telemetry density at the nodes is in closed form (sum of distances to the animal's
+    ## own fixes); the value is that from the earlier code, which evaluated every fix at every
+    ## node with gethrcpp (2026-11-03)
+    expect_equal(ll7, -704.685143218, tolerance = 1e-8)
 })
 
 test_that("per-animal mask limit (maxdistance) is keyed by animal ID, not by row number", {
