@@ -194,7 +194,7 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
     telemocc <- detector(traps(capthist)) == 'telemetry'
     anytelemetry <- any(telemocc)
     s <- ncol(capthist)
-    Tu <- Tm <- Tn <- NULL
+    Tu <- Tm <- Tn <- Ta <- NULL
     if (is.null(markocc)) {
         markocc <- rep(1, s)
         allsighting <- FALSE
@@ -237,6 +237,10 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
             Tn <- NULL
             if (!is.null(Tm) && !is.matrix(Tm))
                 stop ("telemetrytype 'marking' requires Tm as a detectors x occasions matrix")
+            ## all sightings pooled (unmarked, unidentified marked and identified marked);
+            ## used only by the hidden option details$telemetryproduct (product likelihood)
+            Ta <- try(getTa(capthist), silent = TRUE)
+            if (inherits(Ta, "try-error")) Ta <- NULL
         }
         
         if (allsighting) {
@@ -301,7 +305,8 @@ markresightdata <- function (capthist, mask, fixed, chat, control, knownmarks) {
          Tu           = Tu, 
          Tm           = Tm, 
          Tn           = Tn,
-         anysighting  = anysighting, 
+         Ta           = Ta,
+         anysighting  = anysighting,
          allsighting  = allsighting,
          anytelemetry = anytelemetry, 
          chat         = chat, 

@@ -193,7 +193,8 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
         progressfilename = "progress.RDS",
         safeLL = FALSE,                          # 2026-06-13
         uselog = FALSE,
-        telemetryint = "mask"                    # 2026-10-04 or "GH"
+        telemetryint = "mask",                   # 2026-10-04 or "GH"
+        telemetryproduct = FALSE                 # 2026-11-04 hidden; see secr_generalsecrloglikfn
     )
     ## with telemetry the product of many fixes can underflow (likelihood fails);
     ## the log-sum forms avoid this at negligible cost 2026-10-06

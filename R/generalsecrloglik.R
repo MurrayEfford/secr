@@ -611,7 +611,7 @@ secr_generalsecrloglikfn <- function (
     if (!chatanalytic && !is.null(details$nsim) && details$nsim > 0) {
         if (CL)
             stop("simulation for overdispersion requires full likelihood (not CL)")
-        else if (telemetrytype(data$traps) == "marking")
+        else if (telemetrytype(data$traps) == "marking" && !isTRUE(details$telemetryproduct))
             stop("simulation for overdispersion is not available for telemetrytype 'marking'; ",
                  "use details$chatmethod = 'analytic' or supply details$chat")
         else {
@@ -825,6 +825,7 @@ secr_generalsecrloglikfn <- function (
       # sightings
       sightingocc <- data$MRdata$markocc < 1
       marking <- telemetrytype(data$traps) == "marking"
+      product <- marking && isTRUE(details$telemetryproduct)
       ## density coefficients other than the intercept (for CL with relative density the intercept
       ## keeps its place in parindx but is fixed)
       nzD <- max(length(parindx$D) - 1, 0)
@@ -876,6 +877,18 @@ secr_generalsecrloglikfn <- function (
               if (CL) {
                   ## conditional likelihood: the pooled count informs only the density level
               }
+              else if (product && !is.null(data$MRdata$Ta)) {
+                  ## hidden option details$telemetryproduct = TRUE (2026-11-04): the former 'Ta'
+                  ## likelihood, retained only to document the effect of the independence
+                  ## assumption. Poisson for the count of all sightings in each detector x
+                  ## occasion (unmarked, unidentified marked and identified marked), expected value
+                  ## from the whole population with no subtraction of the marked animals, so the
+                  ## marked animals' identified counts are used twice. Scaled by chat[1].
+                  Talik <- Tsightinglikcpp (
+                      data$MRdata$Ta, data$MRdata$markocc, data$MRdata$anytelemetry,
+                      data$binomNcode, data$usge, tmp$Tumusk, details$debug)
+                  comp[5,1] <- if (Talik$resultcode != 0) NA else Talik$Tlik / details$chat[1]
+              }
               else if (!is.finite(mu)) {
                   comp[5,1] <- NA
               }
@@ -909,15 +922,23 @@ secr_generalsecrloglikfn <- function (
               }
 
               ## Unidentified marked cues Tm (marked animals' identified counts, in lnprw, carry pID)
-              if (!is.null(data$MRdata$Tm))
+              if (!is.null(data$MRdata$Tm) && !product)
                   comp[6,1] <- secr_Tmmarking (ElamK, pID, data$MRdata, data$knownclass, details$chat[2])
 
               ## c-hat wanted (details$chatmethod = "analytic"): return it instead of the likelihood
               if (chatanalytic) {
+                  ## hidden option telemetryproduct: the pooled total includes the marked animals,
+                  ## so nothing is subtracted (mu = J1) and there is no marked-animal variance term
+                  ## (Vs = 0); c-hat is then Var(T) / E(T) for the whole population
+                  EL2 <- postE[, ncol(postE)]
+                  if (product) {
+                      ElamK[] <- 0
+                      EL2[] <- 0
+                  }
                   chat <- secr_chatmarking (
                       hk = gkhk$hk, PIA = PIA, usge = data$usge, markocc = data$MRdata$markocc,
                       density = density[,1], cellsize = secr_getcellsize(data$mask),
-                      pmixpop = pmixE[,1], ElamK = ElamK, EL2 = postE[, ncol(postE)],
+                      pmixpop = pmixE[,1], ElamK = ElamK, EL2 = EL2,
                       Tu = data$MRdata$Tu, Tumusk = tmp$Tumusk, nz = nzD,
                       n.distrib = data$n.distrib)
                   ## CL: the total count is not used (and density is relative); only the shape element applies

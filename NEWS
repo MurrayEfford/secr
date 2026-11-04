@@ -1,4 +1,4 @@
-Changes in version 5.5.2 (2026-11-03)
+Changes in version 5.5.2 (2026-11-04)
 
 New features or changed behaviour of old functions
     o  addTelemetry() generates markocc automatically if needed when telemetrytype = 'marking'
@@ -22,7 +22,9 @@ Bugs fixed
     o  derived() failed for telemetrytype ‘marking’ with hcov classes
 
 Other
-    o  telemetrytype 'marking' with detectfn = 'HEX' and telemetryint = 'GH' is much faster
+    o  telemetrytype 'marking' with detectfn = 'HEX' and telemetryint = 'GH' is much faster than before
+    o  details$telemetryproduct = TRUE uses the naive (product-likelihood) model for 
+       telemetrytype 'marking' (default FALSE), with matching analytic c-hat
 
 Changes in version 5.5.1 (2026-10-11)
 

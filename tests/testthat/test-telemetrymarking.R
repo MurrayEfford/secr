@@ -347,3 +347,34 @@ test_that("region.N works with telemetrytype 'marking'", {
     expect_true(all(is.na(unlist(rn["R.N", ]))))
     expect_equal(rn["E.N", "estimate"], region.N(fit, se.N = FALSE), check.attributes = FALSE)
 })
+
+## Hidden option details$telemetryproduct (2026-11-04): the former likelihood for the pooled total
+## of all sightings, with the collared animals' identified cues used twice. Retained only to show
+## the effect of the independence assumption (simulations for the paper); not documented for users.
+test_that("hidden option telemetryproduct: product likelihood and simulated c-hat", {
+    LLp <- function (prod) {
+        as.numeric(secr.fit(ch, detectfn = "HHN", mask = msk, trace = FALSE, start = beta1,
+                            details = list(safeLL = TRUE, uselog = TRUE, chat = chat1, telemetryint = "GH",
+                                           telemetryproduct = prod, LLonly = TRUE)))
+    }
+    lp <- LLp(TRUE)
+    expect_true(is.finite(lp))
+    expect_false(isTRUE(all.equal(lp, LLp(FALSE))))
+    ## simulation of c-hat is allowed only with the option (otherwise an error; see 'marking input checks')
+    chatsim <- secr.fit(ch, detectfn = "HHN", mask = msk, trace = FALSE, start = beta1,
+                        details = list(safeLL = TRUE, uselog = TRUE, telemetryint = "GH",
+                                       telemetryproduct = TRUE, nsim = 20, chatonly = TRUE))
+    expect_true(is.finite(chatsim[1, 1]) && chatsim[1, 1] > 1)
+})
+
+## analytic c-hat for the same hidden option: Var(T) / E(T) of the total of all sightings
+test_that("hidden option telemetryproduct: analytic c-hat agrees with simulated c-hat", {
+    skip_on_cran()
+    dets <- list(safeLL = TRUE, uselog = TRUE, telemetryint = "GH", telemetryproduct = TRUE, chatonly = TRUE)
+    an  <- secr.fit(ch, detectfn = "HHN", mask = msk, trace = FALSE, start = beta1,
+                    details = c(dets, list(chatmethod = "analytic")))
+    sim <- secr.fit(ch, detectfn = "HHN", mask = msk, trace = FALSE, start = beta1,
+                    details = c(dets, list(nsim = 2000)))
+    expect_gt(unlist(an)[1], 1)
+    expect_equal(unlist(an)[1], unlist(sim)[1], tolerance = 0.1, check.attributes = FALSE)
+})
