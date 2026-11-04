@@ -31,6 +31,7 @@ addSightings <- function (capthist, unmarked = NULL, nonID = NULL, uncertain = N
                 stop("number of sessions differs between unmarked and capthist")
         }
         if (!is.null(nonID)){
+            # bug in following line flagged by szylinski-sa 2026-11-04
             if (!inherits(nonID, 'list'))
                 stop ("nonID should be a list for multi-session capthist")
             if (length(nonID) != length(capthist))
