@@ -20,6 +20,7 @@ Bugs fixed
        returned has the wrong dimensions
     o  predictDsurface() failed for a model with userDfn (groupn + 1 out of bounds)
     o  derived() failed for telemetrytype ‘marking’ with hcov classes
+    o  addSightings() check of nonID arg checked unmarked instead
 
 Other
     o  telemetrytype 'marking' with detectfn = 'HEX' and telemetryint = 'GH' is much faster than before
