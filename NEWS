@@ -1,4 +1,4 @@
-Changes in version 5.5.2 (2026-11-11)
+Changes in version 5.5.2 (2026-11-12)
 
 New features or changed behaviour of old functions
     o  addTelemetry() generates markocc automatically if needed when telemetrytype = 'marking'
@@ -9,7 +9,8 @@ New features or changed behaviour of old functions
     o  fixed = list(pmix = ) for three-class finite mixtures (h3) may be the proportions in
        classes 2 and 3, or in all three classes; see ?hcov
     o  CVa0() also returns a dataframe of the input and computed a0 as attribute 'data'
-    o  list.secr.fit() adds option to use parallel cluster
+    o  list.secr.fit() adds option 'bymodel' to use parallel cluster
+    o  dropTelemetry() new function complements addTelemetry()
     
 Bugs fixed
     o  predict() returned NA standard errors for pmix in three-class mixtures; now by the
@@ -28,6 +29,7 @@ Other
     o  telemetrytype 'marking' with detectfn = 'HEX' and telemetryint = 'GH' is much faster than before
     o  details$telemetryproduct = TRUE uses the naive (product-likelihood) model for 
        telemetrytype 'marking' (default FALSE), with matching analytic c-hat
+    o  summary for capthist objects includes summary of 'marked' attribute if present
 
 Changes in version 5.5.1 (2026-10-11)
 

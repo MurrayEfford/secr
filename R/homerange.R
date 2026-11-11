@@ -70,7 +70,7 @@ dbar <- function (capthist, userdist = NULL, mask = NULL, telemetry = NULL) {
         else {
             ## order is essential 2016-10-07
             if (any(det %in% 'telemetry')) {
-                capthist <- secr_nontelemetry(capthist)
+                capthist <- dropTelemetry(capthist)
                 IDfactor <- factor(animalID(capthist, names = TRUE), 
                     levels = rownames(capthist))
             }
@@ -129,7 +129,7 @@ moves <- function (capthist, userdist = NULL, mask = NULL, names = FALSE, teleme
             else {
                 ## order is essential 2016-10-08
                 if (any(det %in% 'telemetry')) {
-                    capthist <- secr_nontelemetry(capthist)
+                    capthist <- dropTelemetry(capthist)
                     IDfactor <- factor(animalID(capthist, names = TRUE), 
                         levels = rownames(capthist))
                 }
@@ -212,7 +212,7 @@ ARL <- function (capthist, min.recapt = 1, plt = FALSE, full = FALSE, userdist =
         else {
             ## order is essential 2016-10-08
             if (any(det %in% 'telemetry')) {
-                capthist <- secr_nontelemetry(capthist)
+                capthist <- dropTelemetry(capthist)
                 IDfactor <- factor(animalID(capthist, names = TRUE), 
                     levels = rownames(capthist))
             }
@@ -297,7 +297,7 @@ MMDM <- function (capthist, min.recapt = 1, full = FALSE, userdist = NULL, mask 
         }
         else {
             if (any(det %in% 'telemetry')) {
-                capthist <- secr_nontelemetry(capthist)
+                capthist <- dropTelemetry(capthist)
                 IDfactor <- factor(animalID(capthist, names = TRUE), 
                     levels = rownames(capthist))
             }
@@ -371,7 +371,7 @@ RPSV <- function (capthist, CC = FALSE, telemetry = NULL)
         }
         else {
             if (any(det %in% 'telemetry')) {
-                capthist <- secr_nontelemetry(capthist)
+                capthist <- dropTelemetry(capthist)
                 IDfactor <- factor(animalID(capthist, names = TRUE), 
                     levels = rownames(capthist))
             }
@@ -466,7 +466,7 @@ ORL <- function (capthist, userdist = NULL, mask = NULL, telemetry = NULL) {
         }
         else {
             if (any(det %in% 'telemetry')) {
-                capthist <- secr_nontelemetry(capthist)
+                capthist <- dropTelemetry(capthist)
                 IDfactor <- factor(animalID(capthist, names = TRUE), 
                     levels = rownames(capthist))
             }
@@ -553,7 +553,7 @@ centroids <- function (capthist, telemetry = NULL) {
         }
         else {
             if (any(det %in% 'telemetry')) {
-                capthist <- secr_nontelemetry(capthist)
+                capthist <- dropTelemetry(capthist)
             }
             IDfactor <- factor(animalID(capthist, names = FALSE))
             w <- split(trap(capthist, names = FALSE), IDfactor)
@@ -636,7 +636,7 @@ t2r2 <- function (capthist, telemetry = NULL)
         }
         else {
             if (any(det %in% 'telemetry')) {
-                capthist <- secr_nontelemetry(capthist)
+                capthist <- dropTelemetry(capthist)
                 IDfactor <- factor(animalID(capthist, names = TRUE), 
                                    levels = rownames(capthist))
             }

@@ -1,5 +1,6 @@
 \name{addTelemetry}
 \alias{addTelemetry}
+\alias{dropTelemetry}
 \alias{xy2CH}
 \alias{telemetrytype}
 \alias{telemetrytype<-}
@@ -19,6 +20,10 @@ Data from an arbitrary sample of telemetered animals combined with cue counts
 for unmarked animals are a special case that is discussed below 
 ('Telemetry-calibrated cue counts').
 
+A capthist object including telemetry data has at least one added occasion,
+and one additional (notional) telemetry `detector'. These additions can be 
+distracting in summaries; use function \code{dropTelemetry} to strip them out. 
+
 }
 
 \usage{
@@ -32,6 +37,8 @@ xy2CH (CH, inflation = 1e-08)
 telemetrytype (object) <- value
 
 telemetrytype (object, ...)       
+
+dropTelemetry (capthist) 
 
 }
 
@@ -47,6 +54,7 @@ telemetrytype (object, ...)
   \item{object}{secr traps object}
   \item{value}{character telemetry type replacement value}
   \item{\dots}{other arguments}
+  \item{capthist}{capthist object, possibly including telemetry}
 }
 
 \details{
@@ -81,8 +89,13 @@ detector type `telemetry'.
 }
 
 \value{
-  A single-session capthist object with the same detector type as
+  
+  For \code{addTelemetry}, a single-session capthist object with the same detector type as
   \code{detectionCH}, but possibly with empty rows and an `telemetryxy' attribute.
+  
+  For \code{dropTelemetry}, a capthist object with the same attributes as the input, 
+  but with telemetry occasion(s), the notional telemetry detector, and the
+  `telemetryxy' attribute removed.
 }
 
 \section{Telemetry-calibrated cue counts}{

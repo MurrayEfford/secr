@@ -2201,13 +2201,23 @@ secr_logsum <- function (logprwi, pmixn) {
 
 #-------------------------------------------------------------------------------
 
-secr_nontelemetry <- function (capthist) {
-    # suppress warnings about occasions with no detections
-    suppressWarnings(
-        subset(capthist, 
-               occasions = 1:secr_noccasions(capthist, notelem = TRUE),
-               traps = 1:secr_ndetector(traps(capthist), notelem = TRUE),
-               dropnullocc = FALSE))
+
+dropTelemetry <- function (capthist) {
+    if (ms(capthist)) {
+        out <- lapply(capthist, dropTelemetry)
+        class (out) <- class(capthist)
+        names(out) <- names(capthist)
+        out
+    }
+    else {
+        # suppress warnings about occasions with no detections
+        # 2026-11-12 leaves 'marked' attribute in place
+        suppressWarnings(
+            subset(capthist, 
+                   occasions = 1:secr_noccasions(capthist, notelem = TRUE),
+                   traps = 1:secr_ndetector(traps(capthist), notelem = TRUE),
+                   dropnullocc = FALSE))
+    }
 }
 
 #-------------------------------------------------------------------------------
