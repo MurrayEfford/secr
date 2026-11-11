@@ -177,6 +177,12 @@ summary.capthist <- function(object, terse = FALSE, moves = FALSE, tpa = FALSE, 
             }
             else sightings <- NULL
             
+            if (!is.null(marked(object))) {
+                # added 2026-11-12
+                # may include fractional values
+                markedbyoccasion <- apply(marked(object,2,sum))
+            }
+            
             if (!is.null(attr(object, 'nontarget',exact = TRUE))) {
                 nontarg <- attr(object, 'nontarget',exact = TRUE)
                 nontarget <- data.frame(as.list(apply(nontarg, 2, sum)), sum(nontarg))
@@ -211,7 +217,8 @@ summary.capthist <- function(object, terse = FALSE, moves = FALSE, tpa = FALSE, 
                 telemsummary = telemsummary,
                 sightings = sightings,
                 nontarget = nontarget,
-                covsummary = covsummary
+                covsummary = covsummary,
+                marked = markedbyoccasion
             )
             class(temp) <- 'summary.capthist'
             temp
@@ -279,6 +286,11 @@ print.summary.capthist <- function (x, ...) {
     if (!is.null(x$sightings)) {
         cat ('\nSightings by occasion \n')
         print(x$sightings, ...)
+        cat ('\n')
+    }
+    if (!is.null(x$marked)) {
+        cat ('\nNumber marked by occasion \n')
+        print(x$marked, ...)
         cat ('\n')
     }
     if (!is.null(x$nontarget)) {
