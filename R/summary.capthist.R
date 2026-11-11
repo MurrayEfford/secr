@@ -180,7 +180,7 @@ summary.capthist <- function(object, terse = FALSE, moves = FALSE, tpa = FALSE, 
             if (!is.null(marked(object))) {
                 # added 2026-11-12
                 # may include fractional values
-                markedbyoccasion <- apply(marked(object,2,sum))
+                markedbyoccasion <- apply(marked(object),2,sum)
             }
             else markedbyoccasion <- NULL
             
