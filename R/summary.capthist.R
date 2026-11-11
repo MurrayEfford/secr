@@ -182,6 +182,7 @@ summary.capthist <- function(object, terse = FALSE, moves = FALSE, tpa = FALSE, 
                 # may include fractional values
                 markedbyoccasion <- apply(marked(object,2,sum))
             }
+            else markedbyoccasion <- NULL
             
             if (!is.null(attr(object, 'nontarget',exact = TRUE))) {
                 nontarg <- attr(object, 'nontarget',exact = TRUE)
