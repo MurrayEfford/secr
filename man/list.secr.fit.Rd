@@ -25,7 +25,8 @@ list.secr.fit (..., constant = list(), prefix = "fit", names = NULL, ncores = NU
   
   \item{names}{character names of output}
   
-  \item{ncores}{integer number of threads, or number of worker processes (bymodel = TRUE)}
+  \item{ncores}{integer number of threads for secr.fit (bymodel = FALSE), or\cr 
+      cores to be divided among worker processes (bymodel = TRUE)}
   
   \item{bymodel}{logical; if TRUE a separate worker process is used for each model}
   
@@ -41,10 +42,12 @@ Each of the \dots arguments may also be a named argument with a single value, al
 
 The argument `ncores' overrides ncores in ... or `constant' when `bymodel = FALSE'.
 
-`bymodel = TRUE' with `ncores' > 1 causes a parallel cluster to be generated (PSOCK 
-on Windows, FORK on Unix) and each model is fitted on a separate worker. 
-A warning is given if `ncores' exceeds the number of models specified. 
+`bymodel = TRUE' with `ncores' > 1 causes a \pkg{\link{parallel}} cluster to be 
+generated (PSOCK on Windows, FORK on Unix) and each model is fitted on a separate worker. 
+If `ncores' exceeds the number of models specified then the cores are divided 
+equally among the workers. 
 
+If `ncores = NULL' then ncores takes the value from setNumThreads().
 }
 
 \value{
@@ -70,6 +73,10 @@ introduction of multi-threading in \pkg{secr} 4.0 it is often no longer efficien
 to use parallel worker processes. However, the option of fitting each model on a 
 separate worker process was added to \code{list.secr.fit} in version 5.5.2, 
 restoring functionality from the deprecated function \code{par.secr.fit}.
+
+In this version the random number seed is not set on the parallel workers, 
+which may be a problem in rare cases when bymodel is used with an estimator 
+that uses random numbers (e.g. nsim for simulating overdispersion).
 
 }
 
