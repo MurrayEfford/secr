@@ -42,7 +42,9 @@ CVa0 <- function (object, ...) {
         sigma <- sapply(pred, '[[', 'sigma','estimate')
         a0 <- 2 * pi * lambda0 * sigma^2
     }
-    round(CV(a0, pmix),8)
+    out <- round(CV(a0, pmix),8)
+    attr(out, 'data') <- data.frame(lambda0 = lambda0, sigma = sigma, a0 = a0, pmix = pmix)
+    out
 }
 
 # can embrace fixed par?

@@ -1,4 +1,4 @@
-Changes in version 5.5.2 (2026-11-04)
+Changes in version 5.5.2 (2026-11-11)
 
 New features or changed behaviour of old functions
     o  addTelemetry() generates markocc automatically if needed when telemetrytype = 'marking'
@@ -8,7 +8,8 @@ New features or changed behaviour of old functions
        covariates (including automatic 'session' and 'Session'); see ?details
     o  fixed = list(pmix = ) for three-class finite mixtures (h3) may be the proportions in
        classes 2 and 3, or in all three classes; see ?hcov
-
+    o  CVa0() also returns a dataframe of the input and computed a0 as attribute 'data'
+    
 Bugs fixed
     o  predict() returned NA standard errors for pmix in three-class mixtures; now by the
        delta method (multinomial logit)

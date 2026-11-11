@@ -56,6 +56,9 @@ CVa(object, sessnum = 1, ...)
 \value{
 
   Numeric
+  
+  From version 5.5.2 \code{CVa0} the returned value has attribute 'data' that is 
+  a dataframe with the data and computed a0.
 
 }
 
