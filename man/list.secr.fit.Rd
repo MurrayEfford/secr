@@ -11,7 +11,7 @@
 
 \usage{
 
-list.secr.fit (..., constant = list(), prefix = "fit", names = NULL) 
+list.secr.fit (..., constant = list(), prefix = "fit", names = NULL, ncores = NULL, bymodel = FALSE) 
 
 }
 
@@ -25,6 +25,10 @@ list.secr.fit (..., constant = list(), prefix = "fit", names = NULL)
   
   \item{names}{character names of output}
   
+  \item{ncores}{integer number of threads, or number of worker processes (bymodel = TRUE)}
+  
+  \item{bymodel}{logical; if TRUE a separate worker process is used for each model}
+  
 }
 
 \details{
@@ -35,6 +39,12 @@ Each of the \dots arguments may also be a named argument with a single value, al
 
 'prefix' is used only if 'names' is not supplied.
 
+The argument `ncores' overrides ncores in ... or `constant' when `bymodel = FALSE'.
+
+`bymodel = TRUE' with `ncores' > 1 causes a parallel cluster to be generated (PSOCK 
+on Windows, FORK on Unix) and each model is fitted on a separate worker. 
+A warning is given if `ncores' exceeds the number of models specified. 
+
 }
 
 \value{
@@ -44,6 +54,7 @@ An \code{\link{secrlist}} of the successful model fits (see \code{\link{secr.fit
 In the special case that `constant' specifies `details' with component LLonly = TRUE, 
 the list of values from \code{secr.fit} without checking or modification.
 
+From version 5.5.2 the total elapsed time in seconds is returned as attribute 'proctime'.
 }
 
 \seealso{
@@ -54,7 +65,11 @@ the list of values from \code{secr.fit} without checking or modification.
 
 \note{
 
-This function replaces the previous function \code{par.secr.fit}: since the introduction of multi-threading in \pkg{secr} 4.0 it is no longer efficient to use parallel worker processes.
+This function replaces the previous function \code{par.secr.fit}: since the 
+introduction of multi-threading in \pkg{secr} 4.0 it is often no longer efficient 
+to use parallel worker processes. However, the option of fitting each model on a 
+separate worker process was added to \code{list.secr.fit} in version 5.5.2, 
+restoring functionality from the deprecated function \code{par.secr.fit}.
 
 }
 
@@ -68,6 +83,12 @@ AIC(fits)
 
 # alternatively,
 fits <- list.secr.fit ('captdata', model = c(g0~1, g0~b), trace = FALSE)
+attr(fits,'proctime')
+AIC(fits)
+
+# using parallel cluster
+fits <- list.secr.fit ('captdata', model = c(g0~1, g0~b), trace = FALSE, ncores=2, bymodel=TRUE)
+attr(fits,'proctime')  # much slower
 AIC(fits)
 
 # replacing par.derived and par.region.N:
