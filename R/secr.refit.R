@@ -86,7 +86,18 @@ secr.refit <- function (object, ...) {
     if (args$CL && !is.null(object$details$relativeD) && object$details$relativeD) {
         args$start <- c(NA, args$start)
     }
-    
+    else if (!newstructure && is.numeric(args$start)) {
+        ## 2026-11-16 fit$par omits beta fixed via details$fixedbeta (e.g. a fixed pmix),
+        ## whereas secr.fit requires a start vector of full length
+        fb <- object$details$fixedbeta
+        if (!is.null(fb) && length(fb) > length(args$start) &&
+            sum(is.na(fb)) == length(args$start)) {
+            full <- fb
+            full[is.na(full)] <- args$start
+            args$start <- full
+        }
+    }
+
     out <- with(args, {
         secr.fit(capthist, model, mask, CL = CL, detectfn = detectfn,
                  binomN = binomN, start = start,link = link, fixed = fixed,

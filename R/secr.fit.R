@@ -917,8 +917,13 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
         else TuTm(capthist)
         if (anysightings) {
             secr_memo('Simulating sightings to estimate overdispersion...', details$trace)
+            ## start is of full length here; reduce it if details$fixedbeta was supplied
+            ## (loglikefn expands the free betas using details$fixedbeta)
+            beta0 <- start
+            if (!is.null(details$fixedbeta) && length(details$fixedbeta) == length(start))
+                beta0 <- start[is.na(details$fixedbeta)]
             chat <- loglikefn (
-                beta       = start,
+                beta       = beta0,
                 parindx    = parindx,
                 link       = link,
                 fixed      = fixed,
@@ -1234,6 +1239,34 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
             warning("test for mask truncation bias could not be performed")
     }
     
+    ## 2026-11-16 analytic c-hat is evaluated once, at the starting values, and held fixed
+    ## while the likelihood is maximised. Second pass: refit from the estimates so that
+    ## c-hat is evaluated at the maximum (secr.refit sets start to the fitted beta and
+    ## recomputes c-hat). The flag .localstuff$chatsecondpass prevents recursion; simulated
+    ## c-hat is not updated (Monte Carlo error; expense).
+    if (identical(details$chatmethod, "analytic") &&
+        !isTRUE(.localstuff$chatsecondpass) &&
+        lcmethod != 'none' &&
+        !any(is.na(this.fit$par))) {
+        secr_memo('Re-evaluating analytic c-hat at the estimates...', details$trace)
+        .localstuff$chatsecondpass <- TRUE
+        out2 <- tryCatch(
+            secr.refit(output, verify = FALSE, biasLimit = NA, trace = details$trace),
+            error = function(e) e,
+            finally = .localstuff$chatsecondpass <- FALSE)
+        if (inherits(out2, 'error') || any(is.na(out2$fit$par))) {
+            warning ("second pass for analytic c-hat failed; ",
+                     "c-hat was evaluated at the starting values")
+        }
+        else {
+            out2$call <- output$call
+            out2$start <- output$start
+            out2$starttime <- output$starttime
+            out2$proctime <- (proc.time() - ptm)[3]
+            output <- out2
+        }
+    }
+
     secr_memo(paste('Completed in ', round(output$proctime,2), ' seconds at ',
                format(Sys.time(), "%H:%M:%S %d %b %Y"),
                sep=''), details$trace)

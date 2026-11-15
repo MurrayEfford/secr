@@ -122,7 +122,7 @@ The model is fitted by \code{\link{secr.fit}} with \code{detectfn = "HHN"} (or `
 
 With \code{CL = TRUE} the likelihood is conditional on the collared animals: it uses their identified sightings, their telemetry and, if present, \code{Tm}. The unmarked sightings \code{Tu} contribute only through their spatial pattern across detectors, and only when there is a (relative) density model such as \code{D ~ x}; the density level is not estimated. The detection parameters (including \code{pID}) and the density coefficients are those of the full likelihood, and the CL fit is a quick way to obtain them. Density requires the full likelihood (\code{CL = FALSE}); \code{\link{derived}}, \code{\link{derivedDcoef}}, \code{\link{derivedDsurface}} and \code{\link{region.N}} are not available for a CL fit of this type.
 
-Sightings are overdispersed relative to the Poisson (the unmarked total is a sum over animals of correlated cues). The scale factor `chat' is computed analytically from the fitted model: fit once, then \code{secr.refit(fit, details = list(chatmethod = "analytic"))}. Simulation of \code{chat} (\code{details$nsim}) is not available for this telemetry type. See \code{\link{details}}.
+Sightings are overdispersed relative to the Poisson (the unmarked total is a sum over animals of correlated cues). The scale factor `chat' is computed analytically from the fitted model by specifying \code{details = list(chatmethod = "analytic")}; \code{secr.fit} evaluates it at the estimates (a second maximisation starting from the first). An existing fit may be updated with \code{secr.refit(fit, details = list(chatmethod = "analytic"))}. Simulation of \code{chat} (\code{details$nsim}) is not available for this telemetry type. See \code{\link{details}}.
 
 Finite mixture models (e.g. \code{model = list(sigma ~ h2, lambda0 ~ h2)}) are supported when the class of every collared animal is known: the classes are given by a categorical individual covariate named in \code{hcov}, and an error is reported if any collared animal has an unknown class. The classes of the unmarked animals are unknown and are modelled as a latent mixture with population proportions \code{pmix}. By default \code{pmix} is estimated from the class composition of the collared animals, which assumes that collaring was independent of class. If that is doubtful (for example, sex-biased collaring) fix \code{pmix} at an external value with \code{fixed = list(pmix = p)}, where for two classes \code{p} is the proportion in the second class. For three classes (\code{h3}) give the proportions in classes 2 and 3, or in all three classes.
 
@@ -185,6 +185,7 @@ fit <- secr.fit(ch, mask = msk, detectfn = "HHN", trace = FALSE,
 predict(fit)
 
 # model-based overdispersion (chat) and cue-weighted density
+# (or specify details = list(chatmethod = "analytic") in the first call)
 fit2 <- secr.refit(fit, details = list(chatmethod = "analytic"), trace = FALSE)
 predict(fit2)
 derived(fit2)

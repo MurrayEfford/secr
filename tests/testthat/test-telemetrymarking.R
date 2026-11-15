@@ -378,3 +378,44 @@ test_that("hidden option telemetryproduct: analytic c-hat agrees with simulated 
     expect_gt(unlist(an)[1], 1)
     expect_equal(unlist(an)[1], unlist(sim)[1], tolerance = 0.1, check.attributes = FALSE)
 })
+
+## 2026-11-16 second pass for analytic c-hat: secr.fit evaluates c-hat at the starting values for the
+## first maximisation, then refits from the estimates so that the reported c-hat is that at the maximum
+test_that("analytic c-hat is evaluated at the estimates", {
+    skip_on_cran()
+    det <- list(telemetryint = "GH", chatmethod = "analytic")
+    bad <- beta1 + c(0, 0.4, 0)                  # deliberately poor start (lambda0 about 50% too high)
+    chat.start <- secr.fit(ch, detectfn = "HHN", mask = msk, trace = FALSE, start = bad,
+                           details = c(det, list(chatonly = TRUE)))
+    fit1 <- secr.fit(ch, detectfn = "HHN", mask = msk, trace = FALSE, start = bad, details = det)
+    chat.mle <- secr.fit(ch, detectfn = "HHN", mask = msk, trace = FALSE, start = fit1,
+                         details = c(det, list(chatonly = TRUE)))
+    ## the test discriminates: c-hat at the poor start differs from c-hat at the estimates
+    expect_gt(abs(chat.start[1] - chat.mle[1]), 0.05)
+    expect_equal(as.numeric(fit1$details$chat), as.numeric(chat.mle), tolerance = 1e-4)
+    ## a further explicit refit leaves c-hat and the estimates unchanged
+    fit2 <- secr.refit(fit1, details = list(chatmethod = "analytic"), trace = FALSE)
+    expect_equal(as.numeric(fit2$details$chat), as.numeric(fit1$details$chat), tolerance = 1e-4)
+    expect_equal(coef(fit2)$beta, coef(fit1)$beta, tolerance = 1e-3)
+    ## the saved call is the user's call, and the internal flag has been reset
+    expect_equal(as.character(fit1$call[[1]]), "secr.fit")
+    expect_false(isTRUE(secr:::.localstuff$chatsecondpass))
+})
+
+test_that("analytic c-hat second pass with fixed pmix", {
+    skip_on_cran()
+    ## fixed pmix is held in details$fixedbeta; the second pass must keep it fixed and not warn
+    expect_warning(
+        fit <- secr.fit(chs, detectfn = "HHN", mask = msk, trace = FALSE, hcov = "sex",
+                        model = list(sigma ~ h2, lambda0 ~ h2), fixed = list(pmix = 0.4),
+                        start = c(betas, 5), details = list(telemetryint = "GH", chatmethod = "analytic")),
+        NA)
+    expect_equal(nrow(coef(fit)), length(betas))                 # pmix not estimated
+    expect_true(is.finite(fit$details$chat[1]) && fit$details$chat[1] > 1)
+    expect_true(all(is.finite(fit$beta.vcv)))
+    ## secr.refit keeps the fixed pmix (previously failed: start omitted the fixed coefficient)
+    fit2 <- secr.refit(fit, details = list(chatmethod = "analytic"), trace = FALSE)
+    expect_equal(nrow(coef(fit2)), length(betas))
+    expect_equal(as.numeric(fit2$details$chat), as.numeric(fit$details$chat), tolerance = 1e-4)
+    expect_equal(coef(fit2)$beta, coef(fit)$beta, tolerance = 1e-3)
+})

@@ -1,4 +1,4 @@
-Changes in version 5.5.2 (2026-11-15)
+Changes in version 5.5.2 (2026-11-16)
 
 New features or changed behaviour of old functions
     o  addTelemetry() generates markocc automatically if needed when telemetrytype = 'marking'
@@ -13,6 +13,9 @@ New features or changed behaviour of old functions
     o  dropTelemetry() new function complements addTelemetry()
     o  summary method for traps objects adds row 'mean' to usage x occasion
     o  summary methods for traps and capthist objects acquire 'ndec' argument
+    o  secr.fit() with chatmethod = "analytic" now automatically refits sighting 
+       models with c-hat at the estimates from a first fit; point estimates are
+       unchanged, standard errors and intervals may differ slightly
     
 Bugs fixed
     o  predict() returned NA standard errors for pmix in three-class mixtures; now by the
@@ -26,6 +29,8 @@ Bugs fixed
     o  predictDsurface() failed for a model with userDfn (groupn + 1 out of bounds)
     o  derived() failed for telemetrytype ‘marking’ with hcov classes
     o  addSightings() check of nonID arg checked unmarked instead
+    o  secr.refit() failed for mixture models with a fixed pmix (fixed = list(pmix = ))
+       and possibly other models using fixedbeta
 
 Other
     o  telemetrytype 'marking' with detectfn = 'HEX' and telemetryint = 'GH' is much faster than before

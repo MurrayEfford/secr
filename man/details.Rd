@@ -50,7 +50,11 @@ this telemetry type; use \code{details$chatmethod = "analytic"}.
 estimates overdispersion by simulation when \code{details$nsim > 0}. With
 \code{"analytic"} the overdispersion is computed from the variance of the total count of
 unmarked sightings implied by the model (compound Poisson: the cues from one animal fall at
-several detectors), at the parameter values in \code{start}, without simulation;
+several detectors), without simulation. It is computed at the parameter values in
+\code{start} for a first maximisation of the likelihood, and again at the estimates for a
+second maximisation that starts from them, so that the reported value is that at the
+maximum likelihood estimates (\code{details$chatonly = TRUE} returns the value at
+\code{start}; simulated overdispersion is evaluated only at \code{start}).
 \code{details$nsim} is ignored. It reproduces in expectation the quantity estimated by
 simulation (the variance of the pooled count divided by its naive Poisson or binomial variance),
 for count, proximity and multi detectors, a Poisson or fixed (binomial) number of animals
