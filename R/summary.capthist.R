@@ -5,14 +5,14 @@
 ## 2019-11-10 summary of covariates
 #############################################################################
 
-summary.capthist <- function(object, terse = FALSE, moves = FALSE, tpa = FALSE, ...) {
+summary.capthist <- function(object, terse = FALSE, moves = FALSE, tpa = FALSE, ndec = 2, ...) {
     ## recursive if list of capthist
     if (ms(object)) {
         if (terse) {
-            sapply (object, summary, terse = TRUE, moves = moves, tpa = tpa, ...)
+            sapply (object, summary, terse = TRUE, moves = moves, tpa = tpa, ndec = ndec, ...)
         }
         else {
-            lapply (object, summary, terse = FALSE, moves = moves, tpa = tpa, ...)
+            lapply (object, summary, terse = FALSE, moves = moves, tpa = tpa, ndec = ndec, ...)
         }
     }
     else {
@@ -102,7 +102,7 @@ summary.capthist <- function(object, terse = FALSE, moves = FALSE, tpa = FALSE, 
                         tpasummary <- trapsPerAnimal(object)
                     }
                 }
-                trapsum <- summary(trps)
+                trapsum <- summary(trps, ndec)
                 if (all(detector == 'signal'))
                     signalsummary <- summary(signal(object))
                 if (all(detector == 'signalnoise'))
@@ -179,10 +179,12 @@ summary.capthist <- function(object, terse = FALSE, moves = FALSE, tpa = FALSE, 
             
             if (!is.null(marked(object))) {
                 # added 2026-11-12
-                # may include fractional values
-                markedbyoccasion <- apply(marked(object),2,sum)
+                nocc <- ncol(marked(object))
+                rangemarked <- matrix(apply(marked(object), 2, range), ncol=nocc)
+                rangemarked <- rbind(rangemarked, apply(marked(object), 2, mean))
+                dimnames(rangemarked) <- list(c('min','max','mean'), 1:nocc)
             }
-            else markedbyoccasion <- NULL
+            else rangemarked <- NULL
             
             if (!is.null(attr(object, 'nontarget',exact = TRUE))) {
                 nontarg <- attr(object, 'nontarget',exact = TRUE)
@@ -204,22 +206,23 @@ summary.capthist <- function(object, terse = FALSE, moves = FALSE, tpa = FALSE, 
                 covsummary <- NULL
             }
             temp <- list (
-                detector = detector,
-                ndetector = nd,
-                trapsum = trapsum,
-                counts = counts,
-                zeros = zeros,
-                dbar = dbar,
-                RPSV = PSV,
-                moves = movesummary,
-                tpa = tpasummary,
-                cutval = cutval,        # signal, signalnoise only
+                detector      = detector,
+                ndetector     = nd,
+                trapsum       = trapsum,
+                counts        = counts,
+                zeros         = zeros,
+                dbar          = dbar,
+                RPSV          = PSV,
+                moves         = movesummary,
+                tpa           = tpasummary,
+                cutval        = cutval,        # signal, signalnoise only
                 signalsummary = signalsummary,
-                telemsummary = telemsummary,
-                sightings = sightings,
-                nontarget = nontarget,
-                covsummary = covsummary,
-                marked = markedbyoccasion
+                telemsummary  = telemsummary,
+                sightings     = sightings,
+                nontarget     = nontarget,
+                covsummary    = covsummary,
+                rangemarked   = rangemarked,
+                ndec          = ndec
             )
             class(temp) <- 'summary.capthist'
             temp
@@ -252,9 +255,11 @@ counts <- function (CHlist, counts = 'M(t+1)') {
 
 print.summary.capthist <- function (x, ...) {
     cat ('Object class      ', 'capthist', '\n')
+    ndec <- if (is.null(x$ndec)) 2 else x$ndec
+    x$trapsum$ndec <- ndec  # pass ndec down to trap summary
     nonspatial <- is.null(x$trapsum)
     if (!nonspatial)
-        print(x$trapsum, terse=TRUE)
+        print(x$trapsum, terse = TRUE)
     
     cat ('\nCounts by occasion \n')
     print(x$counts, ...)
@@ -281,7 +286,7 @@ print.summary.capthist <- function (x, ...) {
         if (!is.null(x$telemsummary)) {
             cat (x$telemsummary[1], "telemetered animals,", x$telemsummary[2], "detected\n")
             cat (paste(x$telemsummary[3:4], collapse="-"), "locations per animal, mean = ",
-                 paste(round(x$telemsummary[5:6],2), collapse=", sd = "), "\n")
+                 paste(round(x$telemsummary[5:6],ndec), collapse=", sd = "), "\n")
         }
     }
     if (!is.null(x$sightings)) {
@@ -289,9 +294,9 @@ print.summary.capthist <- function (x, ...) {
         print(x$sightings, ...)
         cat ('\n')
     }
-    if (!is.null(x$marked)) {
-        cat ('\nNumber marked by occasion \n')
-        print(x$marked, ...)
+    if (!is.null(x$rangemarked)) {
+        cat ('\nMarked (per animal) by occasion\n')
+        print(round(x$rangemarked,ndec), ...)
         cat ('\n')
     }
     if (!is.null(x$nontarget)) {

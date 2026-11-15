@@ -1,4 +1,4 @@
-Changes in version 5.5.2 (2026-11-12)
+Changes in version 5.5.2 (2026-11-15)
 
 New features or changed behaviour of old functions
     o  addTelemetry() generates markocc automatically if needed when telemetrytype = 'marking'
@@ -11,6 +11,8 @@ New features or changed behaviour of old functions
     o  CVa0() also returns a dataframe of the input and computed a0 as attribute 'data'
     o  list.secr.fit() adds option 'bymodel' to use parallel cluster
     o  dropTelemetry() new function complements addTelemetry()
+    o  summary method for traps objects adds row 'mean' to usage x occasion
+    o  summary methods for traps and capthist objects acquire 'ndec' argument
     
 Bugs fixed
     o  predict() returned NA standard errors for pmix in three-class mixtures; now by the

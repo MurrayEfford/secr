@@ -4,10 +4,10 @@
 ## 2019-11-10 moved from methods.R
 #############################################################################
 
-summary.traps <- function(object, getspacing = TRUE, covariates = FALSE, ...) {
+summary.traps <- function(object, getspacing = TRUE, covariates = FALSE, ndec = 2, ...) {
     
     #### NEED TO HANDLE CLUSTER, CLUSTERTRAP 2011-04-12
-    if (ms(object)) lapply(object, summary.traps, getspacing = getspacing, ...)
+    if (ms(object)) lapply(object, summary.traps, getspacing = getspacing, ndec = ndec, ...)
     else {
         if (is.null(object$x) | is.null(object$y))
             stop ("not a valid 'traps' object")
@@ -33,7 +33,8 @@ summary.traps <- function(object, getspacing = TRUE, covariates = FALSE, ...) {
                 sumusage <- apply(usage(object)>0, 2, sum)
                 nocc <- ncol(usage(object))
                 rangeusage <- matrix(apply(usage(object), 2, range), ncol=nocc)
-                dimnames(rangeusage) <- list(c('min','max'), 1:nocc)
+                rangeusage <- rbind(rangeusage, apply(usage(object), 2, mean))
+                dimnames(rangeusage) <- list(c('min','max','mean'), 1:nocc)
             }
             tempcovar <- covariates(object)
             
@@ -69,7 +70,8 @@ summary.traps <- function(object, getspacing = TRUE, covariates = FALSE, ...) {
             telemetrytype = telemetrytype(object),
             rangeusage = rangeusage,
             covar = sumcovar,
-            tvc = tvc
+            tvc = tvc,
+            ndec = ndec
         )
         
         class(temp) <- 'summary.traps'
@@ -97,6 +99,7 @@ print.summary.traps <- function (x, terse = FALSE, ...) {
     if (!terse)
         cat ('Object class      ', 'traps', '\n')
     detectorvector <- x$detector
+    ndec <- if (is.null(x$ndec)) 2 else x$ndec
     
     if (length(unique(detectorvector))==1)
         detectorvector <- detectorvector[1]
@@ -124,7 +127,7 @@ print.summary.traps <- function (x, terse = FALSE, ...) {
     }
     if (!is.null(x$rangeusage)) {
         cat ('\nUsage range by occasion\n')
-        print(x$rangeusage, ...)
+        print(round(x$rangeusage, ndec), ...)
     }
     if (!is.null(x$markocc)) {
         cat ('\nMarking occasions\n')

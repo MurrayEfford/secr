@@ -9,7 +9,7 @@
   Concise description of \code{capthist} object.
 }
 \usage{
-\method{summary}{capthist}(object, terse = FALSE, moves = FALSE, tpa = FALSE, ...)
+\method{summary}{capthist}(object, terse = FALSE, moves = FALSE, tpa = FALSE, ndec = 2, ...)
 
 \method{print}{summary.capthist}(x, ...)
 
@@ -22,6 +22,7 @@ counts(CHlist, counts = "M(t+1)")
   \item{terse}{ logical; if TRUE return only summary counts }
   \item{moves}{ logical; if TRUE then summary includes detected movements }
   \item{tpa}{ logical; if TRUE then summary includes number of detectors per animal}
+  \item{ndec}{ integer; number of decimal places to use}
   \item{x}{ \code{summary.capthist} object }
   \item{\dots}{ arguments passed to other functions }
 
