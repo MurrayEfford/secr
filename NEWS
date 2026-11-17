@@ -16,6 +16,7 @@ New features or changed behaviour of old functions
     o  secr.fit() with chatmethod = "analytic" now automatically refits sighting 
        models with c-hat at the estimates from a first fit; point estimates are
        unchanged, standard errors and intervals may differ slightly
+    o  derived() for telemetrytype 'marking' includes Lambda, CVLambda etc.
     
 Bugs fixed
     o  predict() returned NA standard errors for pmix in three-class mixtures; now by the
