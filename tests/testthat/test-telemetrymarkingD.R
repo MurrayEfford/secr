@@ -156,10 +156,12 @@ test_that("density model: fit, Dcw from derived(), sandwich variance", {
     L  <- as.vector(exp(-d2 / (2 * sg^2)) %*% rowSums(usage(trp)[1:K1, 1:S1])) * lam0
     Dx <- exp(cf["D", "beta"] + cf["D.z", "beta"] * covariates(mskd)$z)
     dcw <- derived(fit)
-    expect_equal(rownames(dcw), "Dcw")
-    expect_equal(dcw["Dcw", "estimate"], sum(Dx * L) / sum(L), tolerance = 1e-4)
-    expect_true(is.finite(dcw["Dcw", "SE.estimate"]) && dcw["Dcw", "SE.estimate"] > 0)
-    expect_true(dcw["Dcw", "lcl"] < dcw["Dcw", "estimate"] && dcw["Dcw", "ucl"] > dcw["Dcw", "estimate"])
+    expect_equal(rownames(dcw), c("Lambda", "D"))
+    expect_equal(dcw["D", "CVcues"]^2 + dcw["D", "CVLambda"]^2, dcw["D", "CVD"]^2, tolerance = 1e-6)
+    expect_equal(dcw["Lambda", "estimate"], sum(L) * attr(mskd, "area"), tolerance = 1e-4)
+    expect_equal(dcw["D", "estimate"], sum(Dx * L) / sum(L), tolerance = 1e-4)
+    expect_true(is.finite(dcw["D", "SE.estimate"]) && dcw["D", "SE.estimate"] > 0)
+    expect_true(dcw["D", "lcl"] < dcw["D", "estimate"] && dcw["D", "ucl"] > dcw["D", "estimate"])
 
     ## sandwich: larger than the model-based SE because cues from one animal are correlated
     ## across detectors; RTMB 0.2736

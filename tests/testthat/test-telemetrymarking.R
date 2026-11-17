@@ -259,8 +259,8 @@ test_that("sex classes: derived() reports Dcw (known classes of the collared ani
                      model = list(sigma ~ h2, lambda0 ~ h2), start = betas5,
                      details = list(safeLL = TRUE, uselog = TRUE, chat = chats, telemetryint = "GH"))
     dd <- derived(fits)
-    expect_equal(dd["Dcw", "estimate"], predict(fits)[[1]]["D", "estimate"], tolerance = 1e-6)
-    expect_true(is.finite(dd["Dcw", "SE.estimate"]))
+    expect_equal(dd["D", "estimate"], predict(fits)[[1]]["D", "estimate"], tolerance = 1e-6)
+    expect_true(is.finite(dd["D", "SE.estimate"]))
 })
 
 test_that("sex classes: input checks", {
@@ -285,8 +285,11 @@ test_that("fit with Tm, pID, marked and GH agrees with RTMB reference", {
     expect_equal(est["pID", "SE.estimate"], 0.1024, tolerance = 0.02, check.attributes = FALSE)
     ## derived() reports Dcw, which equals D when density is uniform
     dd <- derived(fitq)
-    expect_equal(rownames(dd), "Dcw")
-    expect_equal(dd["Dcw", "estimate"], est["D", "estimate"], tolerance = 1e-5)
+    expect_equal(rownames(dd), c("Lambda", "D"))
+    ## variance components: CVD^2 = CVcues^2 + CVLambda^2
+    expect_equal(dd["D", "CVcues"]^2 + dd["D", "CVLambda"]^2, dd["D", "CVD"]^2, tolerance = 1e-6)
+    expect_true(dd["D", "CVcues"] > 0 && dd["D", "CVLambda"] > 0 && is.finite(dd["Lambda", "SE.estimate"]))
+    expect_equal(dd["D", "estimate"], est["D", "estimate"], tolerance = 1e-5)
 })
 
 ## Conditional likelihood (CL = TRUE): Tu is ignored (it informs only density) but the unidentified

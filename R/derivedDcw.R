@@ -101,29 +101,86 @@ secr_Dcw <- function (beta, object, sessnum = 1) {
     sum(sf$D * L) / sum(L)
 }
 
-## derived() for telemetry type 'marking': Dcw with SE by the delta method
+## Lambda: expected number of cues per animal per unit density, summed over the mask,
+## detectors and sighting occasions (with usage), averaged over latent classes
+##
+##     Lambda = a sum_x L(x)      (a = cell area, in ha for secr masks)
+##
+## so that the expected total number of cues is J1 = Dcw Lambda, and Dcw = sum_x D(x) L(x) / Lambda
+secr_Lambda <- function (beta, object, sessnum = 1) {
+    sf <- secr_markingsurfaces(beta, object, sessnum)
+    L  <- Reduce(`+`, Map(function(Lx, p) p * rowSums(Lx), sf$Lmk, sf$pmix))
+    sf$a * sum(L)
+}
+
+## Dcw and Lambda from one evaluation of the surfaces
+secr_DcwLambda <- function (beta, object, sessnum = 1) {
+    sf <- secr_markingsurfaces(beta, object, sessnum)
+    L  <- Reduce(`+`, Map(function(Lx, p) p * rowSums(Lx), sf$Lmk, sf$pmix))
+    c(Dcw = sum(sf$D * L) / sum(L), Lambda = sf$a * sum(L))
+}
+
+## derived() for telemetry type 'marking': Lambda and Dcw with SE by the delta method,
+## and the split of the variance of Dcw into
+##   CVcues    variance conditional on the detection parameters (the cue counts; analogue of CVn)
+##   CVLambda  the remainder, due to estimating the detection parameters (analogue of CVa)
+## so that CVD^2 = CVcues^2 + CVLambda^2.
+## With beta = (phi, theta), phi the coefficients of the density model, V = vcov(beta):
+## Var(phi | theta) = ((V^-1)_phi,phi)^-1.
 secr_derivedDcw <- function (object, sessnum = NULL, alpha = 0.05, loginterval = TRUE) {
     if (is.null(sessnum)) sessnum <- 1
     beta <- object$fit$par
-    est  <- secr_Dcw(beta, object, sessnum)
-    if (is.null(object$beta.vcv) || any(is.na(object$beta.vcv))) {
-        se <- NA
-    }
-    else {
-        g  <- nlme::fdHess(beta, secr_Dcw, object, sessnum)$gradient
-        se <- sqrt(as.numeric(g %*% object$beta.vcv %*% g))
+    V    <- object$beta.vcv
+    DL   <- secr_DcwLambda(beta, object, sessnum)
+    estD <- DL[1]; estL <- DL[2]
+    seD <- seL <- cvcues <- cvLambda <- NA
+    if (!(is.null(V) || any(is.na(V)))) {
+        ## gradients of Dcw and Lambda by central differences in one pass (2 np evaluations
+        ## of the cue-rate surfaces, the slow step; nlme::fdHess also computes a Hessian)
+        jac <- sapply(seq_along(beta), function(j) {
+            h <- 1e-4 * max(1, abs(beta[j]))
+            bp <- bm <- beta
+            bp[j] <- bp[j] + h
+            bm[j] <- bm[j] - h
+            (secr_DcwLambda(bp, object, sessnum) - secr_DcwLambda(bm, object, sessnum)) / (2 * h)
+        })
+        gD <- jac[1, ]
+        gL <- jac[2, ]
+        varD <- as.numeric(gD %*% V %*% gD)
+        seD  <- sqrt(varD)
+        seL  <- sqrt(as.numeric(gL %*% V %*% gL))
+        ## position of the density coefficients among the estimated coefficients
+        fb  <- object$details$fixedbeta
+        est <- if (is.null(fb)) seq_along(beta) else which(is.na(fb))
+        iD  <- match(object$parindx$D, est)
+        iD  <- iD[!is.na(iD)]
+        if (length(iD) > 0) {
+            S <- try(solve(solve(V)[iD, iD, drop = FALSE]), silent = TRUE)
+            if (!inherits(S, 'try-error')) {
+                varcues  <- as.numeric(gD[iD] %*% S %*% gD[iD])
+                cvcues   <- sqrt(varcues) / estD
+                cvLambda <- sqrt(max(0, varD - varcues)) / estD
+            }
+        }
     }
     z <- qnorm(1 - alpha/2)
-    if (loginterval && is.finite(se)) {
-        selog <- sqrt(log(1 + (se/est)^2))
-        w <- exp(z * selog)
-        lcl <- est / w; ucl <- est * w
+    cl <- function(est, se) {
+        if (loginterval && is.finite(se)) {
+            w <- exp(z * sqrt(log(1 + (se/est)^2)))
+            c(est / w, est * w)
+        }
+        else c(est - z * se, est + z * se)
     }
-    else {
-        lcl <- est - z * se; ucl <- est + z * se
-    }
-    matrix(c(est, se, lcl, ucl), nrow = 1,
-           dimnames = list('Dcw', c('estimate', 'SE.estimate', 'lcl', 'ucl')))
+    clL <- cl(estL, seL)
+    clD <- cl(estD, seD)
+    data.frame(row.names = c('Lambda', 'D'),
+               estimate    = c(estL, estD),
+               SE.estimate = c(seL, seD),
+               lcl         = c(clL[1], clD[1]),
+               ucl         = c(clL[2], clD[2]),
+               CVcues      = c(NA, cvcues),
+               CVLambda    = c(NA, cvLambda),
+               CVD         = c(NA, seD / estD))
 }
 
 ###############################################################################

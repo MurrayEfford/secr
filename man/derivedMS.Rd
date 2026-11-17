@@ -149,13 +149,25 @@ with one component for each session and group.
 The result will also be a list if \code{object} is an `secrlist'.
 
 For models of telemetry type `marking' (see \code{\link{addTelemetry}}) the
-Horvitz-Thompson estimators above do not apply. Instead \code{derived} returns a matrix with
-a single row `Dcw' and columns estimate, SE.estimate, lcl and ucl. \code{Dcw} is the cue-weighted
-mean density: the mean of the fitted density surface over the mask, weighted by the
+Horvitz-Thompson estimators above do not apply. Instead \code{derived} returns a dataframe with
+rows `Lambda' and `D' and columns estimate, SE.estimate, lcl, ucl, CVcues, CVLambda and CVD.
+\code{Lambda} is the expected number of cues per animal per unit density, summed over the
+mask, detectors and sighting occasions (with usage) and averaged over latent classes
+(\eqn{\Lambda = a \sum_x L(x)}, \eqn{a} the cell area, in the area units of the mask, so that the
+expected total number of cues is \eqn{D_{cw} \Lambda}); it is the counterpart of `esa'.
+CVD is the relative SE of D. It is split into CVcues, the relative SE conditional on the
+detection parameters (the variance of the cue counts, the counterpart of CVn), and CVLambda, the
+remainder due to estimating the detection parameters (the counterpart of CVa), so that
+CVD\eqn{^2} = CVcues\eqn{^2} + CVLambda\eqn{^2}. The split uses the variance-covariance matrix of
+the coefficients: with density coefficients \eqn{\phi} and detection coefficients \eqn{\theta}, the
+variance of \eqn{\phi} given \eqn{\theta} is the inverse of the \eqn{\phi} block of the inverse of the
+matrix. The components for `Lambda' are NA. The row `D' is the cue-weighted
+mean density \eqn{D_{cw}}: the mean of the fitted density surface over the mask, weighted by the
 expected number of cues from an animal centred at each point (\eqn{D_{cw} = \sum_x D(x) L(x) /
-\sum_x L(x)}). It equals \eqn{D} when density is uniform. When density varies it is the estimate
-to report, because the unweighted mean of \eqn{D(x)} over the mask depends on extrapolation
-to places the cameras hardly sample (\code{\link{region.N}} gives that). The standard error
+\sum_x L(x)}). It equals the fitted \eqn{D} when density is uniform. When density varies it is
+the density where the cameras sample (as the Horvitz-Thompson estimate is for other models), and
+it is the estimate to report, because the unweighted mean of \eqn{D(x)} over the mask depends on
+extrapolation to places the cameras hardly sample (\code{\link{region.N}} gives that). The standard error
 uses the delta method with the variance-covariance matrix of the coefficients.
 
 }
