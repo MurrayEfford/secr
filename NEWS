@@ -1,4 +1,4 @@
-Changes in version 5.5.2 (2026-11-16)
+Changes in version 5.5.2 (2026-11-18)
 
 New features or changed behaviour of old functions
     o  addTelemetry() generates markocc automatically if needed when telemetrytype = 'marking'
@@ -31,6 +31,7 @@ Bugs fixed
     o  addSightings() check of nonID arg checked unmarked instead
     o  secr.refit() failed for mixture models with a fixed pmix (fixed = list(pmix = ))
        and possibly other models using fixedbeta
+    o  usage() failed with specified noccasions = 1
 
 Other
     o  telemetrytype 'marking' with detectfn = 'HEX' and telemetryint = 'GH' is much faster than before
