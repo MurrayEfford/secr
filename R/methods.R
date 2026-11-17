@@ -108,7 +108,7 @@ usage.traps <- function (object, noccasions = NULL, ...)       {
             if (!is.null(noccasions)) {
                 if (noccasions < ncol(usge)) {
                     warning ("specified noccasions less than ncol of usage matrix; some columns discarded")
-                    usge <- usge[,1:noccasions]
+                    usge <- usge[,1:noccasions, drop = FALSE]
                 }
                 if (noccasions > ncol(usge))
                     stop ("specified noccasions exceeds ncol of usage matrix")
