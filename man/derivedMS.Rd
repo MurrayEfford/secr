@@ -153,8 +153,10 @@ Horvitz-Thompson estimators above do not apply. Instead \code{derived} returns a
 rows `Lambda' and `D' and columns estimate, SE.estimate, lcl, ucl, CVcues, CVLambda and CVD.
 \code{Lambda} is the expected number of cues per animal per unit density, summed over the
 mask, detectors and sighting occasions (with usage) and averaged over latent classes
-(\eqn{\Lambda = a \sum_x L(x)}, \eqn{a} the cell area, in the area units of the mask, so that the
-expected total number of cues is \eqn{D_{cw} \Lambda}); it is the counterpart of `esa'.
+(\eqn{\Lambda = a \sum_x L(x)}, \eqn{a} the cell area, so that the
+expected total number of cues is \eqn{D_{cw} \Lambda}). Its units are cues per animal times the
+area units of the mask (cue-hectares per animal for a secr mask, the same area units as \code{D}
+and \code{esa}); it is the counterpart of `esa'.
 CVD is the relative SE of D. It is split into CVcues, the relative SE conditional on the
 detection parameters (the variance of the cue counts, the counterpart of CVn), and CVLambda, the
 remainder due to estimating the detection parameters (the counterpart of CVa), so that
