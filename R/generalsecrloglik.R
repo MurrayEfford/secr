@@ -179,8 +179,12 @@ expectedmu <- function (cc, haztemp, gkhk, pi.density, Nm, PIA, ngroup,
         hx <- if (any(binomNcode==-2)) matrix(haztemp$h[x,,], nrow = m) else -1 ## lookup sum_k (hazard)
         hi <- if (any(binomNcode==-2)) haztemp$hindex else -1                   ## index to hx
         
+        ## 2026-11-22 telemetry 'marking' with no marked animals (nc = 0): PIA has one notional row, so
+        ## its stride is 1, and group has no elements; nc is not otherwise used for sightmodel 7
+        ncpass <- if (MRdata$sightmodel == 7 && nc == 0) 1L else nc
+        grpx <- if (length(grp) == 0) 1L else grp
         temp <- expectedmucpp(
-            as.integer(nc),
+            as.integer(ncpass),
             as.integer(cc),
             as.logical(!is.null(MRdata$Tu)),
             as.logical(!is.null(MRdata$Tm)),
@@ -189,7 +193,7 @@ expectedmu <- function (cc, haztemp, gkhk, pi.density, Nm, PIA, ngroup,
             as.integer(MRdata$markocc),
             as.integer(MRdata$anytelemetry),
             as.double (pID[,x]),
-            as.integer(grp)-1L,
+            as.integer(grpx)-1L,
             as.double (gkhk$gk),     ## precomputed probability 
             as.double (gkhk$hk),     ## precomputed hazard
             as.matrix (pi.density),
@@ -643,6 +647,10 @@ secr_generalsecrloglikfn <- function (
     ## model detection histories (prw) conditional on detection (pdot)
     if (data$nc == 0) {
         lnprw <- 0  ## simple if no animals detected
+        ## telemetry 'marking' (session with no collared animals): no marked animals, so
+        ## 'post' has no rows (one column per non-telemetry detector, plus one) 2026-11-22
+        if (telemetrytype(data$traps) == "marking")
+            attr(lnprw, "post") <- matrix(0, 0, nrow(data$usge) - data$MRdata$anytelemetry + 1)
     }
     else {
         if (all(data$dettype %in% c(0,1,2,8,13))) {

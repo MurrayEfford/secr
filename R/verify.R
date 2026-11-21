@@ -502,7 +502,9 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
         ## detectionsOK
         
         if (length(object)==0) {
-            detectionsOK <- unmarked   # obsolete 2026-06-29?
+            ## no animals: OK for unmarked data, and for telemetrytype 'marking' with sightings
+            ## (a session in which no animal was collared) 2026-11-22
+            detectionsOK <- unmarked || (identical(telemetrytype, "marking") && sighting)
         }
         else  {
             
@@ -630,7 +632,7 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
             
             usageoccasionsOK <- ncol(usage(traps(object))) == ncol(object)
             
-            if (detectionsOK) {
+            if (detectionsOK && nrow(object) > 0) {   # 2026-11-22 not if no animals
                 # 2012-12-17
                 # notused <- !usage(traps(object))   ## traps x occasions
                 notused <- usage(traps(object)) == 0 ## traps x occasions
@@ -756,7 +758,7 @@ verify.capthist <- function (object, report = 2, tol = 0.01, ...) {
             captdet.byanimal <- apply(captdet,1,sum)
             animaldet <- sapply(telemetryxy(object),nrow)
             telemetrd <- telemetered(object)
-            if (any(telemdet.byoccasion == 0)) {
+            if (nrow(object) > 0 && any(telemdet.byoccasion == 0)) {   # 2026-11-22 not if no animals
                 telemOK <- FALSE
                 telemetryerror <- "telemetry occasions with no detections"
             }

@@ -118,15 +118,18 @@ summary.capthist <- function(object, terse = FALSE, moves = FALSE, tpa = FALSE, 
             else {
                 telemocc <- which(detector(trps) == 'telemetry')
                 zeros <-  sum(apply(abs(object)[,-telemocc,, drop = FALSE],1,sum)==0)
-                ntelem <- sapply(xyl, nrow)
+                ntelem <- unlist(lapply(xyl, nrow))    # 2026-11-22 empty if no animals
                 if (nrow(object) == 0 | ncol(object)==1 | all(detector(trps) == 'telemetry'))
                     nteldet <- 0
                 else {
                     s1 <- apply(abs(object)[,-telemocc,, drop = FALSE]>0,1,any)
                     nteldet <- sum(s1 [row.names(object) %in% names(xyl)])
                 }
-                telemsummary <- c(n=length(xyl), ndet=nteldet, min=min(ntelem),
-                                  max=max(ntelem), mean=mean(ntelem), sd = sd(ntelem))
+                telemsummary <- if (length(ntelem) == 0)
+                    c(n=0, ndet=0, min=NA, max=NA, mean=NA, sd=NA)
+                else
+                    c(n=length(xyl), ndet=nteldet, min=min(ntelem),
+                      max=max(ntelem), mean=mean(ntelem), sd = sd(ntelem))
                 counts[7:8, telemocc] <- 0  ## no detector visits/used
                 counts$Total[7:8] <- counts$Total[7:8]-length(telemocc)
             }
@@ -177,8 +180,8 @@ summary.capthist <- function(object, terse = FALSE, moves = FALSE, tpa = FALSE, 
             }
             else sightings <- NULL
             
-            if (!is.null(marked(object))) {
-                # added 2026-11-12
+            if (!is.null(marked(object)) && nrow(marked(object)) > 0) {
+                # added 2026-11-12; 2026-11-22 not if no animals
                 nocc <- ncol(marked(object))
                 rangemarked <- matrix(apply(marked(object), 2, range), ncol=nocc)
                 rangemarked <- rbind(rangemarked, apply(marked(object), 2, mean))

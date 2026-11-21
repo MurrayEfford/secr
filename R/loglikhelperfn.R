@@ -31,6 +31,8 @@ secr_getpmix <- function(knownclass, PIA, realparval)
     # not needed nc <- length(knownclass)   ## 2020-11-04
     k <- dim(PIA)[4]
     nmix <- dim(PIA)[5]
+    ## 2026-11-22 no marked animals (telemetry 'marking'): the notional animal of PIA has unknown class
+    if (length(knownclass) == 0) knownclass <- rep(1L, nc)
     pmixn <- matrix(1, nrow = nmix, ncol = nc)
     pmix <- numeric(nmix)
     if (nmix>1) {

@@ -356,6 +356,9 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
         ## unmarked animals is not modelled and gives biased estimates
         dets <- unlist(lapply(if (MS) capthist else list(capthist),
                               function(x) detector(traps(x))))
+        ## 2026-11-22 sessions with no collared animals are allowed, but not if none has any
+        if (sum(vapply(if (MS) capthist else list(capthist), nrow, 1L)) == 0)
+            stop ("telemetrytype 'marking' requires collared animals in at least one session")
         if (any(!dets %in% c("count", "telemetry")))
             stop ("telemetrytype 'marking' requires count detectors; ",
                   "proximity and other binary detector types are not supported")

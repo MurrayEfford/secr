@@ -1225,7 +1225,7 @@ flip.default <- function (object, lr = FALSE, tb = FALSE, ...) {
         object <- secr_check3D(object)
         telemoccasions <- secr_expanddet(object) %in% 'telemetry'
         ndetections <- sum(abs(object[,telemoccasions,]))
-        if (sum(sapply(value,nrow)) != ndetections)
+        if (sum(unlist(lapply(value,nrow))) != ndetections)   # 2026-11-22 OK for empty list (no animals)
             stop ("requires one location per detection")
         if ((sum(telemoccasions)==0) |
             !(inherits(object,'capthist')))
@@ -2424,14 +2424,15 @@ print.secr <- function (x, newdata = NULL, alpha = 0.05, deriv = FALSE, call = T
         xyl <- telemetryxy(x$capthist)
         if (!is.null(xyl)) {
             ## zeros <- sum(apply(abs(object)>0,1,sum)==0)
-            ntelem <- sapply(xyl, nrow)
+            ntelem <- unlist(lapply(xyl, nrow))     # 2026-11-22 empty if no animals
             nteldet <- if ((nrow(x$capthist) == 0) | (all(detector(traps(x$capthist))=='telemetry')))
                            0 else
                 sum(apply(abs(x$capthist)[,-ncol(x$capthist),,drop=FALSE]>0,1,any) [row.names(x$capthist) %in% names(xyl)])
             ## cat ('Known all-zero  : ', zeros, '\n')
             cat ('Telemetry       : ', length(xyl), 'animals,', nteldet, 'detected\n')
-            cat ('Telemetry locns : ', paste(range(ntelem), collapse='-'), 'per animal (mean',
-                 round(mean(ntelem),2), 'sd', paste(round(sd(ntelem),2), ')',sep=''), '\n')
+            if (length(ntelem) > 0)
+                cat ('Telemetry locns : ', paste(range(ntelem), collapse='-'), 'per animal (mean',
+                     round(mean(ntelem),2), 'sd', paste(round(sd(ntelem),2), ')',sep=''), '\n')
         }
     }   # end of single-session
 

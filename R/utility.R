@@ -1573,8 +1573,8 @@ secr_getxy <- function(capthist) {
             newtelem <- vector('list',nrow(capthist))
             newtelem[ord] <- telem
             xy <- do.call(rbind, newtelem)
-            tmp <- sapply(newtelem, nrow)
-            tmp[sapply(tmp, is.null)] <- 0
+            ## 2026-11-22 vapply: sapply() over zero animals returns list()
+            tmp <- vapply(newtelem, function(x) if (is.null(x)) 0L else nrow(x), 0L)
             start <- cumsum(c(0,tmp))
         }
         else {
