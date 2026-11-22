@@ -47,6 +47,11 @@ addTelemetry <- function (detectionCH, telemetryCH,
         if (!all(detector(traps(telemetryCH))=='telemetry'))
             stop ("telemetryCH should be of uniform detector type 'telemetry'")
         if (is.null(telemetryCH) || nrow(telemetryCH)==0) {
+            if (identical(match.arg(type), "marking"))
+                warning ("no telemetered animals, so detectionCH is returned unchanged ",
+                         "(no telemetry detector, markocc or telemetrytype); ",
+                         "use make.marking() to construct a capthist for 'marking' telemetry ",
+                         "that includes a session with no collared animals", call. = FALSE)
             return(detectionCH)
         }
         else {
