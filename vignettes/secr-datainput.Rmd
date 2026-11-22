@@ -384,11 +384,11 @@ The 'telemetry' detector type is used for animal locations from radiotelemetry. 
 
 Telemetry observations ('fixes') are formatted in the standard 'XY' format. The input text file comprises at least five columns (session, animalID, occasion, x, y). 'Occasion' is largely redundant, and all fixes may be associated with  occasion 1. It is desirable to keep fixes in the correct temporal order within each animal, but this is not used for modelling. The function `read.telemetry` is a version of `read.capthist` streamlined for telemetry data (detector locations are not needed).
 
-See [secr-telemetry.pdf] for an example.
+See [secr-telemetry.pdf] for an example. For telemetry-calibrated cue counts (telemetry type 'marking'), in which the telemetered animals are the only ones identified at the detectors, the function `make.marking` assembles the capthist object in one step from the detections, fixes and sighting counts.
 
 ## Mark--resight
 
-Spatial mark--resight data combine detection histories of marked animals, input as described above, and counts of sighted but unmarked or unidentified animals. The latter are input separately as described in [secr-markresight.pdf], using the `addSightings` function. Sighting-only data may include all-zero detection histories of previously marked animals known to be alive but not seen; these are coded with occasion 0 (zero).
+Spatial mark--resight data combine detection histories of marked animals, input as described above, and counts of sighted but unmarked or unidentified animals. The latter are input separately as described in [secr-markresight.pdf], using the `addSightings` function (for telemetry-calibrated cue counts `make.marking` takes the sighting counts directly). Sighting-only data may include all-zero detection histories of previously marked animals known to be alive but not seen; these are coded with occasion 0 (zero).
 
 # Troubleshooting
 
