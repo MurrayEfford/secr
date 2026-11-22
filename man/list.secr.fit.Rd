@@ -57,7 +57,7 @@ An \code{\link{secrlist}} of the successful model fits (see \code{\link{secr.fit
 In the special case that `constant' specifies `details' with component LLonly = TRUE, 
 the list of values from \code{secr.fit} without checking or modification.
 
-From version 5.5.2 the total elapsed time in seconds is returned as attribute 'proctime'.
+From version 5.6.0 the total elapsed time in seconds is returned as attribute 'proctime'.
 }
 
 \seealso{
@@ -71,7 +71,7 @@ From version 5.5.2 the total elapsed time in seconds is returned as attribute 'p
 This function replaces the previous function \code{par.secr.fit}: since the 
 introduction of multi-threading in \pkg{secr} 4.0 it is often no longer efficient 
 to use parallel worker processes. However, the option of fitting each model on a 
-separate worker process was added to \code{list.secr.fit} in version 5.5.2, 
+separate worker process was added to \code{list.secr.fit} in version 5.6.0, 
 restoring functionality from the deprecated function \code{par.secr.fit}.
 
 In this version the random number seed is not set on the parallel workers, 

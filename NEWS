@@ -1,24 +1,24 @@
-Changes in version 5.5.2 (2026-11-23)
+Changes in version 5.6.0 (2026-11-23)
 
 New features or changed behaviour of old functions
+    o  summary method for traps objects adds row 'mean' to usage x occasion
+    o  summary methods for traps and capthist objects acquire 'ndec' argument
+    o  fixed = list(pmix = ) for three-class finite mixtures (h3) may be the proportions in
+       classes 2 and 3, or in all three classes; see ?hcov
+    o  list.secr.fit() adds option 'bymodel' to use parallel cluster
+    o  make.marking() new function to construct 'marking' telemetry capthist
+    o  multi-session models with telemetrytype = 'marking' allow session(s) with no telemetry
     o  addTelemetry() generates markocc automatically if needed when telemetrytype = 'marking'
+    o  dropTelemetry() new function complements addTelemetry()
+    o  secr.fit() with chatmethod = "analytic" now automatically refits sighting 
+       models with c-hat at the estimates from a first fit; point estimates are
+       unchanged, standard errors and intervals may differ slightly
     o  details$userDfn (user-defined density function) is now called once with nsession equal
        to the number of sessions when all session masks are identical, as documented;
        otherwise once per session. It may declare an argument 'sessioncov' to receive session
        covariates (including automatic 'session' and 'Session'); see ?details
-    o  fixed = list(pmix = ) for three-class finite mixtures (h3) may be the proportions in
-       classes 2 and 3, or in all three classes; see ?hcov
     o  CVa0() also returns a dataframe of the input and computed a0 as attribute 'data'
-    o  list.secr.fit() adds option 'bymodel' to use parallel cluster
-    o  dropTelemetry() new function complements addTelemetry()
-    o  summary method for traps objects adds row 'mean' to usage x occasion
-    o  summary methods for traps and capthist objects acquire 'ndec' argument
-    o  secr.fit() with chatmethod = "analytic" now automatically refits sighting 
-       models with c-hat at the estimates from a first fit; point estimates are
-       unchanged, standard errors and intervals may differ slightly
     o  derived() for telemetrytype 'marking' includes Lambda, CVLambda etc.
-    o  multi-session models with telemetrytype = 'marking' allow session(s) with no telemetry
-    o  make.marking() new function to construct 'marking' telemetry capthist
     
 Bugs fixed
     o  predict() returned NA standard errors for pmix in three-class mixtures; now by the

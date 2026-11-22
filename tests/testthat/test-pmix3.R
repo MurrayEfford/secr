@@ -1,5 +1,5 @@
 # test finite mixtures with three classes: mlogit standard errors of pmix, fixed pmix as a
-# vector of class proportions, and starting values (secr 5.5.2)
+# vector of class proportions, and starting values (secr 5.6.0)
 
 library(secr)
 
