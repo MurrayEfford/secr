@@ -20,7 +20,7 @@
   occasions. Also, extract or replace the attributes Tu, Tm and Tn of a capthist
   object, used for storing counts of sightings. All attributes are
   optional, but Tu, Tm and Tn require markocc to be specified. The attribute
-  marked is the animal-level analogue of markocc: it records, for each animal and
+  marked is the animal-level analogue of usage: it records, for each animal and
   occasion, the fraction of the occasion for which the animal can be identified as
   marked, for example while a telemetry collar was working (telemetry type 'marking').
 }
@@ -83,6 +83,7 @@ marked(object) <- value
   
   \code{\link{traps}},
   \code{\link{addSightings}},
+  \code{\link{make.marking}}, 
   \code{\link{sightingPlot}},
   \href{https://www.otago.ac.nz/density/pdfs/secr-markresight.pdf}{secr-markresight.pdf}
   
