@@ -40,6 +40,7 @@ Other
     o  details$telemetryproduct = TRUE uses the naive (product-likelihood) model for 
        telemetrytype 'marking' (default FALSE), with matching analytic c-hat
     o  summary for capthist objects includes summary of 'marked' attribute if present
+    o  updated verify() help page
 
 Changes in version 5.5.1 (2026-10-11)
 
