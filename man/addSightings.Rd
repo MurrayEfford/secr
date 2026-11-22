@@ -46,10 +46,12 @@ Arguments \code{unmarked}, \code{nonID}, \code{uncertain} provide data for attri
   \item a single integer, the sum of all counts*
   \item a matrix of the count on each occasion at each detector (dimensions K x S, where K is the number of detectors and S is the total number of occasions). Columns corresponding to marking occasions should be all-zero.
   \item for multi-session data, a list with components as above
-  \item a character value with the name of a text file containing the data; the file will be read with \code{\link{read.table}}. The \dots argument allows some control over how the file is read. The data format comprises at least S+1 columns. The first is a session identifier used to split the file when the data span multiple sessions; it should be constant for a single-session capthist. The remaining S columns contain the counts for occasions 1:S, one row per detector. Further columns may be present; they are ignored at present.    
+  \item a character value with the name of a text file containing the data; the file will be read with \code{\link{read.table}}. The \dots argument allows some control over how the file is read. The data format comprises at least S+1 columns. The first is a session identifier used to split the file when the data span multiple sessions; it should be constant for a single-session capthist. The remaining S columns contain the counts for occasions 1:S, one row per detector. Further columns may be present; they are ignored at present. For multi-session data the file holds the K rows of each session one after another; the sessions are taken in the sorted order of the session identifier and matched to the sessions of \code{capthist} by position, so the identifiers should sort in the same order as the sessions.
 }
 
 * although this is convenient, the full matrix of counts provides more flexibility (e.g., when you wish to subset by occasion), and enables modelling of variation across detectors and occasions.
+
+For telemetry type `marking' (telemetry-calibrated cue counts) the function \code{\link{make.marking}} reads the sighting counts itself, from the same file format or from matrices; it takes the sessions of a stacked file in order of first appearance and matches the session identifiers to the session names when they agree.
 
 }
 \value{
@@ -60,8 +62,9 @@ Arguments \code{unmarked}, \code{nonID}, \code{uncertain} provide data for attri
 
 \seealso{
     
-  \code{\link{markocc}}, 
-  \code{\link{read.capthist}}, 
+  \code{\link{make.marking}},
+  \code{\link{markocc}},
+  \code{\link{read.capthist}},
   \code{\link{read.traps}}, 
   \code{\link{sim.resight}},
   \code{\link{Tm}},
