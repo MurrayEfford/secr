@@ -7,7 +7,8 @@
 
   A shortcut function for constructing a telemetry capthist object from a file of
 telemetry fixes. Telemetry data are generally similar in format to polygon data
-(see also \code{\link{addTelemetry}}).
+(see also \code{\link{addTelemetry}}). For telemetry type `marking' (telemetry-calibrated cue
+counts) the result may be passed as the \code{telemetry} argument of \code{\link{make.marking}}.
 
 }
 
@@ -42,7 +43,7 @@ coordinates, and a `traps' object with detector type = `telemetry'
 }
 
 \seealso{
-\code{\link{addTelemetry}}, \code{\link{read.capthist}}
+\code{\link{addTelemetry}}, \code{\link{make.marking}}, \code{\link{read.capthist}}
 }
 
 \examples{

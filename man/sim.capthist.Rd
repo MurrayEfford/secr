@@ -209,7 +209,7 @@ Prior to 2.10.0 \code{sim.resight} interpreted length-2 vectors of detection par
 \seealso{
     \code{\link{sim.popn}}, \code{\link{capthist}}, \code{\link{traps}},
     \code{\link{popn}}, \code{\link{Detection functions}}, \code{\link[stats]{simulate}},
-    \code{\link{Tu}}, \code{\link{Tm}}
+    \code{\link{Tu}}, \code{\link{Tm}}, \code{\link{make.marking}}
 }
 
 \examples{

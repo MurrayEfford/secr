@@ -137,7 +137,8 @@ posted when no errors are found.
 
 \seealso{
 
-\code{\link{capthist}}, \code{\link{secr.fit}}, \code{\link{shareFactorLevels}}
+\code{\link{capthist}}, \code{\link{make.marking}}, \code{\link{secr.fit}},
+\code{\link{shareFactorLevels}}
 
 }
 

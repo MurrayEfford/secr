@@ -6,9 +6,10 @@
 \description{
 
 Build in one step a \code{capthist} object for telemetry type 'marking' (telemetry-calibrated cue
-counts; see \code{\link{addTelemetry}}) from the detections and telemetry of collared animals and
-the sightings of animals that are not individually identified. The function may be used for
-single-session or multi-session data, and allows a session in which no animal was collared.
+counts; see section 'Telemetry-calibrated cue counts') from the detections and telemetry of
+collared animals and the sightings of animals that are not individually identified. The function
+may be used for single-session or multi-session data, and allows a session in which no animal was
+collared.
 
 }
 
@@ -127,6 +128,76 @@ same levels in all sessions (\code{\link{shareFactorLevels}}).
 
 }
 
+\section{Telemetry-calibrated cue counts}{
+
+Telemetry type `marking' is used for telemetry-calibrated cue counts: cameras (or other `count'
+detectors) detect \emph{all} animals, but identify only animals wearing radio-collars (the
+`marked' animals). The collared animals also provide telemetry fixes. The identified sightings
+and fixes of the collared animals (\code{detections}, \code{telemetry}) are used to estimate the
+detection parameters, and the counts of sightings of animals that were \emph{not} identified as
+collared (\code{Tu}, and optionally \code{Tm} for collared animals that were seen but not
+identified) then give density.
+
+Cues of collared animals recorded in \code{Tm} or as identified sightings are not counted again
+as unmarked cues; this is the principal difference from a model that treats the sightings of
+unmarked animals independently of those of marked animals. The probability that a sighting of a
+collared animal is identified (parameter \code{pID}, `q') is estimated only if \code{Tm} is
+present.
+
+A collar may not function throughout the survey. Use \code{marked} (see also
+\code{\link{marked}}) to specify when each animal could be recognised as marked (default is all
+occasions). Collared animals that were never detected contribute information only through their
+fixes and exposure.
+
+The model is fitted by \code{\link{secr.fit}} with \code{detectfn = "HHN"} (or `HEX'). The
+activity centres of collared animals are integrated by summing over the mask or, usually faster,
+by Gauss-Hermite quadrature around the mean of the fixes
+(\code{details = list(telemetryint = "GH")}; see \code{\link{details}}). Density is estimated from
+the total sightings of unmarked animals after allowing for the collared animals' own sightings, so
+collars need not be deployed in proportion to density, but the collared animals should be
+representative of the population in their detectability (absolute density is biased low if collars
+favour animals that are individually more detectable). A density model such as \code{D ~ x} is
+possible if the mask has covariate \code{x}; coefficients are then estimated from the spatial
+pattern of unmarked sightings, and \code{\link{derived}} reports D as a cue-weighted density (the
+mean of D(x) over the mask weighted by the expected number of cues from an animal centred at x)
+that is better determined than the mean density over the mask. A mask covariate named `marking'
+gives a non-uniform prior for the activity centres of collared animals (default uniform).
+
+With \code{CL = TRUE} the likelihood is conditional on the collared animals: it uses their
+identified sightings, their telemetry and, if present, \code{Tm}. The unmarked sightings \code{Tu}
+contribute only through their spatial pattern across detectors, and only when there is a
+(relative) density model such as \code{D ~ x}; the density level is not estimated. The detection
+parameters (including \code{pID}) and the density coefficients are those of the full likelihood,
+and the CL fit is a quick way to obtain them. Density requires the full likelihood
+(\code{CL = FALSE}); \code{\link{derived}}, \code{\link{derivedDcoef}},
+\code{\link{derivedDsurface}} and \code{\link{region.N}} are not available for a CL fit of this
+type.
+
+Sightings are overdispersed relative to the Poisson (the unmarked total is a sum over animals of
+correlated cues). The scale factor `chat' is computed analytically from the fitted model by
+specifying \code{details = list(chatmethod = "analytic")}; \code{secr.fit} evaluates it at the
+estimates (a second maximisation starting from the first). An existing fit may be updated with
+\code{secr.refit(fit, details = list(chatmethod = "analytic"))}. Simulation of \code{chat}
+(\code{details$nsim}) is not available for this telemetry type. See \code{\link{details}}.
+
+Finite mixture models (e.g. \code{model = list(sigma ~ h2, lambda0 ~ h2)}) are supported when the
+class of every collared animal is known: the classes are given by a categorical individual
+covariate named in \code{hcov}, and an error is reported if any collared animal has an unknown
+class. The classes of the unmarked animals are unknown and are modelled as a latent mixture with
+population proportions \code{pmix}. By default \code{pmix} is estimated from the class
+composition of the collared animals, which assumes that collaring was independent of class. If
+that is doubtful (for example, sex-biased collaring) fix \code{pmix} at an external value with
+\code{fixed = list(pmix = p)}, where for two classes \code{p} is the proportion in the second
+class. For three classes (\code{h3}) give the proportions in classes 2 and 3, or in all three
+classes.
+
+A capthist with telemetry type `marking' may also be assembled by the sequence of functions
+listed in Details; \code{\link{addTelemetry}} then sets the telemetry type, adds the telemetry
+occasion and detector, and sets \code{markocc} (0 for each sighting occasion and 1 for the
+telemetry occasion, e.g. \code{c(0,0,0,0,0,1)}) unless \code{markocc} has already been set.
+
+}
+
 \seealso{
 
 \code{\link{addTelemetry}}, \code{\link{addSightings}}, \code{\link{make.capthist}},
@@ -164,5 +235,49 @@ tel$Session <- "year1"
 Tu2 <- list(Tu, matrix(rpois(25*4, 0.5), 25, 4))
 ch2 <- make.marking(trl, det, tel, Tu = Tu2)
 sapply(ch2, nrow)   # number of collared animals in each session
+
+## simulated cameras count all animals, but only collared animals are identified
+set.seed(1)
+tr  <- make.grid(nx = 9, ny = 9, spacing = 11, detector = "count")
+msk <- make.mask(tr, buffer = 30, spacing = 5, type = "traprect")
+pop <- sim.popn(D = 50, core = msk, buffer = 0)
+collared <- 1:nrow(pop) \%in\% sample(nrow(pop), 15)
+dp <- list(lambda0 = 1, sigma = 4)
+
+## identified sightings of collared animals, and telemetry fixes
+sightCH <- sim.capthist(tr, popn = subset(pop, collared), detectfn = "HHN",
+    detectpar = dp, noccasions = 5, renumber = FALSE)
+teCH <- sim.capthist(make.telemetry(), popn = subset(pop, collared),
+    detectfn = "HHN", detectpar = dp, noccasions = 50, renumber = FALSE)
+
+## counts at each detector and occasion of animals without collars (K x S matrix)
+uCH <- sim.capthist(tr, popn = subset(pop, !collared), detectfn = "HHN",
+    detectpar = dp, noccasions = 5, renumber = FALSE)
+Tu <- t(apply(uCH, 2:3, sum))
+
+## detections as a data frame (one row per detection), and fixes as a data frame
+w <- which(sightCH > 0, arr.ind = TRUE)
+w <- w[rep(seq_len(nrow(w)), sightCH[w]), , drop = FALSE]
+det <- data.frame(Session = 1, ID = rownames(sightCH)[w[,1]], Occasion = w[,2],
+    Detector = rownames(tr)[w[,3]])
+fixes <- telemetryxy(teCH)
+tel <- data.frame(ID = rep(names(fixes), sapply(fixes, nrow)),
+    x = unlist(lapply(fixes, "[[", "x")), y = unlist(lapply(fixes, "[[", "y")))
+
+## these traps have no usage attribute, so the number of occasions is needed
+ch <- make.marking(tr, det, tel, Tu = Tu, noccasions = 5)
+markocc(traps(ch))     # 5 sighting occasions + telemetry
+
+\donttest{
+fit <- secr.fit(ch, mask = msk, detectfn = "HHN", trace = FALSE,
+    details = list(telemetryint = "GH"))
+predict(fit)
+
+## model-based overdispersion (chat) and cue-weighted density
+## (or specify details = list(chatmethod = "analytic") in the first call)
+fit2 <- secr.refit(fit, details = list(chatmethod = "analytic"), trace = FALSE)
+predict(fit2)
+derived(fit2)
+}
 
 }

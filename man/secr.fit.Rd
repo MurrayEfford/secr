@@ -340,6 +340,7 @@ unreliable results before version 5.3.0. See https://github.com/MurrayEfford/sec
   \code{\link{hcov}},
   \code{\link{mask}},
   \code{\link{list.secr.fit}},
+  \code{\link{make.marking}},
   \code{\link{predict.secr}},
   \code{\link{print.secr}},
   \code{\link{region.N}},
