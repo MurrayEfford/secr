@@ -96,6 +96,22 @@ test_that("addTelemetry sets markocc for type 'marking' unless already set", {
     expect_equal(markocc(traps(addTelemetry(sightCH, teCH, type = "marking"))), c(0, 1, 0, 1))
 })
 
+test_that("addTelemetry warns when type 'marking' has no telemetered animals", {
+    set.seed(1)
+    tr  <- make.grid(nx = 5, ny = 5, spacing = 10, detector = "count")
+    pop <- sim.popn(D = 50, core = make.mask(tr, buffer = 20, spacing = 5), buffer = 0)
+    dp  <- list(lambda0 = 1, sigma = 5)
+    sightCH <- sim.capthist(tr, popn = pop, detectfn = "HHN", detectpar = dp,
+                            noccasions = 3, renumber = FALSE)
+    teCH <- sim.capthist(make.telemetry(), popn = pop, detectfn = "HHN", detectpar = dp,
+                         noccasions = 10, renumber = FALSE)
+    noTe <- suppressWarnings(subset(teCH, rep(FALSE, nrow(teCH)), dropnullCH = FALSE))
+    expect_equal(nrow(noTe), 0)
+    expect_warning(out <- addTelemetry(sightCH, noTe, type = "marking"), "make.marking")
+    expect_identical(out, sightCH)                       # returned unchanged
+    expect_no_warning(addTelemetry(sightCH, noTe, type = "concurrent"))
+})
+
 test_that("Gauss-Hermite integration is accurate for HEX (few fixes per collar)", {
     ## simulated HEX data, 5 fixes per collar (the hardest case); the default 7 x 7 rule is
     ## compared with a 25 x 25 rule by forcing the number of nodes
