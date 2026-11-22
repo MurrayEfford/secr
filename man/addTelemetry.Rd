@@ -86,6 +86,9 @@ The default behaviour of `addTelemetry` is to automatically collapse all telemet
 information in the telemetryxy attribute is converted back to a capthist with
 detector type `telemetry'.
 
+The separate function \code{\link{make.marking}} may be used to assemble a capthist 
+object with telemetrytype `marking' from the various inputs.
+
 }
 
 \value{
@@ -142,6 +145,7 @@ The `telemetry' detector type is used for telemetry occasions in a combined data
 \seealso{
   
   \code{\link{capthist}},
+  \code{\link{make.marking}},
   \code{\link{make.telemetry}},
   \code{\link{read.telemetry}},
   \code{\link{telemetryxy}},
