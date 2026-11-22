@@ -148,7 +148,7 @@ with one component for each session and group.
 
 The result will also be a list if \code{object} is an `secrlist'.
 
-For models of telemetry type `marking' (see \code{\link{addTelemetry}}) the
+For models of telemetry type `marking' (see \code{\link{make.marking}}) the
 Horvitz-Thompson estimators above do not apply. Instead \code{derived} returns a dataframe with
 rows `Lambda' and `D' and columns estimate, SE.estimate, lcl, ucl, CVcues, CVLambda and CVD.
 \code{Lambda} is the expected number of cues per animal per unit density, summed over the

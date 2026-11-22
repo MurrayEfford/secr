@@ -136,7 +136,7 @@ University of Otago, Dunedin, New Zealand. \url{https://www.otago.ac.nz/density/
 }
 
 \seealso{ \code{\link{capthist}}, \code{\link{traps}},
-\code{\link{read.capthist}}, \code{\link{secr.fit}},
+\code{\link{make.marking}}, \code{\link{read.capthist}}, \code{\link{secr.fit}},
 \code{\link{sim.capthist}} }
 
 \examples{

@@ -16,9 +16,9 @@ with true capture--recapture data (e.g. detections from hair-snag DNA)
 in another capthist object.  \code{secr.fit} automatically detects the
 telemetry data in the new object.
 
-Data from an arbitrary sample of telemetered animals combined with cue counts 
-for unmarked animals are a special case that is discussed below 
-('Telemetry-calibrated cue counts').
+Data from an arbitrary sample of telemetered animals combined with cue counts
+for unmarked animals are a special case (telemetry type `marking') that is documented
+with \code{\link{make.marking}}.
 
 A capthist object including telemetry data has at least one added occasion,
 and one additional (notional) telemetry `detector'. These additions can be 
@@ -76,8 +76,8 @@ is set to the value provided.  The telemetry type may be ``independent''
 may be capture-only, telemetry-only or both capture and telemetry), or ``marking'' 
 (one detection history for each telemetered animal, and no others).
 
-The telemetry locations are carried over from telemetryCH as attribute `xylist' (each
-component of xylist holds the coordinates of one animal; use
+The telemetry locations are carried over from telemetryCH as attribute `telemetryxy' (each
+component holds the coordinates of one animal; use
 \code{\link{telemetryxy}} to extract).
 
 The default behaviour of `addTelemetry` is to automatically collapse all telemetry occasions into one.  This is computationally more efficient than the alternative, but closes off some possible models.
@@ -86,8 +86,16 @@ The default behaviour of `addTelemetry` is to automatically collapse all telemet
 information in the telemetryxy attribute is converted back to a capthist with
 detector type `telemetry'.
 
-The separate function \code{\link{make.marking}} may be used to assemble a capthist 
-object with telemetrytype `marking' from the various inputs.
+For telemetry type `marking' (telemetry-calibrated cue counts) the function
+\code{\link{make.marking}} is the usual way to assemble the capthist object from the various
+inputs; the model and its options are described there. With \code{addTelemetry},
+\code{type = "marking"}, \code{detectionCH} holds the identified sightings of the collared
+animals on the sighting occasions (detector type `count'), and \code{markocc} is set to 0
+for each sighting occasion and 1 for the telemetry occasion unless it has already been set
+for \code{detectionCH}; sightings of animals that were not identified are then added with
+\code{\link{addSightings}}. Unlike \code{make.marking}, \code{addTelemetry} returns
+\code{detectionCH} unchanged if \code{telemetryCH} has no animals (with a warning if
+\code{type = "marking"}).
 
 }
 
@@ -99,36 +107,6 @@ object with telemetrytype `marking' from the various inputs.
   For \code{dropTelemetry}, a capthist object with the same attributes as the input, 
   but with telemetry occasion(s), the notional telemetry detector, and the
   `telemetryxy' attribute removed.
-}
-
-\section{Telemetry-calibrated cue counts}{
-
-Telemetry type `marking' is used for telemetry-calibrated cue counts: cameras (or other `count' 
-detectors) detect \emph{all} animals, but identify only animals wearing 
-radio-collars (the `marked' animals). The collared animals also provide 
-telemetry fixes. The data are assembled as follows.
-
-\itemize{
-\item \code{detectionCH} holds the identified sightings of collared animals on the sighting occasions, one history for each collared animal. Animals never sighted have all-zero histories; they are added by \code{addTelemetry} if they are present in \code{telemetryCH}. Detector type should be `count'.
-\item \code{telemetryCH} holds the telemetry fixes. They are collapsed to a single telemetry occasion (the last), recorded at a notional extra detector.
-\item The traps attribute \code{markocc} (see \code{\link{markocc}}) is set by \code{addTelemetry} to 0 for each sighting occasion and 1 for the telemetry occasion, e.g. \code{c(0,0,0,0,0,1)}, unless \code{markocc} has already been set for \code{detectionCH}.
-\item The counts of sightings of animals that were \emph{not} identified as collared are added with \code{\link{addSightings}}: argument \code{unmarked} (attribute Tu, a K x S matrix of counts) for animals without collars and, optionally, \code{nonID} (attribute Tm) for collared animals that were seen but not identified.
-}
-
-Cues of collared animals recorded in \code{Tm} or as identified sightings are not counted again as unmarked cues; this is the principal difference from a model that treats the sightings of unmarked animals independently of those of marked animals. The probability that a sighting of a collared animal is identified (parameter \code{pID}, `q') is estimated only if \code{Tm} is present.
-
-A collar may not function throughout the survey. Use \code{marked(capthist) <- } (see \code{\link{marked}}) to specify when each animal could be recognised as marked (default is all occasions). Collared animals that were never detected contribute information only through their fixes and exposure.
-
-The model is fitted by \code{\link{secr.fit}} with \code{detectfn = "HHN"} (or `HEX'). The activity centres of collared animals are integrated by summing over the mask or, usually faster, by Gauss-Hermite quadrature around the mean of the fixes (\code{details = list(telemetryint = "GH")}; see \code{\link{details}}). Density is estimated from the total sightings of unmarked animals after allowing for the collared animals' own sightings, so collars need not be deployed in proportion to density, but the collared animals should be representative of the population in their detectability (absolute density is biased low if collars favour animals that are individually more detectable). A density model such as \code{D ~ x} is possible if the mask has covariate \code{x}; coefficients are then estimated from the spatial pattern of unmarked sightings, and \code{\link{derived}} reports D as a cue-weighted density (the mean of D(x) over the mask weighted by the expected number of cues from an animal centred at x) that is better determined than the mean density over the mask. A mask covariate named `marking' gives a non-uniform prior for the activity centres of collared animals (default uniform).
-
-\code{\link{secr.fit}} stops with an error for telemetry type `marking' if any non-telemetry detector is not of type `count'.
-
-With \code{CL = TRUE} the likelihood is conditional on the collared animals: it uses their identified sightings, their telemetry and, if present, \code{Tm}. The unmarked sightings \code{Tu} contribute only through their spatial pattern across detectors, and only when there is a (relative) density model such as \code{D ~ x}; the density level is not estimated. The detection parameters (including \code{pID}) and the density coefficients are those of the full likelihood, and the CL fit is a quick way to obtain them. Density requires the full likelihood (\code{CL = FALSE}); \code{\link{derived}}, \code{\link{derivedDcoef}}, \code{\link{derivedDsurface}} and \code{\link{region.N}} are not available for a CL fit of this type.
-
-Sightings are overdispersed relative to the Poisson (the unmarked total is a sum over animals of correlated cues). The scale factor `chat' is computed analytically from the fitted model by specifying \code{details = list(chatmethod = "analytic")}; \code{secr.fit} evaluates it at the estimates (a second maximisation starting from the first). An existing fit may be updated with \code{secr.refit(fit, details = list(chatmethod = "analytic"))}. Simulation of \code{chat} (\code{details$nsim}) is not available for this telemetry type. See \code{\link{details}}.
-
-Finite mixture models (e.g. \code{model = list(sigma ~ h2, lambda0 ~ h2)}) are supported when the class of every collared animal is known: the classes are given by a categorical individual covariate named in \code{hcov}, and an error is reported if any collared animal has an unknown class. The classes of the unmarked animals are unknown and are modelled as a latent mixture with population proportions \code{pmix}. By default \code{pmix} is estimated from the class composition of the collared animals, which assumes that collaring was independent of class. If that is doubtful (for example, sex-biased collaring) fix \code{pmix} at an external value with \code{fixed = list(pmix = p)}, where for two classes \code{p} is the proportion in the second class. For three classes (\code{h3}) give the proportions in classes 2 and 3, or in all three classes.
-
 }
 
 \note{
@@ -159,7 +137,8 @@ The `telemetry' detector type is used for telemetry occasions in a combined data
 \examples{
 
 # Telemetry type 'marking': simulated cameras count all animals, but only
-# collared animals are identified
+# collared animals are identified. This is the sequence of functions that
+# make.marking() replaces; for the model fit see ?make.marking
 
 set.seed(1)
 tr  <- make.grid(nx = 9, ny = 9, spacing = 11, detector = "count")
@@ -182,18 +161,7 @@ Tu <- t(apply(uCH, 2:3, sum))
 ch <- addTelemetry(sightCH, teCH, type = "marking")
 markocc(traps(ch))     # 5 sighting occasions + telemetry
 ch <- addSightings(ch, unmarked = Tu)
-
-\donttest{
-fit <- secr.fit(ch, mask = msk, detectfn = "HHN", trace = FALSE,
-    details = list(telemetryint = "GH"))
-predict(fit)
-
-# model-based overdispersion (chat) and cue-weighted density
-# (or specify details = list(chatmethod = "analytic") in the first call)
-fit2 <- secr.refit(fit, details = list(chatmethod = "analytic"), trace = FALSE)
-predict(fit2)
-derived(fit2)
-}
+summary(ch)
 
 \dontrun{
 

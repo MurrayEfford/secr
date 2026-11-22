@@ -39,7 +39,7 @@ of unmarked sightings Tu and unidentified marked sightings Tm. It is used only
 for mark-resight models, and is usually computed within \code{secr.fit} 
 (\code{details$nsim > 0}), but may be provided by the user. For a single session
 `chat` is a vector of length 2; for multiple sessions it is a 2-column matrix.
-For telemetry type `marking' (see \code{\link{addTelemetry}}) `chat' has three elements
+For telemetry type `marking' (see \code{\link{make.marking}}) `chat' has three elements
 (a scalar is repeated): the overdispersion of the total count of unmarked sightings, of
 unidentified marked sightings Tm, and, for models with density covariates, of the spread of
 unmarked sightings across detectors (usually the Pearson chi-square statistic divided by its
