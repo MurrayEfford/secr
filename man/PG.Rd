@@ -6,7 +6,7 @@
 \description{
   
 For a telemetry dataset, either as a standalone capthist object with
-detector type `telemetryonly' or the xylist attribute of a combined capthist
+detector type `telemetryonly' or the telemetryxy attribute of a combined capthist
 object resulting from \code{addTelemetry}, determine the proportion of
 fixes of each individual that lie within a set of polygons. Typically
 used to obtain the proportion of fixes on a trapping grid, hence
@@ -49,7 +49,7 @@ PG(CH, poly = NULL, includeNULL = FALSE, plt = FALSE, ...)
   Numeric vector of proportions. If \code{includeNULL = TRUE} length
   equal to number of animals (rows) in \code{CH}; otherwise length is
   the number of animals for which there is telemetry data (because
-  xylist may cover only a subset of animals in \code{CH}).
+  telemetryxy may cover only a subset of animals in \code{CH}).
 
 }
 
@@ -117,7 +117,7 @@ randomPG <- function(CH, poly = NULL, mask, reorient = TRUE, nrepl = 1,
         centres <- sim.popn(D = D, core = mask, model2D = "IHP",
                             Ndist = "fixed")
         xyl <- mapply(moveone, xyl, split(centres, rownames(centres)))
-        attr(CH, 'xylist') <- xyl  ## substitute random placement
+        attr(CH, 'telemetryxy') <- xyl  ## substitute random placement
         PG(CH = CH , poly = poly, plt = FALSE, ...)
     }
     set.seed(seed)

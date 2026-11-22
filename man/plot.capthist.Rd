@@ -94,7 +94,7 @@ individuals then colours will be re-used.
 
 \code{plotMCP} plots minimum convex polygons of individual location
 data over a base plot of detector locations. Usually the data are
-telemetry locations in the xylist attribute of the capthist
+telemetry locations in the telemetryxy attribute of the capthist
 object; if this is not present and \code{x} is a polygon search
 capthist then the individual xy data are plotted.
 

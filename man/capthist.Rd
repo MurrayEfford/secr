@@ -29,7 +29,7 @@ Ancillary data are retained as attributes of a \code{capthist} object as follows
 \item{signalframe --- signal strength values etc., one row per detection (`signal' only)}
 \item{detectedXY --- dataframe of coordinates for location within
   polygon (`polygon'-like detectors only)}
-\item{xylist --- coordinates of telemetered animals}
+\item{telemetryxy --- list of dataframes of coordinates of telemetered animals, one per animal}
 \item{Tu --- detectors x occasions matrix of sightings of unmarked animals}
 \item{Tm --- detectors x occasions matrix of sightings of marked but unidentified animals }
 \item{Tn --- detectors x occasions matrix of sightings with unknown mark status }
@@ -74,7 +74,7 @@ Entries in the matrix corresponded to trap numbers. The function
 
 \seealso{ \code{\link{traps}}, \code{\link{secr.fit}},
 \code{\link{read.capthist}}, \code{\link{make.capthist}},
-\code{\link{sim.capthist}},
+\code{\link{make.marking}}, \code{\link{sim.capthist}},
 \code{\link{subset.capthist}}, \code{\link{rbind.capthist}},
 \code{\link{MS.capthist}},
 \code{\link{reduce.capthist}}, \code{\link{mask}} }
