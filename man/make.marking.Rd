@@ -16,7 +16,7 @@ collared.
 \usage{
 
 make.marking(traps, detections = NULL, telemetry = NULL, marked = NULL,
-    covariates = NULL, Tu = NULL, Tm = NULL, noccasions = NULL, verify = TRUE, ...)
+    Tu = NULL, Tm = NULL, noccasions = NULL, verify = TRUE, ...)
 
 }
 
@@ -31,9 +31,9 @@ make.marking(traps, detections = NULL, telemetry = NULL, marked = NULL,
     the \code{captures} argument of \code{\link{make.capthist}} with \code{fmt = "trapID"}:
     columns Session, ID, Occasion, Detector (a row name of \code{traps}), with one row for each
     detection (repeat the row for each further count). Column names are ignored. Further columns
-    (5 onwards) are individual covariates, taken from the first row of each animal, unless
-    \code{covariates} is given, in which case they are dropped. A row with Occasion 0 (no
-    detection) is ignored. Every animal must also have telemetry fixes. NULL if no collared animal
+    (5 onwards) are individual covariates, taken from the first row of each animal (as in
+    \code{make.capthist}); other covariates may be added later with \code{covariates<-} (see
+    Details). A row with Occasion 0 (no detection) is ignored. Every animal must also have telemetry fixes. NULL if no collared animal
     was detected.}
 
   \item{telemetry}{telemetry fixes: a data frame with columns ID, x, y (and Session for several
@@ -45,11 +45,6 @@ make.marking(traps, detections = NULL, telemetry = NULL, marked = NULL,
     detectable (collar active), with one row per collared animal (row names are IDs) and S columns;
     a list of matrices for several sessions (NULL allowed). If NULL all collars are assumed active
     throughout (see \code{\link{marked}}).}
-
-  \item{covariates}{data frame of individual covariates of the collared animals, with row names
-    equal to IDs or with a column ID (and Session for several sessions); a list of data frames for
-    several sessions. A session without collars receives a data frame with no rows and the same
-    columns.}
 
   \item{Tu, Tm}{sightings of unmarked animals (\code{Tu}) and of marked animals that were not
     identified (\code{Tm}) as counts for each detector and occasion (K x S); see Details.}
@@ -83,8 +78,8 @@ among sessions and density is estimated for each, including sessions without col
 (\code{D ~ session}). At least one session must have a collared animal.
 
 \emph{Sessions.} For several sessions \code{traps} must be a named list; the names are the session
-names, and the Session values in \code{detections} (and in \code{telemetry} and \code{covariates}
-if they have a Session column) must match them. For one session the session name is the single
+names, and the Session values in \code{detections} (and in \code{telemetry}
+if it has a Session column) must match them. For one session the session name is the single
 value of Session in \code{detections} (otherwise in \code{telemetry}, otherwise "1"). A data frame
 for several sessions may be replaced by a list with one component per session.
 
@@ -115,8 +110,10 @@ occasion are set to 1, with a warning. With "count" detectors a warning is given
 appropriate.
 
 Animals are in sorted order of ID, as from \code{read.telemetry}, and row names are the IDs
-(\code{addTelemetry} pads IDs to a common width). Individual covariates are matched to animals by
-ID, not by position, and have the IDs as row names.
+(\code{addTelemetry} pads IDs to a common width). Individual covariates from \code{detections} are matched to animals by
+ID and have the IDs as row names. Covariates held in a separate table are added afterwards, in
+the row order of the capthist, e.g. for one session
+\code{covariates(ch) <- tab[match(rownames(ch), tab$ID), "Sex", drop = FALSE]}.
 
 }
 

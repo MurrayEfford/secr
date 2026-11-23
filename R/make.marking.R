@@ -5,12 +5,13 @@
 ############################################################################################
 
 ## The arguments are in three groups: the cameras (traps); the collared sample, one row per
-## collared animal, all keyed by ID (detections, telemetry, marked, covariates); and the
+## collared animal, all keyed by ID (detections, telemetry, marked); and the
 ## sightings of animals not individually identified, counts by detector and occasion (Tu, Tm).
 
 make.marking <- function (traps, detections = NULL, telemetry = NULL, marked = NULL,
-                          covariates = NULL, Tu = NULL, Tm = NULL, noccasions = NULL,
-                          verify = TRUE, ...) {
+                          Tu = NULL, Tm = NULL, noccasions = NULL, verify = TRUE, ...) {
+
+    covariates <- NULL
 
     ## ---- detections as the 'captures' of make.capthist (Session, ID, Occasion, Detector) ----
     if (!is.null(detections)) {
@@ -18,8 +19,8 @@ make.marking <- function (traps, detections = NULL, telemetry = NULL, marked = N
             stop ("detections should be a data frame with columns Session, ID, Occasion, ",
                   "Detector (as 'captures' of make.capthist)")
         ## as in make.capthist, columns 5 onwards are individual covariates (first row of each
-        ## animal within a session); an explicit 'covariates' argument takes precedence
-        if (ncol(detections) > 4 && is.null(covariates)) {
+        ## animal within a session)
+        if (ncol(detections) > 4) {
             first <- !duplicated(detections[, 1:2])
             covariates <- data.frame(Session = detections[first, 1], ID = detections[first, 2],
                                      detections[first, -(1:4), drop = FALSE],

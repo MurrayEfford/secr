@@ -113,15 +113,11 @@ test_that("make.marking ignores Occasion 0 rows (no detection) and checks the ID
     ## not allowed for an animal that also has detections, or that has no telemetry
     expect_error(make.marking(tr, rbind(det, place("A")), tel), "also have detections")
     expect_error(make.marking(tr, rbind(det, place("D")), tel), "without telemetry")
-    ## columns 5 onwards of detections are individual covariates (as in make.capthist);
-    ## the covariates argument takes precedence
+    ## columns 5 onwards of detections are individual covariates (as in make.capthist)
     detc <- cbind(rbind(det, place("B")), Sex = c("F","F","M","M"))
     ch2  <- suppressMessages(make.marking(tr, detc, tel))
     expect_equal(as.character(covariates(ch2)$Sex), c("F","M","M"))
     expect_equal(rownames(covariates(ch2)), c("A","B","C"))
-    cv <- data.frame(Sex = c("M","F","F"), row.names = c("A","B","C"))
-    ch3 <- suppressMessages(make.marking(tr, detc, tel, covariates = cv))
-    expect_equal(as.character(covariates(ch3)$Sex), c("M","F","F"))
 })
 
 test_that("addTelemetry warns when type 'marking' has no telemetered animals", {
