@@ -96,6 +96,34 @@ test_that("addTelemetry sets markocc for type 'marking' unless already set", {
     expect_equal(markocc(traps(addTelemetry(sightCH, teCH, type = "marking"))), c(0, 1, 0, 1))
 })
 
+test_that("make.marking ignores Occasion 0 rows (no detection) and checks the IDs", {
+    tr <- make.grid(nx = 5, ny = 5, spacing = 100, detector = "count")
+    usage(tr) <- matrix(1, nrow(tr), 4)
+    set.seed(123)
+    tel <- data.frame(ID = rep(c("A","B","C"), each = 10), x = rnorm(30, 200, 40),
+                      y = rnorm(30, 200, 40))
+    det <- data.frame(Session = 1, ID = c("A","A","C"), Occasion = c(1,3,2),
+                      Detector = rownames(tr)[c(1,7,12)])
+    ch0 <- suppressMessages(make.marking(tr, det, tel))
+    expect_equal(rownames(ch0), c("A","B","C"))          # B was never detected
+    ## placeholder row for B, as make.capthist would have it
+    place <- function (id) data.frame(Session = 1, ID = id, Occasion = 0, Detector = rownames(tr)[1])
+    ch1 <- suppressMessages(make.marking(tr, rbind(det, place("B")), tel))
+    expect_equal(ch1, ch0)
+    ## not allowed for an animal that also has detections, or that has no telemetry
+    expect_error(make.marking(tr, rbind(det, place("A")), tel), "also have detections")
+    expect_error(make.marking(tr, rbind(det, place("D")), tel), "without telemetry")
+    ## columns 5 onwards of detections are individual covariates (as in make.capthist);
+    ## the covariates argument takes precedence
+    detc <- cbind(rbind(det, place("B")), Sex = c("F","F","M","M"))
+    ch2  <- suppressMessages(make.marking(tr, detc, tel))
+    expect_equal(as.character(covariates(ch2)$Sex), c("F","M","M"))
+    expect_equal(rownames(covariates(ch2)), c("A","B","C"))
+    cv <- data.frame(Sex = c("M","F","F"), row.names = c("A","B","C"))
+    ch3 <- suppressMessages(make.marking(tr, detc, tel, covariates = cv))
+    expect_equal(as.character(covariates(ch3)$Sex), c("M","F","F"))
+})
+
 test_that("addTelemetry warns when type 'marking' has no telemetered animals", {
     set.seed(1)
     tr  <- make.grid(nx = 5, ny = 5, spacing = 10, detector = "count")

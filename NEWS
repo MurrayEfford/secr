@@ -8,7 +8,8 @@ New features or changed behaviour of old functions
     o  list.secr.fit() adds option 'bymodel' to use parallel cluster
     o  make.marking() new function to construct 'marking' telemetry capthist
     o  multi-session models with telemetrytype = 'marking' allow session(s) with no telemetry
-    o  addTelemetry() generates markocc automatically if needed when telemetrytype = 'marking'
+    o  addTelemetry() when telemetrytype = 'marking' generates markocc automatically if needed,
+       and warns when no telemetered animals
     o  dropTelemetry() new function complements addTelemetry()
     o  secr.fit() with chatmethod = "analytic" now automatically refits sighting 
        models with c-hat at the estimates from a first fit; point estimates are

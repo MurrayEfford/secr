@@ -27,13 +27,14 @@ make.marking(traps, detections = NULL, telemetry = NULL, marked = NULL,
     \code{traps} objects (class c("traps", "list")) one per session. The detector type is taken
     from \code{traps}: "count", or "proximity" (see Details).}
 
-  \item{detections}{data frame of the detections of identified (collared) animals at cameras in the
-    format of the \code{captures} argument of \code{\link{make.capthist}} with
-    \code{fmt = "trapID"}: columns Session, ID, Occasion, Detector (a row name of \code{traps}),
-    one row per detection (repeat rows for counts). Session is the first column, also for a
-    single session. May be NULL or have no rows for a session. Column names are ignored; further
-    columns are dropped. Only this `trapID' format is accepted (the `XY' format is for polygon
-    detectors).}
+  \item{detections}{data frame of the detections of collared animals at cameras, in the format of
+    the \code{captures} argument of \code{\link{make.capthist}} with \code{fmt = "trapID"}:
+    columns Session, ID, Occasion, Detector (a row name of \code{traps}), with one row for each
+    detection (repeat the row for each further count). Column names are ignored. Further columns
+    (5 onwards) are individual covariates, taken from the first row of each animal, unless
+    \code{covariates} is given, in which case they are dropped. A row with Occasion 0 (no
+    detection) is ignored. Every animal must also have telemetry fixes. NULL if no collared animal
+    was detected.}
 
   \item{telemetry}{telemetry fixes: a data frame with columns ID, x, y (and Session for several
     sessions; a column Occ is ignored); the output of \code{\link{read.telemetry}}; or a list

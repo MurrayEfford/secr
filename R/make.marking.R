@@ -17,6 +17,14 @@ make.marking <- function (traps, detections = NULL, telemetry = NULL, marked = N
         if (!is.data.frame(detections) || ncol(detections) < 4)
             stop ("detections should be a data frame with columns Session, ID, Occasion, ",
                   "Detector (as 'captures' of make.capthist)")
+        ## as in make.capthist, columns 5 onwards are individual covariates (first row of each
+        ## animal within a session); an explicit 'covariates' argument takes precedence
+        if (ncol(detections) > 4 && is.null(covariates)) {
+            first <- !duplicated(detections[, 1:2])
+            covariates <- data.frame(Session = detections[first, 1], ID = detections[first, 2],
+                                     detections[first, -(1:4), drop = FALSE],
+                                     row.names = NULL)
+        }
         detections <- detections[, 1:4]
         names(detections) <- c("Session", "ID", "Occasion", "Detector")
     }
@@ -140,8 +148,22 @@ make.marking <- function (traps, detections = NULL, telemetry = NULL, marked = N
                 stop ("detections needs columns ID, Occasion, Detector")
             id <- as.character(d$ID)
             if (!all(id %in% ids))
-                stop ("session ", sess, ": detected animal(s) without telemetry: ",
+                stop ("session ", sess, ": animal(s) in detections without telemetry: ",
                       paste(head(setdiff(unique(id), ids), 5), collapse = ", "))
+            ## as in make.capthist, a row with Occasion 0 marks a known animal that was not
+            ## detected; it is ignored (every animal with fixes has a history), but is not
+            ## allowed for an animal that also has detections
+            nodet <- !is.na(d$Occasion) & as.integer(d$Occasion) == 0
+            if (any(nodet)) {
+                bad <- intersect(id[nodet], id[!nodet])
+                if (length(bad))
+                    stop ("session ", sess, ": Occasion 0 (no detection) for animal(s) that also ",
+                          "have detections: ", paste(head(bad, 5), collapse = ", "))
+                d  <- d[!nodet, , drop = FALSE]
+                id <- id[!nodet]
+            }
+        }
+        if (!is.null(d) && nrow(d) > 0) {
             k <- if (is.numeric(d$Detector)) as.integer(d$Detector)
                  else match(as.character(d$Detector), rownames(tr))
             s <- as.integer(d$Occasion)
