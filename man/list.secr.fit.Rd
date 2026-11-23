@@ -5,13 +5,15 @@
 
 \description{
   
-  This function is a wrapper for \code{\link{secr.fit}} that allows multiple models to be fitted.
+  This function is a wrapper for \code{\link{secr.fit}} that allows multiple 
+  models to be fitted.
 
 }
 
 \usage{
 
-list.secr.fit (..., constant = list(), prefix = "fit", names = NULL, ncores = NULL, bymodel = FALSE) 
+list.secr.fit (..., constant = list(), prefix = "fit", names = NULL, ncores = NULL, 
+    bymodel = FALSE) 
 
 }
 
