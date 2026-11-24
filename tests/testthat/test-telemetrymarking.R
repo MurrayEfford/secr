@@ -137,6 +137,7 @@ test_that("addTelemetry warns when type 'marking' has no telemetered animals", {
 })
 
 test_that("Gauss-Hermite integration is accurate for HEX (few fixes per collar)", {
+    skip_on_cran()
     ## simulated HEX data, 5 fixes per collar (the hardest case); the default 7 x 7 rule is
     ## compared with a 25 x 25 rule by forcing the number of nodes
     set.seed(1)
