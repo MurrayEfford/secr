@@ -462,3 +462,58 @@ test_that("analytic c-hat second pass with fixed pmix", {
     expect_equal(as.numeric(fit2$details$chat), as.numeric(fit$details$chat), tolerance = 1e-4)
     expect_equal(coef(fit2)$beta, coef(fit)$beta, tolerance = 1e-3)
 })
+
+test_that("session with no collared animals: D ~ session shares detection parameters", {
+    skip_on_cran()
+    ## session A has 10 collared animals, session B has none (only unmarked cues Tu); this
+    ## used to end in a segfault (no animals in the PIA of session B)
+    set.seed(2024)
+    tr  <- make.grid(nx = 6, ny = 6, spacing = 15, detector = "count")
+    mk  <- make.mask(tr, buffer = 30, spacing = 7.5)
+    dp  <- list(lambda0 = 0.5, sigma = 10)
+    S   <- 4
+    sim1 <- function (D, ncollar) {
+        pop <- sim.popn(D = D, core = mk, buffer = 0)
+        isc <- seq_len(nrow(pop)) <= ncollar
+        ch  <- sim.capthist(tr, popn = pop, detectfn = "HHN", detectpar = dp, noccasions = S,
+                            renumber = FALSE)
+        chc <- subset(ch, rownames(ch) %in% which(isc), dropnullCH = TRUE)
+        chu <- subset(ch, !(rownames(ch) %in% which(isc)), dropnullCH = TRUE)
+        det <- tel <- NULL
+        if (ncollar > 0) {
+            w <- which(chc > 0, arr.ind = TRUE)
+            w <- w[rep(seq_len(nrow(w)), chc[w]), , drop = FALSE]
+            det <- data.frame(Session = "A", ID = rownames(chc)[w[,1]], Occasion = w[,2],
+                              Detector = rownames(tr)[w[,3]])
+            tel <- data.frame(Session = "A", ID = rep(as.character(1:ncollar), each = 20),
+                              x = rnorm(20 * ncollar, rep(pop$x[1:ncollar], each = 20), dp$sigma),
+                              y = rnorm(20 * ncollar, rep(pop$y[1:ncollar], each = 20), dp$sigma))
+        }
+        list(det = det, tel = tel, Tu = t(apply(chu, 2:3, sum)))
+    }
+    a <- sim1(40, 10)
+    b <- sim1(60, 0)
+    trs <- list(A = tr, B = tr)
+    class(trs) <- c("traps", "list")
+    ch <- make.marking(trs, a$det, a$tel, Tu = list(a$Tu, b$Tu), noccasions = S)
+    expect_equal(sapply(ch, nrow), c(A = 10, B = 0))
+
+    det <- list(telemetryint = "GH", chatmethod = "analytic")
+    fit <- secr.fit(ch, mask = mk, detectfn = "HHN", model = D ~ session, trace = FALSE,
+                    details = det)
+    expect_equal(nrow(coef(fit)), 4)                 # D, D.sessionB, lambda0, sigma
+    expect_true(all(is.finite(fit$beta.vcv)))
+    ## session A alone gives the same estimates (session B adds only its own D)
+    fitA <- secr.fit(ch[[1]], mask = mk, detectfn = "HHN", trace = FALSE, details = det)
+    expect_equal(coef(fit)$beta[c(1,3,4)], coef(fitA)$beta, tolerance = 1e-3)
+    ## D for session B is its total unmarked cues divided by Lambda (cues per animal per unit D)
+    dv <- derived(fit)
+    expect_equal(dv$B["D", "estimate"], sum(b$Tu) / dv$B["Lambda", "estimate"], tolerance = 1e-3)
+    expect_equal(dv$B["D", "estimate"], predict(fit)[[2]]["D", "estimate"], tolerance = 1e-3)
+    ## the analytic c-hat for session B has no collared animals and is a plain Tu dispersion
+    expect_true(all(is.finite(fit$details$chat)))
+    ## at least one session must have collared animals
+    chB <- ch[[2]]
+    expect_error(suppressWarnings(secr.fit(chB, mask = mk, detectfn = "HHN", trace = FALSE)),
+                 "at least one session")
+})
