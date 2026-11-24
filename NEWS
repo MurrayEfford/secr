@@ -1,3 +1,13 @@
+Changes in version 5.6.1 (2026-11-25)
+
+New features or changed behaviour of old functions
+    o  none
+    
+Other
+    o  skip_on_cran telemetry marking GH test to save time
+    o  C++ code in single file for faster compilation
+    
+
 Changes in version 5.6.0 (2026-11-24)
 
 New features or changed behaviour of old functions
