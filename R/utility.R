@@ -42,6 +42,7 @@
 ## 2025-11-26 5.4.0
 ## 2026-06-09 5.5.0
 ## 2026-07-02 secr_telemstatus
+## 2026-11-23 5.6.0
 ################################################################################
 
 # Global variables in namespace
@@ -51,8 +52,8 @@
 
 .localstuff <- new.env()
 
-.localstuff$packageType <- ' pre-release'
-## .localstuff$packageType <- ''
+# .localstuff$packageType <- ' pre-release'
+.localstuff$packageType <- ''
 
 .localstuff$validdetectors <- c('single','multi','proximity','count', 
     'polygonX', 'transectX', 'signal', 'polygon', 'transect', 
@@ -1169,16 +1170,19 @@ secr_mapbeta <- function (parindx0, parindx1, beta0, betaindex, default = 0)
             ## indx is within-parameter rather than absolute index
             ## for each _original_ real parameter
             indx <- lapply(parindx0, function(x) x-x[1]+1)
+            ## 2026-11-24 match real parameters by names(parindx0), not names(beta0): the first
+            ## coefficient of pmix is named 'pmix.h2', so pmix was never transferred
+            oldpar <- names(parindx0)
             was <- function (parname) {
-                parname %in% names(beta0) && !parname %in% names(beta1) 
+                parname %in% oldpar && !parname %in% names(beta1)
             }
             wasnt <- function (parname) {
-                !parname %in% names(beta0)
+                !parname %in% oldpar
             }
             for (j in names(beta1)) {
-                
+
                 # new = old
-                if (j %in% names(beta0)) {
+                if (j %in% oldpar) {
                     beta1[[j]][indx[[j]]] <- beta0[parindx0[[j]]]
                 }
                 

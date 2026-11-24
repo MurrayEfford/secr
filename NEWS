@@ -1,4 +1,4 @@
-Changes in version 5.6.0 (2026-11-23)
+Changes in version 5.6.0 (2026-11-24)
 
 New features or changed behaviour of old functions
     o  summary method for traps objects adds row 'mean' to usage x occasion
@@ -8,8 +8,8 @@ New features or changed behaviour of old functions
     o  list.secr.fit() adds option 'bymodel' to use parallel cluster
     o  make.marking() new function to construct 'marking' telemetry capthist
     o  multi-session models with telemetrytype = 'marking' allow session(s) with no telemetry
-    o  addTelemetry() when telemetrytype = 'marking' generates markocc automatically if needed,
-       and warns when no telemetered animals
+    o  addTelemetry() when telemetrytype = 'marking' generates markocc automatically if needed
+    o  addTelemetry() warns when no telemetered animals
     o  dropTelemetry() new function complements addTelemetry()
     o  secr.fit() with chatmethod = "analytic" now automatically refits sighting 
        models with c-hat at the estimates from a first fit; point estimates are
@@ -26,6 +26,7 @@ Bugs fixed
        delta method (multinomial logit)
     o  starting values for pmix in three-class mixtures gave classes 1 and 3 equal
        proportions (a symmetric start); now unequal
+    o  starting values for pmix from a previously fitted model were not used
     o  previous version mismatched ID for maxdistance in telemetry
     o  userDfn was always called with nsession = 1, so a function written for
        several sessions gave wrong densities without warning; it now stops if the array
@@ -43,6 +44,8 @@ Other
        telemetrytype 'marking' (default FALSE), with matching analytic c-hat
     o  summary for capthist objects includes summary of 'marked' attribute if present
     o  updated verify() help page
+    o  updated secr.refit() help page
+    o  functions added to secr-overview vignette appendix
 
 Changes in version 5.5.1 (2026-10-11)
 
