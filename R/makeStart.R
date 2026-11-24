@@ -50,8 +50,37 @@ makeStart <- function (start = NULL, parindx, capthist, mask, detectfn, link,
         }
         else {
             oldnam <- start$betanames
+            oldparindx <- start$parindx
             start <- secr_mapbeta(start$parindx, parindx, oldbeta, NULL)
-            
+
+            ## 2026-11-24 finite mixture model from a fit with no mixture, or with fewer classes:
+            ## the new pmix coefficients (0 = equal proportions) and the new class effects (0 =
+            ## identical classes) have no defaults. At the maximum of a one-class model the
+            ## likelihood is stationary in the class effects, so the fit would not move; use the
+            ## default unequal proportions and small unequal class effects
+            nmix <- details$nmix
+            if (!is.null(nmix) && nmix > 1 && !is.null(parindx[['pmix']]) &&
+                length(oldparindx[['pmix']]) < length(parindx[['pmix']])) {
+                if (!('pmix' %in% names(fixed))) {
+                    if (nmix == 2) {
+                        start[parindx[['pmix']][1]] <- clean.mlogit((1:nmix)-0.5)[2]
+                    }
+                    else {
+                        p <- (nmix:1) / sum(1:nmix)
+                        start[parindx[['pmix']][1:(nmix-1)]] <- log(p[-1] / p[1])
+                    }
+                }
+                k <- 0
+                for (j in setdiff(names(parindx), c('D', 'pmix'))) {
+                    nold <- length(oldparindx[[j]])      ## 0 if the parameter was absent
+                    newpos <- parindx[[j]][seq_along(parindx[[j]]) > nold]
+                    if (length(newpos) > 0) {
+                        k <- k + 1
+                        start[newpos] <- ifelse(k %% 2 == 1, 0.2, -0.2)
+                    }
+                }
+            }
+
             if (!is.null(details$miscparm)) {
                 nb <- length(start)
                 start <- c(start, details$miscparm)

@@ -79,6 +79,25 @@ test_that("three-class starting proportions are unequal", {
     expect_equal(unname(b), log(c(2, 1) / 3))
 })
 
+test_that("start = fitted model carries both pmix coefficients of a three-class model", {
+    skip_on_cran()
+    ## pmix was not transferred (its first coefficient is named 'pmix.h32', not 'pmix')
+    fit <- secr.fit(ch3, mask = msk3, hcov = "g", model = mod3, trace = FALSE, method = "none",
+                    details = list(hessian = FALSE))
+    LLstart <- function (...) {
+        as.numeric(secr.fit(ch3, mask = msk3, hcov = "g", trace = FALSE,
+                            details = list(LLonly = TRUE, hessian = FALSE), ...))
+    }
+    expect_equal(LLstart(model = mod3, start = fit), as.numeric(logLik(fit)), tolerance = 1e-6)
+    expect_equal(LLstart(model = list(g0 ~ h3, sigma ~ h3), start = fit), as.numeric(logLik(fit)),
+                 tolerance = 1e-6)
+    ## proportions fixed as a vector, then released
+    fx <- suppressWarnings(
+        secr.fit(ch3, mask = msk3, hcov = "g", model = mod3, trace = FALSE, start = fit,
+                 fixed = list(pmix = c(0.5, 0.3, 0.2)), method = "none", details = list(hessian = FALSE)))
+    expect_equal(LLstart(model = mod3, start = fx), as.numeric(logLik(fx)), tolerance = 1e-6)
+})
+
 test_that("predicted pmix for three classes has standard errors from the delta method", {
     skip_on_cran()
     fit <- secr.fit(ch3, mask = msk3, hcov = "g", model = mod3, trace = FALSE)
@@ -135,4 +154,20 @@ test_that("marking with three known classes reduces to two classes", {
     n <- table(factor(sx3, levels = c("F", "M", "N")))
     expect_equal(L3 - L2, n[["M"]] * log(p[2] / (p[2] + p[3])) + n[["N"]] * log(p[3] / (p[2] + p[3])),
                  tolerance = 1e-8)
+})
+
+test_that("three-class model started from a fit with one or two classes", {
+    skip_on_cran()
+    hs <- list(hessian = FALSE)
+    fresh <- secr.fit(ch3, mask = msk3, hcov = "g", model = mod3, trace = FALSE, details = hs)
+    f0 <- secr.fit(ch3, mask = msk3, trace = FALSE, details = hs)
+    ch2 <- ch3
+    covariates(ch2)$g <- factor(ifelse(covariates(ch3)$g == "a", "a", "b"))
+    f2 <- secr.fit(ch2, mask = msk3, hcov = "g", model = list(sigma ~ h2), trace = FALSE,
+                   details = hs)
+    for (st in list(f0, f2)) {
+        fit <- secr.fit(ch3, mask = msk3, hcov = "g", model = mod3, start = st, trace = FALSE,
+                        details = hs)
+        expect_equal(as.numeric(logLik(fit)), as.numeric(logLik(fresh)), tolerance = 1e-4)
+    }
 })

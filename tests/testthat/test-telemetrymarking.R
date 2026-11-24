@@ -461,6 +461,11 @@ test_that("analytic c-hat second pass with fixed pmix", {
     expect_equal(nrow(coef(fit2)), length(betas))
     expect_equal(as.numeric(fit2$details$chat), as.numeric(fit$details$chat), tolerance = 1e-4)
     expect_equal(coef(fit2)$beta, coef(fit)$beta, tolerance = 1e-3)
+    ## derived() locates the density coefficients through parindx and fixedbeta
+    dv <- derived(fit)
+    expect_equal(rownames(dv), c("Lambda", "D"))
+    expect_equal(dv["D", "estimate"], predict(fit)[[1]]["D", "estimate"], tolerance = 1e-3)
+    expect_equal(dv["D", "CVD"]^2, dv["D", "CVcues"]^2 + dv["D", "CVLambda"]^2, tolerance = 1e-6)
 })
 
 test_that("session with no collared animals: D ~ session shares detection parameters", {
