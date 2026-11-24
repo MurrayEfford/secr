@@ -14,7 +14,7 @@ vignette: >
 
 \vspace{12pt}
 
-This document provides a compact overview of **secr** 5.4, an R package for spatially explicit capture--recapture analysis (SECR).  For background on SECR and a tutorial see the SECR book, [Efford (2025)].  
+This document provides a compact overview of **secr** 5.6, an R package for spatially explicit capture--recapture analysis (SECR).  For background on SECR and a tutorial see the SECR book, [Efford (2025)].  
 
 Add-on packages extend the capability of **secr** and are documented separately. 
 
@@ -211,7 +211,7 @@ There is limited support in **secr** for the analysis of locational data from te
 The program DENSITY (Efford et al. 2004, Efford 2012) provides a graphical interface to SECR methods that was used by many
 biologists. However, DENSITY has significant drawbacks: it requires the Windows operating system, its algorithms are not always transparent or well-documented, it fits only homogeneous Poisson models, and it omits recent advances in SECR.
 
-The R package **secr** was written to address these weaknesses and allow for further development. It implements almost all the methods described by Borchers and Efford (2008), Efford et al. (2009), Efford (2011), Efford and Fewster (2013), Efford et al. (2013) and Efford and Mowat (2014). **secr** 5.4 uses external C++ code via package **Rcpp** for computationally intensive operations (Eddelbuettel and Francois 2011); Multi-threading on multiple CPUs with **RcppParallel** (Allaire et al. 2021) gives major speed gains. The most important functions of **secr** are listed in [Appendix 1](#appendix1).
+The R package **secr** was written to address these weaknesses and allow for further development. It implements almost all the methods described by Borchers and Efford (2008), Efford et al. (2009), Efford (2011), Efford and Fewster (2013), Efford et al. (2013) and Efford and Mowat (2014). **secr** 5.6 uses external C++ code via package **Rcpp** for computationally intensive operations (Eddelbuettel and Francois 2011); Multi-threading on multiple CPUs with **RcppParallel** (Allaire et al. 2021) gives major speed gains. The most important functions of **secr** are listed in [Appendix 1](#appendix1).
 
 ## How **secr** works
 
@@ -320,6 +320,10 @@ news (package = "secr")
 
 Help may be sought on the Density | secr forum at www.phidot.org. Another forum intended for both software issues and wider discussion is [secrgroup].
 
+# Acknowledgment
+
+Sonnet 5.5 (Anthropic) was used through Claude Code, to write and test parts of **secr** 5.6, especially the code for telemetry-calibrated cue counts (telemetrytype 'marking'). 
+ 
 # References
 
 Allaire, J. J., Francois, R., Ushey, K., Vandenbrouck, G., Geelnard, M. and Intel (2021)
@@ -418,25 +422,40 @@ Here is an index of **secr** functions classified by use (some minor functions a
 |           |                                                              |
 |  **Manipulate data objects** |  |
 | &nbsp;&nbsp;&nbsp;&nbsp;`addCovariates`	| add spatial covariates to 'traps' or 'mask' |
+| &nbsp;&nbsp;&nbsp;&nbsp; `append.capthist` | combine independent 'capthist' objects |
 | &nbsp;&nbsp;&nbsp;&nbsp; `as.mask`	| coerce 'traps' object to 'mask' for specialised plotting |
+| &nbsp;&nbsp;&nbsp;&nbsp; `binCovariate` | bin a continuous covariate |
 | &nbsp;&nbsp;&nbsp;&nbsp; `deleteMaskPoints`	| edit 'mask' |
 | &nbsp;&nbsp;&nbsp;&nbsp; `discretize`	| rasterize area-search capthist data |
+| &nbsp;&nbsp;&nbsp;&nbsp; `dropTelemetry` | remove telemetry occasions and notional detector from 'capthist' |
+| &nbsp;&nbsp;&nbsp;&nbsp; `fillNA` | replace missing covariate values |
 | &nbsp;&nbsp;&nbsp;&nbsp; `head`*       	| first rows of 'capthist', 'traps' or 'mask' |
 | &nbsp;&nbsp;&nbsp;&nbsp; `join`          | combine sessions of multi-session 'capthist' object |
 | &nbsp;&nbsp;&nbsp;&nbsp; `make.grid`	| construct detector array |
+| &nbsp;&nbsp;&nbsp;&nbsp; `make.circle`	| construct circular detector array |
+| &nbsp;&nbsp;&nbsp;&nbsp; `make.poly`	| construct polygon detector array |
+| &nbsp;&nbsp;&nbsp;&nbsp; `make.transect`	| construct transect detector array |
 | &nbsp;&nbsp;&nbsp;&nbsp; `make.capthist`	| form 'capthist' from 'traps' and detection data |
 | &nbsp;&nbsp;&nbsp;&nbsp; `make.mask`	| construct habitat mask (mesh) |
 | &nbsp;&nbsp;&nbsp;&nbsp; `make.systematic` | construct clustered random systematic design |
 | &nbsp;&nbsp;&nbsp;&nbsp; `make.lacework` | construct lacework random systematic design |
+| &nbsp;&nbsp;&nbsp;&nbsp; `make.spcosa` | construct spatial coverage design |
 | &nbsp;&nbsp;&nbsp;&nbsp; `MS.capthist`   	| combine 'capthist' objects into one multi-session 'capthist' |
 | &nbsp;&nbsp;&nbsp;&nbsp; `plot`*     	| plot 'capthist', 'traps' or 'mask' |
 | &nbsp;&nbsp;&nbsp;&nbsp; `plotMaskEdge` | draw line around mask cells |
 | &nbsp;&nbsp;&nbsp;&nbsp; `randomHabitat`  | generates habitat mask with random landscape |
 | &nbsp;&nbsp;&nbsp;&nbsp; `rbind`* | append 'capthist', 'traps', 'popn' or 'mask' objects |
 | &nbsp;&nbsp;&nbsp;&nbsp; `read.capthist`	| input captures and trap layout from Density format, one call |
+| &nbsp;&nbsp;&nbsp;&nbsp; `read.mask`	| input habitat mask from file |
+| &nbsp;&nbsp;&nbsp;&nbsp; `read.telemetry`	| input telemetry fixes from file or dataframe |
 | &nbsp;&nbsp;&nbsp;&nbsp; `read.traps`	| input detector locations from text file |
 | &nbsp;&nbsp;&nbsp;&nbsp; `reduce`*	| aggregate detectors or occasions; change detector type |
+| &nbsp;&nbsp;&nbsp;&nbsp; `shareFactorLevels` | give factor covariates the same levels across sessions |
 | &nbsp;&nbsp;&nbsp;&nbsp; `sim.capthist`	| simulate capture histories |
+| &nbsp;&nbsp;&nbsp;&nbsp; `sim.popn`	| simulate 2-D population |
+| &nbsp;&nbsp;&nbsp;&nbsp; `sim.resight`	| simulate mark-resight data |
+| &nbsp;&nbsp;&nbsp;&nbsp; `simOU`	| simulate Ornstein-Uhlenbeck movement |
+| &nbsp;&nbsp;&nbsp;&nbsp; `simOU.capthist`	| simulate detections with Ornstein-Uhlenbeck movement |
 | &nbsp;&nbsp;&nbsp;&nbsp; `sightingPlot`	| bubble plot of sightings in capthist object |
 | &nbsp;&nbsp;&nbsp;&nbsp; `snip`     	| split transect(s) into equal sections |
 | &nbsp;&nbsp;&nbsp;&nbsp; `split`*     	| split a single-session capthist or mask by various criteria |
@@ -453,6 +472,7 @@ Here is an index of **secr** functions classified by use (some minor functions a
 | &nbsp;&nbsp;&nbsp;&nbsp; `detector`*	| detector type ('multi', 'proximity' etc.) |
 | &nbsp;&nbsp;&nbsp;&nbsp; `markocc`	| vector distinguishing marking and sighting occasions |
 | &nbsp;&nbsp;&nbsp;&nbsp; `polyID`*        | polygon or transect identifier |
+| &nbsp;&nbsp;&nbsp;&nbsp; `telemetrytype`*	| telemetry type ('concurrent', 'dependent', 'independent', 'marking') |
 | &nbsp;&nbsp;&nbsp;&nbsp; `timevaryingcov`	| name time-varying covariate(s) |
 | &nbsp;&nbsp;&nbsp;&nbsp; `usage`*	        | occasion- and detector-specific effort |
 |           |                                                              |
@@ -484,10 +504,12 @@ Here is an index of **secr** functions classified by use (some minor functions a
 | **Fit SECR model(s)** | |
 | &nbsp;&nbsp;&nbsp;&nbsp; `list.secr.fit`  | fit several models and return secrlist object |
 | &nbsp;&nbsp;&nbsp;&nbsp; `secr.fit`	| maximum likelihood fit; result is a fitted `secr` object |
+| &nbsp;&nbsp;&nbsp;&nbsp; `secr.refit`	| repeat or resume a model fit |
 |           |                                                              |
 | **Operate on fitted model(s)** | |
 | &nbsp;&nbsp;&nbsp;&nbsp; `adjustVarD` | apply c-hat to density SE and confidence intervals |
 | &nbsp;&nbsp;&nbsp;&nbsp; `AIC`*	| model selection, model weights |
+| &nbsp;&nbsp;&nbsp;&nbsp; `AICcompatible`*	| whether models can be compared by AIC |
 | &nbsp;&nbsp;&nbsp;&nbsp; `chat.nj` | overdispersion of activity centres |
 | &nbsp;&nbsp;&nbsp;&nbsp; `coef`*	| 'beta' parameters |
 | &nbsp;&nbsp;&nbsp;&nbsp; `collate`	| tabulate estimates from several models |
@@ -499,6 +521,7 @@ Here is an index of **secr** functions classified by use (some minor functions a
 | &nbsp;&nbsp;&nbsp;&nbsp; `derivednj` | variance from replicated sampling units |
 | &nbsp;&nbsp;&nbsp;&nbsp; `derivedCluster` | variance from replicated sampling units |
 | &nbsp;&nbsp;&nbsp;&nbsp; `derivedDcoef` | derive intercept and other coefficients from relative density model |
+| &nbsp;&nbsp;&nbsp;&nbsp; `derivedDfit` | derive absolute density model from relative density model |
 | &nbsp;&nbsp;&nbsp;&nbsp; `derivedDsurface` | derive absolute density surface from relative density model |
 | &nbsp;&nbsp;&nbsp;&nbsp; `derivedExternal` | variance from replicated sampling units |
 | &nbsp;&nbsp;&nbsp;&nbsp; `ellipse.secr` | confidence ellipses for estimated parameters |
@@ -507,15 +530,18 @@ Here is an index of **secr** functions classified by use (some minor functions a
 | &nbsp;&nbsp;&nbsp;&nbsp; `LLsurface`* | compute likelihood surface and plot contours |
 | &nbsp;&nbsp;&nbsp;&nbsp; `logLik`*	| log-likelihood of fitted model |
 | &nbsp;&nbsp;&nbsp;&nbsp; `LR.test`	| likelihood-ratio test of two models |
+| &nbsp;&nbsp;&nbsp;&nbsp; `makeNewData`*	| default design data for `predict` |
 | &nbsp;&nbsp;&nbsp;&nbsp; `MCgof`*	| Monte Carlo goodness-of-fit after Choo et al. 2024 |
 | &nbsp;&nbsp;&nbsp;&nbsp; `modelAverage`*	| combine estimates using AIC or AICc weights |
 | &nbsp;&nbsp;&nbsp;&nbsp; `plot`*		| plot detection functions with confidence bands |
 | &nbsp;&nbsp;&nbsp;&nbsp; `predict`*	| 'real' parameters for arbitrary levels of predictor variables |
+| &nbsp;&nbsp;&nbsp;&nbsp; `predictDlambda` | density trend from a Dlambda model |
 | &nbsp;&nbsp;&nbsp;&nbsp; `predictDsurface`* | evaluate density surface at each point of a mask |
 | &nbsp;&nbsp;&nbsp;&nbsp; `region.N`*    | expected and realised population size in specified region |
 | &nbsp;&nbsp;&nbsp;&nbsp; `RSE`     | extract precision (relative SE) of 'real' parameter estimates |
 | &nbsp;&nbsp;&nbsp;&nbsp; `score.test`	| model selection with score statistic using observed information |
 | &nbsp;&nbsp;&nbsp;&nbsp; `secr.test` | Monte Carlo goodness-of-fit tests |
+| &nbsp;&nbsp;&nbsp;&nbsp; `secrlist` | combine fitted models as a 'secrlist' object |
 | &nbsp;&nbsp;&nbsp;&nbsp; `simulate`*	| generate realisations of fitted model |
 | &nbsp;&nbsp;&nbsp;&nbsp; `sim.secr`	| parametric bootstrap |
 | &nbsp;&nbsp;&nbsp;&nbsp; `vcov`*     | variance-covariance matrix of 'beta' or 'real' parameters |
@@ -531,15 +557,23 @@ Here is an index of **secr** functions classified by use (some minor functions a
 | &nbsp;&nbsp;&nbsp;&nbsp; `fxiContour`  | contour plot of home-range centre pdf(s) |
 | &nbsp;&nbsp;&nbsp;&nbsp; `pdotContour`	| contour plot of detection probability |
 | &nbsp;&nbsp;&nbsp;&nbsp; `strip.legend`	| add colour legend to existing plot |
+| &nbsp;&nbsp;&nbsp;&nbsp; `usagePlot`	| plot usage, detections or sightings |
 |           |                                                              |
 | **Convert or export data** | |
+| &nbsp;&nbsp;&nbsp;&nbsp; `rast`	| convert 'mask' or 'Dsurface' to a **terra** SpatRaster |
+| &nbsp;&nbsp;&nbsp;&nbsp; `raster`	| convert 'mask' or 'Dsurface' to a **raster** RasterLayer |
 | &nbsp;&nbsp;&nbsp;&nbsp; `RMarkInput`	| convert 'capthist' to dataframe for RMark |
 | &nbsp;&nbsp;&nbsp;&nbsp; `write.capthist`	| export 'capthist' as text files for DENSITY |
+| &nbsp;&nbsp;&nbsp;&nbsp; `write.captures`	| write detections as text (lower-level than `write.capthist`) |
 | &nbsp;&nbsp;&nbsp;&nbsp; `write.DA`	| convert 'capthist' for analysis in WinBUGS |
+| &nbsp;&nbsp;&nbsp;&nbsp; `write.mask`	| write mask as text |
+| &nbsp;&nbsp;&nbsp;&nbsp; `write.traps`	| write detector locations as text |
 | &nbsp;&nbsp;&nbsp;&nbsp; `writeGPS`	| upload coordinates to GPS using GPSBabel |
 |          |                                                              |
 | **Miscellaneous** | |
 | &nbsp;&nbsp;&nbsp;&nbsp; `ARL`		| asymptotic range length|
+| &nbsp;&nbsp;&nbsp;&nbsp; `boundarytoSF`	| convert polygon formats (matrix, **sp**, **sf**, **terra**) to 'sfc' |
+| &nbsp;&nbsp;&nbsp;&nbsp; `as.popn`	| coerce **spatstat** ppp object to 'popn' |
 | &nbsp;&nbsp;&nbsp;&nbsp; `autoini`	| generate starting values of D, g0 and sigma for `secr.fit` |
 | &nbsp;&nbsp;&nbsp;&nbsp; `centroids` | centroid of each animal's detections |
 | &nbsp;&nbsp;&nbsp;&nbsp; `clone`          | replicate points to emulate overdispersion |
@@ -551,8 +585,10 @@ Here is an index of **secr** functions classified by use (some minor functions a
 | &nbsp;&nbsp;&nbsp;&nbsp; `distancetotrap`	| from an arbitrary set of points |
 | &nbsp;&nbsp;&nbsp;&nbsp; `edist`    	| Euclidean distance |
 | &nbsp;&nbsp;&nbsp;&nbsp; `Enk`       | expected individuals per detector |
+| &nbsp;&nbsp;&nbsp;&nbsp; `flip`*		| reflect a point array |
 | &nbsp;&nbsp;&nbsp;&nbsp; `gridCells` 	| grid cells around points (e.g. traps object) |
 | &nbsp;&nbsp;&nbsp;&nbsp; `kfn`		| overlap index for halfnormal home range |
+| &nbsp;&nbsp;&nbsp;&nbsp; `maskarea`	| area of a mask |
 | &nbsp;&nbsp;&nbsp;&nbsp; `MMDM`		| mean maximum distance moved |
 | &nbsp;&nbsp;&nbsp;&nbsp; `moves`		| distances between capture locations |
 | &nbsp;&nbsp;&nbsp;&nbsp; `nearesttrap`	| from an arbitrary set of points |
@@ -561,8 +597,11 @@ Here is an index of **secr** functions classified by use (some minor functions a
 | &nbsp;&nbsp;&nbsp;&nbsp; `pdot`		| location-specific net probability of detection |
 | &nbsp;&nbsp;&nbsp;&nbsp; `PG`             | proportion of telemetry fixes in given polygons |
 | &nbsp;&nbsp;&nbsp;&nbsp; `pmixProfileLL`  | profile likelihood as function of mixing proportion |
+| &nbsp;&nbsp;&nbsp;&nbsp; `rotate`*	| rotate a point array |
 | &nbsp;&nbsp;&nbsp;&nbsp; `RPSV`		| 'root pooled spatial variance', a simple measure of home-range size |
 | &nbsp;&nbsp;&nbsp;&nbsp; `setNumThreads` | sets environment variable RCPP_PARALLEL_NUM_THREADS |
+| &nbsp;&nbsp;&nbsp;&nbsp; `shift`*	| translate a point array |
+| &nbsp;&nbsp;&nbsp;&nbsp; `spacing`*	| detector or mask spacing |
 | &nbsp;&nbsp;&nbsp;&nbsp; `t2r2` | serial correlation of detection locations |
 | &nbsp;&nbsp;&nbsp;&nbsp; `trapsPerAnimal` | frequency distribution of detectors per animal |
 
