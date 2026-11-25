@@ -70,7 +70,9 @@ randomHabitat <- function (mask, p = 0.5, A = 0.5, directions = 4, minpatch = 1,
         n <- nx * ny
 
         ## create rasterLayer
-        layer <- raster(nrows = ny, ncols = nx, xmn = minx, xmx = maxx,
+        if (!requireNamespace('raster', quietly = TRUE))
+            stop ("package raster is required for randomHabitat")
+        layer <- raster::raster(nrows = ny, ncols = nx, xmn = minx, xmx = maxx,
                                 ymn = miny, ymx = maxy)
 
         ## A. Percolation map generation

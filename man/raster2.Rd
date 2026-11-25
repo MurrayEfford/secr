@@ -10,11 +10,12 @@
 \alias{rast,mask-method}
 \alias{rast,Dsurface-method}
 
-\title{Create a RasterLayer Object from Mask or Dsurface}
+\title{Create a Raster Object from Mask or Dsurface}
 
 \description{
 
-  Methods to convert \pkg{secr} object to a RasterLayer object.
+  Methods to convert \pkg{secr} object to a RasterLayer object 
+  (package \pkg{raster}) or a SpatRaster object (package \pkg{terra}).
 
 }
 
@@ -24,7 +25,9 @@
 \S4method{raster}{mask}(x, covariate, values = 1, crs = NA)
 
 \S4method{raster}{Dsurface}(x, covariate, values = 1, crs = NA)
+
 \S4method{rast}{mask}(x, covariate, values = 1, crs = "")
+
 \S4method{rast}{Dsurface}(x, covariate, values = 1, crs = "")
 
 }
@@ -62,8 +65,11 @@ The S3 classes `mask' and `Dsurface' are defined in \pkg{secr} as
 virtual S4 classes. This enables these extensions to the list of S4
 methods defined in \pkg{raster} and \pkg{terra}.
   
-Although these methods work `standalone', it is currently necessary to
-load the \pkg{terra} or \pkg{raster} package to do much with the result (e.g., plot it).
+\pkg{raster} and \pkg{terra} are not loaded by \pkg{secr} (loading them is slow).
+The methods for \code{raster} and \code{rast} are registered when the package
+concerned is loaded, so call \code{library(raster)} or \code{library(terra)}
+(or \code{raster::raster}, \code{terra::rast}) before using them.
+It is also necessary to load the package to do much with the result (e.g., plot it).
 
 }
 
@@ -86,15 +92,18 @@ SpatRaster (rast)
   because an intermediate array was badly dimensioned due to truncation of
   a floating point value.
   
+  The requirement to manually load \pkg{raster} and \pkg{terra} was added in \pkg{secr} 5.6.1.
+  
 }
 
 \examples{
 
 \dontrun{
 
+library(raster)
+# Dsurface to Rasterlayer
 shorePossums <- predictDsurface(possum.model.Ds)
 tmp <- raster(shorePossums, covariate = "D.0")
-library(raster)
 plot(tmp, useRaster = FALSE)
 
 ## alternative with same result
@@ -106,11 +115,12 @@ tmp <- raster(shorePossums, "D.0", crs = "+proj=nzmg")
 ## check the projection
 proj4string(tmp)
      
-# mask to rast
+library(terra)
+# mask to SpatRaster
 dtsrast <- rast(possummask, covariate = 'd.to.shore')
 plot(dtsrast)
 
-# Dsurface to rast
+# Dsurface to SpatRaster
 class(shorePossums) <- c('mask', 'data.frame') # or change "mask" to "Dsurface" above
 Drast <- rast(shorePossums, covariate = 'D.0')
 plot(Drast)

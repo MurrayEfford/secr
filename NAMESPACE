@@ -47,16 +47,7 @@ importFrom (mgcv,
 importFrom (nlme, 
     fdHess)
 
-importFrom (raster, 
-    adjacent, 
-    clump, 
-    flip,
-    "values<-", 
-    values,
-    plot)
 
-importMethodsFrom (raster, raster)
-exportMethods     (raster)
 
 importFrom (Rcpp, evalCpp)
 
@@ -101,10 +92,6 @@ importFrom (stringr,
     str_pad, 
     str_length)
 
-importFrom (terra, 
-    extract)
-importMethodsFrom (terra, rast)
-exportMethods     (rast)
 
 export (secr.fit)
 export (secr.refit)

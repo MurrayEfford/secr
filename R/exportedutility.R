@@ -61,7 +61,9 @@ nedist <- function (xy1, xy2, mask, inf = Inf, ...) {
     if (is.null(noneuc)) noneuc <- rep(1, nrow(mask))
     defaultargs <- list(transitionFunction = mean, directions = 16)
     args <- replace(defaultargs, names(newargs), newargs)
-    args$x <- raster(mask, values = noneuc)
+    if (!requireNamespace('raster', quietly = TRUE))
+        stop ("package raster is required for nedist")
+    args$x <- raster::raster(mask, values = noneuc)
     if (requireNamespace('gdistance', quietly = TRUE)) {    ## 2015-01-23
         tr <- do.call(gdistance::transition, args)
         tr <- gdistance::geoCorrection(tr, type = "c", multpl = FALSE)

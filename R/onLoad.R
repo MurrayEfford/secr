@@ -14,6 +14,12 @@
         RcppParallel::setThreadOptions(2)
     }
     
+    ## raster and terra are loaded only if needed (loading them is slow); their methods for
+    ## mask and Dsurface are registered now if they are already loaded, otherwise when they
+    ## are loaded (see raster.R)
+    registerWhenLoaded("raster", registerRasterMethods)
+    registerWhenLoaded("terra", registerRastMethods)
+
     ## 2024-03-02
     ## avoid BLAS default as not needed and may trigger valgrind problem
     ## see R-package-devel 2024-03-01

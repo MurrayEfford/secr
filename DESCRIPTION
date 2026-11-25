@@ -35,16 +35,16 @@ Imports:
     mvtnorm,
     nlme, 
     parallel, 
-    raster (>= 3.5-15), 
     Rcpp (>= 0.12.14), 
     RcppParallel (>= 5.1.1),
     sf,
     stats, 
     stringr, 
-    terra (>= 1.5-12), 
     tools, 
     utils
 Suggests: 
+    raster (>= 3.5-15),
+    terra (>= 1.5-12),
     gdistance, 
     igraph,
     knitr, 

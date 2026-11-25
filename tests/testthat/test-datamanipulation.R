@@ -72,7 +72,10 @@ test_that("points in polygon", {
 
 test_that("addCovariates raster datasource", {
     
-    spatialdata0 <- possummask                                  # mask 
+    skip_if_not_installed("raster")
+    skip_if_not_installed("terra")
+    library(raster)     # the 'raster' method for masks is registered when raster is loaded
+    spatialdata0 <- possummask                                  # mask
     spatialdata1 <- raster(possummask, cov = 'd.to.shore')      # RasterLayer
     spatialdata2 <- as(spatialdata1, "SpatialGridDataFrame")    # SpatialGridDataFrame
     # spatialdata3 <- rast(possummask, cov = 'd.to.shore')        # SpatRaster

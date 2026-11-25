@@ -1,13 +1,13 @@
 Changes in version 5.6.1 (2026-11-25)
 
 New features or changed behaviour of old functions
-    o  none
+    o  packages 'terra' and 'raster' are now Suggests rather than Imports, so they 
+       must be loaded before using secr::rast() or secr::raster()
     
 Other
-    o  skip_on_cran telemetry marking GH test to save time
-    o  C++ code in single file for faster compilation
+    o  telemetry marking GH test is now 'skip_on_cran' to save check time
+    o  C++ code in single file for much faster compilation
     
-
 Changes in version 5.6.0 (2026-11-24)
 
 New features or changed behaviour of old functions
