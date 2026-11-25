@@ -1,8 +1,13 @@
 Changes in version 5.6.1 (2026-11-25)
 
 New features or changed behaviour of old functions
-    o  packages 'terra' and 'raster' are now Suggests rather than Imports, so they 
-       must be loaded before using secr::rast() or secr::raster()
+    o  Packages 'raster' and 'terra' are now Suggests rather than Imports. 
+       'secr' no longer exports the generics raster() and rast(); those methods 
+       for objects of class 'mask' and 'Dsurface' are registered when 'raster' 
+       or 'terra' is loaded, so call library(raster) or library(terra) 
+       before raster(mask) or rast(mask). The functions nedist, randomHabitat 
+       and addCovariates (raster data sources) need the relevant package to 
+       be installed
     
 Other
     o  telemetry marking GH test is now 'skip_on_cran' to save check time
