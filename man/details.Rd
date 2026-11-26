@@ -28,6 +28,23 @@ values (multi-session data only; default 1). From 4.0.0, the character value `al
 first forms a single-session capthist using \code{\link{join}}(); this may be slow or not 
 work at all (especially with telemetry data).
 
+\code{details$bysession} (experimental) evaluates the sessions of a multi-session
+likelihood in parallel. The default FALSE is serial. With TRUE, \code{secr.fit} starts one
+cluster with one worker per session (at most \code{ncores} workers); a number
+specifies the number of workers, and the sessions are then shared among them, balanced
+by size (animals, detectors and mask points). The cluster is stopped when the fit is complete. The
+\code{ncores} argument of \code{secr.fit} is the total number of cores: each worker uses
+\code{max(1, ncores \%/\% workers)} threads for the C++ code. Fewer workers with more threads
+may suit sessions with many detected animals, and uses less memory (each worker is a separate
+R process). Multithreading within a session is efficient when sessions have many detected
+animals, and in simulated conventional data (proximity detectors, about 90 animals per session)
+\code{ncores} threads in a single process were faster than \code{bysession}; the option is
+intended for models with few detected animals per session, such as telemetry
+\code{'marking'} models, where threads achieve little. The cluster type is as for
+\code{\link{list.secr.fit}}. The option has no effect (with a message) for a single session or
+\code{ncores = 1}. It applies to the general likelihood and to the fast likelihood used
+with some single-occasion proximity data. The worker processes load the installed version of \pkg{secr}.
+
 \code{details$centred} = TRUE causes coordinates of both traps and mask
 to be centred on the centroid of the traps, computed separately for each
 session in the case of multi-session data. This may be necessary to

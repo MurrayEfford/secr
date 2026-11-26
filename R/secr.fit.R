@@ -194,7 +194,8 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
         safeLL = FALSE,                          # 2026-06-13
         uselog = FALSE,
         telemetryint = "mask",                   # 2026-10-04 or "GH"
-        telemetryproduct = FALSE                 # 2026-11-04 hidden; see secr_generalsecrloglikfn
+        telemetryproduct = FALSE,                # 2026-11-04 hidden; see secr_generalsecrloglikfn
+        bysession = FALSE                        # 2026-11-26 experimental; sessions in parallel
     )
     ## with telemetry the product of many fixes can underflow (likelihood fails);
     ## the log-sum forms avoid this at negligible cost 2026-10-06
@@ -880,6 +881,11 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     # Single evaluation option
     ############################################
     .localstuff$iter <- 0
+    ## 2026-11-26 one cluster for the whole fit; sessions are evaluated by the workers
+    if (secr_bysession_on(details$bysession)) {
+        secr_bysession_start(data, details$ncores, details$bysession)
+        on.exit(secr_bysession_stop(), add = TRUE)
+    }
     if (details$LLonly) {
         if (is.null(start) || any(is.na(start)))   ## is.list(start))
             stop ("must provide full vector of beta parameter values in 'start'")
@@ -1247,6 +1253,7 @@ secr.fit <- function (capthist,  model = list(), mask = NULL,
     ## c-hat is evaluated at the maximum (secr.refit sets start to the fitted beta and
     ## recomputes c-hat). The flag .localstuff$chatsecondpass prevents recursion; simulated
     ## c-hat is not updated (Monte Carlo error; expense).
+    secr_bysession_stop()     # the second pass (nested secr.fit) starts its own cluster
     if (identical(details$chatmethod, "analytic") &&
         !isTRUE(.localstuff$chatsecondpass) &&
         lcmethod != 'none' &&

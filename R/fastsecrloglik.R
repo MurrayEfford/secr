@@ -78,6 +78,165 @@ secr_integralprw1fast <- function (realparval0, gkhk, pi.density, PIA0,
     1-exp(secr_logsum(logprwi, pmixn))
 }
 
+###############################################################################################
+## Log likelihood for one session, fast version (e.g. single-occasion proximity data).
+## Called by secr_fastsecrloglikfn, serially or (details$bysession) by parallel workers.
+## All inputs are arguments; the session data are in 'data'.
+## 2026-11-26 (was nested in secr_fastsecrloglikfn)
+###############################################################################################
+secr_sessionLLfast <- function (data, beta, parindx, CL, detectfn, design, fixed, D, NElist,
+                                realparval, details) {
+    sessnum <- data$sessnum
+    ###################################################################
+    #---------------------------------------------------
+  PIA <- design$PIA[sessnum, 1:data$nc, 1:data$s, 1:data$K, ,drop=FALSE]
+    ## unmodelled beta parameters, if needed
+    miscparm <- secr_getmiscparm(details$miscparm, detectfn, beta, parindx, details$cutval)
+    D.modelled <- (!CL || details$relativeD) && is.null(fixed$D)
+    
+    density <- secr_getmaskpar(D.modelled, D, data$m, sessnum, details$unmash, 
+                          attr(data$capthist, 'n.mash'))
+    if (!D.modelled) {
+        pi.density <- rep(1/data$m, data$m)  
+    }
+    else {
+        if (!is.null(details$externalqx)) {
+            density <- density * data$externalqx
+        }
+        pi.density <- density / sum(density)
+    }
+    #---------------------------------------------------
+    ## allow for scaling of detection
+    Dtemp <- if (D.modelled) mean(D[,1,sessnum]) else NA
+    Xrealparval <- secr_reparameterize (realparval, detectfn, details,
+                                   data$mask, data$traps, Dtemp, 1) # 1 was s! 2024-07-30
+    ## check valid parameter values
+    if (!all(is.finite(Xrealparval))) {
+        cat ('beta vector :', beta, '\n')
+        warning ("extreme 'beta' in 'secr_fastsecrloglikfn' ",
+                 "(try smaller stepmax in nlm Newton-Raphson?)")
+        return (1e10)
+    }
+    ## DOES NOT ALLOW FOR GROUP VARIATION IN DENSITY
+    ## more thoughts 2015-05-05
+    ## could generalize by
+    ## -- making Dtemp a vector of length equal rows in realparval
+    ## -- matching either
+    ##      first group (as before)
+    ##      sum of all groups
+    ##      own group [PROBLEM: locating group of each realparval row]
+    ## in all cases density is the mean over mask points
+    
+    ## CHECK use of Dtemp in regionN.R, sim.secr.R
+    ## PERHAPS for consistency make a function to construct Dtemp vector
+    ## given mask, model, group matching rule (first, sum, own)
+    
+    ##--------------------------------------------------------------
+
+    #####################################################################
+    pmixn <- secr_getpmix (data$knownclass, PIA, Xrealparval)  ## membership prob by animal
+    if (!is.null(details$userdist)) {    # changed from is.function() 2024-02-15
+        distmat2 <- secr_getuserdist(data$traps, data$mask, details$userdist, sessnum, 
+                                NElist, density[,1], miscparm = miscparm, detectfn = detectfn)
+    }
+    else {
+        distmat2 <- data$distmat2
+    }
+    
+    ## precompute gk, hk for point detectors
+    if (data$dettype[1] %in% c(0,1,2,5,8)) {
+        gkhk <- makegkPointcpp (
+            as.integer(detectfn),
+            as.integer(details$grain),
+            as.integer(details$ncores),
+            as.matrix(Xrealparval),
+            as.matrix(distmat2),
+            as.double(miscparm))
+        if (details$anycapped) {   ## capped adjustment
+          gkhk <- cappedgkhkcpp (
+            as.integer(nrow(Xrealparval)),
+            as.integer(nrow(data$traps)),
+            as.double(attr(data$mask, "area")),
+            as.double(density[,1]),
+            as.double(gkhk$gk), as.double(gkhk$hk))
+        }
+    }
+    
+    lnprw <- allhistfast (Xrealparval, gkhk, pi.density, PIA, 
+      data$CH, data$usge, pmixn, data$maskcond, 
+      details$grain, details$ncores, details$safeLL, details$binomN, design$individual,
+      debug = details$debug>3)
+    pdot <- secr_integralprw1fast (Xrealparval, gkhk, pi.density, PIA, 
+              data$CH0, data$usge, pmixn, details$grain, details$ncores, 
+              details$safeLL, details$binomN, design$individual,
+              debug = details$debug>3)
+    
+    if (details$debug>2) browser()
+    
+    comp <- matrix(0, nrow = 6, ncol = 1)   # no groups
+    
+    #----------------------------------------------------------------------
+    
+    comp[1,1] <- if (any(is.na(lnprw)) || any(is.infinite(lnprw))) NA else sum(lnprw)
+    
+    #----------------------------------------------------------------------
+    
+    if (!data$nc<=0) {
+        comp[2,1] <- if (any(is.na(pdot)) || any(pdot<=0)) NA else -sum(log(pdot)) 
+    }
+    
+    #----------------------------------------------------------------------
+    
+    N <- sum(density[,1]) * secr_getcellsize(data$mask)
+    ## 2022-01-05 catch nc = 0
+    meanpdot <- if (data$nc == 0) pdot else data$nc / sum(1/pdot)
+    
+    ## 2025-08-05
+    .localstuff$Eng[sessnum, 1] <- N * meanpdot      
+    
+    if (!CL) {
+        ## 2023-09-22
+        if (data$n.distrib == 1 && .localstuff$iter == 0 && data$nc>N) {
+            warning("distribution = 'binomial' ",
+                    "but number detected n (", data$nc, 
+                    ") exceeds initial value of N (", round(N,1), ")")
+        }
+        comp[3,1] <- switch (data$n.distrib+1,
+                             dpois(data$nc, N * meanpdot, log = TRUE),
+                             secr_lnbinomial (data$nc, N, meanpdot),
+                             NA)
+    }
+    #----------------------------------------------------------------------
+    
+    ## adjustment for mixture probabilities when class known
+    known <- sum(data$knownclass>1)
+    if (details$nmix>1 && known>0) {
+        nb <- details$nmix + 1
+        nm <- tabulate(data$knownclass, nbins = nb)
+        pmix <- attr(pmixn, 'pmix')
+        
+        # for (x in 1:details$nmix) {
+        #     # need group-specific pmix
+        #     comp[4,1] <- comp[4,1] + nm[x+1] * log(pmix[x]) 
+        # }
+        
+        firstx <- match ((1:details$nmix)+1, data$knownclass)
+        pdpmix <- pdot[firstx] * pmix
+        pdpmix <- pdpmix[!is.na(pdpmix)]
+        comp[4,1] <- sum(nm[-1] * log(pdpmix / sum(pdpmix)))
+        ##
+        
+    }
+    #----------------------------------------------------------------------
+    
+    if (details$debug>=1) {
+        comp <- apply(comp,1,sum)
+        cat(comp[1], comp[2], comp[3], comp[4], comp[5], comp[6], data$logmult, '\n')
+    }
+    sum(comp) + data$logmult
+    
+} ## end secr_sessionLLfast
+
 #######################################################################################
 secr_fastsecrloglikfn <- function (
     beta, 
@@ -106,158 +265,6 @@ secr_fastsecrloglikfn <- function (
 
 {
     #--------------------------------------------------------------------------------
-    sessionLL <- function (data, sessnum, like = 0) {
-        ## log likelihood for one session
-        ## in multi-session case must get session-specific data from lists
-        ###################################################################
-        #---------------------------------------------------
-      PIA <- design$PIA[sessnum, 1:data$nc, 1:data$s, 1:data$K, ,drop=FALSE]
-        ## unmodelled beta parameters, if needed
-        miscparm <- secr_getmiscparm(details$miscparm, detectfn, beta, parindx, details$cutval)
-        D.modelled <- (!CL || details$relativeD) && is.null(fixed$D)
-        
-        density <- secr_getmaskpar(D.modelled, D, data$m, sessnum, details$unmash, 
-                              attr(data$capthist, 'n.mash'))
-        if (!D.modelled) {
-            pi.density <- rep(1/data$m, data$m)  
-        }
-        else {
-            if (!is.null(details$externalqx)) {
-                density <- density * data$externalqx
-            }
-            pi.density <- density / sum(density)
-        }
-        #---------------------------------------------------
-        ## allow for scaling of detection
-        Dtemp <- if (D.modelled) mean(D[,1,sessnum]) else NA
-        Xrealparval <- secr_reparameterize (realparval, detectfn, details,
-                                       data$mask, data$traps, Dtemp, 1) # 1 was s! 2024-07-30
-        ## check valid parameter values
-        if (!all(is.finite(Xrealparval))) {
-            cat ('beta vector :', beta, '\n')
-            warning ("extreme 'beta' in 'secr_fastsecrloglikfn' ",
-                     "(try smaller stepmax in nlm Newton-Raphson?)")
-            return (1e10)
-        }
-        ## DOES NOT ALLOW FOR GROUP VARIATION IN DENSITY
-        ## more thoughts 2015-05-05
-        ## could generalize by
-        ## -- making Dtemp a vector of length equal rows in realparval
-        ## -- matching either
-        ##      first group (as before)
-        ##      sum of all groups
-        ##      own group [PROBLEM: locating group of each realparval row]
-        ## in all cases density is the mean over mask points
-        
-        ## CHECK use of Dtemp in regionN.R, sim.secr.R
-        ## PERHAPS for consistency make a function to construct Dtemp vector
-        ## given mask, model, group matching rule (first, sum, own)
-        
-        ##--------------------------------------------------------------
-
-        #####################################################################
-        pmixn <- secr_getpmix (data$knownclass, PIA, Xrealparval)  ## membership prob by animal
-        if (!is.null(details$userdist)) {    # changed from is.function() 2024-02-15
-            distmat2 <- secr_getuserdist(data$traps, data$mask, details$userdist, sessnum, 
-                                    NElist, density[,1], miscparm = miscparm, detectfn = detectfn)
-        }
-        else {
-            distmat2 <- data$distmat2
-        }
-        
-        ## precompute gk, hk for point detectors
-        if (data$dettype[1] %in% c(0,1,2,5,8)) {
-            gkhk <- makegkPointcpp (
-                as.integer(detectfn),
-                as.integer(details$grain),
-                as.integer(details$ncores),
-                as.matrix(Xrealparval),
-                as.matrix(distmat2),
-                as.double(miscparm))
-            if (details$anycapped) {   ## capped adjustment
-              gkhk <- cappedgkhkcpp (
-                as.integer(nrow(Xrealparval)),
-                as.integer(nrow(data$traps)),
-                as.double(attr(data$mask, "area")),
-                as.double(density[,1]),
-                as.double(gkhk$gk), as.double(gkhk$hk))
-            }
-        }
-        
-        lnprw <- allhistfast (Xrealparval, gkhk, pi.density, PIA, 
-          data$CH, data$usge, pmixn, data$maskcond, 
-          details$grain, details$ncores, details$safeLL, details$binomN, design$individual,
-          debug = details$debug>3)
-        pdot <- secr_integralprw1fast (Xrealparval, gkhk, pi.density, PIA, 
-                  data$CH0, data$usge, pmixn, details$grain, details$ncores, 
-                  details$safeLL, details$binomN, design$individual,
-                  debug = details$debug>3)
-        
-        if (details$debug>2) browser()
-        
-        comp <- matrix(0, nrow = 6, ncol = 1)   # no groups
-        
-        #----------------------------------------------------------------------
-        
-        comp[1,1] <- if (any(is.na(lnprw)) || any(is.infinite(lnprw))) NA else sum(lnprw)
-        
-        #----------------------------------------------------------------------
-        
-        if (!data$nc<=0) {
-            comp[2,1] <- if (any(is.na(pdot)) || any(pdot<=0)) NA else -sum(log(pdot)) 
-        }
-        
-        #----------------------------------------------------------------------
-        
-        N <- sum(density[,1]) * secr_getcellsize(data$mask)
-        ## 2022-01-05 catch nc = 0
-        meanpdot <- if (data$nc == 0) pdot else data$nc / sum(1/pdot)
-        
-        ## 2025-08-05
-        .localstuff$Eng[sessnum, 1] <- N * meanpdot      
-        
-        if (!CL) {
-            ## 2023-09-22
-            if (data$n.distrib == 1 && .localstuff$iter == 0 && data$nc>N) {
-                warning("distribution = 'binomial' ",
-                        "but number detected n (", data$nc, 
-                        ") exceeds initial value of N (", round(N,1), ")")
-            }
-            comp[3,1] <- switch (data$n.distrib+1,
-                                 dpois(data$nc, N * meanpdot, log = TRUE),
-                                 secr_lnbinomial (data$nc, N, meanpdot),
-                                 NA)
-        }
-        #----------------------------------------------------------------------
-        
-        ## adjustment for mixture probabilities when class known
-        known <- sum(data$knownclass>1)
-        if (details$nmix>1 && known>0) {
-            nb <- details$nmix + 1
-            nm <- tabulate(data$knownclass, nbins = nb)
-            pmix <- attr(pmixn, 'pmix')
-            
-            # for (x in 1:details$nmix) {
-            #     # need group-specific pmix
-            #     comp[4,1] <- comp[4,1] + nm[x+1] * log(pmix[x]) 
-            # }
-            
-            firstx <- match ((1:details$nmix)+1, data$knownclass)
-            pdpmix <- pdot[firstx] * pmix
-            pdpmix <- pdpmix[!is.na(pdpmix)]
-            comp[4,1] <- sum(nm[-1] * log(pdpmix / sum(pdpmix)))
-            ##
-            
-        }
-        #----------------------------------------------------------------------
-        
-        if (details$debug>=1) {
-            comp <- apply(comp,1,sum)
-            cat(comp[1], comp[2], comp[3], comp[4], comp[5], comp[6], data$logmult, '\n')
-        }
-        sum(comp) + data$logmult
-        
-    } ## end sessionLL
     
     ###############################################################################################
     ## Main line of secr_fastsecrloglikfn
@@ -300,7 +307,17 @@ secr_fastsecrloglikfn <- function (
         secr_saveprogress(pbeta, NA, details$progressfilename)
     }
     .localstuff$Eng <- matrix(0, nrow = nsession, ncol = ngroup)
-    loglik <- sum(mapply (sessionLL, data, 1:nsession))
+    ## inputs to secr_sessionLLfast other than the session data
+    if (!D.modelled) D <- NULL
+    sessargs <- list(beta = beta, parindx = parindx, CL = CL, detectfn = detectfn, design = design,
+                     fixed = fixed, D = D, NElist = NElist, realparval = realparval, details = details)
+    if (!is.null(.localstuff$bs) && nsession > 1) {
+        ## sessions evaluated by parallel workers started in secr.fit (bysession.R)
+        loglik <- secr_bysession_LL ("secr_sessionLLfast", data, sessargs, ngroup)
+    }
+    else {
+        loglik <- sum(sapply (data, function(d) do.call(secr_sessionLLfast, c(list(d), sessargs))))
+    }
     #---------------------------------------------------------
     ## 2025-08-05, 2025-08-28
     ## relative density across sessions
