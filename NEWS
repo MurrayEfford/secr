@@ -2,7 +2,9 @@ Changes in version 5.6.2 (2026-11-26)
 
 New features or changed behaviour of old functions
     o  secr.fit() new details argument 'bysession' evaluates session components 
-       of a multi-session likelihood in parallel 
+       of a multi-session likelihood in parallel
+    o  secr.fit() for multi-session data is much faster (R code for the session
+       likelihood is no longer re-created and recompiled at each evaluation)
 
 Bugs fixed
     o  none
